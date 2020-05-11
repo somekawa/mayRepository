@@ -12,4 +12,5 @@ public:
 	unique_Base Update(unique_Base own, const GameCtl& ctl);	// セーブ/ロード処理
 private:
 	bool Init(void);					// 初期化
+	void Draw(void);					// 描画
 };

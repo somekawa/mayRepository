@@ -3,8 +3,8 @@
 #include "SceneMng.h"
 #include "GameCtl.h"
 
-#define SCREEN_SIZE_X 600					// 画面解像度 横
-#define SCREEN_SIZE_Y 500					// 画面解像度 縦
+#define SCREEN_SIZE_X 500					// 画面解像度 横
+#define SCREEN_SIZE_Y 600					// 画面解像度 縦
 
 SceneMng::SceneMng()
 {

@@ -18,4 +18,5 @@ public:
 	virtual unique_Base Update(unique_Base own, const GameCtl& ctl) = 0;	// ƒˆ‰¼‘zŠÖ”
 private:
 	virtual bool Init(void) = 0;		// ƒˆ‰¼‘zŠÖ”
+	virtual void Draw(void) = 0;		// ƒˆ‰¼‘zŠÖ”
 };

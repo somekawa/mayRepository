@@ -28,3 +28,7 @@ bool TitleScene::Init(void)
 {
 	return true;
 }
+
+void TitleScene::Draw(void)
+{
+}
