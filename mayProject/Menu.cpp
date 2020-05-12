@@ -1,0 +1,976 @@
+#include <DxLib.h>
+#include <string>
+#include "Menu.h"
+#include "Player.h"
+#include "Item.h"
+#include "Monster.h"
+#include "Cards.h"
+
+struct item
+{
+	VECTOR2 pos;		// ボックスの位置
+	ITEM _item;
+	int png;			// 画像
+}itemBox[12];
+
+Menu::Menu()
+{
+	Init();
+}
+
+Menu::~Menu()
+{
+}
+
+void Menu::Init(void)
+{
+	_menu = MENU::NON;
+	_itemAction = ITEM::NON;
+	_itemSetumei = ITEM::NON;
+
+	// 見えないところに出しとく
+	_equipShieldPos = { -100,-1 };
+	_equipSwordPos = { -100,-1 };
+	_choicePos = { -100,-100 };
+
+	/*メニュー関係*/
+	_chooseNum = -1;
+	_menuBackPngFlg = false;
+	_menuSelPngFlg = false;
+
+	for (int i = 0; i <= 3; i++)
+	{
+		menu_pair[i].first = { 350,100 + (i * 100) };
+		menu_pair[i].second = static_cast<MENU>(static_cast<int>(MENU::STATUS) + i);
+	}
+
+	//menu_pair[0].first = { 350,100 };
+	//menu_pair[0].second = MENU::STATUS;
+	//
+	//menu_pair[1].first = { 350,200 };
+	//menu_pair[1].second = MENU::ITEM;
+	//
+	//menu_pair[2].first = { 350,300 };
+	//menu_pair[2].second = MENU::TO_GAME;
+	//
+	//menu_pair[3].first = { 350,400 };
+	//menu_pair[3].second = MENU::TO_TITLE;
+
+	//// メニューボタン
+	//std::string menu = "image/menuButton.png";
+	//_menuPNG = LoadGraph(menu.c_str());
+
+	/*アイテム関係*/
+	_powUpNum = 0;
+	_equipDamage = 0;
+	_equipGuard = 0;
+	_useOrThrowAway = false;
+	_nonNeedFlg = false;
+	_nonDamageFlg = false;
+
+	// アイテムボックスの位置と所持アイテムの状態
+	for (int i = 0; i <= 11; i++)
+	{
+		itemBox[i].pos = { (((i % 3) + 3) * 100),((i / 3) + 1) * 100 - 30 };
+		itemBox[i]._item = ITEM::NON;
+	}
+
+	pngInit();
+
+	// SE
+	_seClick = LoadSoundMem("sound/se/click.mp3");
+}
+
+void Menu::pngInit(void)
+{
+	// メニューのボタン5つ
+	std::string menuButton = "image/menu/menuSel.png";
+	LoadDivGraph(menuButton.c_str(), 4, 4, 1, 200, 100, _menuSelPNG);
+
+	std::string menuback = "image/menu_window.png";
+	_menuBackPNG = LoadGraph(menuback.c_str());
+
+	// アイテムボックス背景
+	std::string itembox = "image/itembox.png";
+	_itemBoxPNG = LoadGraph(itembox.c_str());
+
+	// 選択中のアイテム
+	std::string itemChoice = "image/itemChoice.png";
+	_itemChoicePNG = LoadGraph(itemChoice.c_str());
+
+	// 使用の文字
+	std::string use = "image/use.png";
+	_usePNG = LoadGraph(use.c_str());
+
+	// 捨てるの文字
+	std::string suteru = "image/suteru.png";
+	_suteruPNG = LoadGraph(suteru.c_str());
+
+	// 戻るの文字
+	std::string back = "image/back.png";
+	_backPNG = LoadGraph(back.c_str());
+
+	// 説明の後ろ画像
+	std::string setumei = "image/setumei.png";
+	_setumeiPNG = LoadGraph(setumei.c_str());
+
+	// メニューボタン
+	std::string menu = "image/menuButton.png";
+	_menuPNG = LoadGraph(menu.c_str());
+}
+
+void Menu::Update(Player* player, Monster* monster, Cards* cards)
+{
+	// ゲーム画面戻し
+	if (_menu == MENU::TO_GAME)
+	{
+		_menuBackPngFlg = false;
+		_menuSelPngFlg = false;
+		_menu = MENU::NON;
+	}
+
+	// アイテム画面処理
+	if (_menu == MENU::ITEM)
+	{
+		if (_mouse & MOUSE_INPUT_LEFT) {		 // マウスの左ボタンが押されていたら
+			for (int i = 0; i <= 11; i++)
+			{
+				if (_cursorPos.x >= itemBox[i].pos.x && _cursorPos.x <= itemBox[i].pos.x + 100 && _cursorPos.y >= itemBox[i].pos.y && _cursorPos.y <= itemBox[i].pos.y + 100)
+				{
+					if (itemBox[i]._item != ITEM::NON)
+					{
+						// アイテムを選択
+						_chooseNum = i;
+						_choicePos = itemBox[i].pos;
+						_itemSetumei = itemBox[i]._item;
+						_useOrThrowAway = true;
+						_nonNeedFlg = false;
+					}
+
+					//if (itemBox[i]._item == ITEM::POTION)
+					//{
+					//	// プレイヤーのHPを回復する
+					//	_itemAction = ITEM::POTION;
+					//	// 画像を消す(回復薬を消す)
+					//	itemBox[i]._item = ITEM::NON;
+					//	itemBox[i].png = -1;
+					//}
+					//
+					//if (itemBox[i]._item == ITEM::SWORD)
+					//{
+					//	_itemAction = ITEM::SWORD;
+					//}
+					//
+					//if (itemBox[i]._item == ITEM::SHIELD)
+					//{
+					//	_itemAction = ITEM::SHIELD;
+					//}
+				}
+			}
+
+			// 選択中のアイテムをどうするか
+			if (_useOrThrowAway)
+			{
+				// 画像を消すところの共通処理
+				auto lambdaPNGSakujyo = [&]() {
+					_itemSetumei = ITEM::NON;
+					itemBox[_chooseNum]._item = ITEM::NON;
+					itemBox[_chooseNum].png = -1;
+					_chooseNum = -1;
+					_useOrThrowAway = false;
+					_choicePos = { -100,-100 };
+				};
+
+				// 効果がないよフラグ
+				if (itemBox[_chooseNum]._item == ITEM::POTION || itemBox[_chooseNum]._item == ITEM::POTION_BIG)
+				{
+					if (player->GetHP() == player->GetMaxHP())
+					{
+						_nonNeedFlg = true;
+					}
+				}
+
+				if (itemBox[_chooseNum]._item == ITEM::DETOX)
+				{
+					if (player->GetCondition() == CONDITION::FINE)
+					{
+						_nonNeedFlg = true;
+					}
+				}
+
+				if (itemBox[_chooseNum]._item == ITEM::ENEMY_1)
+				{
+					if (monster->GetEnemyState() != ENEMY_STATE::EXIST)
+					{
+						_nonNeedFlg = true;
+					}
+				}
+
+				if (itemBox[_chooseNum]._item == ITEM::ENEMY_2)
+				{
+					if (monster->GetEnemyState() != ENEMY_STATE::EXIST || _nonDamageFlg)
+					{
+						_nonNeedFlg = true;
+					}
+				}
+
+				if (itemBox[_chooseNum]._item == ITEM::KYOUKA_POW)
+				{
+					if (_powUpNum == 5)
+					{
+						_nonNeedFlg = true;
+					}
+				}
+
+				// 使うor装備
+				if (_cursorPos.x >= 50 && _cursorPos.x <= 50 + 150 && _cursorPos.y >= 400 && _cursorPos.y <= 400 + 75)
+				{
+					// 装備(剣)ラムダ式
+					auto lambdaSword = [&](ITEM item) {
+						_itemAction = item;
+						_equipSwordPos = itemBox[_chooseNum].pos;
+						_chooseNum = -1;
+						_useOrThrowAway = false;
+						_choicePos = { -100,-100 };
+					};
+
+					// 装備(盾)ラムダ式
+					auto lambdaShield = [&](ITEM item) {
+						_itemAction = item;
+						_equipShieldPos = itemBox[_chooseNum].pos;
+						_chooseNum = -1;
+						_useOrThrowAway = false;
+						_choicePos = { -100,-100 };
+					};
+
+					// 商品アイテムに関して
+					for (auto item : ITEM())
+					{
+						if (item >= ITEM::POTION && item <= ITEM::HEART)
+						{
+							if (itemBox[_chooseNum]._item == item)
+							{
+								if (!_nonNeedFlg)
+								{
+									_itemAction = item;
+									lambdaPNGSakujyo();
+								}
+								else
+								{
+									_useOrThrowAway = false;
+									_nonNeedFlg = false;
+								}
+							}
+						}
+					}
+
+					//if (itemBox[_chooseNum]._item == ITEM::POTION)
+					//{	
+					//	if(!_nonNeedFlg)
+					//	{
+					//		// プレイヤーのHPを回復する
+					//		_itemAction = ITEM::POTION;
+					//		lambdaPNGSakujyo();
+					//	}
+					//	else
+					//	{
+					//		_useOrThrowAway = false;
+					//		_nonNeedFlg = false;
+					//	}
+					//	
+					//	// 画像を消す(回復薬を消す)
+					//	//_itemSetumei = ITEM::NON;
+					//	//itemBox[_chooseNum]._item = ITEM::NON;
+					//	//itemBox[_chooseNum].png = -1;
+					//	//_chooseNum = -1;
+					//	//_useOrThrowAway = false;
+					//	//_choicePos = { -100,-100 };
+					//}
+					//if (itemBox[_chooseNum]._item == ITEM::DETOX)
+					//{
+					//	if (!_nonNeedFlg)
+					//	{
+					//		// プレイヤーの毒を回復する
+					//		_itemAction = ITEM::DETOX;
+					//		lambdaPNGSakujyo();
+					//	}
+					//	else
+					//	{
+					//		_useOrThrowAway = false;
+					//		_nonNeedFlg = false;
+					//	}
+					//	// 画像を消す(毒を治す)
+					//	//_itemSetumei = ITEM::NON;
+					//	//itemBox[_chooseNum]._item = ITEM::NON;
+					//	//itemBox[_chooseNum].png = -1;
+					//	//_chooseNum = -1;
+					//	//_useOrThrowAway = false;
+					//	//_choicePos = { -100,-100 };
+					//}
+					//if (itemBox[_chooseNum]._item == ITEM::KYOUKA_POW)
+					//{
+					//	if (!_nonNeedFlg)
+					//	{
+					//		// 一時的に攻撃力アップ(5ターンぐらい)
+					//		_itemAction = ITEM::KYOUKA_POW;
+					//		lambdaPNGSakujyo();
+					//	}
+					//	else
+					//	{
+					//		_useOrThrowAway = false;
+					//		_nonNeedFlg = false;
+					//	}
+					//	// 画像を消す
+					//	//_itemSetumei = ITEM::NON;
+					//	//itemBox[_chooseNum]._item = ITEM::NON;
+					//	//itemBox[_chooseNum].png = -1;
+					//	//_chooseNum = -1;
+					//	//_useOrThrowAway = false;
+					//	//_choicePos = { -100,-100 };
+					//}
+
+					// 剣に関して
+					for (auto item : ITEM())
+					{
+						if (item >= ITEM::SWORD && item <= ITEM::SWORD_LV3)
+						{
+							if (itemBox[_chooseNum]._item == item)
+							{
+								lambdaSword(item);
+							}
+						}
+					}
+
+					// 盾に関して
+					for (auto item : ITEM())
+					{
+						if (item >= ITEM::SHIELD && item <= ITEM::SHIELD_LV2)
+						{
+							if (itemBox[_chooseNum]._item == item)
+							{
+								lambdaShield(item);
+							}
+						}
+					}
+
+					//if (itemBox[_chooseNum]._item == ITEM::SWORD)
+					//{
+					//	lambdaSword(ITEM::SWORD);
+					//  _itemAction = ITEM::SWORD;
+					//  _equipSwordPos = itemBox[_chooseNum].pos;
+					//  _chooseNum = -1;
+					//  _useOrThrowAway = false;
+					//  _choicePos = { -100,-100 };
+					//}
+					//if (itemBox[_chooseNum]._item == ITEM::SWORD_LV2)
+					//{
+					//	lambdaSword(ITEM::SWORD_LV2);
+					//	//_itemAction = ITEM::SWORD_LV2;
+					//	//_equipSwordPos = itemBox[_chooseNum].pos;
+					//	//_chooseNum = -1;
+					//	//_useOrThrowAway = false;
+					//	//_choicePos = { -100,-100 };
+					//}
+
+					//if (itemBox[_chooseNum]._item == ITEM::SHIELD)
+					//{
+					//	lambdaShield(ITEM::SHIELD);
+					//	//_itemAction = ITEM::SHIELD;
+					//	//_equipShieldPos = itemBox[_chooseNum].pos;
+					//	//_chooseNum = -1;
+					//	//_useOrThrowAway = false;
+					//	//_choicePos = { -100,-100 };
+					//}
+					//if (itemBox[_chooseNum]._item == ITEM::SHIELD_LV2)
+					//{
+					//	lambdaShield(ITEM::SHIELD_LV2);
+					//}
+
+					// ドロップアイテムに関して
+					for (auto item : ITEM())
+					{
+						if (item >= ITEM::ENEMY_1 || item <= ITEM::POTION_BIG)
+						{
+							if (itemBox[_chooseNum]._item == item)
+							{
+								if (!_nonNeedFlg)
+								{
+									_itemAction = item;
+									lambdaPNGSakujyo();
+								}
+								else
+								{
+									_useOrThrowAway = false;
+									_nonNeedFlg = false;
+								}
+							}
+						}
+					}
+
+					//if (itemBox[_chooseNum]._item == ITEM::ENEMY_1)
+					//{
+					//	if (!_nonNeedFlg)
+					//	{
+					//		// 敵に固定ダメージ20
+					//		_itemAction = ITEM::ENEMY_1;
+					//		lambdaPNGSakujyo();
+					//	}
+					//	else
+					//	{
+					//		_useOrThrowAway = false;
+					//		_nonNeedFlg = false;
+					//	}
+					//	// 画像を消す
+					//	//_itemSetumei = ITEM::NON;
+					//	//itemBox[_chooseNum]._item = ITEM::NON;
+					//	//itemBox[_chooseNum].png = -1;
+					//	//_chooseNum = -1;
+					//	//_useOrThrowAway = false;
+					//	//_choicePos = { -100,-100 };
+					//}
+					//if (itemBox[_chooseNum]._item == ITEM::ENEMY_2)
+					//{
+					//	if (!_nonNeedFlg)
+					//	{
+					//		// 次のターンは敵の攻撃無効化
+					//		_itemAction = ITEM::ENEMY_2;
+					//		lambdaPNGSakujyo();
+					//	}
+					//	else
+					//	{
+					//		_useOrThrowAway = false;
+					//		_nonNeedFlg = false;
+					//	}
+					//}
+					//if (itemBox[_chooseNum]._item == ITEM::POTION_BIG)
+					//{
+					//	if (!_nonNeedFlg)
+					//	{
+					//		// プレイヤーのHPを大回復する
+					//		_itemAction = ITEM::POTION_BIG;
+					//		lambdaPNGSakujyo();
+					//	}
+					//	else
+					//	{
+					//		_useOrThrowAway = false;
+					//		_nonNeedFlg = false;
+					//	}
+					//	// 画像を消す
+					//	//_itemSetumei = ITEM::NON;
+					//	//itemBox[_chooseNum]._item = ITEM::NON;
+					//	//itemBox[_chooseNum].png = -1;
+					//	//_chooseNum = -1;
+					//	//_useOrThrowAway = false;
+					//	//_choicePos = { -100,-100 };
+					//}
+				}
+
+				// 捨てる
+				if (_cursorPos.x >= 50 && _cursorPos.x <= 50 + 150 && _cursorPos.y >= 500 && _cursorPos.y <= 500 + 75)
+				{
+
+					// 剣に関して
+					for (auto item : ITEM())
+					{
+						if (item >= ITEM::SWORD && item <= ITEM::SWORD_LV3)
+						{
+							if (itemBox[_chooseNum]._item == item)
+							{
+								_equipSwordPos = { -100,-1 };
+								_equipDamage = 0;
+							}
+						}
+					}
+
+					// 盾に関して
+					for (auto item : ITEM())
+					{
+						if (item >= ITEM::SHIELD && item <= ITEM::SHIELD_LV2)
+						{
+							if (itemBox[_chooseNum]._item == item)
+							{
+								_equipShieldPos = { -100,-1 };
+								_equipGuard = 0;
+							}
+						}
+					}
+
+					//if (itemBox[_chooseNum]._item == ITEM::SHIELD)
+					//{
+					//	_equipShieldPos = { -100,-1 };
+					//	_equipGuard = 0;
+					//}
+					//if (itemBox[_chooseNum]._item == ITEM::SWORD)
+					//{
+					//	_equipSwordPos = { -100,-1 };
+					//	_equipDamage = 0;
+					//}
+					//if (itemBox[_chooseNum]._item == ITEM::SWORD_LV2)
+					//{
+					//	_equipSwordPos = { -100,-1 };
+					//	_equipDamage = 0;
+					//}
+					//if (itemBox[_chooseNum]._item == ITEM::SHIELD_LV2)
+					//{
+					//	_equipShieldPos = { -100,-1 };
+					//	_equipGuard = 0;
+					//}
+
+					lambdaPNGSakujyo();
+					// 画像を消す
+					//_itemSetumei = ITEM::NON;
+					//itemBox[_chooseNum]._item = ITEM::NON;
+					//itemBox[_chooseNum].png = -1;
+					//_chooseNum = -1;
+					//_useOrThrowAway = false;
+					//_choicePos = { -100,-100 };
+				}
+			}
+		}
+	}
+
+	// 戦闘中はアイテムを使うたびに画面を戻す
+	// 戦闘中は、アイテムを使うごとに敵の待機ターン-1にする
+	auto lambdaBattle = [&]() {
+		// メニュー画面を消す
+		_menuBackPngFlg = false;
+		_menuSelPngFlg = false;			// 文字消す
+		_menu = MENU::NON;			// 状態を戻す
+		_useOrThrowAway = false;	// 使うと捨てるの文字描画消す
+		cards->SetTurn(cards->GetTurn() - 1);
+	};
+
+	// プレイヤーの回復薬による回復
+	if (_itemAction == ITEM::POTION)
+	{
+		player->SetHP(player->GetHP() + 30);
+		_itemAction = ITEM::NON;
+		if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
+		{
+			lambdaBattle();
+		}
+	}
+
+	// プレイヤーの体力増加剤による増加
+	if (_itemAction == ITEM::HEART)
+	{
+		player->SetMaxHP(player->GetMaxHP() + 10);
+		_itemAction = ITEM::NON;
+		if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
+		{
+			lambdaBattle();
+		}
+	}
+
+	// プレイヤーの回復薬による回復
+	if (_itemAction == ITEM::POTION_BIG)
+	{
+		player->SetHP(player->GetHP() + 50);
+		_itemAction = ITEM::NON;
+		if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
+		{
+			lambdaBattle();
+		}
+	}
+
+	// 解毒薬による状態異常回復
+	if (_itemAction == ITEM::DETOX)
+	{
+		player->SetCondition(CONDITION::FINE);
+		player->SetConditionTurn(-1);
+		_itemAction = ITEM::NON;
+		if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
+		{
+			lambdaBattle();
+		}
+	}
+
+	// プレイヤーの装備
+	// 剣に関して
+	for (auto item : ITEM())
+	{
+		if (item >= ITEM::SWORD && item <= ITEM::SWORD_LV3)
+		{
+			if (itemBox[_chooseNum]._item == item)
+			{
+				_equipDamage = (static_cast<int>(item) - 4) * 5;
+				_itemAction = ITEM::NON;
+				if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
+				{
+					lambdaBattle();
+				}
+			}
+		}
+	}
+
+	// 盾に関して
+	for (auto item : ITEM())
+	{
+		if (item >= ITEM::SHIELD && item <= ITEM::SHIELD_LV2)
+		{
+			if (itemBox[_chooseNum]._item == item)
+			{
+				_equipGuard = (static_cast<int>(item) - 7) * 4;
+				_itemAction = ITEM::NON;
+				if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
+				{
+					lambdaBattle();
+				}
+			}
+		}
+	}
+
+	// 剣
+	//if (_itemAction == ITEM::SWORD)
+	//{
+	//	_equipDamage = 2;
+	//	_itemAction = ITEM::NON;
+	//	if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
+	//	{
+	//		lambdaBattle();
+	//	}
+	//}
+	//// 剣2
+	//if (_itemAction == ITEM::SWORD_LV2)
+	//{
+	//	_equipDamage = 10;
+	//	_itemAction = ITEM::NON;
+	//	if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
+	//	{
+	//		lambdaBattle();
+	//	}
+	//}
+	//// 盾
+	//if (_itemAction == ITEM::SHIELD)
+	//{
+	//	_equipGuard = 3;
+	//	_itemAction = ITEM::NON;
+	//	if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
+	//	{
+	//		lambdaBattle();
+	//	}
+	//}
+	//// 盾2
+	//if (_itemAction == ITEM::SHIELD_LV2)
+	//{
+	//	_equipGuard = 10;
+	//	_itemAction = ITEM::NON;
+	//	if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
+	//	{
+	//		lambdaBattle();
+	//	}
+	//}
+
+	// 敵魂攻撃アイテム
+	if (_itemAction == ITEM::ENEMY_1)
+	{
+		// 固定ダメージ20
+		monster->Damage(20);
+		_itemAction = ITEM::NON;
+
+		//// メニュー画面を消す
+		//_menuBackPngFlg = false;
+		//_menuSelPngFlg = false;			// 文字消す
+		//_menu = MENU::NON;			// 状態を戻す
+		//_useOrThrowAway = false;	// 使うと捨てるの文字描画消す
+		if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
+		{
+			lambdaBattle();
+		}
+	}
+
+	if (_itemAction == ITEM::ENEMY_2)
+	{
+		// 次のターンは敵の攻撃を無効化
+		_nonDamageFlg = true;
+		_itemAction = ITEM::NON;
+
+		if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
+		{
+			lambdaBattle();
+		}
+	}
+
+	// 一時的に攻撃力up
+	if (_itemAction == ITEM::KYOUKA_POW)
+	{
+		_powUpNum = 5;
+		_itemAction = ITEM::NON;
+
+		//// メニュー画面を消す
+		//_menuBackPngFlg = false;
+		//_menuSelPngFlg = false;			// 文字消す
+		//_menu = MENU::NON;			// 状態を戻す
+		//_useOrThrowAway = false;	// 使うと捨てるの文字描画消す
+		if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
+		{
+			lambdaBattle();
+		}
+	}
+}
+
+void Menu::Draw(Player* player, Item* item, Monster* monster)
+{
+	//DrawGraph(0, 0, _menuPNG, true);
+
+	if (monster->GetEnemyState() != ENEMY_STATE::EXIST)
+	{
+		DrawGraph(0, 0, _menuPNG, true);
+	}
+	else
+	{
+		// アイテムのみ使用可能
+		DrawGraph(0, 0, _menuSelPNG[1], true);
+	}
+
+	// メニュー画面の表示
+	if (_menuBackPngFlg)
+	{
+		DrawGraph(200, 0, _menuBackPNG, true);
+	}
+
+	// メニュー項目
+	if (_menuSelPngFlg)
+	{
+		for (int i = 0; i <= 3; i++)
+		{
+			DrawGraph(menu_pair[i].first.x, menu_pair[i].first.y, _menuSelPNG[i], true);
+		}
+		//DrawGraph(menu_pair[0].first.x, menu_pair[0].first.y, _menuSelPNG[0], true);
+		//DrawGraph(menu_pair[1].first.x, menu_pair[1].first.y, _menuSelPNG[1], true);
+		//DrawGraph(menu_pair[2].first.x, menu_pair[2].first.y, _menuSelPNG[2], true);
+		//DrawGraph(menu_pair[3].first.x, menu_pair[3].first.y, _menuSelPNG[3], true);
+	}
+
+	// アイテム
+	if (_menu == MENU::ITEM)
+	{
+		// 枠と入手アイテムの描画
+		for (int i = 0; i <= 11; i++)
+		{
+			DrawGraph(itemBox[i].pos.x, itemBox[i].pos.y, _itemBoxPNG, true);
+			// 入手しているアイテムの描画(していなかったら何も描画されないようにする)
+			DrawGraph(itemBox[i].pos.x, itemBox[i].pos.y, itemBox[i].png, true);
+		}
+
+		DrawGraph(_choicePos.x, _choicePos.y, _itemChoicePNG, true);
+
+		// 装備されたらそこにEの文字を出す
+		DrawFormatString(_equipSwordPos.x + 10, _equipSwordPos.y + 10, GetColor(255, 0, 0), "E");
+		DrawFormatString(_equipShieldPos.x + 10, _equipShieldPos.y + 10, GetColor(255, 0, 0), "E");
+	}
+
+	// ステータス画面
+	if (_menu == MENU::STATUS)
+	{
+		DrawFormatString(350, 100, 0x000000, "レベル:%d", player->GetNowLevel());
+		DrawFormatString(350, 130, 0x000000, "体力:%d / %d", player->GetHP(), player->GetMaxHP());
+		DrawFormatString(350, 160, 0x000000, "攻撃力:%d(+ %d) = %d", player->GetAttackDamage(), _equipDamage, player->GetAttackDamage() + _equipDamage);
+		DrawFormatString(350, 190, 0x000000, "防御力:%d(+ %d) = %d", player->GetDifense(), _equipGuard, player->GetDifense() + _equipGuard);
+		DrawFormatString(350, 220, 0x000000, "次のレベルまで:残り%d", player->GetNextLevel());
+		DrawFormatString(350, 250, 0x000000, "所持金:%d円", player->GetMoney());
+	}
+
+	// メニューのステータス画面とアイテム画面の描画
+	if (_menu == MENU::ITEM || _menu == MENU::STATUS)
+	{
+		// 戻る
+		DrawGraph(375, 470, _backPNG, true);
+
+		if (_useOrThrowAway)
+		{
+			// 説明の後ろ画像
+			DrawGraph(0, 320, _setumeiPNG, true);
+
+			// アイテムを使うことに効果があるとき
+			if (!_nonNeedFlg)
+			{
+				// 使う
+				DrawGraph(50, 400, _usePNG, true);
+			}
+			else
+			{
+				// アイテムを使うことに効果がないとき
+
+				// 描画ブレンドモード変更
+				SetDrawBlendMode(DX_BLENDMODE_ADD, 100);
+				// 使う
+				DrawGraph(50, 400, _usePNG, true);
+
+				// 描画ブレンドモードをノーブレンドにする
+				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+				DrawFormatString(20, 300, 0xffffff, "今使っても効果がない");
+			}
+			// 捨てる
+			DrawGraph(50, 500, _suteruPNG, true);
+			// メニューのアイテムで選択したアイテムの説明を出す
+			if (_itemSetumei != ITEM::NON)
+			{
+				//_chooseNum = _menu->GetNumNum();
+				DrawFormatString(25, 340, 0x000000, "%s\n", item->GetSetumei(static_cast<int>(_itemSetumei) - 1));
+				//DrawFormatString(700, 450, 0xFFFFFF, "%s\n", item[static_cast<int>(_menu->Getitemsetumei()) -1].setumei);
+			}
+		}
+	}
+}
+
+void Menu::MenuButton_NonEnemy(void)
+{
+	_mouse = GetMouseInput();					 //マウスの入力状態取得
+	GetMousePoint(&_cursorPos.x, &_cursorPos.y);	 //マウスの座標取得
+
+	if (_mouse & MOUSE_INPUT_LEFT) {				 //マウスの左ボタンが押されていたら
+		//X:0,Y:0
+		// 文字表示中に上から項目が表示されないようにする
+		if (!_menuBackPngFlg)
+		{
+			if (_cursorPos.x >= 0 && _cursorPos.x <= 0 + 150 && _cursorPos.y >= 0 && _cursorPos.y <= 0 + 75)
+			{
+				// クリック音
+				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+
+				_menuBackPngFlg = true;
+				_menuSelPngFlg = true;
+			}
+		}
+
+		if (_menuSelPngFlg)
+		{
+			for (int i = 0; i <= 3; i++)
+			{
+				auto p = menu_pair[i].first;
+				auto m = menu_pair[i].second;
+				if (_cursorPos.x >= p.x && _cursorPos.x <= p.x + 200 && _cursorPos.y >= p.y && _cursorPos.y <= p.y + 100)
+				{
+					// クリック音
+					PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+
+					_menu = m;
+					_menuSelPngFlg = false;	// 文字消す
+				}
+			}
+		}
+
+		// 戻るボタンを押したらゲーム再開
+		if (_menu == MENU::ITEM || _menu == MENU::STATUS)
+		{
+			if (_cursorPos.x >= 375 && _cursorPos.x <= 375 + 150 && _cursorPos.y >= 470 && _cursorPos.y <= 470 + 60)
+			{
+				// クリック音
+				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+
+				_menuBackPngFlg = false;
+				_menuSelPngFlg = false;			// 文字消す
+				_menu = MENU::NON;			// 状態を戻す
+				_useOrThrowAway = false;	// 使うと捨てるの文字描画消す
+			}
+		}
+	}
+}
+
+void Menu::MenuButton_Enemy(void)
+{
+	// アイテムボタンのみ表示
+	_mouse = GetMouseInput();					 //マウスの入力状態取得
+	GetMousePoint(&_cursorPos.x, &_cursorPos.y);	 //マウスの座標取得
+
+	if (_mouse & MOUSE_INPUT_LEFT) {				 //マウスの左ボタンが押されていたら
+		if (_cursorPos.x >= 0 && _cursorPos.x <= 0 + 200 && _cursorPos.y >= 0 && _cursorPos.y <= 0 + 100)
+		{
+			// クリック音
+			PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+
+			_menu = MENU::ITEM;
+			_menuBackPngFlg = true;
+		}
+
+		// 戻るボタンを押したらゲーム再開
+		if (_menu == MENU::ITEM || _menu == MENU::STATUS)
+		{
+			if (_cursorPos.x >= 375 && _cursorPos.x <= 375 + 150 && _cursorPos.y >= 470 && _cursorPos.y <= 470 + 60)
+			{
+				// クリック音
+				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+
+				_menuBackPngFlg = false;
+				_menuSelPngFlg = false;			// 文字消す
+				_menu = MENU::NON;			// 状態を戻す
+				_useOrThrowAway = false;	// 使うと捨てるの文字描画消す
+			}
+		}
+	}
+}
+
+void Menu::Setitem(ITEM item, int png)
+{
+	//元は12
+	for (int i = 0; i < 12; i++)
+	{
+		// 入れられる場所を探して入れる
+		if (itemBox[i]._item == ITEM::NON)
+		{
+			itemBox[i]._item = item;
+			itemBox[i].png = png;
+			return;						// 入れたらfor文を抜けるようにする
+		}
+	}
+	//itemBox[0]._item = item;
+}
+
+bool Menu::GetMenuFlg(void)
+{
+	return _menuSelPngFlg;
+}
+
+MENU Menu::GetMenu(void)
+{
+	return _menu;
+}
+
+int Menu::GetCanHaveItem(void)
+{
+	int canHave = 0;
+	//元は12
+	for (int i = 0; i < 12; i++)
+	{
+		// 入れられる場所を探して入れる
+		if (itemBox[i]._item == ITEM::NON)
+		{
+			canHave++;
+		}
+	}
+
+	// 最後まで0なら、入れられるところがない
+	return canHave;
+}
+
+int Menu::GetEquipDamage(void)
+{
+	return _equipDamage;
+}
+
+int Menu::GetEquipGuard(void)
+{
+	return _equipGuard;
+}
+
+int Menu::GetPowUp(void)
+{
+	return _powUpNum;
+}
+
+void Menu::SetPowUp(int num)
+{
+	// 攻撃するごとに-1されていく
+	_powUpNum = num;
+}
+
+bool Menu::GetNonDamageFlg(void)
+{
+	return _nonDamageFlg;
+}
+
+void Menu::SetNonDamageFlg(bool flag)
+{
+	_nonDamageFlg = flag;
+}

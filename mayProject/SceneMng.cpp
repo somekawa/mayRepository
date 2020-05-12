@@ -3,7 +3,7 @@
 #include "SceneMng.h"
 #include "GameCtl.h"
 
-#define SCREEN_SIZE_X 500					// 画面解像度 横
+#define SCREEN_SIZE_X 900					// 画面解像度 横
 #define SCREEN_SIZE_Y 600					// 画面解像度 縦
 
 SceneMng::SceneMng()
@@ -20,7 +20,7 @@ bool SceneMng::SysInit(void)
 	// ｼｽﾃﾑ処理
 	SetGraphMode(SCREEN_SIZE_X, SCREEN_SIZE_Y, 16);		// 65536色ﾓｰﾄﾞに設定
 	ChangeWindowMode(true);								// true:window　false:ﾌﾙｽｸﾘｰﾝ
-	SetWindowText("5月制作");					// 学籍番号と名前を入れておく
+	SetWindowText("1816044_染川翼");					// 学籍番号と名前を入れておく
 	if (DxLib_Init() == -1) return false;				// DXﾗｲﾌﾞﾗﾘ初期化処理	
 	SetDrawScreen(DX_SCREEN_BACK);						// ひとまずﾊﾞｯｸﾊﾞｯﾌｧに描画
 	gameCtl = std::make_unique<GameCtl>();				// GameCtlのインスタンス

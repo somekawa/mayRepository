@@ -15,20 +15,87 @@ TitleScene::~TitleScene()
 
 unique_Base TitleScene::Update(unique_Base own, const GameCtl& ctl)
 {
-	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_F1]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_F1]))
-	{
-		return std::make_unique<GameScene>();
+	//if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_F1]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_F1]))
+	//{
+	//	return std::make_unique<GameScene>();
+	//}
+
+	// 再生中でなければ再生を行う(0:再生していない)
+	// 現在はInitでループ設定している。
+	//if (CheckSoundMem(_titleBGM) == 0)
+	//{
+	//	PlaySoundMem(_titleBGM, DX_PLAYTYPE_LOOP, true);
+	//}
+
+	int x = 0;
+	int y = 0;
+	auto Mouse = GetMouseInput();                //マウスの入力状態取得
+	GetMousePoint(&x, &y);					     //マウスの座標取得
+	if (Mouse & MOUSE_INPUT_LEFT && !(_oldMouse & MOUSE_INPUT_LEFT)) {	 //マウスの左ボタンが押されていたら
+		// 当たり判定
+		if (x >= 250 && x <= 250 + 400 && y >= 400 && y <= 400+150)
+		{
+			PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+			DeleteSoundMem(_titleBGM);
+			return std::make_unique<GameScene>();
+		}
 	}
 
+	_oldMouse = Mouse;
+	Draw();
+
+	// 明るくしたり暗くする処理
+	if (!_lightFlg)
+	{
+		if (_pngLight <= 255)
+		{
+			_pngLight++;
+			if (_pngLight == 255)
+			{
+				_lightFlg = true;
+			}
+		}
+	}
+
+	if (_lightFlg)
+	{
+		_pngLight--;
+		if (_pngLight <= 128)
+		{
+			_lightFlg = false;
+		}
+	}
+	
 	// 自分のSceneのユニークポインタを返す 所有権も忘れずに!
 	return std::move(own);
 }
 
 bool TitleScene::Init(void)
 {
+	std::string title = "image/title.png";
+	_titlePNG = LoadGraph(title.c_str());
+
+	std::string start = "image/start.png";
+	_startPNG = LoadGraph(start.c_str());
+
+	_pngLight = 128;
+	_lightFlg = false;
+
+	// SEテスト
+	_seClick = LoadSoundMem("sound/se/click.mp3");
+	// BGMテスト
+	_titleBGM = LoadSoundMem("sound/bgm/title.mp3");
+	PlaySoundMem(_titleBGM, DX_PLAYTYPE_LOOP, true);
 	return true;
 }
 
 void TitleScene::Draw(void)
 {
+	ClsDrawScreen();
+	//αブレンド
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, _pngLight);
+	DrawGraph(0, 0,_titlePNG, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	DrawGraph(250, 400, _startPNG, true);
+	ScreenFlip();
 }

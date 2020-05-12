@@ -1,0 +1,23 @@
+#include "CARD_MEMBER.h"
+#include <type_traits>
+
+CARD_MEMBER begin(CARD_MEMBER)
+{
+	return CARD_MEMBER::ATTACK_1;
+}
+
+CARD_MEMBER end(CARD_MEMBER)
+{
+	return CARD_MEMBER::MAX;		// endÇÕé¿ç€ÇÃóvëf+1ÇµÇ»Ç¢Ç∆Ç¢ÇØÇ»Ç¢ÇÃÇ≈DOWNÇ∂Ç·Ç»Ç¢
+}
+
+CARD_MEMBER operator++(CARD_MEMBER& mode)
+{
+	// äÓíÍÇÃå^Çí≤Ç◊ÇÈÇ‚Ç¬
+	return mode = CARD_MEMBER(std::underlying_type< CARD_MEMBER >::type(mode) + 1);
+}
+
+CARD_MEMBER operator*(CARD_MEMBER& mode)
+{
+	return mode;
+}

@@ -1,9 +1,14 @@
 #pragma once
 #include "BaseScene.h"
 #include "VECTOR2.h"
+#include "Cards.h"
+#include "Monster.h"
+#include "Player.h"
+#include "Menu.h"
+#include "Item.h"
+#include "Event.h"
 
-#define BOX 50		// 四角の箱の数
-#define BOX_SIZE 50	// 四角のサイズ
+#define EVENT_NUM 25
 
 class GameScene :
 	public BaseScene
@@ -13,12 +18,104 @@ public:
 	~GameScene();
 	// unique_Base own : 自分のSceneポインタ ,  const GameCtl &ctl : GameCtlの読み取り専用
 	unique_Base Update(unique_Base own, const GameCtl& ctl);	// オブジェクトとシーンの管理
+
+	// マウス関係
+	VECTOR2 cursorPos;					// マウスカーソルの座標保存用変数
+	int mouse;							// マウスの状態
+	int mouseOld;
+
+	EVENT_STATE eventState;				// イベントの状態管理用
+	bool moveFlg;						// 歩きモーション管理用フラグ
+	bool shakeFlg;						// 敵の待機ターンが0になったらtrueにして画面を揺らし始める
 private:
 	bool Init(void);					// 初期化
+	void pngInit(void);					// 画像用初期化
 	void Draw(void);					// 描画
+	void MouseClick_Go(void);			// マウスを左クリックして「進む」を押したときの処理
+	void EventUpdate(void);				// イベントのアップデート関数
+	void pl_TurnEndAfter(void);			// プレイヤーのターンが終わった後の処理
+	void pl_Attack(void);				// プレイヤーの攻撃
+	void pl_Heal(void);					// プレイヤーの回復
+	void shakeDraw(void);				// 画面を少し揺らす
+	void doorWalk(void);				// 足音とドア音のつなぎ
+	void changeBGM(void);				// 通常BGMと戦闘BGMの切替
+	void plDead(void);					// プレイヤー死亡時
+	void enemyItemDrop(void);			// 敵からのアイテムドロップ処理
+	void cardEffect(void);				// カードの効果
 
-	int _mouse;
-	VECTOR2 _cursorPos;
-	
-	VECTOR2 _testPos[BOX];				// 左上の四角
+	Monster* _monster[1];
+	Cards* _cards;
+	Player* _player;
+	Menu* _menu;
+	Item* _item;
+	Event* _event;
+
+	// 扉関係
+	//bool doorFlg;						// 拡大していない扉 表示管理用フラグ
+	bool _openDoor;						// 扉を開ける
+	float _doorExpand;					// 扉の拡大用変数
+	float _degree;						// 歩きモーション用
+	int _doorOpenTiming;				// 歩いてから扉が開くまでの時間調整用
+	float _lastDoorExpand;				// クリア前の光る扉の拡大時に使用
+	int _lastmoveTime;					// 一定時間以下なら拡大を続ける時に使う
+	bool _changeToClear;				// 一定時間以上でフラグがtrueになり、自動的にクリア画面に移行する
+
+	// イベント関係
+	int _walkCnt;						// 歩いた回数
+	int _goalCnt;						// ゴールまでに必要な歩数
+	int _eventNum[EVENT_NUM];			// イベントが発生する歩数
+	int _bossEventNum;					// ボスの出てくるタイミング
+	// イベント内容の管理
+	int _eventChoiceNum;				// _eventChoiceNumOldの格納場所を変えるのに使う
+	int _eventChoiceNumOld[3];			// 過去のイベント情報を3回分保存するのに使う
+
+	// 画面を揺らし関係
+	bool _shakeChangeFlg;				// 一定値以上左右どちらかに揺れたら反対方向へ揺らすためのフラグ
+	float _shakeTime;					// 揺らす時間
+	VECTOR2 _shackPos;					// 揺れ幅
+
+	// 点滅関係
+	int _blinkCnt;						// 攻撃を食らったときに起こる点滅
+	bool _blinkFlg;						// 敵の点滅用フラグ
+
+	// その他
+	int _plDeadChangeWinColor;			// プレイヤー死亡時、画面の色を反転させるときに使う
+	int _poisonCnt;						// 戦闘中の毒効果の紫色画面の時間(初期値は255より大きい必要がある)
+	bool _onceFlg;						// 敵からのドロップアイテム表示に使用と敵の待機ターンが0の時に使用
+	bool _anounceFlg;					// 敵からのドロップアイテムで持ち物がいっぱいの時に案内を出す
+
+	/*整理整頓中...*/
+	/*画像関係*/
+	// 敵ターンまでのカウント用画像
+	int _turnPNG[6];						
+	// HPバー画像
+	int _hpBarPl;
+	int _hpBarEn;
+	int _hpBarBack;
+	// 進行度ゲージ画像
+	int _gaugeBackPNG;
+	int _gaugePNG;
+	// 部屋(扉開閉込み)の画像
+	int _room[3];		
+	//「進む」の文字画像
+	int _walkPNG;	
+	// 点滅用白画像
+	int _whitePNG;
+	// 敵情報画像
+	int _enemyInfoPNG;
+	//「取る」の文字画像
+	int _getItemPNG;
+	// 死亡時のやりなおすの画像
+	int _retryPNG;
+	// 死亡時のあきらめるの画像
+	int _deadPNG;
+
+	/*音関係*/
+	// SE関連
+	int _soundSE[8];
+	int _seCnt;		// 歩き音からドア音までの鳴る間隔
+	bool _soundWalk;	// 歩き音からドア音につなぐときに必要なフラグ
+	// BGM関連
+	int _gameBGM;
+	int _battleBGM;
 };

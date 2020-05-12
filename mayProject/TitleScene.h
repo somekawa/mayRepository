@@ -13,4 +13,16 @@ public:
 private:
 	bool Init(void);					// 初期化
 	void Draw(void);					// 描画
+
+	int _titlePNG;						// タイトル画像
+	int _startPNG;						//「START」の文字画像
+
+	int _pngLight;						// 画像の明るさ調整用変数	
+	bool _lightFlg;						// 画像の明るさ調整用フラグ
+
+	// ゲームシーンからタイトルへ戻ってきたときにボタンの位置が同じせいで、またゲームシーンに入るのを防ぐ
+	int _oldMouse;
+
+	int _seClick;						// クリック音
+	int _titleBGM;						// BGM
 };
