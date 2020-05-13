@@ -27,6 +27,7 @@ public:
 	EVENT_STATE eventState;				// イベントの状態管理用
 	bool moveFlg;						// 歩きモーション管理用フラグ
 	bool shakeFlg;						// 敵の待機ターンが0になったらtrueにして画面を揺らし始める
+	bool blinkFlg;						// 敵の点滅用フラグ
 private:
 	bool Init(void);					// 初期化
 	void pngInit(void);					// 画像用初期化
@@ -76,7 +77,7 @@ private:
 
 	// 点滅関係
 	int _blinkCnt;						// 攻撃を食らったときに起こる点滅
-	bool _blinkFlg;						// 敵の点滅用フラグ
+	//bool blinkFlg;						// 敵の点滅用フラグ
 
 	// その他
 	int _plDeadChangeWinColor;			// プレイヤー死亡時、画面の色を反転させるときに使う
@@ -84,7 +85,12 @@ private:
 	bool _onceFlg;						// 敵からのドロップアイテム表示に使用と敵の待機ターンが0の時に使用
 	bool _anounceFlg;					// 敵からのドロップアイテムで持ち物がいっぱいの時に案内を出す
 
-	/*整理整頓中...*/
+	//// スキル関係
+	//int _skillCharge = 1;				// スキルチャージ
+	//int _skillIconPNG;					// スキルアイコン(後で差し替える)
+	//int _skillAnnouncePNG;				// スキル使用可能案内
+	//bool _skillFlg = false;				// スキルが使用可能になったらtrue
+
 	/*画像関係*/
 	// 敵ターンまでのカウント用画像
 	int _turnPNG[6];						

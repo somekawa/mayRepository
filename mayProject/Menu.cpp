@@ -777,6 +777,7 @@ void Menu::Draw(Player* player, Item* item, Monster* monster)
 		DrawFormatString(350, 190, 0x000000, "防御力:%d(+ %d) = %d", player->GetDifense(), _equipGuard, player->GetDifense() + _equipGuard);
 		DrawFormatString(350, 220, 0x000000, "次のレベルまで:残り%d", player->GetNextLevel());
 		DrawFormatString(350, 250, 0x000000, "所持金:%d円", player->GetMoney());
+		DrawFormatString(350, 280, 0x000000, "スキルチャージ完了まで:%d回", player->GetSkillCharge());
 	}
 
 	// メニューのステータス画面とアイテム画面の描画

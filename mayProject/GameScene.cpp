@@ -102,6 +102,30 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 				return std::make_unique<GameOverScene>();
 			}
 		}
+
+		_player->ClickUpDate(_monster[0],_menu,this);
+		//// スキル使用可能時のマウスクリック位置とアイコン(円)との当たり判定
+		//if (_skillFlg)
+		//{
+		//	// 782,564(アイコン描画位置)
+		//	float a = cursorPos.x - 782;
+		//	float b = cursorPos.y - 564;
+		//	float c = sqrt(a * a + b * b);
+		//
+		//	// 当たり判定(当たっているとき)
+		//	if (c <= 34)
+		//	{
+		//		// スキルはターン消費なしで行える動作
+		//
+		//		// 攻撃系(基礎攻撃力*10+武器威力で一定のダメージを与えられる)
+		//		_monster[0]->Damage(_player->GetAttackDamage() * 10 + _menu->GetEquipDamage());
+		//
+		//		// フラグと回数を元に戻す
+		//		_skillFlg = false;
+		//		_skillCharge = 1;
+		//	}
+		//}
+
 	}
 
 	// タイトルへ戻る
@@ -134,6 +158,13 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 	Draw();	
 	mouseOld = mouse;
 	cardEffect();
+
+	_player->UpDate();
+	//// スキルが使用可能な時にフラグを立てて、当たり判定を行う
+	//if (_skillCharge <= 0)
+	//{
+	//	_skillFlg = true;
+	//}
 
 	// 5ターン分経過
 	if (_player->GetConditionTurn() <= 0)
@@ -274,7 +305,7 @@ bool GameScene::Init(void)
 
 	// 点滅関係
 	_blinkCnt = 0;
-	_blinkFlg = false;
+	blinkFlg = false;
 
 	// その他
 	_onceFlg = false;
@@ -359,6 +390,14 @@ void GameScene::pngInit(void)
 	// あきらめるの文字
 	std::string dead = "image/dead.png";
 	_deadPNG = LoadGraph(dead.c_str());
+
+	//// スキルアイコン
+	//std::string skillicon = "image/skillicon.png";
+	//_skillIconPNG = LoadGraph(skillicon.c_str());
+	//
+	//// スキル使えるというアナウンス
+	//std::string chargeAnnounce = "image/chargeAnnounce.png";
+	//_skillAnnouncePNG = LoadGraph(chargeAnnounce.c_str());
 }
 
 void GameScene::Draw(void)
@@ -495,7 +534,7 @@ void GameScene::Draw(void)
 
 	// 敵に攻撃したら敵が点滅する
 	// それ以外は通常表示
-	if (_blinkFlg)
+	if (blinkFlg)
 	{
 		if (_blinkCnt <= 40)
 		{
@@ -503,7 +542,7 @@ void GameScene::Draw(void)
 		}
 		else
 		{
-			_blinkFlg = false;
+			blinkFlg = false;
 			_blinkCnt = 0;
 		}
 
@@ -573,6 +612,20 @@ void GameScene::Draw(void)
 
 		// 戦闘中以外は邪魔なので非表示で
 		_cards->Draw(_player,_menu);		// カードの情報	と カードのDraw
+
+		_player->Draw();
+
+		//if (_skillCharge != 0)
+		//{
+		//	// スキルチャージ時間
+		//	DrawFormatString(750, 530, 0xffffff, "スキルまで:%d", _skillCharge);
+		//}
+		//else
+		//{
+		//	// 782,564
+		//	DrawRotaGraph(750 + 32, 530 + 32, 1.0f, 0, _skillIconPNG, true);
+		//	DrawGraph(820, 530, _skillAnnouncePNG, true);
+		//}
 
 		//// カード情報の表示
 		//// GetHealとかの数字はまだusecardの関数に入る前なので使えない
@@ -1194,6 +1247,14 @@ void GameScene::cardEffect(void)
 		// 攻撃カード音
 		PlaySoundMem(_soundSE[3], DX_PLAYTYPE_BACK, true);
 
+		//// スキルチャージが0より大きいときは減らしていく
+		//if (_skillCharge > 0)
+		//{
+		//	_skillCharge--;
+		//}
+
+		_player->SetSkillCharge();
+
 		if (_player->GetCondition() == CONDITION::POISON)
 		{
 			lambdaPoison();
@@ -1207,13 +1268,21 @@ void GameScene::cardEffect(void)
 		}
 		pl_Attack();
 		_cards->SetCardsSyurui(CARDS_SYURUI::NON);
-		_blinkFlg = true;
+		blinkFlg = true;
 	}
 
 	if (_cards->GetCardsSyurui() == CARDS_SYURUI::HEAL)
 	{
 		// 回復カード音
 		PlaySoundMem(_soundSE[5], DX_PLAYTYPE_BACK, true);
+
+		//// スキルチャージが0より大きいときは減らしていく
+		//if (_skillCharge > 0)
+		//{
+		//	_skillCharge--;
+		//}
+
+		_player->SetSkillCharge();
 
 		if (_player->GetCondition() == CONDITION::POISON)
 		{
@@ -1234,6 +1303,14 @@ void GameScene::cardEffect(void)
 	{
 		// 防御カード音
 		PlaySoundMem(_soundSE[4], DX_PLAYTYPE_BACK, true);
+
+		//// スキルチャージが0より大きいときは減らしていく
+		//if (_skillCharge > 0)
+		//{
+		//	_skillCharge--;
+		//}
+
+		_player->SetSkillCharge();
 
 		if (_player->GetCondition() == CONDITION::POISON)
 		{

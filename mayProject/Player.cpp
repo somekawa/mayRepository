@@ -1,6 +1,12 @@
 #include <string>
+#include <math.h>
 #include "Dxlib.h"
+#include "Enemy_weak.h"
+#include "Menu.h"
+#include "GameScene.h"
 #include "Player.h"
+
+#define SKILL_CHARGE 3
 
 struct player
 {
@@ -17,22 +23,31 @@ struct player
 
 Player::Player()
 {
+	Init();
+}
+
+Player::~Player()
+{
+}
+
+void Player::Init(void)
+{
 	//ファイルを読み込む
-	//auto FileHandle = FileRead_open("csv/playerData.csv");
-	//if (FileHandle == NULL)
-	//{
-	//	return; //エラー時の処理
-	//}
-	//
-	//for (int i = 0; i <= 1; i++)
-	//{
-	//	FileRead_scanf(FileHandle, "%d,%d,%d,%d", &player_status[i].now_level, &player_status[i].maxHP, &player_status[i].attackDamage, &player_status[i].next_level);
-	//}
-	//
-	////ファイルを閉じる
-	//FileRead_close(FileHandle);
-	//
-	//_nowNum = 0;
+//auto FileHandle = FileRead_open("csv/playerData.csv");
+//if (FileHandle == NULL)
+//{
+//	return; //エラー時の処理
+//}
+//
+//for (int i = 0; i <= 1; i++)
+//{
+//	FileRead_scanf(FileHandle, "%d,%d,%d,%d", &player_status[i].now_level, &player_status[i].maxHP, &player_status[i].attackDamage, &player_status[i].next_level);
+//}
+//
+////ファイルを閉じる
+//FileRead_close(FileHandle);
+//
+//_nowNum = 0;
 
 	player_status.now_level = 1;
 	player_status.maxHP = 35;
@@ -44,13 +59,78 @@ Player::Player()
 	player_status.money = 1000;
 	player_status.conditionTurnNum = 0;
 	player_status.condition = CONDITION::FINE;
-
 	//_plHP = player_status[_nowNum].maxHP;
 	//_plHP = 10;
+
+	_skillCharge = SKILL_CHARGE;
+	_skillFlg = false;
+
+	pngInit();
 }
 
-Player::~Player()
+void Player::pngInit(void)
 {
+	// スキルアイコン
+	std::string skillicon = "image/skillicon.png";
+	_skillIconPNG = LoadGraph(skillicon.c_str());
+
+	// スキル使えるというアナウンス
+	std::string chargeAnnounce = "image/chargeAnnounce.png";
+	_skillAnnouncePNG = LoadGraph(chargeAnnounce.c_str());
+}
+
+void Player::Draw(void)
+{
+	if (_skillCharge != 0)
+	{
+		// スキルチャージ時間
+		DrawFormatString(750, 530, 0xffffff, "スキルまで:%d", _skillCharge);
+	}
+	else
+	{
+		// 782,564
+		DrawRotaGraph(750 + 32, 530 + 32, 1.0f, 0, _skillIconPNG, true);
+		DrawGraph(820, 530, _skillAnnouncePNG, true);
+	}
+}
+
+void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game)
+{
+	// スキル使用可能時のマウスクリック位置とアイコン(円)との当たり判定
+	if (_skillFlg)
+	{
+		int x = 0;
+		int y = 0;
+		auto Mouse = GetMouseInput();                //マウスの入力状態取得
+		GetMousePoint(&x, &y);					     //マウスの座標取得
+
+		// 782,564(アイコン描画位置)
+		float a = x - 782;
+		float b = y - 564;
+		float c = sqrt(a * a + b * b);
+
+		// 当たり判定(当たっているとき)
+		if (c <= 34)
+		{
+			// スキルはターン消費なしで行える動作
+
+			// 攻撃系(基礎攻撃力*10+武器威力で一定のダメージを与えられる)
+			monster->Damage(player_status.attackDamage * 10 + menu->GetEquipDamage());
+			game->blinkFlg = true;
+			// フラグと回数を元に戻す
+			_skillFlg = false;
+			_skillCharge = SKILL_CHARGE;
+		}
+	}
+}
+
+void Player::UpDate(void)
+{
+	// スキルが使用可能な時にフラグを立てて、当たり判定を行う
+	if (_skillCharge <= 0)
+	{
+		_skillFlg = true;
+	}
 }
 
 void Player::SetHP(int hpNum)
@@ -192,4 +272,18 @@ void Player::SetConditionTurn(int num)
 int Player::GetConditionTurn(void)
 {
 	return player_status.conditionTurnNum;
+}
+
+void Player::SetSkillCharge(void)
+{
+	// スキルチャージが0より大きいときは減らしていく
+	if (_skillCharge > 0)
+	{
+		_skillCharge--;
+	}
+}
+
+int Player::GetSkillCharge(void)
+{
+	return _skillCharge;
 }

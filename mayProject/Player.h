@@ -6,11 +6,18 @@ enum class CONDITION {
 	POISON	// 毒
 };
 
+class Monster;
+class Menu;
+class GameScene;
+
 class Player
 {
 public:
 	Player();
 	~Player();
+	void ClickUpDate(Monster* monster, Menu* menu, GameScene* game);	// クリック時のみのアップデート関数
+	void UpDate(void);					// 通常アップデート関数
+	void Draw(void);					// 描画
 	void SetHP(int hpNum);				// 現在の体力を設定する
 	int GetHP(void);					// 現在の体力を取得する
 	void SetMaxHP(int hpNum);			// 最大体力を設定する(体力増加剤で必要)
@@ -28,9 +35,14 @@ public:
 	CONDITION GetCondition(void);		// 現在の状態を取得する
 	void SetConditionTurn(int num);		// 状態異常からの復帰時間を設定する
 	int GetConditionTurn(void);			// 状態異常からの復帰時間を取得する
+	void SetSkillCharge(void);			// スキルチャージ時間を減らす
+	int GetSkillCharge(void);			// スキルチャージ時間を取得
 private:
-	//int _plHP;						// 現在の体力
-	//int _conditionTurnNum;				// 状態異常の時間
-	//int _nowNum;						// 今のプレイヤーステータスの番号(レベルアップで更新する)
-	//int _money;						// 所持金(敵を倒すと手に入り、物を購入すると減る)
+	void Init(void);					// 初期化
+	void pngInit(void);					// 画像初期化
+	// スキル関係
+	int _skillCharge;					// スキルチャージ
+	bool _skillFlg;						// スキルが使用可能になったらtrue
+	int _skillIconPNG;					// スキルアイコン(後で差し替える)
+	int _skillAnnouncePNG;				// スキル使用可能案内
 };
