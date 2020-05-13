@@ -34,6 +34,28 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 	_oldMouse = Mouse;
 	Draw();
 
+	// 明るくしたり暗くする処理
+	if (!_lightFlg)
+	{
+		if (_pngLight <= 255)
+		{
+			_pngLight++;
+			if (_pngLight == 255)
+			{
+				_lightFlg = true;
+			}
+		}
+	}
+
+	if (_lightFlg)
+	{
+		_pngLight--;
+		if (_pngLight <= 128)
+		{
+			_lightFlg = false;
+		}
+	}
+
 	// 自分のSceneのユニークポインタを返す 所有権も忘れずに!
 	return std::move(own);
 }
@@ -52,13 +74,18 @@ bool SelectScene::Init(void)
 	std::string titleBackButton = "image/titleBackButton.png";
 	_titleBackPNG = LoadGraph(titleBackButton.c_str());
 
+	_pngLight = 128;
+	_lightFlg = false;
 	return true;
 }
 
 void SelectScene::Draw(void)
 {
 	ClsDrawScreen();
+	//αブレンド
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, _pngLight);
 	DrawGraph(0, 0, _backPNG, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	DrawGraph(650, 450, _titleBackPNG, true);
 	DrawGraph(250, 100, _normalPNG, true);
 	DrawGraph(250, 300, _hardPNG, true);

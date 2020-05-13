@@ -17,4 +17,7 @@ private:
 	int _backPNG;			// 背景画像
 	int _normalPNG;			
 	int _hardPNG;
+
+	int _pngLight;						// 画像の明るさ調整用変数	
+	bool _lightFlg;						// 画像の明るさ調整用フラグ
 };
