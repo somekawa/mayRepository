@@ -26,7 +26,7 @@ unique_Base GameOverScene::Update(unique_Base own, const GameCtl& ctl)
 	auto Mouse = GetMouseInput();                //マウスの入力状態取得
 	GetMousePoint(&x, &y);					     //マウスの座標取得
 	if (Mouse & MOUSE_INPUT_LEFT) {	 //マウスの左ボタンが押されていたら
-		// 当たり判定(とりあえず左上のボックスと)
+		// 当たり判定
 		if (x >= 650 && x <= 650 + 200 && y >= 450 && y <= 450 + 100)
 		{
 			PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);

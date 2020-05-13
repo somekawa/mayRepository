@@ -4,63 +4,78 @@
     <dict>
         <key>frames</key>
         <dict>
-            <key>menuSel_0.png</key>
+            <key>monster_5.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
                 <key>spriteOffset</key>
                 <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{200,100}</string>
+                <string>{400,400}</string>
                 <key>spriteSourceSize</key>
-                <string>{200,100}</string>
+                <string>{400,400}</string>
                 <key>textureRect</key>
-                <string>{{0,0},{200,100}}</string>
+                <string>{{0,0},{400,400}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
-            <key>menuSel_1.png</key>
+            <key>monster_6.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
                 <key>spriteOffset</key>
                 <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{200,100}</string>
+                <string>{400,400}</string>
                 <key>spriteSourceSize</key>
-                <string>{200,100}</string>
+                <string>{400,400}</string>
                 <key>textureRect</key>
-                <string>{{200,0},{200,100}}</string>
+                <string>{{400,0},{400,400}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
-            <key>menuSel_2.png</key>
+            <key>monster_7.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
                 <key>spriteOffset</key>
                 <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{200,100}</string>
+                <string>{400,400}</string>
                 <key>spriteSourceSize</key>
-                <string>{200,100}</string>
+                <string>{400,400}</string>
                 <key>textureRect</key>
-                <string>{{400,0},{200,100}}</string>
+                <string>{{800,0},{400,400}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
-            <key>menuSel_3.png</key>
+            <key>monster_8.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
                 <key>spriteOffset</key>
                 <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{200,100}</string>
+                <string>{400,400}</string>
                 <key>spriteSourceSize</key>
-                <string>{200,100}</string>
+                <string>{400,400}</string>
                 <key>textureRect</key>
-                <string>{{600,0},{200,100}}</string>
+                <string>{{1200,0},{400,400}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
+            <key>monster_9.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{400,400}</string>
+                <key>spriteSourceSize</key>
+                <string>{400,400}</string>
+                <key>textureRect</key>
+                <string>{{1600,0},{400,400}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -74,13 +89,13 @@
             <key>premultiplyAlpha</key>
             <false/>
             <key>realTextureFileName</key>
-            <string>menuSel.png</string>
+            <string>mons2.png</string>
             <key>size</key>
-            <string>{800,100}</string>
+            <string>{2000,400}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:f7f4e95c36b8d9e562336eba65da198e:73e3a9324b937548b595b0f1e9280b3f:a9f750c79198504cd353e184437ece5b$</string>
+            <string>$TexturePacker:SmartUpdate:7eab63ae437b0847170019429d31bec0:bbba7043a6f57d4fb0bd1f8909dfc609:2bdcd9e4445e3404e8464ad51b5d311b$</string>
             <key>textureFileName</key>
-            <string>menuSel.png</string>
+            <string>mons2.png</string>
         </dict>
     </dict>
 </plist>

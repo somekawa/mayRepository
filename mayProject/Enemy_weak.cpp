@@ -47,7 +47,7 @@ bool Enemy_weak::Init(void)
 	//	FileRead_scanf(FileHandle, "%d %d %d", &a, &b, &c);
 	//‚Æ‚·‚é‚±‚Æ‚Åa‚É‚PAb‚É2Ac‚É3‚ª“ü‚è‚Ü‚·B
 
-	for (int i = 0; i <= MONSTER_CNT - 1; i++)
+	for (int i = 0; i < MONSTER_CNT; i++)
 	{
 		FileRead_scanf(FileHandle, "%d,%d,%d,%d,%d",&enemy_status[i].turn, &enemy_status[i].HP, &enemy_status[i].attack, &enemy_status[i].keikenti, &enemy_status[i].money);
 	}

@@ -1,7 +1,8 @@
 #include "DxLib.h"
 #include "SceneMng.h"
 #include "GameCtl.h"
-#include "GameScene.h"
+//#include "GameScene.h"
+#include "SelectScene.h"
 #include "TitleScene.h"
 
 TitleScene::TitleScene()
@@ -37,7 +38,7 @@ unique_Base TitleScene::Update(unique_Base own, const GameCtl& ctl)
 		{
 			PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
 			DeleteSoundMem(_titleBGM);
-			return std::make_unique<GameScene>();
+			return std::make_unique<SelectScene>();
 		}
 	}
 

@@ -38,27 +38,23 @@ void Menu::Init(void)
 	_menuBackPngFlg = false;
 	_menuSelPngFlg = false;
 
-	for (int i = 0; i <= 3; i++)
+	// ステータス・アイテム・つづけるのボタン位置
+	for (int i = 0; i <= 2; i++)
 	{
 		menu_pair[i].first = { 350,100 + (i * 100) };
 		menu_pair[i].second = static_cast<MENU>(static_cast<int>(MENU::STATUS) + i);
+		buttonSize[i] = { 200, 100 };
 	}
 
-	//menu_pair[0].first = { 350,100 };
-	//menu_pair[0].second = MENU::STATUS;
-	//
-	//menu_pair[1].first = { 350,200 };
-	//menu_pair[1].second = MENU::ITEM;
-	//
-	//menu_pair[2].first = { 350,300 };
-	//menu_pair[2].second = MENU::TO_GAME;
-	//
-	//menu_pair[3].first = { 350,400 };
-	//menu_pair[3].second = MENU::TO_TITLE;
+	// タイトルへのボタン位置
+	menu_pair[3].first = { 300,425 };
+	menu_pair[3].second = static_cast<MENU>(static_cast<int>(MENU::TO_TITLE));
+	buttonSize[3] = { 140, 70 };
 
-	//// メニューボタン
-	//std::string menu = "image/menuButton.png";
-	//_menuPNG = LoadGraph(menu.c_str());
+	// セーブのボタン位置
+	menu_pair[4].first = { 475,425 };
+	menu_pair[4].second = static_cast<MENU>(static_cast<int>(MENU::SAVE));
+	buttonSize[4] = { 140, 70 };
 
 	/*アイテム関係*/
 	_powUpNum = 0;
@@ -83,9 +79,17 @@ void Menu::Init(void)
 
 void Menu::pngInit(void)
 {
-	// メニューのボタン5つ
+	// メニューのボタン3つ
 	std::string menuButton = "image/menu/menuSel.png";
-	LoadDivGraph(menuButton.c_str(), 4, 4, 1, 200, 100, _menuSelPNG);
+	LoadDivGraph(menuButton.c_str(), 3, 3, 1, 200, 100, _menuSelPNG);
+
+	// タイトルへ戻るボタン
+	std::string titleBackButton = "image/menuTitleBackButton.png";
+	_menuTitleBackPNG = LoadGraph(titleBackButton.c_str());
+
+	// セーブボタン
+	std::string menuSave = "image/menuSave.png";
+	_menuSavePNG = LoadGraph(menuSave.c_str());
 
 	std::string menuback = "image/menu_window.png";
 	_menuBackPNG = LoadGraph(menuback.c_str());
@@ -121,8 +125,13 @@ void Menu::pngInit(void)
 
 void Menu::Update(Player* player, Monster* monster, Cards* cards)
 {
+	if (_menu == MENU::SAVE)
+	{
+		// セーブ処理を書いてみる
+	}
+
 	// ゲーム画面戻し
-	if (_menu == MENU::TO_GAME)
+	if (_menu == MENU::TO_GAME || _menu == MENU::SAVE)
 	{
 		_menuBackPngFlg = false;
 		_menuSelPngFlg = false;
@@ -732,14 +741,13 @@ void Menu::Draw(Player* player, Item* item, Monster* monster)
 	// メニュー項目
 	if (_menuSelPngFlg)
 	{
-		for (int i = 0; i <= 3; i++)
+		for (int i = 0; i <= 2; i++)
 		{
 			DrawGraph(menu_pair[i].first.x, menu_pair[i].first.y, _menuSelPNG[i], true);
 		}
-		//DrawGraph(menu_pair[0].first.x, menu_pair[0].first.y, _menuSelPNG[0], true);
-		//DrawGraph(menu_pair[1].first.x, menu_pair[1].first.y, _menuSelPNG[1], true);
-		//DrawGraph(menu_pair[2].first.x, menu_pair[2].first.y, _menuSelPNG[2], true);
-		//DrawGraph(menu_pair[3].first.x, menu_pair[3].first.y, _menuSelPNG[3], true);
+
+		DrawGraph(menu_pair[3].first.x, menu_pair[3].first.y, _menuTitleBackPNG, true);	
+		DrawGraph(menu_pair[4].first.x, menu_pair[4].first.y, _menuSavePNG, true);
 	}
 
 	// アイテム
@@ -836,16 +844,15 @@ void Menu::MenuButton_NonEnemy(void)
 
 		if (_menuSelPngFlg)
 		{
-			for (int i = 0; i <= 3; i++)
+			// メニュー項目ボタンとの当たり判定
+			for (int i = 0; i <= 4; i++)
 			{
-				auto p = menu_pair[i].first;
-				auto m = menu_pair[i].second;
-				if (_cursorPos.x >= p.x && _cursorPos.x <= p.x + 200 && _cursorPos.y >= p.y && _cursorPos.y <= p.y + 100)
+				if (_cursorPos.x >= menu_pair[i].first.x && _cursorPos.x <= menu_pair[i].first.x + buttonSize[i].x && _cursorPos.y >= menu_pair[i].first.y && _cursorPos.y <= menu_pair[i].first.y + buttonSize[i].y)
 				{
 					// クリック音
 					PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
 
-					_menu = m;
+					_menu = menu_pair[i].second;
 					_menuSelPngFlg = false;	// 文字消す
 				}
 			}

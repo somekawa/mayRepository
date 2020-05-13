@@ -9,6 +9,7 @@ enum class MENU {
 	ITEM,
 	TO_GAME,
 	TO_TITLE,
+	SAVE,
 	MAX
 };
 
@@ -63,6 +64,7 @@ private:
 	bool _menuSelPngFlg;				// メニュー項目を表示するかのフラグ
 	// メニュー項目
 	std::pair<VECTOR2, MENU>menu_pair[static_cast<int>(MENU::MAX)];
+	VECTOR2 buttonSize[static_cast<int>(MENU::MAX)];	// メニュー項目ボタンサイズ
 
 	/*アイテム関係*/
 	int _powUpNum;						// 一時的に攻撃力が上昇するアイテムの効果用
@@ -74,7 +76,11 @@ private:
 
 	/*画像関係*/
 	// メニュー項目画像
-	int _menuSelPNG[4];
+	int _menuSelPNG[3];
+	// タイトルへ戻るの文字画像
+	int _menuTitleBackPNG;
+	// セーブの文字画像
+	int _menuSavePNG;
 	// メニューボタン画像
 	int _menuPNG;
 	// メニュー画面背景画像
