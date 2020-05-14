@@ -36,14 +36,28 @@ unique_Base TitleScene::Update(unique_Base own, const GameCtl& ctl)
 		// “–‚½‚è”»’è
 		if (x >= 250 && x <= 250 + 400 && y >= 400 && y <= 400+150)
 		{
-			PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+			//PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
 			DeleteSoundMem(_titleBGM);
-			return std::make_unique<SelectScene>();
+			if (CheckSoundMem(_seClick) == 0)
+			{
+				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+				flag = true;
+			}
+			//return std::make_unique<SelectScene>();
 		}
 	}
 
 	_oldMouse = Mouse;
 	Draw();
+
+	if (flag)
+	{
+		if (CheckSoundMem(_seClick) == 0)
+		{
+			DeleteSoundMem(_seClick);
+			return std::make_unique<SelectScene>();
+		}
+	}
 
 	// –¾‚é‚­‚µ‚½‚èˆÃ‚­‚·‚éˆ—
 	if (!_lightFlg)

@@ -29,8 +29,22 @@ unique_Base GameClearScene::Update(unique_Base own, const GameCtl& ctl)
 		// 当たり判定(とりあえず左上のボックスと)
 		if (x >= 650 && x <= 650 + 200 && y >= 500 && y <= 500 + 100)
 		{
-			PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+			//PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
 			DeleteSoundMem(_clearBGM);
+			if (CheckSoundMem(_seClick) == 0)
+			{
+				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+				flag = true;
+			}
+		}
+		//return std::make_unique<TitleScene>();
+	}
+
+	if (flag)
+	{
+		if (CheckSoundMem(_seClick) == 0)
+		{
+			DeleteSoundMem(_seClick);
 			return std::make_unique<TitleScene>();
 		}
 	}

@@ -25,4 +25,5 @@ private:
 
 	int _seClick;						// ƒNƒŠƒbƒN‰¹
 	int _titleBGM;						// BGM
+	bool flag = false;
 };

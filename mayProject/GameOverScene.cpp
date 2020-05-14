@@ -29,12 +29,25 @@ unique_Base GameOverScene::Update(unique_Base own, const GameCtl& ctl)
 		// “–‚½‚è”»’è
 		if (x >= 650 && x <= 650 + 200 && y >= 450 && y <= 450 + 100)
 		{
-			PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+			//PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
 			DeleteSoundMem(_overBGM);
-			return std::make_unique<TitleScene>();
+			if (CheckSoundMem(_seClick) == 0)
+			{
+				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+				flag = true;
+			}
+			//return std::make_unique<TitleScene>();
 		}
 	}
 
+	if (flag)
+	{
+		if (CheckSoundMem(_seClick) == 0)
+		{
+			DeleteSoundMem(_seClick);
+			return std::make_unique<TitleScene>();
+		}
+	}
 
 	Draw();
 

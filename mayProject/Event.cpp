@@ -10,6 +10,11 @@ Event::Event()
 
 Event::~Event()
 {
+	// ‰¹ŠÖŒW
+	for (int i = 0; i < 6; i++)
+	{
+		DeleteSoundMem(_soundSE[i]);
+	}
 }
 
 void Event::Init(void)

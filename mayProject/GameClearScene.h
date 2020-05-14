@@ -21,5 +21,7 @@ private:
 	int _seClick;						// ƒNƒŠƒbƒN‰¹
 	int _clearBGM;						// BGM
 
+	bool flag = false;
+
 	//int oldMouse;
 };

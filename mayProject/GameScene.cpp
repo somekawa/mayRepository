@@ -37,6 +37,14 @@ GameScene::~GameScene()
 	delete _menu;
 	delete _item;
 	delete _event;
+
+	// 音関係
+	DeleteSoundMem(_gameBGM);
+	DeleteSoundMem(_battleBGM);
+	for (int i = 0; i < 8; i++)
+	{
+		DeleteSoundMem(_soundSE[i]);
+	}
 }
 
 unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
@@ -131,14 +139,12 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 	// タイトルへ戻る
 	if (_menu->GetMenu() == MENU::TO_TITLE)
 	{
-		DeleteSoundMem(_gameBGM);
 		return std::make_unique<TitleScene>();
 	}
 
 	// 歩行回数がゴールに到達したらクリア画面へ移行
 	if (_changeToClear)
 	{
-		DeleteSoundMem(_gameBGM);
 		return std::make_unique<GameClearScene>();
 	}
 

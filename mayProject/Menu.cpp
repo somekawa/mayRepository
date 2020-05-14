@@ -20,6 +20,8 @@ Menu::Menu()
 
 Menu::~Menu()
 {
+	// ‰¹ŠÖŒW
+	DeleteSoundMem(_seClick);
 }
 
 void Menu::Init(void)

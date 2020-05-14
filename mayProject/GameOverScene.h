@@ -21,5 +21,7 @@ private:
 	
 	int _seClick;			// ƒNƒŠƒbƒN‰¹
 	int _overBGM;			// BGM
+
+	bool flag = false;
 };
 
