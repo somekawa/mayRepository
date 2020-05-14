@@ -43,6 +43,9 @@ private:
 	// スキル関係
 	int _skillCharge;					// スキルチャージ
 	bool _skillFlg;						// スキルが使用可能になったらtrue
+	bool _skillBackFlg;					// スキルアイコン押下時true
 	int _skillIconPNG;					// スキルアイコン(後で差し替える)
 	int _skillAnnouncePNG;				// スキル使用可能案内
+	int _skillBackPNG;					// スキル用背景画像
+	int _skillAttackIconPNG;			// 攻撃系スキル選択用アイコン
 };

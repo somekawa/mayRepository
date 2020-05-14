@@ -64,6 +64,7 @@ void Player::Init(void)
 
 	_skillCharge = SKILL_CHARGE;
 	_skillFlg = false;
+	_skillBackFlg = false;
 
 	pngInit();
 }
@@ -77,6 +78,14 @@ void Player::pngInit(void)
 	// スキル使えるというアナウンス
 	std::string chargeAnnounce = "image/chargeAnnounce.png";
 	_skillAnnouncePNG = LoadGraph(chargeAnnounce.c_str());
+
+	// スキル背景
+	std::string skillBack = "image/skillBack.png";
+	_skillBackPNG = LoadGraph(skillBack.c_str());
+
+	// 攻撃系スキルアイコン
+	std::string skill_attack = "image/skill_attack.png";
+	_skillAttackIconPNG = LoadGraph(skill_attack.c_str());
 }
 
 void Player::Draw(void)
@@ -92,16 +101,23 @@ void Player::Draw(void)
 		DrawRotaGraph(750 + 32, 530 + 32, 1.0f, 0, _skillIconPNG, true);
 		DrawGraph(820, 530, _skillAnnouncePNG, true);
 	}
+
+	// スキルアイコンを押されたら背景を描画する
+	if (_skillBackFlg)
+	{
+		DrawGraph(250, 90, _skillBackPNG, true);
+		DrawGraph(300, 120, _skillAttackIconPNG, true);
+	}
 }
 
 void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game)
 {
+	int x = 0;
+	int y = 0;
+	auto Mouse = GetMouseInput();                //マウスの入力状態取得
 	// スキル使用可能時のマウスクリック位置とアイコン(円)との当たり判定
 	if (_skillFlg)
 	{
-		int x = 0;
-		int y = 0;
-		auto Mouse = GetMouseInput();                //マウスの入力状態取得
 		GetMousePoint(&x, &y);					     //マウスの座標取得
 
 		// 782,564(アイコン描画位置)
@@ -113,12 +129,27 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game)
 		if (c <= 34)
 		{
 			// スキルはターン消費なしで行える動作
+			_skillBackFlg = true;
+			// 攻撃系(基礎攻撃力*10+武器威力で一定のダメージを与えられる)
+			//monster->Damage(player_status.attackDamage * 10 + menu->GetEquipDamage());
+			//game->blinkFlg = true;
+			// フラグと回数を元に戻す
+			//_skillFlg = false;
+			//_skillCharge = SKILL_CHARGE;
+		}
+	}
 
+	if (_skillBackFlg)
+	{
+		// 攻撃アイコンとの当たり判定
+		if (x >= 300 && x <= 300 + 100 && y >= 120 && y <= 120 + 100)
+		{
 			// 攻撃系(基礎攻撃力*10+武器威力で一定のダメージを与えられる)
 			monster->Damage(player_status.attackDamage * 10 + menu->GetEquipDamage());
 			game->blinkFlg = true;
 			// フラグと回数を元に戻す
 			_skillFlg = false;
+			_skillBackFlg = false;
 			_skillCharge = SKILL_CHARGE;
 		}
 	}

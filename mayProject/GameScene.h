@@ -31,7 +31,7 @@ public:
 	bool moveFlg;						// 歩きモーション管理用フラグ
 	bool shakeFlg;						// 敵の待機ターンが0になったらtrueにして画面を揺らし始める
 	bool blinkFlg;						// 敵の点滅用フラグ
-	int walkCnt;
+	int walkCnt;						// 歩いた回数
 private:
 	bool Init(void);					// 初期化
 	void pngInit(void);					// 画像用初期化
@@ -81,7 +81,7 @@ private:
 
 	// 点滅関係
 	int _blinkCnt;						// 攻撃を食らったときに起こる点滅
-	//bool blinkFlg;						// 敵の点滅用フラグ
+	//bool blinkFlg;					// 敵の点滅用フラグ
 
 	// その他
 	int _plDeadChangeWinColor;			// プレイヤー死亡時、画面の色を反転させるときに使う
