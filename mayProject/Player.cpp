@@ -66,6 +66,9 @@ void Player::Init(void)
 	_skillFlg = false;
 	_skillBackFlg = false;
 
+	_pngLight = 50;
+	_lightFlg = false;
+
 	pngInit();
 }
 
@@ -90,6 +93,10 @@ void Player::pngInit(void)
 	// やめるの文字画像
 	std::string cancel = "image/cancel.png";
 	_skillCancelPNG = LoadGraph(cancel.c_str());
+
+	// 力こぶのアイコン画像
+	std::string muscle = "image/muscle.png";
+	_skillMuscleIconPNG = LoadGraph(muscle.c_str());
 }
 
 void Player::Draw(Menu* menu)
@@ -101,8 +108,13 @@ void Player::Draw(Menu* menu)
 	}
 	else
 	{
+		// 描画ブレンドモードを加算合成にする
+		SetDrawBlendMode(DX_BLENDMODE_ADD, _pngLight);
 		// 782,564
 		DrawRotaGraph(750 + 32, 530 + 32, 1.0f, 0, _skillIconPNG, true);
+		// 描画ブレンドモードをノーブレンドにする
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+		DrawRotaGraph(750 + 32, 530 + 32, 1.0f, 0, _skillMuscleIconPNG, true);
 		DrawGraph(820, 530, _skillAnnouncePNG, true);
 	}
 
@@ -173,6 +185,28 @@ void Player::UpDate(void)
 	if (_skillCharge <= 0)
 	{
 		_skillFlg = true;
+
+		// 明るくしたり暗くする処理
+		if (!_lightFlg)
+		{
+			if (_pngLight <= 255)
+			{
+				_pngLight += 5;
+				if (_pngLight == 255)
+				{
+					_lightFlg = true;
+				}
+			}
+		}
+
+		if (_lightFlg)
+		{
+			_pngLight -= 5;
+			if (_pngLight <= 50)
+			{
+				_lightFlg = false;
+			}
+		}
 	}
 }
 

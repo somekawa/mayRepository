@@ -49,4 +49,7 @@ private:
 	int _skillBackPNG;					// スキル用背景画像
 	int _skillAttackIconPNG;			// 攻撃系スキル選択用アイコン
 	int _skillCancelPNG;				//「やめる」の文字画像
+	int _skillMuscleIconPNG;			// 力こぶのアイコン画像
+	int _pngLight;						// アイコンの明るさ調整用変数	
+	bool _lightFlg;						// アイコンの明るさ調整用フラグ
 };
