@@ -17,7 +17,7 @@ public:
 	~Player();
 	void ClickUpDate(Monster* monster, Menu* menu, GameScene* game);	// クリック時のみのアップデート関数
 	void UpDate(void);					// 通常アップデート関数
-	void Draw(void);					// 描画
+	void Draw(Menu* menu);					// 描画
 	void SetHP(int hpNum);				// 現在の体力を設定する
 	int GetHP(void);					// 現在の体力を取得する
 	void SetMaxHP(int hpNum);			// 最大体力を設定する(体力増加剤で必要)
@@ -48,4 +48,5 @@ private:
 	int _skillAnnouncePNG;				// スキル使用可能案内
 	int _skillBackPNG;					// スキル用背景画像
 	int _skillAttackIconPNG;			// 攻撃系スキル選択用アイコン
+	int _skillCancelPNG;				//「やめる」の文字画像
 };

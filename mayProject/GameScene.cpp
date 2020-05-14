@@ -650,7 +650,7 @@ void GameScene::Draw(void)
 		// 戦闘中以外は邪魔なので非表示で
 		_cards->Draw(_player,_menu);		// カードの情報	と カードのDraw
 
-		_player->Draw();
+		_player->Draw(_menu);
 
 		//if (_skillCharge != 0)
 		//{

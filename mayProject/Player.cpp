@@ -86,9 +86,13 @@ void Player::pngInit(void)
 	// UŒ‚ŒnƒXƒLƒ‹ƒAƒCƒRƒ“
 	std::string skill_attack = "image/skill_attack.png";
 	_skillAttackIconPNG = LoadGraph(skill_attack.c_str());
+
+	// ‚â‚ß‚é‚Ì•¶Žš‰æ‘œ
+	std::string cancel = "image/cancel.png";
+	_skillCancelPNG = LoadGraph(cancel.c_str());
 }
 
-void Player::Draw(void)
+void Player::Draw(Menu* menu)
 {
 	if (_skillCharge != 0)
 	{
@@ -106,7 +110,9 @@ void Player::Draw(void)
 	if (_skillBackFlg)
 	{
 		DrawGraph(250, 90, _skillBackPNG, true);
-		DrawGraph(300, 120, _skillAttackIconPNG, true);
+		DrawGraph(300, 150, _skillAttackIconPNG, true);
+		DrawFormatString(300,250, 0x000000, "UŒ‚ƒXƒLƒ‹:\n%dƒ_ƒ[ƒW", player_status.attackDamage * 10 + menu->GetEquipDamage());
+		DrawGraph(375, 300, _skillCancelPNG, true);
 	}
 }
 
@@ -141,8 +147,14 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game)
 
 	if (_skillBackFlg)
 	{
+		// ‚â‚ß‚éƒ{ƒ^ƒ“‚Æ‚Ì“–‚½‚è”»’è
+		if (x >= 375 && x <= 375 + 150 && y >= 300 && y <= 300 + 65)
+		{
+			_skillBackFlg = false;
+		}
+
 		// UŒ‚ƒAƒCƒRƒ“‚Æ‚Ì“–‚½‚è”»’è
-		if (x >= 300 && x <= 300 + 100 && y >= 120 && y <= 120 + 100)
+		if (x >= 300 && x <= 300 + 100 && y >= 150 && y <= 150 + 100)
 		{
 			// UŒ‚Œn(Šî‘bUŒ‚—Í*10+•ŠíˆÐ—Í‚Åˆê’è‚Ìƒ_ƒ[ƒW‚ð—^‚¦‚ç‚ê‚é)
 			monster->Damage(player_status.attackDamage * 10 + menu->GetEquipDamage());
