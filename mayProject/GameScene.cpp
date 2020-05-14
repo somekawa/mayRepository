@@ -8,6 +8,7 @@
 #include "GameScene.h"
 #include "Item.h"
 #include "Enemy_weak.h"
+#include "SelectScene.h"
 
 #define PI 3.141592653589793
 
@@ -62,7 +63,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 		if (_player->GetHP() > 0)
 		{
 			// クリアではないとき
-			if (_walkCnt != _goalCnt)
+			if (walkCnt != _goalCnt)
 			{
 				// 敵がいないときだけ押せる
 				if (eventState != EVENT_STATE::ENEMY)
@@ -84,7 +85,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 			if (cursorPos.x >= 50 && cursorPos.x <= 50 + 400 && cursorPos.y >= 225 && cursorPos.y <= 225 + 130)
 			{
 				// イベント状態の初期化
-				_walkCnt = 0;
+				walkCnt = 0;
 				eventState = EVENT_STATE::NON;
 				_monster[0]->SetEnemyState(ENEMY_STATE::NON);
 				_event->SetNowEvent(0);		
@@ -208,7 +209,7 @@ bool GameScene::Init(void)
 	_changeToClear = false;
 
 	// イベント関係
-	_walkCnt = 0;
+	walkCnt = 0;
 	eventState = EVENT_STATE::NON;
 	_eventChoiceNum = 0;
 	for (int i = 0; i <= 2; i++)
@@ -219,22 +220,52 @@ bool GameScene::Init(void)
 	//_eventChoiceNumOld[1] = 0;
 	//_eventChoiceNumOld[2] = 0;
 
-	//ファイルを読み込む
-	auto FileHandle = FileRead_open("csv/eventData.csv");
-	if (FileHandle == NULL)
+	int FileHandle;
+	if (SelectScene::modeTest == MODE::NORMAL)
 	{
-		return false; //エラー時の処理
+		//ファイルを読み込む
+		FileHandle = FileRead_open("csv/eventData_NORMAL.csv");
+		if (FileHandle == NULL)
+		{
+			return false; //エラー時の処理
+		}
+	}
+	else if (SelectScene::modeTest == MODE::HARD)
+	{
+		//ファイルを読み込む
+		FileHandle = FileRead_open("csv/eventData_HARD.csv");
+		if (FileHandle == NULL)
+		{
+			return false; //エラー時の処理
+		}
 	}
 
-	for (int i = 0; i < EVENT_NUM; i++)
+	//for (int i = 0; i < EVENT_NUM; i++)
+	//{
+	//	FileRead_scanf(FileHandle, "%d", &_eventNum[i]);
+	//}
+
+	for (int i = 0; i < static_cast<int>(SelectScene::modeTest); i++)
 	{
 		FileRead_scanf(FileHandle, "%d", &_eventNum[i]);
+		// -1が末尾であるという設定にしている
+		if (_eventNum[i] == -1)
+		{
+			_bossEventNum = _eventNum[i - 1];
+			//ファイルを閉じる
+			FileRead_close(FileHandle);
+		}
 	}
-	//ファイルを閉じる
-	FileRead_close(FileHandle);
 
 	// ボスイベントの設定(最後のイベントのときに出るようにする)
-	_bossEventNum = _eventNum[EVENT_NUM-1];
+	//_bossEventNum = _eventNum[static_cast<int>(SelectScene::modeTest) - 1];
+	//_goalCnt = _bossEventNum + 2;
+	//
+	//ファイルを閉じる
+	//FileRead_close(FileHandle);
+	//
+	// ボスイベントの設定(最後のイベントのときに出るようにする)
+	//_bossEventNum = _eventNum[EVENT_NUM-1];
 	_goalCnt = _bossEventNum + 2;		// ボス撃破後した+2でゴール
 
 	// 画面揺らし関係
@@ -440,7 +471,7 @@ void GameScene::Draw(void)
 	}
 	else
 	{
-		if (_walkCnt != _goalCnt)
+		if (walkCnt != _goalCnt)
 		{
 			DrawRotaGraph(450, 300, 1.0f, 0, _room[0], false);
 		}
@@ -488,7 +519,7 @@ void GameScene::Draw(void)
 		//DrawRotaGraph(340 + 204 / 2, 100 + 292 / 2, 1.5f, 0, doorPNG[1], false);
 
 		// ゴール前の扉を光らせる
-		if (_walkCnt == _goalCnt)
+		if (walkCnt == _goalCnt)
 		{
 			//最後はそこからさらにドアを拡大していって、時間経過でクリア画面に移行させる
 			DrawRotaGraph(450, 300, _lastDoorExpand, 0, _room[2], false);
@@ -527,7 +558,7 @@ void GameScene::Draw(void)
 
 	// ゲージ
 	DrawExtendGraph(800, 25, 800 + 50, 25 + 300, _gaugePNG, true);
-	DrawExtendGraph(800, 25, 800 + 50, 25 + 300 * (1.0f - ((float)_walkCnt / (float)(_goalCnt))), _gaugeBackPNG, true);
+	DrawExtendGraph(800, 25, 800 + 50, 25 + 300 * (1.0f - ((float)walkCnt / (float)(_goalCnt))), _gaugeBackPNG, true);
 
 	// テスト表示
 	//DrawFormatString(0, 240, GetColor(255, 255, 255),"現在のレベルは%dです",_player->GetNowLevel());
@@ -555,7 +586,7 @@ void GameScene::Draw(void)
 		if (_blinkCnt % 10 == 0)
 		{
 			// ボスならこっち
-			if (_walkCnt == _bossEventNum)
+			if (walkCnt == _bossEventNum)
 			{
 				_monster[0]->BossDraw();
 			}
@@ -568,7 +599,7 @@ void GameScene::Draw(void)
 	else
 	{
 		// ボスじゃないとき
-		if (_walkCnt != _bossEventNum)
+		if (walkCnt != _bossEventNum)
 		{
 			if ((eventState == EVENT_STATE::NON) || (eventState == EVENT_STATE::ENEMY))
 			{
@@ -712,7 +743,7 @@ void GameScene::MouseClick_Go(void)
 		if (cursorPos.x >= 750 && cursorPos.x <= 750 + 150 && cursorPos.y >= 345 && cursorPos.y <= 345 + 75)
 		{
 			// 敵が出ないときは扉を出す
-			if (_walkCnt != _eventNum[_event->GetNowEvent()] && !moveFlg)
+			if (walkCnt != _eventNum[_event->GetNowEvent()] && !moveFlg)
 			{
 				// クリック音
 				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -722,7 +753,7 @@ void GameScene::MouseClick_Go(void)
 				_soundWalk = true;
 
 				moveFlg = true;
-				_walkCnt++;
+				walkCnt++;
 				// プレイヤーが状態異常のとき
 				if (_player->GetCondition() == CONDITION::POISON)
 				{
@@ -755,11 +786,11 @@ void GameScene::MouseClick_Go(void)
 			// イベントマスでランダムに数値を出し、対応した数値でイベントを発生させる
 			// ランダムで数字を出して、出た数字で出現させるものを決める
 			// 敵との遭遇回数をふやしたかったら数字の0~3までをenemyとかにすればいいかもしれない
-			if (_walkCnt == _eventNum[_event->GetNowEvent()] && eventState == EVENT_STATE::NON && !moveFlg)
+			if (walkCnt == _eventNum[_event->GetNowEvent()] && eventState == EVENT_STATE::NON && !moveFlg)
 			{
 				int randNum = GetRand(5);
 				
-				if (_walkCnt == _bossEventNum)
+				if (walkCnt == _bossEventNum)
 				{
 					randNum = 0;
 				}
@@ -828,7 +859,7 @@ void GameScene::MouseClick_Go(void)
 					moveFlg = false;
 
 					// ボスならこっち
-					if (_walkCnt == _bossEventNum)
+					if (walkCnt == _bossEventNum)
 					{
 						auto ene = 5;
 						_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ボス用)
@@ -858,7 +889,7 @@ void GameScene::EventUpdate(void)
 {
 	// 次のイベントへ更新 
 	// 番号が一致しているときにしか入ってこないようにする
-	//if (_walkCnt == _eventNum[_event->GetNowEvent()] && _monster[0]->GetEnemyState() == ENEMY_STATE::DEATH)
+	//if (walkCnt == _eventNum[_event->GetNowEvent()] && _monster[0]->GetEnemyState() == ENEMY_STATE::DEATH)
 	//{
 	//	// 今は8以上ないから8以降はここに入り続けるので数字がバグる
 	//	//_nowEvent++;
@@ -875,7 +906,7 @@ void GameScene::EventUpdate(void)
 
 	if (eventState == EVENT_STATE::ENEMY)
 	{
-		if (_walkCnt == _eventNum[_event->GetNowEvent()] && _monster[0]->GetEnemyState() == ENEMY_STATE::DEATH)
+		if (walkCnt == _eventNum[_event->GetNowEvent()] && _monster[0]->GetEnemyState() == ENEMY_STATE::DEATH)
 		{
 			_event->SetEvent(eventState);
 		}

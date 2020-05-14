@@ -3,6 +3,9 @@
 #include "TitleScene.h"
 #include "SelectScene.h"
 
+// static変数の実体<型>クラス名::変数名 = 初期化;
+MODE SelectScene::modeTest = MODE::NON;
+
 SelectScene::SelectScene()
 {
 	Init();
@@ -22,8 +25,16 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 		// 当たり判定(NORMAL選択時)
 		if (x >= 250 && x <= 250 + 400 && y >= 100 && y <= 100 + 150)
 		{
+			modeTest = MODE::NORMAL;
 			return std::make_unique<GameScene>();
 		}
+		// 当たり判定(HARD選択時)
+		if (x >= 250 && x <= 250 + 400 && y >= 300 && y <= 300 + 150)
+		{
+			modeTest = MODE::HARD;
+			return std::make_unique<GameScene>();
+		}
+
 		// 当たり判定(タイトルへ戻る)
 		if (x >= 650 && x <= 650 + 200 && y >= 450 && y <= 450 + 100)
 		{

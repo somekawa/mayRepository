@@ -1,5 +1,6 @@
 #include <string>
 #include "Dxlib.h"
+#include "SelectScene.h"
 #include "Enemy_weak.h"
 
 struct enemy
@@ -34,12 +35,32 @@ bool Enemy_weak::Init(void)
 	//auto d = a + b + c;
 	//_enemyPNG = LoadGraph(d.c_str());
 
-	//ファイルを読み込む
-	auto FileHandle = FileRead_open("csv/enemyData.csv");
-	if (FileHandle == NULL)
+	int FileHandle;
+	if (SelectScene::modeTest == MODE::NORMAL)
 	{
-		return -1; //エラー時の処理
+		//ファイルを読み込む
+		FileHandle = FileRead_open("csv/enemyData_NORMAL.csv");
+		if (FileHandle == NULL)
+		{
+			return false; //エラー時の処理
+		}
 	}
+	else if (SelectScene::modeTest == MODE::HARD)
+	{
+		//ファイルを読み込む
+		FileHandle = FileRead_open("csv/enemyData_HARD.csv");
+		if (FileHandle == NULL)
+		{
+			return false; //エラー時の処理
+		}
+	}
+
+	//ファイルを読み込む
+	//auto FileHandle = FileRead_open("csv/enemyData.csv");
+	//if (FileHandle == NULL)
+	//{
+	//	return -1; //エラー時の処理
+	//}
 
 	//FileRead_scanf
 	//	はファイルの中身をscanfを使うような要領で読み込んでいきます。
@@ -55,9 +76,22 @@ bool Enemy_weak::Init(void)
 	//ファイルを閉じる
 	FileRead_close(FileHandle);
 
-	// 敵の分割読み込み
-	std::string monster = "image/monster/mons.png";
-	LoadDivGraph(monster.c_str(), 5, 5, 1, 400, 400, _enemyPNG);
+	if (SelectScene::modeTest == MODE::NORMAL)
+	{
+		// 敵の分割読み込み
+		std::string monster = "image/monster/mons.png";
+		LoadDivGraph(monster.c_str(), 5, 5, 1, 400, 400, _enemyPNG);
+	}
+	else if (SelectScene::modeTest == MODE::HARD)
+	{
+		// 敵の分割読み込み
+		std::string monster = "image/monster/mons2.png";
+		LoadDivGraph(monster.c_str(), 5, 5, 1, 400, 400, _enemyPNG);
+	}
+
+	//// 敵の分割読み込み
+	//std::string monster = "image/monster/mons.png";
+	//LoadDivGraph(monster.c_str(), 5, 5, 1, 400, 400, _enemyPNG);
 
 	// 敵の魂アイテム分割読み込み
 	std::string item = "image/item_monster.png";

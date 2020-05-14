@@ -49,9 +49,8 @@ void Player::Init(void)
 //
 //_nowNum = 0;
 
-	player_status.now_level = 1;
-	//player_status.maxHP = 35;
-	player_status.maxHP = 1;
+	//player_status.now_level = 1;
+	player_status.maxHP = 35;
 	player_status.plHP = player_status.maxHP;
 	player_status.attackDamage = 3;
 	//player_status.attackDamage = 999;

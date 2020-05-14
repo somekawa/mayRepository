@@ -8,7 +8,10 @@
 #include "Item.h"
 #include "Event.h"
 
-#define EVENT_NUM 25
+//#define EVENT_NUM 25
+
+// イベント量の最大値
+#define EVENT_MAXNUM 99
 
 class GameScene :
 	public BaseScene
@@ -28,6 +31,7 @@ public:
 	bool moveFlg;						// 歩きモーション管理用フラグ
 	bool shakeFlg;						// 敵の待機ターンが0になったらtrueにして画面を揺らし始める
 	bool blinkFlg;						// 敵の点滅用フラグ
+	int walkCnt;
 private:
 	bool Init(void);					// 初期化
 	void pngInit(void);					// 画像用初期化
@@ -62,9 +66,9 @@ private:
 	bool _changeToClear;				// 一定時間以上でフラグがtrueになり、自動的にクリア画面に移行する
 
 	// イベント関係
-	int _walkCnt;						// 歩いた回数
+	//int walkCnt;						// 歩いた回数
 	int _goalCnt;						// ゴールまでに必要な歩数
-	int _eventNum[EVENT_NUM];			// イベントが発生する歩数
+	int _eventNum[EVENT_MAXNUM];			// イベントが発生する歩数
 	int _bossEventNum;					// ボスの出てくるタイミング
 	// イベント内容の管理
 	int _eventChoiceNum;				// _eventChoiceNumOldの格納場所を変えるのに使う

@@ -420,6 +420,7 @@ void Event::Yado(GameScene* game, Player* player)
 			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
 			// 先に進む
+			game->walkCnt++;
 			game->moveFlg = true;
 			game->eventState = EVENT_STATE::NON;
 			_event = EVENT_STATE::NON;
@@ -466,6 +467,7 @@ void Event::Syounin(GameScene* game, Player* player, Menu* menu, Item* item)
 			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
 			// 先に進む
+			game->walkCnt++;
 			_chooseNum = -1;		// -1にしないと、選択した状態で進むを押したら次の商人でsoldoutになっちゃう
 			game->eventState = EVENT_STATE::NON;
 			_event = EVENT_STATE::NON;
@@ -669,6 +671,7 @@ void Event::Button(GameScene* game, Player* player)
 			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
 			// 先に進む
+			game->walkCnt++;
 			game->moveFlg = true;
 			game->eventState = EVENT_STATE::NON;
 			_event = EVENT_STATE::NON;
@@ -726,6 +729,7 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
 			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
 			// 先に進む
+			game->walkCnt++;
 			game->moveFlg = true;
 			game->eventState = EVENT_STATE::NON;
 			_event = EVENT_STATE::NON;
@@ -819,6 +823,7 @@ void Event::Drink(GameScene* game, Player* player)
 			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
 			// 先に進む
+			game->walkCnt++;
 			game->moveFlg = true;
 			game->eventState = EVENT_STATE::NON;
 			_event = EVENT_STATE::NON;
