@@ -7,7 +7,7 @@
 #include "Player.h"
 
 // スキルチャージ時間の最大値
-#define SKILL_CHARGE 3
+#define SKILL_CHARGE 10
 
 struct player
 {
@@ -50,7 +50,7 @@ void Player::Init(void)
 //
 //_nowNum = 0;
 
-	//player_status.now_level = 1;
+	player_status.now_level = 1;
 	player_status.maxHP = 35;
 	player_status.plHP = player_status.maxHP;
 	player_status.attackDamage = 3;
@@ -146,7 +146,8 @@ void Player::Draw(Menu* menu)
 		DrawGraph(410, 150, _skillBarrierIconPNG, true);
 		DrawGraph(530, 150, _skillHealIconPNG, true);
 		DrawFormatString(280,250, 0x000000, "攻撃スキル:\n%dダメージ", player_status.attackDamage * 10 + menu->GetEquipDamage());
-		DrawFormatString(410,250, 0x000000, "防御スキル:\n耐久%dの\nバリア展開", 30);
+		DrawFormatString(410,250, 0x000000, "防御スキル:\n耐久%dの\nバリア展開", 20 + 3 * player_status.now_level);
+		DrawFormatString(530, 250, 0x000000, "回復スキル:\n体力を全回復");
 		DrawGraph(385, 320, _skillCancelPNG, true);
 	}
 
@@ -226,9 +227,8 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game)
 		// 防御アイコンとの当たり判定
 		if (x >= 410 && x <= 410 + 100 && y >= 150 && y <= 150 + 100)
 		{
-			// 仮値で30
-			_barrierMaxNum = 30;
-			_barrierNum = 30;
+			_barrierMaxNum = 20 + 3 * player_status.now_level;
+			_barrierNum = 20 + 3 * player_status.now_level;
 			// 防御系(特定値*プレイヤーレベル)
 			lambda();
 			//// フラグと回数を元に戻す
@@ -240,7 +240,7 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game)
 		// 回復アイコンとの当たり判定
 		if (x >= 530 && x <= 530 + 100 && y >= 150 && y <= 150 + 100)
 		{
-			int a = 0;
+			player_status.plHP = player_status.maxHP;
 			// 回復系(全回復もしかしたらリジェネ風に変更するかも)
 			lambda();
 			//// フラグと回数を元に戻す

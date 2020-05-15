@@ -798,7 +798,7 @@ void GameScene::MouseClick_Go(void)
 			// 敵との遭遇回数をふやしたかったら数字の0~3までをenemyとかにすればいいかもしれない
 			if (walkCnt == _eventNum[_event->GetNowEvent()] && eventState == EVENT_STATE::NON && !moveFlg)
 			{
-				int randNum = GetRand(0);
+				int randNum = GetRand(5);
 				
 				if (walkCnt == _bossEventNum)
 				{
