@@ -42,6 +42,8 @@ public:
 
 	bool GetNonDamageFlg(void);			// 無敵効果のアイテムを使用状態を取得する
 	void SetNonDamageFlg(bool flag);	// 敵からの攻撃を受けた後に無敵効果の状態を消すときに使う
+
+	bool GetMenuBackPngFlg(void);		// アイテム背景が描画されているか取得する
 private:
 	void Init(void);					// 初期化
 	void pngInit(void);					// 画像関係初期化

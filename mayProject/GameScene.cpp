@@ -73,7 +73,11 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 				else
 				{
 					// 敵がいるとき(アイテムだけ)
-					_menu->MenuButton_Enemy();
+					if (!_player->GetSkillBackFlg())
+					{
+						// スキル選択画面が押されていないときだけ
+						_menu->MenuButton_Enemy();
+					}
 				}
 
 				MouseClick_Go();
@@ -156,10 +160,16 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 	_event->UpDate(this, _player, _menu, _item, _monster[0]);
 	enemyItemDrop();
 	
+	// アイテム画面の時にはカードを動かせなくする
 	if (_monster[0]->GetEnemyState() == ENEMY_STATE::EXIST && _menu->GetMenu() != MENU::ITEM)
 	{
-		// 戦闘中以外は必要ない。アイテム画面の時にはカードを動かせなくする
-		_cards->Update();		// カードの情報
+		// スキル選択画面では動かせなくする
+		if (!_player->GetSkillBackFlg())
+		{
+			// 戦闘中以外は必要ない。
+			_cards->Update();		// カードの情報
+
+		}
 	}
 
 	Draw();	
@@ -1014,8 +1024,16 @@ void GameScene::pl_TurnEndAfter(void)
 				d = 0;
 			}
 
-			// dには0またはマイナス値が入っているので加算処理でok
-			_player->SetHP(_player->GetHP() + d );
+			// バリア値
+			if (_player->GetBarrierNum() > 0)
+			{
+				_player->SetBarrierNum(_player->GetBarrierNum() + d);
+			}
+			else
+			{
+				// dには0またはマイナス値が入っているので加算処理でok
+				_player->SetHP(_player->GetHP() + d);
+			}
 
 			_menu->SetNonDamageFlg(false);
 

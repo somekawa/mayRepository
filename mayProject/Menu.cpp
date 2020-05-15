@@ -882,7 +882,7 @@ void Menu::MenuButton_Enemy(void)
 {
 	// アイテムボタンのみ表示
 	_mouse = GetMouseInput();					 //マウスの入力状態取得
-	GetMousePoint(&_cursorPos.x, &_cursorPos.y);	 //マウスの座標取得
+	GetMousePoint(&_cursorPos.x, &_cursorPos.y); //マウスの座標取得
 
 	if (_mouse & MOUSE_INPUT_LEFT) {				 //マウスの左ボタンが押されていたら
 		if (_cursorPos.x >= 0 && _cursorPos.x <= 0 + 200 && _cursorPos.y >= 0 && _cursorPos.y <= 0 + 100)
@@ -983,4 +983,9 @@ bool Menu::GetNonDamageFlg(void)
 void Menu::SetNonDamageFlg(bool flag)
 {
 	_nonDamageFlg = flag;
+}
+
+bool Menu::GetMenuBackPngFlg(void)
+{
+	return _menuBackPngFlg;
 }

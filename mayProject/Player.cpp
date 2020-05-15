@@ -6,6 +6,7 @@
 #include "GameScene.h"
 #include "Player.h"
 
+// スキルチャージ時間の最大値
 #define SKILL_CHARGE 3
 
 struct player
@@ -69,6 +70,9 @@ void Player::Init(void)
 	_pngLight = 50;
 	_lightFlg = false;
 
+	_barrierMaxNum = 0;
+	_barrierNum = 0;
+
 	pngInit();
 }
 
@@ -90,6 +94,14 @@ void Player::pngInit(void)
 	std::string skill_attack = "image/skill_attack.png";
 	_skillAttackIconPNG = LoadGraph(skill_attack.c_str());
 
+	// 防御系スキルアイコン
+	std::string skill_barrier = "image/skill_barrier.png";
+	_skillBarrierIconPNG = LoadGraph(skill_barrier.c_str());
+
+	// 回復系スキルアイコン
+	std::string skill_heal = "image/skill_heal.png";
+	_skillHealIconPNG = LoadGraph(skill_heal.c_str());
+
 	// やめるの文字画像
 	std::string cancel = "image/cancel.png";
 	_skillCancelPNG = LoadGraph(cancel.c_str());
@@ -97,6 +109,14 @@ void Player::pngInit(void)
 	// 力こぶのアイコン画像
 	std::string muscle = "image/muscle.png";
 	_skillMuscleIconPNG = LoadGraph(muscle.c_str());
+
+	// バリアバーの背景画像
+	std::string barrier_back = "image/barrier_back.png";
+	_barrierBarBackPNG = LoadGraph(barrier_back.c_str());
+
+	// バリアバー画像
+	std::string barrier_bar = "image/barrier_bar.png";
+	_barrierBarPNG = LoadGraph(barrier_bar.c_str());
 }
 
 void Player::Draw(Menu* menu)
@@ -122,9 +142,23 @@ void Player::Draw(Menu* menu)
 	if (_skillBackFlg)
 	{
 		DrawGraph(250, 90, _skillBackPNG, true);
-		DrawGraph(300, 150, _skillAttackIconPNG, true);
-		DrawFormatString(300,250, 0x000000, "攻撃スキル:\n%dダメージ", player_status.attackDamage * 10 + menu->GetEquipDamage());
-		DrawGraph(375, 300, _skillCancelPNG, true);
+		DrawGraph(290, 150, _skillAttackIconPNG, true);
+		DrawGraph(410, 150, _skillBarrierIconPNG, true);
+		DrawGraph(530, 150, _skillHealIconPNG, true);
+		DrawFormatString(280,250, 0x000000, "攻撃スキル:\n%dダメージ", player_status.attackDamage * 10 + menu->GetEquipDamage());
+		DrawFormatString(410,250, 0x000000, "防御スキル:\n耐久%dの\nバリア展開", 30);
+		DrawGraph(385, 320, _skillCancelPNG, true);
+	}
+
+	// バリアバーの表示
+	if (_barrierNum > 0)
+	{
+		DrawFormatString(600, 325, 0xffffff, "バリア耐久:%d/%d", _barrierNum, _barrierMaxNum);
+
+		int pgx = 150;
+		int pgy = 25;
+		DrawExtendGraph(600, 350, 600 + pgx, 350 + pgy, _barrierBarBackPNG, true);
+		DrawExtendGraph(600, 350, 600 + pgx * ((float)_barrierNum / (float)_barrierMaxNum), 350 + pgy, _barrierBarPNG, true);
 	}
 }
 
@@ -134,47 +168,85 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game)
 	int y = 0;
 	auto Mouse = GetMouseInput();                //マウスの入力状態取得
 	// スキル使用可能時のマウスクリック位置とアイコン(円)との当たり判定
-	if (_skillFlg)
+	// アイテム画面中はスキルチャージアイコンを押せない
+	if (!menu->GetMenuBackPngFlg())
 	{
-		GetMousePoint(&x, &y);					     //マウスの座標取得
-
-		// 782,564(アイコン描画位置)
-		float a = x - 782;
-		float b = y - 564;
-		float c = sqrt(a * a + b * b);
-
-		// 当たり判定(当たっているとき)
-		if (c <= 34)
+		if (_skillFlg)
 		{
-			// スキルはターン消費なしで行える動作
-			_skillBackFlg = true;
-			// 攻撃系(基礎攻撃力*10+武器威力で一定のダメージを与えられる)
-			//monster->Damage(player_status.attackDamage * 10 + menu->GetEquipDamage());
-			//game->blinkFlg = true;
-			// フラグと回数を元に戻す
-			//_skillFlg = false;
-			//_skillCharge = SKILL_CHARGE;
+			GetMousePoint(&x, &y);					     //マウスの座標取得
+
+			// 782,564(アイコン描画位置)
+			float a = x - 782;
+			float b = y - 564;
+			float c = sqrt(a * a + b * b);
+
+			// 当たり判定(当たっているとき)
+			if (c <= 34)
+			{
+				// スキルはターン消費なしで行える動作
+				_skillBackFlg = true;
+				// 攻撃系(基礎攻撃力*10+武器威力で一定のダメージを与えられる)
+				//monster->Damage(player_status.attackDamage * 10 + menu->GetEquipDamage());
+				//game->blinkFlg = true;
+				// フラグと回数を元に戻す
+				//_skillFlg = false;
+				//_skillCharge = SKILL_CHARGE;
+			}
 		}
 	}
 
 	if (_skillBackFlg)
 	{
 		// やめるボタンとの当たり判定
-		if (x >= 375 && x <= 375 + 150 && y >= 300 && y <= 300 + 65)
+		if (x >= 385 && x <= 385 + 150 && y >= 320 && y <= 320 + 65)
 		{
 			_skillBackFlg = false;
 		}
 
-		// 攻撃アイコンとの当たり判定
-		if (x >= 300 && x <= 300 + 100 && y >= 150 && y <= 150 + 100)
-		{
-			// 攻撃系(基礎攻撃力*10+武器威力で一定のダメージを与えられる)
-			monster->Damage(player_status.attackDamage * 10 + menu->GetEquipDamage());
-			game->blinkFlg = true;
+		auto lambda = [&]() {
 			// フラグと回数を元に戻す
 			_skillFlg = false;
 			_skillBackFlg = false;
 			_skillCharge = SKILL_CHARGE;
+		};
+
+		// 攻撃アイコンとの当たり判定
+		if (x >= 290 && x <= 290 + 100 && y >= 150 && y <= 150 + 100)
+		{
+			// 攻撃系(基礎攻撃力*10+武器威力で一定のダメージを与えられる)
+			monster->Damage(player_status.attackDamage * 10 + menu->GetEquipDamage());
+			game->blinkFlg = true;
+			lambda();
+			//// フラグと回数を元に戻す
+			//_skillFlg = false;
+			//_skillBackFlg = false;
+			//_skillCharge = SKILL_CHARGE;
+		}
+
+		// 防御アイコンとの当たり判定
+		if (x >= 410 && x <= 410 + 100 && y >= 150 && y <= 150 + 100)
+		{
+			// 仮値で30
+			_barrierMaxNum = 30;
+			_barrierNum = 30;
+			// 防御系(特定値*プレイヤーレベル)
+			lambda();
+			//// フラグと回数を元に戻す
+			//_skillFlg = false;
+			//_skillBackFlg = false;
+			//_skillCharge = SKILL_CHARGE;
+		}
+
+		// 回復アイコンとの当たり判定
+		if (x >= 530 && x <= 530 + 100 && y >= 150 && y <= 150 + 100)
+		{
+			int a = 0;
+			// 回復系(全回復もしかしたらリジェネ風に変更するかも)
+			lambda();
+			//// フラグと回数を元に戻す
+			//_skillFlg = false;
+			//_skillBackFlg = false;
+			//_skillCharge = SKILL_CHARGE;
 		}
 	}
 }
@@ -363,4 +435,19 @@ void Player::SetSkillCharge(void)
 int Player::GetSkillCharge(void)
 {
 	return _skillCharge;
+}
+
+bool Player::GetSkillBackFlg(void)
+{
+	return _skillBackFlg;
+}
+
+void Player::SetBarrierNum(int num)
+{
+	_barrierNum = num;
+}
+
+int Player::GetBarrierNum(void)
+{
+	return _barrierNum;
 }
