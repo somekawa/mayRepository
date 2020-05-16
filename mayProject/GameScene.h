@@ -1,4 +1,6 @@
 #pragma once
+#include <map>
+#include <vector>
 #include "BaseScene.h"
 #include "VECTOR2.h"
 #include "Cards.h"
@@ -12,6 +14,13 @@
 
 // イベント量の最大値
 #define EVENT_MAXNUM 99
+
+// 道画像
+enum class MAP {
+	STRAIGHT,// 直進
+	RIGHT,	 // 右折のみ
+	MAX
+};
 
 class GameScene :
 	public BaseScene
@@ -120,6 +129,17 @@ private:
 	// 死亡時のあきらめるの画像
 	int _deadPNG;
 
+	// ダンジョン
+	// 直進
+	//int straightPNG;
+	// 右折のみ
+	//int rightPNG;
+	// 左折のみ
+	//int leftPNG;
+	// 道(今は直進と右折のみ)
+	int roadPNG[static_cast<int>(MAP::MAX)];
+	int chipPNG[static_cast<int>(MAP::MAX)];
+
 	/*音関係*/
 	// SE関連
 	int _soundSE[8];
@@ -128,4 +148,16 @@ private:
 	// BGM関連
 	int _gameBGM;
 	int _battleBGM;
+
+	int testCnt = 0;
+
+	//int num[3][3];		// マップ的なもの
+	std::pair<bool, int> numkai[4][4];
+	int plNowPoint;		// プレイヤーの現在地
+	int testx;
+	int testy;
+	//std::map<bool, std::pair<int, int>> mapTest;
+	//std::map<int, int> mapTest;
+	//VECTOR2 movePos[4];		// マップ移動軌跡
+	std::vector<VECTOR2> vec;
 };

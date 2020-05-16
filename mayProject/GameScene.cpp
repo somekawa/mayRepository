@@ -376,6 +376,35 @@ bool GameScene::Init(void)
 	_gameBGM = LoadSoundMem("sound/bgm/dangeon.mp3");
 	_battleBGM = LoadSoundMem("sound/bgm/battle.mp3");
 	PlaySoundMem(_gameBGM, DX_PLAYTYPE_LOOP, true);
+
+
+	// 本当は[0][0]に1が入るみたいにする
+	// [0][0]に1 [0][1]に3が入るテストを行う
+	//ファイルを読み込む
+	// num[y][x]
+	// int num[3][3];
+	auto testFileHandle = FileRead_open("csv/test.csv");
+	if (testFileHandle == NULL)
+	{
+		return false; //エラー時の処理
+	}
+
+	for (int i = 0; i < 4; i++)
+	{
+		FileRead_scanf(testFileHandle, "%d,%d,%d", &numkai[i][0].second, &numkai[i][1].second, &numkai[i][2].second);
+	}
+
+	//ファイルを閉じる
+	FileRead_close(testFileHandle);
+
+	// 3が入るから、y方向に1ずれてx方向は移動なし
+	// つまり、配列は[y][x]の順になっている
+	//int aa = num[0][1];
+
+	testx = 0;
+	testy = 0;
+	plNowPoint = numkai[testy][testx].second;
+
 	return true;
 }
 
@@ -413,6 +442,24 @@ void GameScene::pngInit(void)
 	_room[0] = LoadGraph(room_0.c_str());
 	_room[1] = LoadGraph(room_1.c_str());
 	_room[2] = LoadGraph(room_2.c_str());
+
+	// ダンジョン
+	// 直進
+	std::string dan_go = "image/dan_go.png";
+	//straightPNG = LoadGraph(dan_go.c_str());
+	// 右折のみ
+	std::string dan_right = "image/dan_right.png";
+	//rightPNG = LoadGraph(dan_right.c_str());
+	// 左折のみ
+	//std::string dan_left = "image/dan_left.png";
+	//leftPNG = LoadGraph(dan_left.c_str());
+	roadPNG[0] = LoadGraph(dan_go.c_str());
+	roadPNG[1] = LoadGraph(dan_right.c_str());
+
+	// マップチップ
+	std::string chip_go = "image/mapchip/chip_go.png";
+	chipPNG[0] = LoadGraph(chip_go.c_str());
+
 
 	// 進むの文字
 	std::string walk = "image/walk.png";
@@ -457,6 +504,7 @@ void GameScene::Draw(void)
 		SetDrawBlendMode(DX_BLENDMODE_INVSRC, _plDeadChangeWinColor);
 	}
 
+
 	//角度変数に毎回delta加算
 	//radianに直してsinにいれる
 	//出た値に上下させたい幅を*
@@ -483,7 +531,11 @@ void GameScene::Draw(void)
 	{
 		if (walkCnt != _goalCnt)
 		{
-			DrawRotaGraph(450, 300, 1.0f, 0, _room[0], false);
+			//DrawRotaGraph(450, 300, 1.0f, 0, _room[0], false);
+			//DrawRotaGraph(450, 300, 1.0f, 0, straightPNG, false);
+			//DrawRotaGraph(450-testCnt, 300, 1.0f, 0, rightPNG, false);
+			//DrawRotaGraph(450 - testCnt, 300, 1.0f, 0, roadPNG[1], false);
+			DrawRotaGraph(450 - testCnt, 300, 1.0f, 0, roadPNG[plNowPoint], false);
 		}
 		_shakeTime = 0.0f;
 		_shakeChangeFlg = false;
@@ -505,6 +557,11 @@ void GameScene::Draw(void)
 			_doorExpand += 0.005f;
 			move = sin * 25.0f;
 			_doorOpenTiming = 20;
+			// 右折なら加算
+			if (plNowPoint == 1)
+			{
+				testCnt += 2;
+			}
 		}
 		else
 		{
@@ -519,9 +576,11 @@ void GameScene::Draw(void)
 			}
 		}
 
-		//DrawRotaGraph(300 + 204 / 2, move + 100 + 292 / 2, _doorExpand, 0, doorPNG[0], false);
-		DrawRotaGraph(450, move + 300, _doorExpand, 0, _room[0], false);
-
+		//DrawRotaGraph(450, move + 300, _doorExpand, 0, _room[0], false);
+		//DrawRotaGraph(450, move + 300, _doorExpand, 0,straightPNG, false);
+		//DrawRotaGraph(450 - testCnt, move + 300, _doorExpand, 0,rightPNG, false);
+		//DrawRotaGraph(450 - testCnt, move + 300, _doorExpand, 0, roadPNG[1], false);
+		DrawRotaGraph(450 - testCnt, move + 300, _doorExpand, 0, roadPNG[plNowPoint], false);
 	}
 
 	if (_openDoor)
@@ -549,7 +608,9 @@ void GameScene::Draw(void)
 		}
 		else
 		{
-			DrawRotaGraph(450, 300, 1.5f, 0, _room[1], false);
+			//DrawRotaGraph(450, 300, 1.5f, 0, _room[1], false);
+			//DrawRotaGraph(450, 300, 1.5f, 0, straightPNG, false);
+			//DrawRotaGraph(450, 300, 1.5f, 0, rightPNG, false);
 		}
 	}
 
@@ -741,6 +802,25 @@ void GameScene::Draw(void)
 		DrawGraph(450, 225, _deadPNG, true);
 	}
 
+	// マップチップ描画テスト
+	// 直進用チップ
+	//DrawGraph(0, 500, chipPNG[0], true);
+	// ただ、これだと1つのチップが動くだけ(自分の現在地用になら使える)
+	// 過去に通った道をmapとかなんとかでためていく
+	// どっちか一致してたら作ってくれないのかよ
+	// 今まで歩いたxとyと一致しなかったらつくるようにする。
+
+	// 現在地
+	//DrawGraph(testx*50,550 - (testy*50), chipPNG[0], true);
+
+	// 最初の1歩
+	//DrawGraph(0, 550, chipPNG[0], true);
+	// 現在地を保存していく?
+	for (auto v = vec.begin(); v != vec.end(); ++v)
+	{
+		DrawGraph((*v).x, (*v).y, chipPNG[0], true);
+	}
+
 	ScreenFlip();
 }
 
@@ -752,6 +832,8 @@ void GameScene::MouseClick_Go(void)
 	{
 		if (cursorPos.x >= 750 && cursorPos.x <= 750 + 150 && cursorPos.y >= 345 && cursorPos.y <= 345 + 75)
 		{
+			testCnt = 0;
+
 			// 敵が出ないときは扉を出す
 			if (walkCnt != _eventNum[_event->GetNowEvent()] && !moveFlg)
 			{
@@ -782,6 +864,42 @@ void GameScene::MouseClick_Go(void)
 			// 扉が開いていたら再設定
 			if (_openDoor)
 			{
+				// 直線ならy加算
+				if (plNowPoint == 0)
+				{
+					testy++;
+				}
+				else if (plNowPoint == 1)
+				{
+					// 右折ならx加算
+					testx++;
+				}
+				//左折はx減算
+				//後ろに戻るy減算
+				
+				//if (!numkai[testy][testx].first)
+				//{
+				//	movePos[aaab] = VECTOR2(testx * 50, 550 - (testy * 50));
+				//	aaab++;
+				//}
+				plNowPoint = numkai[testy][testx].second;
+				//numkai[testy][testx].first = true;
+
+				if (!numkai[testy][testx].first)
+				{
+					vec.emplace_back(VECTOR2(testx * 50, 550 - (testy * 50)));
+					numkai[testy][testx].first = true;
+				}
+
+				// 通ったことのある道はフラグがtrueになる仕組み
+				// フラグがfalse(通ったことがない)なら追加する
+				//if (!numkai[testy][testx].first)
+				//{
+					//mapTest.insert(std::make_pair(testx, testy));
+					//aaab++;
+					//numkai[testy][testx].first = true;
+				//}
+
 				// クリック音
 				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 
@@ -1114,7 +1232,11 @@ void GameScene::shakeDraw(void)
 		}
 	}
 
-	DrawRotaGraph(450 + _shackPos.x, 300 + _shackPos.y, 1.0f, 0, _room[0], false);
+	//DrawRotaGraph(450 + _shackPos.x, 300 + _shackPos.y, 1.0f, 0, _room[0], false);
+	//DrawRotaGraph(450 + _shackPos.x, 300 + _shackPos.y, 1.0f, 0, straightPNG, false);
+	//DrawRotaGraph(450 + _shackPos.x, 300 + _shackPos.y, 1.0f, 0, rightPNG, false);
+	DrawRotaGraph(450 + _shackPos.x, 300 + _shackPos.y, 1.0f, 0, roadPNG[1], false);
+	DrawRotaGraph(450 + _shackPos.x, 300 + _shackPos.y, 1.0f, 0, roadPNG[plNowPoint], false);
 
 	if (_shakeTime >= 15.0f)
 	{
