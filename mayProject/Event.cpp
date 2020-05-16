@@ -334,7 +334,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 		if (_fateNum == 0)
 		{
 			DrawGraph(350, 150, _chsetItemPNG, true);
-			DrawFormatString(450, 70, 0x000000, "回復薬が入っていた!");
+			DrawFormatString(450, 70, 0x000000, "アイテムが入っていた!");
 		}
 
 		if (_fateNum > 0)
@@ -747,7 +747,8 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
 			if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 200 && game->cursorPos.y <= 200 + 75)
 			{
 				_pushFlg = true;
-				_fateNum = GetRand(2);	// 0 ~ 2
+				//_fateNum = GetRand(2);	// 0 ~ 2
+				_fateNum = 0;
 			}
 		}
 	}
@@ -802,8 +803,31 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
 				{
 					// クリック音
 					PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
+					int randNum = GetRand(4);
+					switch (randNum)	// 0~3
+					{
+					case 0:
+						// 持ち物が満タンじゃなければ持てる
+						menu->Setitem(item->GetPair(static_cast<int>(ITEM::POTION_BIG) - 1).second, item->GetPair(static_cast<int>(ITEM::POTION_BIG) - 1).first);
+						break;
+					case 1:
+						// 持ち物が満タンじゃなければ持てる
+						menu->Setitem(item->GetPair(static_cast<int>(ITEM::DETOX) - 1).second, item->GetPair(static_cast<int>(ITEM::DETOX) - 1).first);
+						break;
+					case 2:
+						// 持ち物が満タンじゃなければ持てる
+						menu->Setitem(item->GetPair(static_cast<int>(ITEM::KYOUKA_POW) - 1).second, item->GetPair(static_cast<int>(ITEM::KYOUKA_POW) - 1).first);
+						break;
+					case 3:
+						// 持ち物が満タンじゃなければ持てる
+						menu->Setitem(item->GetPair(static_cast<int>(ITEM::HEART) - 1).second, item->GetPair(static_cast<int>(ITEM::HEART) - 1).first);
+						break;
+					default:
+						// 持ち物が満タンじゃなければ持てる
+						menu->Setitem(item->GetPair(static_cast<int>(ITEM::POTION_BIG) - 1).second, item->GetPair(static_cast<int>(ITEM::POTION_BIG) - 1).first);
+					}
 					// 持ち物が満タンじゃなければ持てる
-					menu->Setitem(item->GetPair(static_cast<int>(ITEM::POTION_BIG) - 1).second, item->GetPair(static_cast<int>(ITEM::POTION_BIG)-1).first);
+					//menu->Setitem(item->GetPair(static_cast<int>(ITEM::POTION_BIG) - 1).second, item->GetPair(static_cast<int>(ITEM::POTION_BIG)-1).first);
 					_getFlg = false;
 					_anounceFlg = false;
 				}
