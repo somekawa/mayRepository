@@ -355,7 +355,7 @@ void Menu::Update(Player* player, Monster* monster, Cards* cards)
 					// ‚‚ÉŠÖ‚µ‚Ä
 					for (auto item : ITEM())
 					{
-						if (item >= ITEM::SHIELD && item <= ITEM::SHIELD_LV2)
+						if (item >= ITEM::SHIELD && item <= ITEM::SHIELD_LV3)
 						{
 							if (itemBox[_chooseNum]._item == item)
 							{
@@ -496,7 +496,7 @@ void Menu::Update(Player* player, Monster* monster, Cards* cards)
 					// ‚‚ÉŠÖ‚µ‚Ä
 					for (auto item : ITEM())
 					{
-						if (item >= ITEM::SHIELD && item <= ITEM::SHIELD_LV2)
+						if (item >= ITEM::SHIELD && item <= ITEM::SHIELD_LV3)
 						{
 							if (itemBox[_chooseNum]._item == item)
 							{
@@ -617,7 +617,7 @@ void Menu::Update(Player* player, Monster* monster, Cards* cards)
 	// ‚‚ÉŠÖ‚µ‚Ä
 	for (auto item : ITEM())
 	{
-		if (item >= ITEM::SHIELD && item <= ITEM::SHIELD_LV2)
+		if (item >= ITEM::SHIELD && item <= ITEM::SHIELD_LV3)
 		{
 			if (itemBox[_chooseNum]._item == item)
 			{

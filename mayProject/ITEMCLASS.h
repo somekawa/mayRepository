@@ -12,6 +12,7 @@ enum class ITEM {
 	SWORD_LV3,
 	SHIELD,
 	SHIELD_LV2,	
+	SHIELD_LV3,
 	ENEMY_1,		// ドロップアイテムはここから(固定ダメージ20)
 	ENEMY_2,		// 次の攻撃のみ無効化
 	POTION_BIG,		// 宝箱のみからでてくる大回復

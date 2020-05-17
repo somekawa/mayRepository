@@ -215,7 +215,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 			{
 				// 2ページ目
 				// アイテム表示
-				for (int i = 0; i <= 0; i++)
+				for (int i = 0; i <= 1; i++)
 				{
 					DrawGraph(item->GetPos(i).x, item->GetPos(i).y, _itemBoxPNG, true);
 					DrawGraph(item->GetPos(i).x, item->GetPos(i).y, item->GetPair(i+8).first, true);
@@ -479,7 +479,7 @@ void Event::Syounin(GameScene* game, Player* player, Menu* menu, Item* item)
 			_soundWalk = true;
 
 			// アイテムの補充処理
-			for (int i = 0; i <= 8; i++)
+			for (int i = 0; i <= 9; i++)
 			{
 				//if (item_pair[i].first == _soldOutPNG)
 				//{
