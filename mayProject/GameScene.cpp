@@ -80,7 +80,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 					}
 				}
 
-				MouseClick_Go();
+				//MouseClick_Go();
 			}
 		}
 		else
@@ -140,6 +140,8 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 		//}
 
 	}
+
+	MouseClick_Go(ctl);
 
 	// タイトルへ戻る
 	if (_menu->GetMenu() == MENU::TO_TITLE)
@@ -383,7 +385,7 @@ bool GameScene::Init(void)
 	//ファイルを読み込む
 	// num[y][x]
 	// int num[3][3];
-	auto testFileHandle = FileRead_open("csv/test.csv");
+	auto testFileHandle = FileRead_open("csv/test2.csv");
 	if (testFileHandle == NULL)
 	{
 		return false; //エラー時の処理
@@ -401,7 +403,7 @@ bool GameScene::Init(void)
 	// つまり、配列は[y][x]の順になっている
 	//int aa = num[0][1];
 
-	testx = 0;
+	testx = 2;
 	testy = 0;
 	plNowPoint = numkai[testy][testx].second;
 
@@ -451,10 +453,11 @@ void GameScene::pngInit(void)
 	std::string dan_right = "image/dan_right.png";
 	//rightPNG = LoadGraph(dan_right.c_str());
 	// 左折のみ
-	//std::string dan_left = "image/dan_left.png";
+	std::string dan_left = "image/dan_left.png";
 	//leftPNG = LoadGraph(dan_left.c_str());
 	roadPNG[0] = LoadGraph(dan_go.c_str());
 	roadPNG[1] = LoadGraph(dan_right.c_str());
+	roadPNG[2] = LoadGraph(dan_left.c_str());
 
 	// マップチップ
 	std::string chip_go = "image/mapchip/chip_go.png";
@@ -561,6 +564,10 @@ void GameScene::Draw(void)
 			if (plNowPoint == 1)
 			{
 				testCnt += 2;
+			}
+			else if (plNowPoint == 2)	// 左折なら減算
+			{
+				testCnt -= 2;
 			}
 		}
 		else
@@ -824,192 +831,223 @@ void GameScene::Draw(void)
 	ScreenFlip();
 }
 
-void GameScene::MouseClick_Go(void)
+void GameScene::MouseClick_Go(const GameCtl& ctl)
 {
 	// 進むボタン(X:750,Y:345)
 	// メニュー画面表示中は進むボタンを押せないようにする
 	if (!_menu->GetMenuFlg() && _menu->GetMenu() == MENU::NON)
 	{
-		if (cursorPos.x >= 750 && cursorPos.x <= 750 + 150 && cursorPos.y >= 345 && cursorPos.y <= 345 + 75)
+		//if (cursorPos.x >= 750 && cursorPos.x <= 750 + 150 && cursorPos.y >= 345 && cursorPos.y <= 345 + 75)
+		//{
+
+		// キーボード操作(画像拡大最中は処理しない)
+		if (plNowPoint == 0 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
 		{
-			testCnt = 0;
-
-			// 敵が出ないときは扉を出す
-			if (walkCnt != _eventNum[_event->GetNowEvent()] && !moveFlg)
+			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_UP]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_UP]))
 			{
-				// クリック音
-				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-
-				// 歩行音
-				PlaySoundMem(_soundSE[1], DX_PLAYTYPE_BACK, true);
-				_soundWalk = true;
-
-				moveFlg = true;
-				walkCnt++;
-				// プレイヤーが状態異常のとき
-				if (_player->GetCondition() == CONDITION::POISON)
-				{
-					// ダメージ音
-					PlaySoundMem(_soundSE[6], DX_PLAYTYPE_BACK, true);
-
-					// 体力の1/5ぐらい削ろうかな
-					_player->SetHP(_player->GetHP() - (float)_player->GetMaxHP() * (1.0f / 5.0f));
-					// 1ターンマイナス
-					_player->SetConditionTurn(_player->GetConditionTurn() - 1);
-
-					shakeFlg = true;
-				}
-			}
-
-			// 扉が開いていたら再設定
-			if (_openDoor)
-			{
-				// 直線ならy加算
-				if (plNowPoint == 0)
-				{
-					testy++;
-				}
-				else if (plNowPoint == 1)
-				{
-					// 右折ならx加算
-					testx++;
-				}
-				//左折はx減算
-				//後ろに戻るy減算
-				
-				//if (!numkai[testy][testx].first)
-				//{
-				//	movePos[aaab] = VECTOR2(testx * 50, 550 - (testy * 50));
-				//	aaab++;
-				//}
-				plNowPoint = numkai[testy][testx].second;
-				//numkai[testy][testx].first = true;
-
-				if (!numkai[testy][testx].first)
-				{
-					vec.emplace_back(VECTOR2(testx * 50, 550 - (testy * 50)));
-					numkai[testy][testx].first = true;
-				}
-
-				// 通ったことのある道はフラグがtrueになる仕組み
-				// フラグがfalse(通ったことがない)なら追加する
-				//if (!numkai[testy][testx].first)
-				//{
-					//mapTest.insert(std::make_pair(testx, testy));
-					//aaab++;
-					//numkai[testy][testx].first = true;
-				//}
-
-				// クリック音
-				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-
-				_monster[0]->SetEnemyState(ENEMY_STATE::NON);
-				//doorFlg = true;
-				moveFlg = false;
-				_openDoor = false;
-				_degree = 0.0f;
-				_doorExpand = 1.0f;
-			}
-
-			// イベントマスでランダムに数値を出し、対応した数値でイベントを発生させる
-			// ランダムで数字を出して、出た数字で出現させるものを決める
-			// 敵との遭遇回数をふやしたかったら数字の0~3までをenemyとかにすればいいかもしれない
-			if (walkCnt == _eventNum[_event->GetNowEvent()] && eventState == EVENT_STATE::NON && !moveFlg)
-			{
-				int randNum = GetRand(5);
-				
-				if (walkCnt == _bossEventNum)
-				{
-					randNum = 0;
-				}
-
-				// 前回のイベント内容と被っているならとりま敵にする
-				if (randNum == _eventChoiceNumOld[0])
-				{
-					randNum = 0;
-				}
-
-				// 敵以外のイベント同士で被っているときは敵にする
-				if (_eventChoiceNumOld[1] != 0 && _eventChoiceNumOld[2] != 0 && _eventChoiceNumOld[1] == _eventChoiceNumOld[2])
-				{
-					randNum = 0;
-				}
-
-				// 直近3回のイベントに敵が出現していないときは、敵のイベントをする
-				if (_eventChoiceNumOld[0] != 0 && _eventChoiceNumOld[1] != 0 && _eventChoiceNumOld[2] != 0)
-				{
-					randNum = 0;
-				}
-
-				switch (randNum)	// 0~5
-				{
-				case 0:
-					eventState = EVENT_STATE::ENEMY;
-					break;
-				case 1:
-					eventState = EVENT_STATE::YADO;
-					break;
-				case 2:
-					eventState = EVENT_STATE::SYOUNIN;
-					break;
-				case 3:
-					eventState = EVENT_STATE::BUTTON;
-					break;
-				case 4:
-					eventState = EVENT_STATE::CHEST;
-					break;
-				case 5:
-					eventState = EVENT_STATE::DRINK;
-					break;
-				default:
-					eventState = EVENT_STATE::ENEMY;
-					break;
-				}
-
-				// 数字情報が消える前に保存しておく
-				_eventChoiceNumOld[_eventChoiceNum] = randNum;
-				if (_eventChoiceNum <= 1)
-				{
-					_eventChoiceNum++;
-				}
-				else
-				{
-					_eventChoiceNum = 0;
-				}
-			}
-
-			// 敵の出現
-			if (eventState == EVENT_STATE::ENEMY)
-			{
-				if (_monster[0]->GetEnemyState() == ENEMY_STATE::NON)
-				{
-					//doorFlg = false;
-					moveFlg = false;
-
-					// ボスならこっち
-					if (walkCnt == _bossEventNum)
-					{
-						auto ene = 5;
-						_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ボス用)
-						_cards->SetTurn(_monster[0]->GetMaxTurn());
-					}
-					else
-					{
-						// 敵は0~4まで
-						auto ene = GetRand(4);
-						_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ランダムにする)
-						_cards->SetTurn(_monster[0]->GetMaxTurn());
-					}
-				}
-			}
-
-			// 宿屋・商人・ボタン・宝箱の出現
-			if (eventState != EVENT_STATE::NON && eventState != EVENT_STATE::ENEMY)
-			{
-				//doorFlg = false;
-				moveFlg = false;
+				TestKey();
+				//_plDirect = PL_DIRECTION::UP;
 			}
 		}
+
+		if (plNowPoint == 1 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
+		{
+			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_RIGHT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_RIGHT]))
+			{
+				TestKey();
+				//_plDirect = PL_DIRECTION::RIGHT;
+			}
+		}
+
+		if (plNowPoint == 2 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
+		{
+			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
+			{
+				TestKey();
+				//_plDirect = PL_DIRECTION::LEFT;
+			}
+		}
+		//if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_F2]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_F2]))
+		//{
+			//
+			//testCnt = 0;
+			//
+			//// 敵が出ないときは扉を出す
+			//if (walkCnt != _eventNum[_event->GetNowEvent()] && !moveFlg)
+			//{
+			//	// クリック音
+			//	PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
+			//
+			//	// 歩行音
+			//	PlaySoundMem(_soundSE[1], DX_PLAYTYPE_BACK, true);
+			//	_soundWalk = true;
+			//
+			//	moveFlg = true;
+			//	walkCnt++;
+			//	// プレイヤーが状態異常のとき
+			//	if (_player->GetCondition() == CONDITION::POISON)
+			//	{
+			//		// ダメージ音
+			//		PlaySoundMem(_soundSE[6], DX_PLAYTYPE_BACK, true);
+			//
+			//		// 体力の1/5ぐらい削ろうかな
+			//		_player->SetHP(_player->GetHP() - (float)_player->GetMaxHP() * (1.0f / 5.0f));
+			//		// 1ターンマイナス
+			//		_player->SetConditionTurn(_player->GetConditionTurn() - 1);
+			//
+			//		shakeFlg = true;
+			//	}
+			//}
+			//
+			//// 扉が開いていたら再設定
+			//if (_openDoor)
+			//{
+			//	//if (plNowPoint == 0)
+			//	//{
+			//	//	testy++;
+			//	//}
+			//	//else if (plNowPoint == 1)
+			//	//{
+			//	//	_plDirect = PL_DIRECTION::RIGHT;
+			//	//	rightFlg = true;
+			//	//	testx++;
+			//	//}				
+			//
+			//	TestDirect();
+			//	//if (!numkai[testy][testx].first)
+			//	//{
+			//	//	movePos[aaab] = VECTOR2(testx * 50, 550 - (testy * 50));
+			//	//	aaab++;
+			//	//}
+			//	plNowPoint = numkai[testy][testx].second;
+			//	//numkai[testy][testx].first = true;
+			//
+			//	if (!numkai[testy][testx].first)
+			//	{
+			//		vec.emplace_back(VECTOR2(testx * 50, 550 - (testy * 50)));
+			//		numkai[testy][testx].first = true;
+			//	}
+			//
+			//	// 通ったことのある道はフラグがtrueになる仕組み
+			//	// フラグがfalse(通ったことがない)なら追加する
+			//	//if (!numkai[testy][testx].first)
+			//	//{
+			//		//mapTest.insert(std::make_pair(testx, testy));
+			//		//aaab++;
+			//		//numkai[testy][testx].first = true;
+			//	//}
+			//
+			//	// クリック音
+			//	PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
+			//
+			//	_monster[0]->SetEnemyState(ENEMY_STATE::NON);
+			//	//doorFlg = true;
+			//	moveFlg = false;
+			//	_openDoor = false;
+			//	_degree = 0.0f;
+			//	_doorExpand = 1.0f;
+			//}
+			//
+			//// イベントマスでランダムに数値を出し、対応した数値でイベントを発生させる
+			//// ランダムで数字を出して、出た数字で出現させるものを決める
+			//// 敵との遭遇回数をふやしたかったら数字の0~3までをenemyとかにすればいいかもしれない
+			//if (walkCnt == _eventNum[_event->GetNowEvent()] && eventState == EVENT_STATE::NON && !moveFlg)
+			//{
+			//	int randNum = GetRand(5);
+			//
+			//	if (walkCnt == _bossEventNum)
+			//	{
+			//		randNum = 0;
+			//	}
+			//
+			//	// 前回のイベント内容と被っているならとりま敵にする
+			//	if (randNum == _eventChoiceNumOld[0])
+			//	{
+			//		randNum = 0;
+			//	}
+			//
+			//	// 敵以外のイベント同士で被っているときは敵にする
+			//	if (_eventChoiceNumOld[1] != 0 && _eventChoiceNumOld[2] != 0 && _eventChoiceNumOld[1] == _eventChoiceNumOld[2])
+			//	{
+			//		randNum = 0;
+			//	}
+			//
+			//	// 直近3回のイベントに敵が出現していないときは、敵のイベントをする
+			//	if (_eventChoiceNumOld[0] != 0 && _eventChoiceNumOld[1] != 0 && _eventChoiceNumOld[2] != 0)
+			//	{
+			//		randNum = 0;
+			//	}
+			//
+			//	switch (randNum)	// 0~5
+			//	{
+			//	case 0:
+			//		eventState = EVENT_STATE::YADO;
+			//		break;
+			//	case 1:
+			//		eventState = EVENT_STATE::YADO;
+			//		break;
+			//	case 2:
+			//		eventState = EVENT_STATE::SYOUNIN;
+			//		break;
+			//	case 3:
+			//		eventState = EVENT_STATE::BUTTON;
+			//		break;
+			//	case 4:
+			//		eventState = EVENT_STATE::CHEST;
+			//		break;
+			//	case 5:
+			//		eventState = EVENT_STATE::DRINK;
+			//		break;
+			//	default:
+			//		eventState = EVENT_STATE::ENEMY;
+			//		break;
+			//	}
+			//
+			//	// 数字情報が消える前に保存しておく
+			//	_eventChoiceNumOld[_eventChoiceNum] = randNum;
+			//	if (_eventChoiceNum <= 1)
+			//	{
+			//		_eventChoiceNum++;
+			//	}
+			//	else
+			//	{
+			//		_eventChoiceNum = 0;
+			//	}
+			//}
+			//
+			//// 敵の出現
+			//if (eventState == EVENT_STATE::ENEMY)
+			//{
+			//	if (_monster[0]->GetEnemyState() == ENEMY_STATE::NON)
+			//	{
+			//		//doorFlg = false;
+			//		moveFlg = false;
+			//
+			//		// ボスならこっち
+			//		if (walkCnt == _bossEventNum)
+			//		{
+			//			auto ene = 5;
+			//			_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ボス用)
+			//			_cards->SetTurn(_monster[0]->GetMaxTurn());
+			//		}
+			//		else
+			//		{
+			//			// 敵は0~4まで
+			//			auto ene = GetRand(4);
+			//			_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ランダムにする)
+			//			_cards->SetTurn(_monster[0]->GetMaxTurn());
+			//		}
+			//	}
+			//}
+			//
+			//// 宿屋・商人・ボタン・宝箱の出現
+			//if (eventState != EVENT_STATE::NON && eventState != EVENT_STATE::ENEMY)
+			//{
+			//	//doorFlg = false;
+			//	moveFlg = false;
+			//}
+		//}
+		//}
 	}
 }
 
@@ -1235,7 +1273,7 @@ void GameScene::shakeDraw(void)
 	//DrawRotaGraph(450 + _shackPos.x, 300 + _shackPos.y, 1.0f, 0, _room[0], false);
 	//DrawRotaGraph(450 + _shackPos.x, 300 + _shackPos.y, 1.0f, 0, straightPNG, false);
 	//DrawRotaGraph(450 + _shackPos.x, 300 + _shackPos.y, 1.0f, 0, rightPNG, false);
-	DrawRotaGraph(450 + _shackPos.x, 300 + _shackPos.y, 1.0f, 0, roadPNG[1], false);
+	//DrawRotaGraph(450 + _shackPos.x, 300 + _shackPos.y, 1.0f, 0, roadPNG[1], false);
 	DrawRotaGraph(450 + _shackPos.x, 300 + _shackPos.y, 1.0f, 0, roadPNG[plNowPoint], false);
 
 	if (_shakeTime >= 15.0f)
@@ -1502,4 +1540,257 @@ void GameScene::cardEffect(void)
 		}
 		_cards->SetCardsSyurui(CARDS_SYURUI::NON);
 	}
+}
+
+void GameScene::TestDirect(void)
+{
+	if (_plDirect == PL_DIRECTION::UP)
+	{
+		if (plNowPoint == 0)	// 直進
+		{
+			testy++;
+			return;
+		}
+		else if (plNowPoint == 1)
+		{
+			_plDirect = PL_DIRECTION::RIGHT;	// 右曲がり
+			rightFlg = true;
+			testx++;
+			return;
+		}
+		else if (plNowPoint == 2)
+		{
+			_plDirect = PL_DIRECTION::LEFT;	// 左曲がり
+			leftFlg = true;
+			testx--;
+			return;
+		}
+	}
+
+	if (_plDirect == PL_DIRECTION::RIGHT)
+	{
+		if (plNowPoint == 0)	// 直進
+		{
+			testx++;
+			return;
+		}
+		else if (plNowPoint == 1 && rightFlg)	// 右曲がり(下)
+		{
+			_plDirect = PL_DIRECTION::DOWN;
+			rightFlg = false;
+			testy--;
+			return;
+		}
+		else if (plNowPoint == 2 && rightFlg)	// 左曲がり(上)
+		{
+			_plDirect = PL_DIRECTION::UP;
+			rightFlg = false;
+			testy++;
+			return;
+		}
+	}
+
+	if (_plDirect == PL_DIRECTION::LEFT)
+	{
+		if (plNowPoint == 0)	// 直進
+		{
+			testx--;
+			return;
+		}
+		else if (plNowPoint == 1 && leftFlg)	// 右曲がり(上)
+		{
+			_plDirect = PL_DIRECTION::UP;
+			leftFlg = false;
+			testy++;
+			return;
+		}
+		else if (plNowPoint == 2 && leftFlg)	// 左曲がり(下)
+		{
+			_plDirect = PL_DIRECTION::DOWN;
+			leftFlg = false;
+			testy--;
+			return;
+		}
+	}
+}
+
+void GameScene::TestKey(void)
+{
+	testCnt = 0;
+
+	// 敵が出ないときは扉を出す
+	//if (walkCnt != _eventNum[_event->GetNowEvent()] && !moveFlg)
+	//{
+		// クリック音
+		//PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
+
+		// 歩行音
+		//PlaySoundMem(_soundSE[1], DX_PLAYTYPE_BACK, true);
+		_soundWalk = true;
+
+		moveFlg = true;
+		walkCnt++;
+		// プレイヤーが状態異常のとき
+		if (_player->GetCondition() == CONDITION::POISON)
+		{
+			// ダメージ音
+			//PlaySoundMem(_soundSE[6], DX_PLAYTYPE_BACK, true);
+
+			// 体力の1/5ぐらい削ろうかな
+			_player->SetHP(_player->GetHP() - (float)_player->GetMaxHP() * (1.0f / 5.0f));
+			// 1ターンマイナス
+			_player->SetConditionTurn(_player->GetConditionTurn() - 1);
+
+			shakeFlg = true;
+		}
+	//}
+
+	// 扉が開いていたら再設定
+	if (_openDoor)
+	{
+		//if (plNowPoint == 0)
+		//{
+		//	testy++;
+		//}
+		//else if (plNowPoint == 1)
+		//{
+		//	_plDirect = PL_DIRECTION::RIGHT;
+		//	rightFlg = true;
+		//	testx++;
+		//}			
+		TestDirect();
+		plNowPoint = numkai[testy][testx].second;
+		//if (!numkai[testy][testx].first)
+		//{
+		//	movePos[aaab] = VECTOR2(testx * 50, 550 - (testy * 50));
+		//	aaab++;
+		//}
+		//numkai[testy][testx].first = true;
+
+		if (!numkai[testy][testx].first)
+		{
+			vec.emplace_back(VECTOR2(testx * 50, 550 - (testy * 50)));
+			numkai[testy][testx].first = true;
+		}
+
+		// 通ったことのある道はフラグがtrueになる仕組み
+		// フラグがfalse(通ったことがない)なら追加する
+		//if (!numkai[testy][testx].first)
+		//{
+			//mapTest.insert(std::make_pair(testx, testy));
+			//aaab++;
+			//numkai[testy][testx].first = true;
+		//}
+
+		// クリック音
+		PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
+
+		_monster[0]->SetEnemyState(ENEMY_STATE::NON);
+		//doorFlg = true;
+		moveFlg = false;
+		_openDoor = false;
+		_degree = 0.0f;
+		_doorExpand = 1.0f;
+	}
+
+
+	// イベント関係一時的コメントアウト
+	// イベントマスでランダムに数値を出し、対応した数値でイベントを発生させる
+	// ランダムで数字を出して、出た数字で出現させるものを決める
+	// 敵との遭遇回数をふやしたかったら数字の0~3までをenemyとかにすればいいかもしれない
+	//if (walkCnt == _eventNum[_event->GetNowEvent()] && eventState == EVENT_STATE::NON && !moveFlg)
+	//{
+	//	int randNum = GetRand(5);
+
+	//	if (walkCnt == _bossEventNum)
+	//	{
+	//		randNum = 0;
+	//	}
+
+	//	// 前回のイベント内容と被っているならとりま敵にする
+	//	if (randNum == _eventChoiceNumOld[0])
+	//	{
+	//		randNum = 0;
+	//	}
+
+	//	// 敵以外のイベント同士で被っているときは敵にする
+	//	if (_eventChoiceNumOld[1] != 0 && _eventChoiceNumOld[2] != 0 && _eventChoiceNumOld[1] == _eventChoiceNumOld[2])
+	//	{
+	//		randNum = 0;
+	//	}
+
+	//	// 直近3回のイベントに敵が出現していないときは、敵のイベントをする
+	//	if (_eventChoiceNumOld[0] != 0 && _eventChoiceNumOld[1] != 0 && _eventChoiceNumOld[2] != 0)
+	//	{
+	//		randNum = 0;
+	//	}
+
+	//	switch (randNum)	// 0~5
+	//	{
+	//	case 0:
+	//		eventState = EVENT_STATE::YADO;
+	//		break;
+	//	case 1:
+	//		eventState = EVENT_STATE::YADO;
+	//		break;
+	//	case 2:
+	//		eventState = EVENT_STATE::SYOUNIN;
+	//		break;
+	//	case 3:
+	//		eventState = EVENT_STATE::BUTTON;
+	//		break;
+	//	case 4:
+	//		eventState = EVENT_STATE::CHEST;
+	//		break;
+	//	case 5:
+	//		eventState = EVENT_STATE::DRINK;
+	//		break;
+	//	default:
+	//		eventState = EVENT_STATE::ENEMY;
+	//		break;
+	//	}
+
+	//	// 数字情報が消える前に保存しておく
+	//	_eventChoiceNumOld[_eventChoiceNum] = randNum;
+	//	if (_eventChoiceNum <= 1)
+	//	{
+	//		_eventChoiceNum++;
+	//	}
+	//	else
+	//	{
+	//		_eventChoiceNum = 0;
+	//	}
+	//}
+
+	//// 敵の出現
+	//if (eventState == EVENT_STATE::ENEMY)
+	//{
+	//	if (_monster[0]->GetEnemyState() == ENEMY_STATE::NON)
+	//	{
+	//		//doorFlg = false;
+	//		moveFlg = false;
+
+	//		// ボスならこっち
+	//		if (walkCnt == _bossEventNum)
+	//		{
+	//			auto ene = 5;
+	//			_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ボス用)
+	//			_cards->SetTurn(_monster[0]->GetMaxTurn());
+	//		}
+	//		else
+	//		{
+	//			// 敵は0~4まで
+	//			auto ene = GetRand(4);
+	//			_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ランダムにする)
+	//			_cards->SetTurn(_monster[0]->GetMaxTurn());
+	//		}
+	//	}
+	//}
+
+	//// 宿屋・商人・ボタン・宝箱の出現
+	//if (eventState != EVENT_STATE::NON && eventState != EVENT_STATE::ENEMY)
+	//{
+	//	//doorFlg = false;
+	//	moveFlg = false;
+	//}
 }

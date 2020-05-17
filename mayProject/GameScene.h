@@ -19,7 +19,16 @@
 enum class MAP {
 	STRAIGHT,// 直進
 	RIGHT,	 // 右折のみ
+	LEFT,	 // 左折のみ 
 	MAX
+};
+
+// プレイヤーの進行方向
+enum class PL_DIRECTION {
+	UP,
+	DOWN,
+	LEFT,
+	RIGHT
 };
 
 class GameScene :
@@ -45,7 +54,7 @@ private:
 	bool Init(void);					// 初期化
 	void pngInit(void);					// 画像用初期化
 	void Draw(void);					// 描画
-	void MouseClick_Go(void);			// マウスを左クリックして「進む」を押したときの処理
+	void MouseClick_Go(const GameCtl& ctl);		// マウスを左クリックして「進む」を押したときの処理
 	void EventUpdate(void);				// イベントのアップデート関数
 	void pl_TurnEndAfter(void);			// プレイヤーのターンが終わった後の処理
 	void pl_Attack(void);				// プレイヤーの攻撃
@@ -160,4 +169,9 @@ private:
 	//std::map<int, int> mapTest;
 	//VECTOR2 movePos[4];		// マップ移動軌跡
 	std::vector<VECTOR2> vec;
+	void TestDirect(void);
+	void TestKey(void);
+	PL_DIRECTION _plDirect = PL_DIRECTION::UP;
+	bool leftFlg = false;
+	bool rightFlg = false;
 };
