@@ -1,5 +1,4 @@
 #pragma once
-#include <map>
 #include <vector>
 #include "BaseScene.h"
 #include "VECTOR2.h"
@@ -20,6 +19,7 @@ enum class MAP {
 	STRAIGHT,// 直進
 	RIGHT,	 // 右折のみ
 	LEFT,	 // 左折のみ 
+	STOP,	 // 行き止まり(イベントもない)
 	MAX
 };
 
@@ -28,7 +28,7 @@ enum class PL_DIRECTION {
 	UP,
 	DOWN,
 	LEFT,
-	RIGHT
+	RIGHT,
 };
 
 class GameScene :
@@ -161,17 +161,21 @@ private:
 	int testCnt = 0;
 
 	//int num[3][3];		// マップ的なもの
-	std::pair<bool, int> numkai[4][4];
+	std::pair<bool, int> numkai[4][4];	// マップ(通ったことのあるところはtrue)
 	int plNowPoint;		// プレイヤーの現在地
-	int testx;
-	int testy;
+	int testx;			// プレイヤーの歩行時用変数x
+	int testy;			// プレイヤーの歩行時用変数y
 	//std::map<bool, std::pair<int, int>> mapTest;
 	//std::map<int, int> mapTest;
 	//VECTOR2 movePos[4];		// マップ移動軌跡
-	std::vector<VECTOR2> vec;
+	std::vector<VECTOR2> vec;	// マップ移動軌跡
 	void TestDirect(void);
 	void TestKey(void);
 	PL_DIRECTION _plDirect = PL_DIRECTION::UP;
+	PL_DIRECTION _plDirectOld = PL_DIRECTION::UP;
 	bool leftFlg = false;
 	bool rightFlg = false;
+	int directPNG;
+	float directRota = 0.0f;
+	bool _backFlg = false;
 };
