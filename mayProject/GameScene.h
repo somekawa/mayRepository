@@ -20,6 +20,7 @@ enum class MAP {
 	RIGHT,	 // 右折のみ
 	LEFT,	 // 左折のみ 
 	STOP,	 // 行き止まり(イベントもない)
+	TJI,		 // T字路
 	MAX
 };
 

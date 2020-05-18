@@ -457,11 +457,14 @@ void GameScene::pngInit(void)
 	//leftPNG = LoadGraph(dan_left.c_str());
 	// 行き止まり
 	std::string dan_stop = "image/dan_stop.png";
+	// T字路
+	std::string dan_T = "image/dan_T.png";
 
 	roadPNG[0] = LoadGraph(dan_go.c_str());
 	roadPNG[1] = LoadGraph(dan_right.c_str());
 	roadPNG[2] = LoadGraph(dan_left.c_str());
 	roadPNG[3] = LoadGraph(dan_stop.c_str());
+	roadPNG[4] = LoadGraph(dan_T.c_str());
 
 	// 現在地用▲マーク
 	std::string direct = "image/direct.png";
@@ -869,6 +872,7 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 				TestKey();
 				//_plDirect = PL_DIRECTION::UP;
 			}
+			return;
 		}
 
 		if (plNowPoint == 1 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
@@ -878,6 +882,7 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 				TestKey();
 				//_plDirect = PL_DIRECTION::RIGHT;
 			}
+			return;
 		}
 
 		if (plNowPoint == 2 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
@@ -887,17 +892,35 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 				TestKey();
 				//_plDirect = PL_DIRECTION::LEFT;
 			}
+			return;
 		}
 
-		// 行き止まり
-		//if (plNowPoint == 3)
-		//{
-			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_DOWN]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_DOWN]))
+		// バック処理
+		if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_DOWN]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_DOWN]))
+		{
+			_backFlg = true;
+			TestKey();
+			return;
+		}
+
+		// T字路テスト
+		if (plNowPoint == 4 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
+		{
+			rightFlg = false;
+			leftFlg = false;
+			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_RIGHT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_RIGHT]))
 			{
-				_backFlg = true;
+				rightFlg = true;
 				TestKey();
+				return;
 			}
-		//}
+			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
+			{
+				leftFlg = true;
+				TestKey();
+				return;
+			}
+		}
 
 		//if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_F2]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_F2]))
 		//{
@@ -1615,6 +1638,23 @@ void GameScene::TestDirect(void)
 		plNowPoint = numkai[testy][testx].second;
 
 		// 方向だけ転換させる--------
+
+		// T字路テスト
+		if (plNowPoint == 4)
+		{
+			_backFlg = false;
+			_plDirect = _plDirectOld;
+			if (_plDirect == PL_DIRECTION::RIGHT)
+			{
+				directRota = PI / 2;
+			}
+			else if (_plDirect == PL_DIRECTION::LEFT)
+			{
+				directRota = PI + PI / 2;
+			}
+			return;
+		}
+
 		if (_plDirect == PL_DIRECTION::UP)
 		{
 			if (plNowPoint == 0)	// 直進
@@ -1722,6 +1762,30 @@ void GameScene::TestDirect(void)
 		}
 	}
 	//------------------------------------------
+
+	// T字路テスト
+	if (plNowPoint == 4)
+	{
+		//rightFlg = false;
+		//leftFlg = false;
+		if (rightFlg)
+		{
+			_plDirectOld = _plDirect;
+			_plDirect = PL_DIRECTION::DOWN;
+			testy--;
+			directRota = PI;
+			return;
+		}
+
+		if (leftFlg)
+		{
+			_plDirectOld = _plDirect;
+			_plDirect = PL_DIRECTION::UP;
+			testy++;
+			directRota = 0;
+			return;
+		}
+	}
 
 	if (_plDirect == PL_DIRECTION::UP)
 	{
