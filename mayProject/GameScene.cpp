@@ -1468,7 +1468,8 @@ void GameScene::cardEffect(void)
 		//	_skillCharge--;
 		//}
 
-		_player->SetSkillCharge();
+		//_player->SetSkillCharge();
+		_player->SetSkillCharge(_player->GetSkillCharge() - 1);
 
 		if (_player->GetCondition() == CONDITION::POISON)
 		{
@@ -1497,7 +1498,8 @@ void GameScene::cardEffect(void)
 		//	_skillCharge--;
 		//}
 
-		_player->SetSkillCharge();
+		//_player->SetSkillCharge();
+		_player->SetSkillCharge(_player->GetSkillCharge() - 1);
 
 		if (_player->GetCondition() == CONDITION::POISON)
 		{
@@ -1525,7 +1527,8 @@ void GameScene::cardEffect(void)
 		//	_skillCharge--;
 		//}
 
-		_player->SetSkillCharge();
+		//_player->SetSkillCharge();
+		_player->SetSkillCharge(_player->GetSkillCharge() - 1);
 
 		if (_player->GetCondition() == CONDITION::POISON)
 		{
@@ -1700,7 +1703,7 @@ void GameScene::TestKey(void)
 	// 敵との遭遇回数をふやしたかったら数字の0~3までをenemyとかにすればいいかもしれない
 	//if (walkCnt == _eventNum[_event->GetNowEvent()] && eventState == EVENT_STATE::NON && !moveFlg)
 	//{
-	//	int randNum = GetRand(5);
+		int randNum = GetRand(0);
 
 	//	if (walkCnt == _bossEventNum)
 	//	{
@@ -1725,30 +1728,30 @@ void GameScene::TestKey(void)
 	//		randNum = 0;
 	//	}
 
-	//	switch (randNum)	// 0~5
-	//	{
-	//	case 0:
-	//		eventState = EVENT_STATE::YADO;
-	//		break;
-	//	case 1:
-	//		eventState = EVENT_STATE::YADO;
-	//		break;
-	//	case 2:
-	//		eventState = EVENT_STATE::SYOUNIN;
-	//		break;
-	//	case 3:
-	//		eventState = EVENT_STATE::BUTTON;
-	//		break;
-	//	case 4:
-	//		eventState = EVENT_STATE::CHEST;
-	//		break;
-	//	case 5:
-	//		eventState = EVENT_STATE::DRINK;
-	//		break;
-	//	default:
-	//		eventState = EVENT_STATE::ENEMY;
-	//		break;
-	//	}
+		switch (randNum)	// 0~5
+		{
+		case 0:
+			eventState = EVENT_STATE::SYOUNIN;
+			break;
+		case 1:
+			eventState = EVENT_STATE::YADO;
+			break;
+		case 2:
+			eventState = EVENT_STATE::SYOUNIN;
+			break;
+		case 3:
+			eventState = EVENT_STATE::BUTTON;
+			break;
+		case 4:
+			eventState = EVENT_STATE::CHEST;
+			break;
+		case 5:
+			eventState = EVENT_STATE::DRINK;
+			break;
+		default:
+			eventState = EVENT_STATE::ENEMY;
+			break;
+		}
 
 	//	// 数字情報が消える前に保存しておく
 	//	_eventChoiceNumOld[_eventChoiceNum] = randNum;
@@ -1762,35 +1765,35 @@ void GameScene::TestKey(void)
 	//	}
 	//}
 
-	//// 敵の出現
-	//if (eventState == EVENT_STATE::ENEMY)
-	//{
-	//	if (_monster[0]->GetEnemyState() == ENEMY_STATE::NON)
-	//	{
-	//		//doorFlg = false;
-	//		moveFlg = false;
+	// 敵の出現
+	if (eventState == EVENT_STATE::ENEMY)
+	{
+		if (_monster[0]->GetEnemyState() == ENEMY_STATE::NON)
+		{
+			//doorFlg = false;
+			moveFlg = false;
 
-	//		// ボスならこっち
-	//		if (walkCnt == _bossEventNum)
-	//		{
-	//			auto ene = 5;
-	//			_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ボス用)
-	//			_cards->SetTurn(_monster[0]->GetMaxTurn());
-	//		}
-	//		else
-	//		{
-	//			// 敵は0~4まで
-	//			auto ene = GetRand(4);
-	//			_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ランダムにする)
-	//			_cards->SetTurn(_monster[0]->GetMaxTurn());
-	//		}
-	//	}
-	//}
+			// ボスならこっち
+			if (walkCnt == _bossEventNum)
+			{
+				auto ene = 5;
+				_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ボス用)
+				_cards->SetTurn(_monster[0]->GetMaxTurn());
+			}
+			else
+			{
+				// 敵は0~4まで
+				auto ene = GetRand(4);
+				_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ランダムにする)
+				_cards->SetTurn(_monster[0]->GetMaxTurn());
+			}
+		}
+	}
 
-	//// 宿屋・商人・ボタン・宝箱の出現
-	//if (eventState != EVENT_STATE::NON && eventState != EVENT_STATE::ENEMY)
-	//{
-	//	//doorFlg = false;
-	//	moveFlg = false;
-	//}
+	// 宿屋・商人・ボタン・宝箱の出現
+	if (eventState != EVENT_STATE::NON && eventState != EVENT_STATE::ENEMY)
+	{
+		//doorFlg = false;
+		moveFlg = false;
+	}
 }

@@ -225,9 +225,25 @@ void Menu::Update(Player* player, Monster* monster, Cards* cards)
 					}
 				}
 
+				if (itemBox[_chooseNum]._item == ITEM::ENEMY_3)
+				{
+					if (monster->GetEnemyState() != ENEMY_STATE::EXIST || cards->GetTurn() == monster->GetMaxTurn())
+					{
+						_nonNeedFlg = true;
+					}
+				}
+
 				if (itemBox[_chooseNum]._item == ITEM::KYOUKA_POW)
 				{
 					if (_powUpNum == 5)
+					{
+						_nonNeedFlg = true;
+					}
+				}
+
+				if (itemBox[_chooseNum]._item == ITEM::SKILL_FAST)
+				{
+					if (player->GetSkillCharge() == 0)
 					{
 						_nonNeedFlg = true;
 					}
@@ -257,7 +273,7 @@ void Menu::Update(Player* player, Monster* monster, Cards* cards)
 					// 商品アイテムに関して
 					for (auto item : ITEM())
 					{
-						if (item >= ITEM::POTION && item <= ITEM::HEART)
+						if (item >= ITEM::POTION && item <= ITEM::SKILL_FAST)
 						{
 							if (itemBox[_chooseNum]._item == item)
 							{
@@ -400,7 +416,7 @@ void Menu::Update(Player* player, Monster* monster, Cards* cards)
 					// ドロップアイテムに関して
 					for (auto item : ITEM())
 					{
-						if (item >= ITEM::ENEMY_1 || item <= ITEM::POTION_BIG)
+						if (item >= ITEM::ENEMY_1 && item <= ITEM::POTION_BIG)
 						{
 							if (itemBox[_chooseNum]._item == item)
 							{
@@ -596,6 +612,22 @@ void Menu::Update(Player* player, Monster* monster, Cards* cards)
 		}
 	}
 
+	// プレイヤースキル発動5ターン短縮
+	if (_itemAction == ITEM::SKILL_FAST)
+	{
+		player->SetSkillCharge(player->GetSkillCharge() - 5);
+		if (player->GetSkillCharge() <= 0)
+		{
+			// 0を下回らないようにする
+			player->SetSkillCharge(0);
+		}
+		_itemAction = ITEM::NON;
+		if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
+		{
+			lambdaBattle();
+		}
+	}
+
 	// プレイヤーの装備
 	// 剣に関して
 	for (auto item : ITEM())
@@ -604,7 +636,7 @@ void Menu::Update(Player* player, Monster* monster, Cards* cards)
 		{
 			if (itemBox[_chooseNum]._item == item)
 			{
-				_equipDamage = (static_cast<int>(item) - 4) * 5;
+				_equipDamage = (static_cast<int>(item) - 5) * 5;
 				_itemAction = ITEM::NON;
 				if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
 				{
@@ -621,7 +653,7 @@ void Menu::Update(Player* player, Monster* monster, Cards* cards)
 		{
 			if (itemBox[_chooseNum]._item == item)
 			{
-				_equipGuard = (static_cast<int>(item) - 7) * 4;
+				_equipGuard = (static_cast<int>(item) - 8) * 4;
 				_itemAction = ITEM::NON;
 				if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
 				{
@@ -694,6 +726,18 @@ void Menu::Update(Player* player, Monster* monster, Cards* cards)
 	{
 		// 次のターンは敵の攻撃を無効化
 		_nonDamageFlg = true;
+		_itemAction = ITEM::NON;
+
+		if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
+		{
+			lambdaBattle();
+		}
+	}
+
+	if (_itemAction == ITEM::ENEMY_3)
+	{
+		// 敵のターンを巻き戻す
+		cards->SetTurn(monster->GetMaxTurn()+1);
 		_itemAction = ITEM::NON;
 
 		if (monster->GetEnemyState() == ENEMY_STATE::EXIST)

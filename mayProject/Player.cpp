@@ -57,7 +57,7 @@ void Player::Init(void)
 	//player_status.attackDamage = 999;
 	player_status.defense = 0;
 	player_status.next_level = 10;
-	player_status.money = 1000;
+	player_status.money = 2000;
 	player_status.conditionTurnNum = 0;
 	player_status.condition = CONDITION::FINE;
 	//_plHP = player_status[_nowNum].maxHP;
@@ -423,13 +423,10 @@ int Player::GetConditionTurn(void)
 	return player_status.conditionTurnNum;
 }
 
-void Player::SetSkillCharge(void)
+void Player::SetSkillCharge(int num)
 {
 	// スキルチャージが0より大きいときは減らしていく
-	if (_skillCharge > 0)
-	{
-		_skillCharge--;
-	}
+	_skillCharge = num;
 }
 
 int Player::GetSkillCharge(void)

@@ -35,7 +35,7 @@ public:
 	CONDITION GetCondition(void);		// 現在の状態を取得する
 	void SetConditionTurn(int num);		// 状態異常からの復帰時間を設定する
 	int GetConditionTurn(void);			// 状態異常からの復帰時間を取得する
-	void SetSkillCharge(void);			// スキルチャージ時間を減らす
+	void SetSkillCharge(int num);		// スキルチャージ時間を減らす
 	int GetSkillCharge(void);			// スキルチャージ時間を取得
 	bool GetSkillBackFlg(void);			// スキル選択画面が表示されているかを取得する
 	void SetBarrierNum(int num);		// スキルのバリア値を設定
