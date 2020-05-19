@@ -8,6 +8,7 @@ enum class ITEM {
 	KYOUKA_POW,		// 一時的に攻撃力上昇(5ターンとか)
 	HEART,			// 体力増加
 	SKILL_FAST,		// プレイヤースキル発動までの時間を早めることができる
+	MEGANE,			// 宝箱の中身が鑑定できる
 	SWORD,
 	SWORD_LV2,		
 	SWORD_LV3,
@@ -17,6 +18,7 @@ enum class ITEM {
 	ENEMY_1,		// ドロップアイテムはここから(固定ダメージ20)
 	ENEMY_2,		// 次の攻撃のみ無効化
 	ENEMY_3,		// 敵ターンを最大値まで巻き戻し
+	ENEMY_4,		// 戦闘から確実に逃げられる
 	POTION_BIG,		// 宝箱のみからでてくる大回復
 	MAX
 };

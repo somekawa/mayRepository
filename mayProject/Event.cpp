@@ -215,7 +215,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 			{
 				// 2ページ目
 				// アイテム表示
-				for (int i = 0; i <= 2; i++)
+				for (int i = 0; i <= 3; i++)
 				{
 					DrawGraph(item->GetPos(i).x, item->GetPos(i).y, _itemBoxPNG, true);
 					DrawGraph(item->GetPos(i).x, item->GetPos(i).y, item->GetPair(i+8).first, true);
@@ -341,6 +341,20 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 		{
 			DrawGraph(350, 150, _chestPNG[1], true);
 			DrawFormatString(450, 70, 0x000000, "中からゴーストが現れ\nあなたに攻撃してきた!");
+		}
+
+		// 鑑定アイテムを使ったときの描画
+		if (menu->GetMeganeFlg())
+		{
+			if (game->chestFate == 0)
+			{
+				DrawFormatString(450, 70, 0xff0000, "\n\n特におかしいところはない");
+			}
+
+			if (game->chestFate > 0)
+			{
+				DrawFormatString(450, 70, 0xff0000, "\n\nゴーストが見える");
+			}
 		}
 	}
 
@@ -739,6 +753,10 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
 			_anounceFlg = false;
 			_getFlg = false;
 			_soundWalk = true;
+			if (menu->GetMeganeFlg())
+			{
+				menu->SetMeganeFlg(false);
+			}
 		}
 
 		// 開ける
@@ -748,7 +766,12 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
 			{
 				_pushFlg = true;
 				//_fateNum = GetRand(2);	// 0 ~ 2
-				_fateNum = 0;
+				//_fateNum = 0;
+				_fateNum = game->chestFate;
+				if (menu->GetMeganeFlg())
+				{
+					menu->SetMeganeFlg(false);
+				}
 			}
 		}
 	}

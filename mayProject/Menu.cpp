@@ -1,5 +1,6 @@
 #include <DxLib.h>
 #include <string>
+#include "GameScene.h"
 #include "Menu.h"
 #include "Player.h"
 #include "Item.h"
@@ -125,7 +126,7 @@ void Menu::pngInit(void)
 	_menuPNG = LoadGraph(menu.c_str());
 }
 
-void Menu::Update(Player* player, Monster* monster, Cards* cards)
+void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards)
 {
 	if (_menu == MENU::SAVE)
 	{
@@ -209,7 +210,15 @@ void Menu::Update(Player* player, Monster* monster, Cards* cards)
 					}
 				}
 
-				if (itemBox[_chooseNum]._item == ITEM::ENEMY_1)
+				if (itemBox[_chooseNum]._item == ITEM::MEGANE)
+				{
+					if (_meganeFlg || game->eventState != EVENT_STATE::CHEST)
+					{
+						_nonNeedFlg = true;
+					}
+				}
+
+				if (itemBox[_chooseNum]._item == ITEM::ENEMY_1 || itemBox[_chooseNum]._item == ITEM::ENEMY_4)
 				{
 					if (monster->GetEnemyState() != ENEMY_STATE::EXIST)
 					{
@@ -273,7 +282,7 @@ void Menu::Update(Player* player, Monster* monster, Cards* cards)
 					// 商品アイテムに関して
 					for (auto item : ITEM())
 					{
-						if (item >= ITEM::POTION && item <= ITEM::SKILL_FAST)
+						if (item >= ITEM::POTION && item <= ITEM::MEGANE)
 						{
 							if (itemBox[_chooseNum]._item == item)
 							{
@@ -628,6 +637,18 @@ void Menu::Update(Player* player, Monster* monster, Cards* cards)
 		}
 	}
 
+	// 宝箱の中身を鑑定する
+	if (_itemAction == ITEM::MEGANE)
+	{
+		_meganeFlg = true;
+		_itemAction = ITEM::NON;
+		// メニュー画面を消す
+		_menuBackPngFlg = false;
+		_menuSelPngFlg = false;			// 文字消す
+		_menu = MENU::NON;			// 状態を戻す
+		_useOrThrowAway = false;	// 使うと捨てるの文字描画消す
+	}
+
 	// プレイヤーの装備
 	// 剣に関して
 	for (auto item : ITEM())
@@ -636,7 +657,7 @@ void Menu::Update(Player* player, Monster* monster, Cards* cards)
 		{
 			if (itemBox[_chooseNum]._item == item)
 			{
-				_equipDamage = (static_cast<int>(item) - 5) * 5;
+				_equipDamage = (static_cast<int>(item) - 6) * 5;
 				_itemAction = ITEM::NON;
 				if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
 				{
@@ -653,7 +674,7 @@ void Menu::Update(Player* player, Monster* monster, Cards* cards)
 		{
 			if (itemBox[_chooseNum]._item == item)
 			{
-				_equipGuard = (static_cast<int>(item) - 8) * 4;
+				_equipGuard = (static_cast<int>(item) - 9) * 4;
 				_itemAction = ITEM::NON;
 				if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
 				{
@@ -738,6 +759,18 @@ void Menu::Update(Player* player, Monster* monster, Cards* cards)
 	{
 		// 敵のターンを巻き戻す
 		cards->SetTurn(monster->GetMaxTurn()+1);
+		_itemAction = ITEM::NON;
+
+		if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
+		{
+			lambdaBattle();
+		}
+	}
+
+	if (_itemAction == ITEM::ENEMY_4)
+	{
+		// 戦闘から逃走する
+		_escapeFlg = true;
 		_itemAction = ITEM::NON;
 
 		if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
@@ -1032,4 +1065,24 @@ void Menu::SetNonDamageFlg(bool flag)
 bool Menu::GetMenuBackPngFlg(void)
 {
 	return _menuBackPngFlg;
+}
+
+bool Menu::GetEscapeFlg(void)
+{
+	return _escapeFlg;
+}
+
+void Menu::SetEscapeFlg(bool flag)
+{
+	_escapeFlg = flag;
+}
+
+bool Menu::GetMeganeFlg(void)
+{
+	return _meganeFlg;
+}
+
+void Menu::SetMeganeFlg(bool flag)
+{
+	_meganeFlg = flag;
 }

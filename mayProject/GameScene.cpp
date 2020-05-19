@@ -158,7 +158,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 	doorWalk();
 	changeBGM();
 	plDead();
-	_menu->Update(_player, _monster[0],_cards);
+	_menu->Update(this,_player, _monster[0],_cards);
 	_event->UpDate(this, _player, _menu, _item, _monster[0]);
 	enemyItemDrop();
 	
@@ -194,6 +194,13 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 
 	pl_TurnEndAfter();
 	EventUpdate();
+
+	// 逃走アイテムが使用されたら敵を消す
+	if (_menu->GetEscapeFlg())
+	{
+		_monster[0]->SetEnemyState(ENEMY_STATE::NON);
+		_menu->SetEscapeFlg(false);
+	}
 
 	return std::move(own);
 }
@@ -377,7 +384,7 @@ bool GameScene::Init(void)
 	// BGM
 	_gameBGM = LoadSoundMem("sound/bgm/dangeon.mp3");
 	_battleBGM = LoadSoundMem("sound/bgm/battle.mp3");
-	PlaySoundMem(_gameBGM, DX_PLAYTYPE_LOOP, true);
+	//PlaySoundMem(_gameBGM, DX_PLAYTYPE_LOOP, true);
 
 
 	// 本当は[0][0]に1が入るみたいにする
@@ -904,23 +911,91 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 		}
 
 		// T字路テスト
-		if (plNowPoint == 4 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
+		if (_plDirect == PL_DIRECTION::RIGHT)
 		{
-			rightFlg = false;
-			leftFlg = false;
-			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_RIGHT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_RIGHT]))
+			if (plNowPoint == 4 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
 			{
-				rightFlg = true;
-				TestKey();
-				return;
-			}
-			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
-			{
-				leftFlg = true;
-				TestKey();
-				return;
+				rightFlg = false;
+				leftFlg = false;
+				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_RIGHT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_RIGHT]))
+				{
+					rightFlg = true;
+					TestKey();
+					return;
+				}
+				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
+				{
+					leftFlg = true;
+					TestKey();
+					return;
+				}
 			}
 		}
+
+		if (_plDirect == PL_DIRECTION::LEFT)
+		{
+			if (plNowPoint == 4 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
+			{
+				rightFlg = false;
+				leftFlg = false;
+				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_RIGHT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_RIGHT]))
+				{
+					leftFlg = true;
+					TestKey();
+					return;
+				}
+				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
+				{
+					rightFlg = true;
+					TestKey();
+					return;
+				}
+			}
+		}
+
+		if (_plDirect == PL_DIRECTION::UP)
+		{
+			if (plNowPoint == 4 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
+			{
+				rightFlg = false;
+				leftFlg = false;
+				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_RIGHT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_RIGHT]))
+				{
+					rightFlg = true;
+					TestKey();
+					return;
+				}
+				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
+				{
+					leftFlg = true;
+					TestKey();
+					return;
+				}
+			}
+		}
+
+		if (_plDirect == PL_DIRECTION::DOWN)
+		{
+			if (plNowPoint == 4 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
+			{
+				rightFlg = false;
+				leftFlg = false;
+				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_RIGHT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_RIGHT]))
+				{
+					rightFlg = true;
+					TestKey();
+					return;
+				}
+				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
+				{
+					leftFlg = true;
+					TestKey();
+					return;
+				}
+			}
+		}
+
+
 
 		//if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_F2]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_F2]))
 		//{
@@ -1605,7 +1680,7 @@ void GameScene::TestDirect(void)
 	// 行き止まりだったら進行方向にたいしてバック処理
 	if (plNowPoint == 3 || _backFlg)
 	{
-		if (_plDirectOld == PL_DIRECTION::DOWN)
+		if (_plDirectOld == PL_DIRECTION::DOWN && plNowPoint == 4)
 		{
 			if (_plDirect == PL_DIRECTION::RIGHT)
 			{
@@ -1651,6 +1726,10 @@ void GameScene::TestDirect(void)
 			else if (_plDirect == PL_DIRECTION::LEFT)
 			{
 				directRota = PI + PI / 2;
+			}
+			else if (_plDirect == PL_DIRECTION::DOWN)
+			{
+				directRota = PI;
 			}
 			return;
 		}
@@ -1768,7 +1847,7 @@ void GameScene::TestDirect(void)
 	{
 		//rightFlg = false;
 		//leftFlg = false;
-		if (rightFlg)
+		if (rightFlg && _plDirect != PL_DIRECTION::UP && _plDirect != PL_DIRECTION::DOWN)
 		{
 			_plDirectOld = _plDirect;
 			_plDirect = PL_DIRECTION::DOWN;
@@ -1777,12 +1856,48 @@ void GameScene::TestDirect(void)
 			return;
 		}
 
-		if (leftFlg)
+		if (leftFlg && _plDirect != PL_DIRECTION::UP && _plDirect != PL_DIRECTION::DOWN)
 		{
 			_plDirectOld = _plDirect;
 			_plDirect = PL_DIRECTION::UP;
 			testy++;
 			directRota = 0;
+			return;
+		}
+
+		if (rightFlg && _plDirect == PL_DIRECTION::UP)
+		{
+			_plDirectOld = _plDirect;
+			_plDirect = PL_DIRECTION::RIGHT;
+			testx++;
+			directRota = PI / 2;
+			return;
+		}
+
+		if (leftFlg && _plDirect == PL_DIRECTION::UP)
+		{
+			_plDirectOld = _plDirect;
+			_plDirect = PL_DIRECTION::LEFT;
+			testx--;
+			directRota = PI + PI / 2;
+			return;
+		}
+
+		if (rightFlg && _plDirect == PL_DIRECTION::DOWN)
+		{
+			_plDirectOld = _plDirect;
+			_plDirect = PL_DIRECTION::LEFT;
+			testx--;
+			directRota = PI + PI / 2;
+			return;
+		}
+
+		if (leftFlg && _plDirect == PL_DIRECTION::DOWN)
+		{
+			_plDirectOld = _plDirect;
+			_plDirect = PL_DIRECTION::RIGHT;
+			testx++;
+			directRota = PI / 2;
 			return;
 		}
 	}
@@ -1983,7 +2098,7 @@ void GameScene::TestKey(void)
 	// 敵との遭遇回数をふやしたかったら数字の0~3までをenemyとかにすればいいかもしれない
 	//if (walkCnt == _eventNum[_event->GetNowEvent()] && eventState == EVENT_STATE::NON && !moveFlg)
 	//{
-		//int randNum = GetRand(0);
+		//int randNum = GetRand(1);
 
 	//	if (walkCnt == _bossEventNum)
 	//	{
@@ -2014,7 +2129,8 @@ void GameScene::TestKey(void)
 		//	eventState = EVENT_STATE::SYOUNIN;
 		//	break;
 		//case 1:
-		//	eventState = EVENT_STATE::YADO;
+		//	eventState = EVENT_STATE::CHEST;
+		//	chestFate = GetRand(2);	// 0 ~ 2
 		//	break;
 		//case 2:
 		//	eventState = EVENT_STATE::SYOUNIN;
@@ -2070,7 +2186,7 @@ void GameScene::TestKey(void)
 	//	}
 	//}
 
-	//// 宿屋・商人・ボタン・宝箱の出現
+	// 宿屋・商人・ボタン・宝箱の出現
 	//if (eventState != EVENT_STATE::NON && eventState != EVENT_STATE::ENEMY)
 	//{
 	//	//doorFlg = false;

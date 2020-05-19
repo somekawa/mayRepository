@@ -152,9 +152,9 @@ void Enemy_weak::Damage(int damageNum)
 		_state = ENEMY_STATE::DEATH;
 
 		// 確率でフラグを立てて、trueだったらアイテムをプレイヤーに渡す
-		int randNum = GetRand(2);	// 0~2
-		_dropNum = GetRand(2); // 0 1 2
-		int dropItemNum = _dropNum + 12;  // 12 13 14に変換
+		int randNum = GetRand(0);	// 0~2
+		_dropNum = GetRand(3); // 0 1 2 3
+		int dropItemNum = _dropNum + 13;  // 13 14 15 16に変換
 
 		if (randNum == 0)
 		{

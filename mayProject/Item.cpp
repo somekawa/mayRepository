@@ -127,7 +127,7 @@ void Item::Init(void)
 		_itemPos[i] = { (((i % 3) + 2) * 100) + 90,((i / 3) + 1) * 100 };
 	}
 	// 商人の持ち物アイテム(ポーション～盾2)
-	for (int i = 0; i <= 10; i++)
+	for (int i = 0; i <= 11; i++)
 	{
 		item_pair[i].first = _itemStruct[i].png;
 		item_pair[i].second = static_cast<ITEM>(static_cast<int>(ITEM::POTION) + i);
@@ -147,10 +147,10 @@ void Item::Init(void)
 	//item_pair[6].second = ITEM::SHIELD_LV2;
 
 	// ドロップアイテム(敵・宝箱)
-	for (int i = 0; i <= 3; i++)
+	for (int i = 0; i <= 4; i++)
 	{
-		item_pair[i+11].first = _itemStruct[i+11].png;
-		item_pair[i+11].second = static_cast<ITEM>(static_cast<int>(ITEM::ENEMY_1) + i);
+		item_pair[i+12].first = _itemStruct[i+12].png;
+		item_pair[i+12].second = static_cast<ITEM>(static_cast<int>(ITEM::ENEMY_1) + i);
 	}
 
 	//// 敵の魂的な

@@ -13,6 +13,7 @@ enum class MENU {
 	MAX
 };
 
+class GameScene;
 class Player;
 class Item;
 class Monster;
@@ -24,7 +25,7 @@ public:
 	Menu();
 	~Menu();
 
-	void Update(Player* player, Monster* monster, Cards* cards);	// アップデート関数
+	void Update(GameScene* game,Player* player, Monster* monster, Cards* cards);	// アップデート関数
 	void Draw(Player* player, Item* item, Monster* monster);		// 描画
 	void MenuButton_NonEnemy(void);		// メニューボタン処理(非戦闘時)
 	void MenuButton_Enemy(void);		// メニューボタン処理(戦闘時)
@@ -44,6 +45,12 @@ public:
 	void SetNonDamageFlg(bool flag);	// 敵からの攻撃を受けた後に無敵効果の状態を消すときに使う
 
 	bool GetMenuBackPngFlg(void);		// アイテム背景が描画されているか取得する
+
+	bool GetEscapeFlg(void);			
+	void SetEscapeFlg(bool flag);	
+
+	bool GetMeganeFlg(void);
+	void SetMeganeFlg(bool flag);
 private:
 	void Init(void);					// 初期化
 	void pngInit(void);					// 画像関係初期化
@@ -75,6 +82,8 @@ private:
 	bool _useOrThrowAway;				// アイテム選択時にtrue
 	bool _nonNeedFlg;					// アイテムを使っても効果がないときにtrue
 	bool _nonDamageFlg;					// 無敵効果のアイテム用フラグ
+	bool _escapeFlg = false;			// 逃走のアイテム用フラグ
+	bool _meganeFlg = false;			// 宝箱の中身を鑑定するアイテム用フラグ
 
 	/*画像関係*/
 	// メニュー項目画像

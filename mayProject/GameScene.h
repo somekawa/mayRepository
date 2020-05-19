@@ -51,6 +51,7 @@ public:
 	bool shakeFlg;						// 敵の待機ターンが0になったらtrueにして画面を揺らし始める
 	bool blinkFlg;						// 敵の点滅用フラグ
 	int walkCnt;						// 歩いた回数
+	int chestFate = -1;
 private:
 	bool Init(void);					// 初期化
 	void pngInit(void);					// 画像用初期化
