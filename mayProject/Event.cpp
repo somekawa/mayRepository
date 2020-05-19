@@ -41,13 +41,6 @@ void Event::Init(void)
 	_soundSE[3] = LoadSoundMem("sound/se/damage.mp3");
 	_soundSE[4] = LoadSoundMem("sound/se/poison.mp3");
 	_soundSE[5] = LoadSoundMem("sound/se/door.mp3");
-
-	//se_click = LoadSoundMem("sound/se/click.mp3");
-	//se_biri = LoadSoundMem("sound/se/biribiri.mp3");
-	//se_walk = LoadSoundMem("sound/se/walk_short.mp3");	
-	//se_damage = LoadSoundMem("sound/se/damage.mp3");	
-	//se_poison = LoadSoundMem("sound/se/poison.mp3");
-	//se_door = LoadSoundMem("sound/se/door.mp3");
 }
 
 void Event::pngInit(void)
@@ -433,6 +426,8 @@ void Event::Yado(GameScene* game, Player* player)
 			// 歩行音
 			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
+			game->_backFlg = true;
+
 			// 先に進む
 			game->walkCnt++;
 			//game->moveFlg = true;
@@ -480,6 +475,8 @@ void Event::Syounin(GameScene* game, Player* player, Menu* menu, Item* item)
 			// 歩行音
 			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
+			game->_backFlg = true;
+
 			// 先に進む
 			game->walkCnt++;
 			_chooseNum = -1;		// -1にしないと、選択した状態で進むを押したら次の商人でsoldoutになっちゃう
@@ -489,7 +486,7 @@ void Event::Syounin(GameScene* game, Player* player, Menu* menu, Item* item)
 			_buyFlg = false;
 			_chooseFlg = false;
 			_nonMoneyFlg = false;
-			game->moveFlg = true;
+			//game->moveFlg = true;
 			_soundWalk = true;
 
 			// アイテムの補充処理
@@ -684,9 +681,11 @@ void Event::Button(GameScene* game, Player* player)
 			// 歩行音
 			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
+			game->_backFlg = true;
+
 			// 先に進む
 			game->walkCnt++;
-			game->moveFlg = true;
+			//game->moveFlg = true;
 			game->eventState = EVENT_STATE::NON;
 			_event = EVENT_STATE::NON;
 			_nowEvent++;
@@ -742,9 +741,11 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
 			// 歩行音
 			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
+			game->_backFlg = true;
+
 			// 先に進む
 			game->walkCnt++;
-			game->moveFlg = true;
+			//game->moveFlg = true;
 			game->eventState = EVENT_STATE::NON;
 			_event = EVENT_STATE::NON;
 			_nowEvent++;
@@ -869,9 +870,11 @@ void Event::Drink(GameScene* game, Player* player)
 			// 歩行音
 			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
+			game->_backFlg = true;
+
 			// 先に進む
 			game->walkCnt++;
-			game->moveFlg = true;
+			//game->moveFlg = true;
 			game->eventState = EVENT_STATE::NON;
 			_event = EVENT_STATE::NON;
 			_nowEvent++;

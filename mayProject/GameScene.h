@@ -59,6 +59,7 @@ public:
 	bool blinkFlg;						// 敵の点滅用フラグ
 	int walkCnt;						// 歩いた回数
 	int chestFate = -1;
+	bool _backFlg = false;
 private:
 	bool Init(void);					// 初期化
 	void pngInit(void);					// 画像用初期化
@@ -186,6 +187,5 @@ private:
 	bool rightFlg = false;
 	int directPNG;
 	float directRota = 0.0f;
-	bool _backFlg = false;
 	int monsTimeCnt = 30;
 };

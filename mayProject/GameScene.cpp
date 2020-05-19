@@ -916,11 +916,19 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 		}
 
 		// バック処理
-		if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_DOWN]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_DOWN]))
+		if (eventState == EVENT_STATE::NON)
 		{
-			_backFlg = true;
-			TestKey();
-			return;
+			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_DOWN]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_DOWN]))
+			{
+				_backFlg = true;
+				TestKey();
+				//if (eventState != EVENT_STATE::ENEMY && eventState != EVENT_STATE::NON)
+				//{
+					//eventState = EVENT_STATE::NON;
+					//_event->SetEvent(EVENT_STATE::NON);
+				//}
+				return;
+			}
 		}
 
 		// T字路テスト
@@ -2185,7 +2193,6 @@ void GameScene::TestKey(void)
 	}
 	else
 	{
-
 		switch (num)	// 0~5
 		{
 		case 7:
