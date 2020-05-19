@@ -41,6 +41,21 @@ void Event::Init(void)
 	_soundSE[3] = LoadSoundMem("sound/se/damage.mp3");
 	_soundSE[4] = LoadSoundMem("sound/se/poison.mp3");
 	_soundSE[5] = LoadSoundMem("sound/se/door.mp3");
+
+	// 宝箱
+	auto testFileHandle = FileRead_open("csv/chest.csv");
+	if (testFileHandle == NULL)
+	{
+		return; //エラー時の処理
+	}
+
+	for (int i = 0; i < 1; i++)
+	{
+		FileRead_scanf(testFileHandle, "%d,%d,%d,%d", &chestOpen[i], &chestBingo[i], &chestPos[i].x, &chestPos[i].y);
+	}
+
+	//ファイルを閉じる
+	FileRead_close(testFileHandle);
 }
 
 void Event::pngInit(void)
@@ -81,6 +96,9 @@ void Event::pngInit(void)
 	// 矢印
 	std::string yajirusi = "image/yajirusi.png";
 	yajirusiPNG = LoadGraph(yajirusi.c_str());
+	// 空の宝箱
+	std::string chest_kara = "image/chest_kara.png";
+	karaPNG = LoadGraph(chest_kara.c_str());
 }
 
 void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Monster* monster)
@@ -301,52 +319,102 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 		// メッセージボックス
 		DrawGraph(420, 50, _messagePNG, true);
 
-		if (_getFlg)
+		if (chestPos[0].x == GameScene::testx && chestPos[0].y == GameScene::testy)
 		{
-			// 取る
-			DrawGraph(600, 200, _sentakusiPNG[8], true);
-		}
-
-		if (_anounceFlg)
-		{
-			// 持ち物満タンだからもてない
-			DrawFormatString(600, 180, 0xffffff, "所持品がいっぱいだ");
-		}
-
-		// 進む(宝箱無視)
-		DrawGraph(600, 345, _sentakusiPNG[7], true);
-
-		if (_fateNum == -1)
-		{
-			// 開ける
-			DrawGraph(600, 200, _sentakusiPNG[3], true);
-			DrawGraph(350, 150, _chestPNG[0], true);
-			DrawFormatString(450, 70, 0x000000, "宝箱が置いてある");
-		}
-
-		if (_fateNum == 0)
-		{
-			DrawGraph(350, 150, _chsetItemPNG, true);
-			DrawFormatString(450, 70, 0x000000, "アイテムが入っていた!");
-		}
-
-		if (_fateNum > 0)
-		{
-			DrawGraph(350, 150, _chestPNG[1], true);
-			DrawFormatString(450, 70, 0x000000, "中からゴーストが現れ\nあなたに攻撃してきた!");
-		}
-
-		// 鑑定アイテムを使ったときの描画
-		if (menu->GetMeganeFlg())
-		{
-			if (game->chestFate == 0)
+			if (!chestOpen[0])
 			{
-				DrawFormatString(450, 70, 0xff0000, "\n\n特におかしいところはない");
+				//if (_getFlg)
+				//{
+				//	// 取る
+				//	DrawGraph(600, 200, _sentakusiPNG[8], true);
+				//}
+				//
+				//if (_anounceFlg)
+				//{
+				//	// 持ち物満タンだからもてない
+				//	DrawFormatString(600, 180, 0xffffff, "所持品がいっぱいだ");
+				//}
+
+				// 進む(宝箱無視)
+				DrawGraph(600, 345, _sentakusiPNG[7], true);
+
+				if (_fateNum == -1)
+				{
+					// 開ける
+					DrawGraph(600, 200, _sentakusiPNG[3], true);
+					DrawGraph(350, 150, _chestPNG[0], true);
+					DrawFormatString(450, 70, 0x000000, "宝箱が置いてある");
+				}
+
+				//if (_fateNum == 1)
+				//{
+				//	DrawGraph(350, 150, _chsetItemPNG, true);
+				//	DrawFormatString(450, 70, 0x000000, "アイテムが入っていた!");
+				//}
+				//
+				//if (_fateNum == 0)
+				//{
+				//	DrawGraph(350, 150, _chestPNG[1], true);
+				//	DrawFormatString(450, 70, 0x000000, "中からゴーストが現れ\nあなたに攻撃してきた!");
+				//}
+
+				// 鑑定アイテムを使ったときの描画
+				if (menu->GetMeganeFlg())
+				{
+					//if (game->chestFate == 0)
+					//{
+					//	DrawFormatString(450, 70, 0xff0000, "\n\n特におかしいところはない");
+					//}
+					//
+					//if (game->chestFate > 0)
+					//{
+					//	DrawFormatString(450, 70, 0xff0000, "\n\nゴーストが見える");
+					//}
+
+					if (chestBingo[0] == 1)
+					{
+						DrawFormatString(450, 70, 0xff0000, "\n\n特におかしいところはない");
+					}
+
+					if (chestBingo[0] == 0)
+					{
+						DrawFormatString(450, 70, 0xff0000, "\n\nゴーストが見える");
+					}
+				}
 			}
-
-			if (game->chestFate > 0)
+			else if(chestOpen[0])
 			{
-				DrawFormatString(450, 70, 0xff0000, "\n\nゴーストが見える");
+				if (_getFlg)
+				{
+					// 取る
+					DrawGraph(600, 200, _sentakusiPNG[8], true);
+				}
+
+				if (_anounceFlg)
+				{
+					// 持ち物満タンだからもてない
+					DrawFormatString(600, 180, 0xffffff, "所持品がいっぱいだ");
+				}
+
+				if (_fateNum == 1)
+				{
+					DrawGraph(350, 150, _chsetItemPNG, true);
+					DrawFormatString(450, 70, 0x000000, "アイテムが入っていた!");
+				}
+				else if (_fateNum == 0)
+				{
+					DrawGraph(350, 150, _chestPNG[1], true);
+					DrawFormatString(450, 70, 0x000000, "ゴーストが現れ攻撃してきた!");
+				}
+				else
+				{
+					// 宝箱をすでに開けている
+					DrawFormatString(450, 70, 0x000000, "宝箱は開いている");
+					DrawGraph(350, 150, karaPNG, true);
+				}
+
+				// 進む(宝箱無視)
+				DrawGraph(600, 345, _sentakusiPNG[7], true);
 			}
 		}
 	}
@@ -761,14 +829,21 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
 		}
 
 		// 開ける
-		if (_fateNum == -1)
+		if (_fateNum == -1 && !chestOpen[0])
 		{
 			if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 200 && game->cursorPos.y <= 200 + 75)
 			{
 				_pushFlg = true;
 				//_fateNum = GetRand(2);	// 0 ~ 2
 				//_fateNum = 0;
-				_fateNum = game->chestFate;
+				//_fateNum = game->chestFate;
+				if (chestPos[0].x == GameScene::testx && chestPos[0].y == GameScene::testy)
+				{
+					// あたりかはずれかをいれる
+					// 開けたことにする
+					chestOpen[0] = true;
+					_fateNum = chestBingo[0];
+				}
 				if (menu->GetMeganeFlg())
 				{
 					menu->SetMeganeFlg(false);
@@ -780,7 +855,7 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
 	// 宝箱を開けることにしたとき
 	if (_pushFlg)
 	{
-		if (_fateNum == 0)
+		if (_fateNum == 1)
 		{
 			// ラッキー!アイテムがもらえる
 			// プレイヤーのメニューに表示されるようにする
@@ -795,7 +870,7 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
 			_pushFlg = false;
 			_getFlg = true;
 		}
-		else
+		else if(_fateNum == 0)
 		{
 			// ダメージ音
 			PlaySoundMem(_soundSE[3], DX_PLAYTYPE_BACK, true);

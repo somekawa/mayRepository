@@ -58,8 +58,10 @@ public:
 	bool shakeFlg;						// 敵の待機ターンが0になったらtrueにして画面を揺らし始める
 	bool blinkFlg;						// 敵の点滅用フラグ
 	int walkCnt;						// 歩いた回数
-	int chestFate = -1;
+	//int chestFate = -1;
 	bool _backFlg = false;
+	static int testx;			// プレイヤーの歩行時用変数x
+	static int testy;			// プレイヤーの歩行時用変数y
 private:
 	bool Init(void);					// 初期化
 	void pngInit(void);					// 画像用初期化
@@ -173,8 +175,8 @@ private:
 	//int num[3][3];		// マップ的なもの
 	std::pair<bool, int> numkai[4][4];	// マップ(通ったことのあるところはtrue)
 	int plNowPoint;		// プレイヤーの現在地
-	int testx;			// プレイヤーの歩行時用変数x
-	int testy;			// プレイヤーの歩行時用変数y
+	//static int testx;			// プレイヤーの歩行時用変数x
+	//static int testy;			// プレイヤーの歩行時用変数y
 	//std::map<bool, std::pair<int, int>> mapTest;
 	//std::map<int, int> mapTest;
 	//VECTOR2 movePos[4];		// マップ移動軌跡

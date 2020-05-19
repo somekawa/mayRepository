@@ -86,9 +86,15 @@ private:
 	int _sentakusiPNG[9];
 	// 矢印の画像
 	int yajirusiPNG;
+	// 空の宝箱
+	int karaPNG;
 
 	// SE
 	int _soundSE[6];
 	int _seCnt;				// 歩行音からドア音までつなぐときに使う変数
 	bool _soundWalk;		// 歩行音からドア音までつなぐときに使うフラグ
+
+	bool chestOpen[1];		// 開けたかどうか
+	bool chestBingo[1];		// 中身が当たり
+	VECTOR2 chestPos[1];	// 宝箱の位置
 };

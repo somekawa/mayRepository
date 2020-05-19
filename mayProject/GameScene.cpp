@@ -10,6 +10,10 @@
 #include "Enemy_weak.h"
 #include "SelectScene.h"
 
+// static変数の実体<型>クラス名::変数名 = 初期化;
+int GameScene::testx = 2;
+int GameScene::testy = 0;
+
 #define PI 3.141592653589793
 
 //struct {
@@ -2206,7 +2210,7 @@ void GameScene::TestKey(void)
 			break;
 		case 10:
 			eventState = EVENT_STATE::CHEST;
-			chestFate = GetRand(2);	// 0 ~ 2
+			//chestFate = GetRand(2);	// 0 ~ 2
 			break;
 		case 11:
 			eventState = EVENT_STATE::DRINK;
