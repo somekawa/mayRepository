@@ -410,7 +410,7 @@ bool GameScene::Init(void)
 	// つまり、配列は[y][x]の順になっている
 	//int aa = num[0][1];
 
-	testx = 0;
+	testx = 2;
 	testy = 0;
 	plNowPoint = numkai[testy][testx].second;
 
@@ -466,12 +466,25 @@ void GameScene::pngInit(void)
 	std::string dan_stop = "image/dan_stop.png";
 	// T字路
 	std::string dan_T = "image/dan_T.png";
+	// トの字型(直線と右への道)
+	std::string dan_TONOJI_SR = "image/dan_TONOJI_SR.png";
+	// トの字型(直線と左への道)
+	std::string dan_TONOJI_SL = "image/dan_TONOJI_SL.png";
 
 	roadPNG[0] = LoadGraph(dan_go.c_str());
 	roadPNG[1] = LoadGraph(dan_right.c_str());
 	roadPNG[2] = LoadGraph(dan_left.c_str());
 	roadPNG[3] = LoadGraph(dan_stop.c_str());
 	roadPNG[4] = LoadGraph(dan_T.c_str());
+	roadPNG[5] = LoadGraph(dan_TONOJI_SR.c_str());
+	roadPNG[6] = LoadGraph(dan_TONOJI_SL.c_str());
+
+	for (int i = 7; i < 12; i++)
+	{
+		roadPNG[i] = LoadGraph(dan_stop.c_str());
+	}
+	//roadPNG[5] = LoadGraph(dan_stop.c_str());
+
 
 	// 現在地用▲マーク
 	std::string direct = "image/direct.png";
@@ -849,7 +862,7 @@ void GameScene::Draw(void)
 
 	// 最初の1歩(スタート地点)
 	//DrawGraph(0, 550, chipPNG[0], true);
-	DrawGraph(0 * 50, 550 - (0 * 50), chipPNG[0], true);
+	DrawGraph(2 * 50, 550 - (0 * 50), chipPNG[0], true);
 	// 現在地を保存していく?
 	for (auto v = vec.begin(); v != vec.end(); ++v)
 	{
@@ -995,7 +1008,39 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 			}
 		}
 
+		// トの字型(直進と右への道)
+		if (plNowPoint == 5 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
+		{
+			rightFlg = false;
+			leftFlg = false;
+			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_UP]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_UP]))
+			{
+				TestKey();
+			}
+			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_RIGHT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_RIGHT]))
+			{
+				rightFlg = true;
+				TestKey();
+			}
+			return;
+		}
 
+		// トの字型(直進と左への道)
+		if (plNowPoint == 6 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
+		{
+			rightFlg = false;
+			leftFlg = false;
+			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_UP]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_UP]))
+			{
+				TestKey();
+			}
+			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
+			{
+				leftFlg = true;
+				TestKey();
+			}
+			return;
+		}
 
 		//if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_F2]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_F2]))
 		//{
@@ -1734,9 +1779,33 @@ void GameScene::TestDirect(void)
 			return;
 		}
 
+		// トの字型(直進と右への道)
+		if (plNowPoint == 5)
+		{
+			_backFlg = false;
+			_plDirect = _plDirectOld;
+			if (_plDirect == PL_DIRECTION::UP)
+			{
+				directRota = 0;
+			}
+			return;
+		}
+		// トの字型(直進と左への道)
+		if (plNowPoint == 6)
+		{
+			_backFlg = false;
+			_plDirect = _plDirectOld;
+			if (_plDirect == PL_DIRECTION::UP)
+			{
+				directRota = 0;
+			}
+			return;
+		}
+
+
 		if (_plDirect == PL_DIRECTION::UP)
 		{
-			if (plNowPoint == 0)	// 直進
+			if ((plNowPoint == 0 || plNowPoint == 5) && !rightFlg)	// 直進
 			{
 				_backFlg = false;
 				return;
@@ -1904,12 +1973,12 @@ void GameScene::TestDirect(void)
 
 	if (_plDirect == PL_DIRECTION::UP)
 	{
-		if (plNowPoint == 0)	// 直進
+		if ((plNowPoint == 0 || plNowPoint == 5 || plNowPoint == 6) && !rightFlg && !leftFlg)	// 直進
 		{
 			testy++;
 			return;
 		}
-		else if (plNowPoint == 1)
+		else if (plNowPoint == 1 || plNowPoint == 5)
 		{
 			_plDirectOld = _plDirect;
 			_plDirect = PL_DIRECTION::RIGHT;	// 右曲がり
@@ -1918,7 +1987,7 @@ void GameScene::TestDirect(void)
 			directRota =  PI / 2;
 			return;
 		}
-		else if (plNowPoint == 2)
+		else if (plNowPoint == 2 || plNowPoint == 6)
 		{
 			_plDirectOld = _plDirect;
 			_plDirect = PL_DIRECTION::LEFT;	// 左曲がり
@@ -2100,6 +2169,48 @@ void GameScene::TestKey(void)
 	//{
 		//int randNum = GetRand(1);
 
+	int num = plNowPoint;
+
+	if (num < 7)
+	{
+		if (monsTimeCnt > 0)
+		{
+			monsTimeCnt--;
+		}
+		else
+		{
+			eventState = EVENT_STATE::ENEMY;
+			monsTimeCnt = 3;
+		}
+	}
+	else
+	{
+
+		switch (num)	// 0~5
+		{
+		case 7:
+			eventState = EVENT_STATE::YADO;
+			break;
+		case 8:
+			eventState = EVENT_STATE::SYOUNIN;
+			break;
+		case 9:
+			eventState = EVENT_STATE::BUTTON;
+			break;
+		case 10:
+			eventState = EVENT_STATE::CHEST;
+			chestFate = GetRand(2);	// 0 ~ 2
+			break;
+		case 11:
+			eventState = EVENT_STATE::DRINK;
+			break;
+		default:
+			eventState = EVENT_STATE::NON;
+			break;
+		}
+	}
+
+
 	//	if (walkCnt == _bossEventNum)
 	//	{
 	//		randNum = 0;
@@ -2126,7 +2237,7 @@ void GameScene::TestKey(void)
 		//switch (randNum)	// 0~5
 		//{
 		//case 0:
-		//	eventState = EVENT_STATE::SYOUNIN;
+		//	eventState = EVENT_STATE::ENEMY;
 		//	break;
 		//case 1:
 		//	eventState = EVENT_STATE::CHEST;
@@ -2161,35 +2272,35 @@ void GameScene::TestKey(void)
 	//	}
 	//}
 
-	//// 敵の出現
-	//if (eventState == EVENT_STATE::ENEMY)
-	//{
-	//	if (_monster[0]->GetEnemyState() == ENEMY_STATE::NON)
-	//	{
-	//		//doorFlg = false;
-	//		moveFlg = false;
+	// 敵の出現
+	if (eventState == EVENT_STATE::ENEMY)
+	{
+		if (_monster[0]->GetEnemyState() == ENEMY_STATE::NON)
+		{
+			//doorFlg = false;
+			moveFlg = false;
 
-	//		// ボスならこっち
-	//		if (walkCnt == _bossEventNum)
-	//		{
-	//			auto ene = 5;
-	//			_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ボス用)
-	//			_cards->SetTurn(_monster[0]->GetMaxTurn());
-	//		}
-	//		else
-	//		{
-	//			// 敵は0~4まで
-	//			auto ene = GetRand(4);
-	//			_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ランダムにする)
-	//			_cards->SetTurn(_monster[0]->GetMaxTurn());
-	//		}
-	//	}
-	//}
+			// ボスならこっち
+			if (walkCnt == _bossEventNum)
+			{
+				auto ene = 5;
+				_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ボス用)
+				_cards->SetTurn(_monster[0]->GetMaxTurn());
+			}
+			else
+			{
+				// 敵は0~4まで
+				auto ene = GetRand(4);
+				_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ランダムにする)
+				_cards->SetTurn(_monster[0]->GetMaxTurn());
+			}
+		}
+	}
 
 	// 宿屋・商人・ボタン・宝箱の出現
-	//if (eventState != EVENT_STATE::NON && eventState != EVENT_STATE::ENEMY)
-	//{
-	//	//doorFlg = false;
-	//	moveFlg = false;
-	//}
+	if (eventState != EVENT_STATE::NON && eventState != EVENT_STATE::ENEMY)
+	{
+		//doorFlg = false;
+		moveFlg = false;
+	}
 }

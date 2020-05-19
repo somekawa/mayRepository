@@ -435,7 +435,7 @@ void Event::Yado(GameScene* game, Player* player)
 
 			// æ‚Éi‚Þ
 			game->walkCnt++;
-			game->moveFlg = true;
+			//game->moveFlg = true;
 			game->eventState = EVENT_STATE::NON;
 			_event = EVENT_STATE::NON;
 			_nowEvent++;

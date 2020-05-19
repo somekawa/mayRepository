@@ -16,11 +16,18 @@
 
 // 道画像
 enum class MAP {
-	STRAIGHT,// 直進
-	RIGHT,	 // 右折のみ
-	LEFT,	 // 左折のみ 
-	STOP,	 // 行き止まり(イベントもない)
-	TJI,		 // T字路
+	STRAIGHT,		// 直進
+	RIGHT,			// 右折のみ
+	LEFT,			// 左折のみ 
+	STOP,			// 行き止まり(イベントもない)
+	TJI,			// T字路
+	TONOJI_SR,		// ト字型(直進と右への道)
+	TONOJI_SL,		// ト字型(直線と左への道)
+	YADO,
+	SHOUNIN,
+	BUTTON,
+	CHEST,
+	DRINK,
 	MAX
 };
 
@@ -180,4 +187,5 @@ private:
 	int directPNG;
 	float directRota = 0.0f;
 	bool _backFlg = false;
+	int monsTimeCnt = 30;
 };
