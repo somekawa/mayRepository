@@ -191,7 +191,7 @@ private:
 	bool rightFlg = false;
 	int directPNG;
 	float directRota = 0.0f;
-	int monsTimeCnt = 30;
+	int monsTimeCnt = 10;
 
 	VECTOR2 offset = {0,0};
 	VECTOR2 plNowMark = { 0,0 };

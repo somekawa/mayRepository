@@ -885,7 +885,7 @@ void GameScene::Draw(void)
 		// Sのマークに後で変更する
 		DrawGraph(0 * 50, 550 - (0 * 50), chipPNG[0], true);
 	}
-	// 現在地を保存していく?
+	// 現在地を保存していく
 	for (auto v = vec.begin(); v != vec.end(); ++v)
 	{
 		if (testy <= 2)
@@ -1699,14 +1699,11 @@ void GameScene::cardEffect(void)
 		// 攻撃カード音
 		PlaySoundMem(_soundSE[3], DX_PLAYTYPE_BACK, true);
 
-		//// スキルチャージが0より大きいときは減らしていく
-		//if (_skillCharge > 0)
-		//{
-		//	_skillCharge--;
-		//}
-
-		//_player->SetSkillCharge();
-		_player->SetSkillCharge(_player->GetSkillCharge() - 1);
+		// スキルチャージが0より大きいときは減らしていく
+		if (_player->GetSkillCharge() > 0)
+		{
+			_player->SetSkillCharge(_player->GetSkillCharge() - 1);
+		}
 
 		if (_player->GetCondition() == CONDITION::POISON)
 		{
@@ -1730,13 +1727,10 @@ void GameScene::cardEffect(void)
 		PlaySoundMem(_soundSE[5], DX_PLAYTYPE_BACK, true);
 
 		//// スキルチャージが0より大きいときは減らしていく
-		//if (_skillCharge > 0)
-		//{
-		//	_skillCharge--;
-		//}
-
-		//_player->SetSkillCharge();
-		_player->SetSkillCharge(_player->GetSkillCharge() - 1);
+		if (_player->GetSkillCharge() > 0)
+		{
+			_player->SetSkillCharge(_player->GetSkillCharge() - 1);
+		}
 
 		if (_player->GetCondition() == CONDITION::POISON)
 		{
@@ -1759,13 +1753,10 @@ void GameScene::cardEffect(void)
 		PlaySoundMem(_soundSE[4], DX_PLAYTYPE_BACK, true);
 
 		//// スキルチャージが0より大きいときは減らしていく
-		//if (_skillCharge > 0)
-		//{
-		//	_skillCharge--;
-		//}
-
-		//_player->SetSkillCharge();
-		_player->SetSkillCharge(_player->GetSkillCharge() - 1);
+		if (_player->GetSkillCharge() > 0)
+		{
+			_player->SetSkillCharge(_player->GetSkillCharge() - 1);
+		}
 
 		if (_player->GetCondition() == CONDITION::POISON)
 		{
@@ -1863,7 +1854,6 @@ void GameScene::TestDirect(void)
 			}
 			return;
 		}
-
 
 		if (_plDirect == PL_DIRECTION::UP)
 		{
