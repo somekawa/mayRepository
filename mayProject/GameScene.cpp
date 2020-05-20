@@ -92,6 +92,11 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 			// レベルをそのままにはじめからやり直す
 			if (cursorPos.x >= 50 && cursorPos.x <= 50 + 400 && cursorPos.y >= 225 && cursorPos.y <= 225 + 130)
 			{
+				// 場所をスタート地点に戻す
+				testx = 2;
+				testy = 0;
+				plNowPoint = numkai[testy][testx].second;
+
 				// イベント状態の初期化
 				walkCnt = 0;
 				eventState = EVENT_STATE::NON;
@@ -99,6 +104,9 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 				_event->SetNowEvent(0);		
 				_event->SetEvent(EVENT_STATE::NON);
 				_event->SetFateNum(-1);
+
+				// 宝箱の状態をリセットする
+				_event->SetReset();
 
 				// HPは最大まで回復してあげる
 				_player->SetHP(_player->GetMaxHP());
@@ -483,7 +491,7 @@ void GameScene::pngInit(void)
 	roadPNG[5] = LoadGraph(dan_TONOJI_SR.c_str());
 	roadPNG[6] = LoadGraph(dan_TONOJI_SL.c_str());
 
-	for (int i = 7; i < 12; i++)
+	for (int i = 7; i < 13; i++)
 	{
 		roadPNG[i] = LoadGraph(dan_stop.c_str());
 	}
@@ -495,13 +503,19 @@ void GameScene::pngInit(void)
 	directPNG = LoadGraph(direct.c_str());
 	
 	// マップチップ
-	std::string chip_go = "image/mapchip/chip_go.png";
-	chipPNG[0] = LoadGraph(chip_go.c_str());
+	std::string mapchip = "image/mapchip/mapchip.png";
+	std::string mapchip_stop = "image/mapchip/chip_3.png";
+	//chipPNG[0] = LoadGraph(chip_go.c_str());
 
+	LoadDivGraph(mapchip.c_str(), 7, 7, 1, 50, 50, chipPNG);
+	for (int i = 7; i < 13; i++)
+	{
+		chipPNG[i] = LoadGraph(mapchip_stop.c_str());
+	}
 
 	// 進むの文字
-	std::string walk = "image/walk.png";
-	_walkPNG = LoadGraph(walk.c_str());
+	//std::string walk = "image/walk.png";
+	//_walkPNG = LoadGraph(walk.c_str());
 
 	// 白
 	std::string white = "image/white.png";
@@ -671,12 +685,12 @@ void GameScene::Draw(void)
 		_event->Draw(this, _player, _menu, _item);
 	}
 
-	// 何もなしの処理
-	if (eventState == EVENT_STATE::NON)
-	{
-		// 進む
-		DrawGraph(750, 345, _walkPNG, true);
-	}
+	//// 何もなしの処理
+	//if (eventState == EVENT_STATE::NON)
+	//{
+	//	// 進む
+	//	DrawGraph(750, 345, _walkPNG, true);
+	//}
 
 	// ゲージ
 	DrawExtendGraph(800, 25, 800 + 50, 25 + 300, _gaugePNG, true);
@@ -870,7 +884,8 @@ void GameScene::Draw(void)
 	// 現在地を保存していく?
 	for (auto v = vec.begin(); v != vec.end(); ++v)
 	{
-		DrawGraph((*v).x, (*v).y, chipPNG[0], true);
+		//DrawRotaGraph((*v).first.x+25, (*v).first.y+25,1.0,0, chipPNG[(*v).second], true);
+		DrawRotaGraph(std::get<0>(*v).x + 25, std::get<0>(*v).y + 25, 1.0, std::get<2>(*v), chipPNG[std::get<1>(*v)], true);
 	}
 
 	// 現在地
@@ -2148,7 +2163,7 @@ void GameScene::TestKey(void)
 
 		if (!numkai[testy][testx].first)
 		{
-			vec.emplace_back(VECTOR2(testx * 50, 550 - (testy * 50)));
+			vec.emplace_back(VECTOR2(testx * 50, 550 - (testy * 50)),plNowPoint, directRota);
 			numkai[testy][testx].first = true;
 		}
 
@@ -2172,8 +2187,6 @@ void GameScene::TestKey(void)
 		_doorExpand = 1.0f;
 	}
 
-
-	// イベント関係一時的コメントアウト
 	// イベントマスでランダムに数値を出し、対応した数値でイベントを発生させる
 	// ランダムで数字を出して、出た数字で出現させるものを決める
 	// 敵との遭遇回数をふやしたかったら数字の0~3までをenemyとかにすればいいかもしれない
@@ -2214,6 +2227,9 @@ void GameScene::TestKey(void)
 			break;
 		case 11:
 			eventState = EVENT_STATE::DRINK;
+			break;
+		case 12:
+			eventState = EVENT_STATE::TRAP;
 			break;
 		default:
 			eventState = EVENT_STATE::NON;

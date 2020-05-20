@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <tuple>
 #include "BaseScene.h"
 #include "VECTOR2.h"
 #include "Cards.h"
@@ -28,6 +29,7 @@ enum class MAP {
 	BUTTON,
 	CHEST,
 	DRINK,
+	TRAP,			// 即死トラップ
 	MAX
 };
 
@@ -138,7 +140,7 @@ private:
 	// 部屋(扉開閉込み)の画像
 	int _room[3];		
 	//「進む」の文字画像
-	int _walkPNG;	
+	//int _walkPNG;	
 	// 点滅用白画像
 	int _whitePNG;
 	// 敵情報画像
@@ -180,7 +182,7 @@ private:
 	//std::map<bool, std::pair<int, int>> mapTest;
 	//std::map<int, int> mapTest;
 	//VECTOR2 movePos[4];		// マップ移動軌跡
-	std::vector<VECTOR2> vec;	// マップ移動軌跡
+	std::vector<std::tuple<VECTOR2, int,float>> vec;	// マップ移動軌跡(位置とミニマップ用に現在の番号に画像回転)
 	void TestDirect(void);
 	void TestKey(void);
 	PL_DIRECTION _plDirect = PL_DIRECTION::UP;

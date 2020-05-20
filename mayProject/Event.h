@@ -18,6 +18,7 @@ enum class EVENT_STATE {
 	BUTTON,		// ボタン
 	CHEST,		// 宝箱
 	DRINK,		// 飲み物
+	TRAP,		// 即死トラップ
 	MAX
 };
 
@@ -32,6 +33,7 @@ public:
 	int GetNowEvent(void);				// 現在のイベント番号を取得する
 	void SetNowEvent(int num);			// はじめからやり直すのに必要
 	void SetFateNum(int num);			// はじめからやり直すのに必要
+	void SetReset(void);			// 初めからやり直すときに宝箱の状態をリセットする
 private:
 	void Init(void);					// 初期化
 	void pngInit(void);					// 画像関係初期化
@@ -41,6 +43,7 @@ private:
 	void Button(GameScene* game, Player* player);
 	void Chest(GameScene* game, Player* player, Menu* menu, Item* item);
 	void Drink(GameScene* game, Player* player);
+	void Trap(GameScene* game, Player* player);
 
 	EVENT_STATE _event;					// イベント情報用変数
 	bool _healYadoFlg;					// 回復を宿屋で頼むときにtrue
@@ -83,18 +86,23 @@ private:
 	// 謎の瓶の画像
 	int _drinkPNG;
 	// 選択肢の文字画像
-	int _sentakusiPNG[9];
+	int _sentakusiPNG[11];
 	// 矢印の画像
 	int yajirusiPNG;
 	// 空の宝箱
 	int karaPNG;
+	// 即死トラップの像
+	int zouPNG;
 
 	// SE
 	int _soundSE[6];
 	int _seCnt;				// 歩行音からドア音までつなぐときに使う変数
 	bool _soundWalk;		// 歩行音からドア音までつなぐときに使うフラグ
 
-	bool chestOpen[1];		// 開けたかどうか
-	bool chestBingo[1];		// 中身が当たり
-	VECTOR2 chestPos[1];	// 宝箱の位置
+	int chestOpen[2];		// 開けたかどうか
+	int chestBingo[2];		// 中身が当たり
+	VECTOR2 chestPos[2];	// 宝箱の位置
+
+	bool trapFlg = false;	// 即死トラップ用。一度発動させたらそのままにしておく
+	bool nowTrapFlg = false;// 発動しながら一度以上死んだ場合
 };

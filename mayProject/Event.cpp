@@ -42,14 +42,14 @@ void Event::Init(void)
 	_soundSE[4] = LoadSoundMem("sound/se/poison.mp3");
 	_soundSE[5] = LoadSoundMem("sound/se/door.mp3");
 
-	// 宝箱
+	// 宝箱設定
 	auto testFileHandle = FileRead_open("csv/chest.csv");
 	if (testFileHandle == NULL)
 	{
 		return; //エラー時の処理
 	}
 
-	for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 2; i++)
 	{
 		FileRead_scanf(testFileHandle, "%d,%d,%d,%d", &chestOpen[i], &chestBingo[i], &chestPos[i].x, &chestPos[i].y);
 	}
@@ -92,13 +92,16 @@ void Event::pngInit(void)
 	_drinkPNG = LoadGraph(nazo_bin.c_str());
 	// 文字画像の分割読み込み
 	std::string sentakusi = "image/sentakusi/sentakusi.png";
-	LoadDivGraph(sentakusi.c_str(), 9, 3, 3, 150, 75, _sentakusiPNG);
+	LoadDivGraph(sentakusi.c_str(),11, 11, 1, 150, 75, _sentakusiPNG);
 	// 矢印
 	std::string yajirusi = "image/yajirusi.png";
 	yajirusiPNG = LoadGraph(yajirusi.c_str());
 	// 空の宝箱
 	std::string chest_kara = "image/chest_kara.png";
 	karaPNG = LoadGraph(chest_kara.c_str());
+	// 即死トラップの像
+	std::string zou = "image/daiza.png";
+	zouPNG = LoadGraph(zou.c_str());
 }
 
 void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Monster* monster)
@@ -126,6 +129,11 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 	if (_event == EVENT_STATE::DRINK)
 	{
 		Drink(game, player);
+	}
+
+	if (_event == EVENT_STATE::TRAP)
+	{
+		Trap(game,player);
 	}
 
 	if (_event == EVENT_STATE::ENEMY)
@@ -163,7 +171,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 		// 人画像
 		DrawGraph(0, 0, _healHumanPNG, true);
 		// 進む
-		DrawGraph(600, 345, _sentakusiPNG[7], true);
+		DrawGraph(600, 345, _sentakusiPNG[10], true);
 		// メッセージボックス
 		DrawGraph(420, 50, _messagePNG, true);
 
@@ -249,7 +257,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 		}
 
 		// 進む
-		DrawGraph(600, 345, _sentakusiPNG[7], true);
+		DrawGraph(600, 345, _sentakusiPNG[10], true);
 
 		if (!_buyFlg || _chooseFlg)
 		{
@@ -293,7 +301,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 		DrawGraph(420, 50, _messagePNG, true);
 
 		// 進む(ボタン無視)
-		DrawGraph(600, 345, _sentakusiPNG[7], true);
+		DrawGraph(600, 345, _sentakusiPNG[10], true);
 
 		if (_fateNum == -1)
 		{
@@ -319,9 +327,18 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 		// メッセージボックス
 		DrawGraph(420, 50, _messagePNG, true);
 
-		if (chestPos[0].x == GameScene::testx && chestPos[0].y == GameScene::testy)
+		// 宝箱チェック
+		int a = 0;
+		for (int i = 0; i < 2; i++)
 		{
-			if (!chestOpen[0])
+			if (chestPos[i].x == GameScene::testx && chestPos[i].y == GameScene::testy)
+			{
+				a = i;
+			}
+		}
+		//if (chestPos[0].x == GameScene::testx && chestPos[0].y == GameScene::testy)
+		//{
+			if (chestOpen[a] == 0)
 			{
 				//if (_getFlg)
 				//{
@@ -334,10 +351,10 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 				//	// 持ち物満タンだからもてない
 				//	DrawFormatString(600, 180, 0xffffff, "所持品がいっぱいだ");
 				//}
-
+		
 				// 進む(宝箱無視)
-				DrawGraph(600, 345, _sentakusiPNG[7], true);
-
+				DrawGraph(600, 345, _sentakusiPNG[10], true);
+		
 				if (_fateNum == -1)
 				{
 					// 開ける
@@ -345,7 +362,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 					DrawGraph(350, 150, _chestPNG[0], true);
 					DrawFormatString(450, 70, 0x000000, "宝箱が置いてある");
 				}
-
+		
 				//if (_fateNum == 1)
 				//{
 				//	DrawGraph(350, 150, _chsetItemPNG, true);
@@ -357,7 +374,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 				//	DrawGraph(350, 150, _chestPNG[1], true);
 				//	DrawFormatString(450, 70, 0x000000, "中からゴーストが現れ\nあなたに攻撃してきた!");
 				//}
-
+		
 				// 鑑定アイテムを使ったときの描画
 				if (menu->GetMeganeFlg())
 				{
@@ -370,32 +387,32 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 					//{
 					//	DrawFormatString(450, 70, 0xff0000, "\n\nゴーストが見える");
 					//}
-
-					if (chestBingo[0] == 1)
+		
+					if (chestBingo[a] == 1)
 					{
 						DrawFormatString(450, 70, 0xff0000, "\n\n特におかしいところはない");
 					}
-
-					if (chestBingo[0] == 0)
+		
+					if (chestBingo[a] == 0)
 					{
 						DrawFormatString(450, 70, 0xff0000, "\n\nゴーストが見える");
 					}
 				}
 			}
-			else if(chestOpen[0])
+			else
 			{
 				if (_getFlg)
 				{
 					// 取る
 					DrawGraph(600, 200, _sentakusiPNG[8], true);
 				}
-
+		
 				if (_anounceFlg)
 				{
 					// 持ち物満タンだからもてない
 					DrawFormatString(600, 180, 0xffffff, "所持品がいっぱいだ");
 				}
-
+		
 				if (_fateNum == 1)
 				{
 					DrawGraph(350, 150, _chsetItemPNG, true);
@@ -412,11 +429,11 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 					DrawFormatString(450, 70, 0x000000, "宝箱は開いている");
 					DrawGraph(350, 150, karaPNG, true);
 				}
-
+		
 				// 進む(宝箱無視)
-				DrawGraph(600, 345, _sentakusiPNG[7], true);
+				DrawGraph(600, 345, _sentakusiPNG[10], true);
 			}
-		}
+		//}
 	}
 
 	// 瓶出現中
@@ -427,7 +444,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 		// 瓶画像
 		DrawGraph(350, 250, _drinkPNG, true);
 		// 進む(瓶無視)
-		DrawGraph(600, 345, _sentakusiPNG[7], true);
+		DrawGraph(600, 345, _sentakusiPNG[10], true);
 
 		if (_fateNum == -1)
 		{
@@ -444,6 +461,27 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 		if (_fateNum > 0)
 		{
 			DrawFormatString(450, 70, 0x000000, "毒にかかってしまった...");
+		}
+	}
+
+	// 即死トラップ出現中
+	if (_event == EVENT_STATE::TRAP)
+	{
+		// メッセージボックス
+		DrawGraph(420, 50, _messagePNG, true);
+		// 進む
+		DrawGraph(600, 345, _sentakusiPNG[10], true);
+		// 調べる
+		DrawGraph(600, 200, _sentakusiPNG[9], true);
+		DrawGraph(200, 75,zouPNG, true);
+
+		if (nowTrapFlg)
+		{
+			DrawFormatString(450, 70, 0x000000, "調べたら死ぬかもしれない");
+		}
+		else
+		{
+			DrawFormatString(450, 70, 0x000000, "怪しげな像がある");
 		}
 	}
 }
@@ -466,6 +504,22 @@ void Event::SetNowEvent(int num)
 void Event::SetFateNum(int num)
 {
 	_fateNum = num;
+}
+
+void Event::SetReset(void)
+{
+	// 宝箱の状態をリセットする
+	for (int i = 0; i < 2; i++)
+	{
+		chestOpen[i] = 0;
+	}
+
+	// 即死トラップ発動中で死亡していたら新たな展開へ
+	if (trapFlg)
+	{
+		nowTrapFlg = true;
+	}
+	trapFlg = false;
 }
 
 void Event::Enemy(GameScene* game, Player* player, Monster* monster)
@@ -828,8 +882,17 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
 			}
 		}
 
+		// 宝箱チェック
+		int a = 0;
+		for (int i = 0; i < 2; i++)
+		{
+			if (chestPos[i].x == GameScene::testx && chestPos[i].y == GameScene::testy)
+			{
+				a = i;
+			}
+		}
 		// 開ける
-		if (_fateNum == -1 && !chestOpen[0])
+		if (_fateNum == -1 && chestOpen[a] == 0)
 		{
 			if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 200 && game->cursorPos.y <= 200 + 75)
 			{
@@ -837,19 +900,41 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
 				//_fateNum = GetRand(2);	// 0 ~ 2
 				//_fateNum = 0;
 				//_fateNum = game->chestFate;
-				if (chestPos[0].x == GameScene::testx && chestPos[0].y == GameScene::testy)
-				{
+				//if (chestPos[i].x == GameScene::testx && chestPos[i].y == GameScene::testy)
+				//{
 					// あたりかはずれかをいれる
 					// 開けたことにする
-					chestOpen[0] = true;
-					_fateNum = chestBingo[0];
-				}
+					chestOpen[a] = 1;
+					_fateNum = chestBingo[a];
+				//}
 				if (menu->GetMeganeFlg())
 				{
 					menu->SetMeganeFlg(false);
 				}
 			}
 		}
+		//// 開ける
+		//if (_fateNum == -1 && !chestOpen[0])
+		//{
+		//	if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 200 && game->cursorPos.y <= 200 + 75)
+		//	{
+		//		_pushFlg = true;
+		//		//_fateNum = GetRand(2);	// 0 ~ 2
+		//		//_fateNum = 0;
+		//		//_fateNum = game->chestFate;
+		//		if (chestPos[0].x == GameScene::testx && chestPos[0].y == GameScene::testy)
+		//		{
+		//			// あたりかはずれかをいれる
+		//			// 開けたことにする
+		//			chestOpen[0] = true;
+		//			_fateNum = chestBingo[0];
+		//		}
+		//		if (menu->GetMeganeFlg())
+		//		{
+		//			menu->SetMeganeFlg(false);
+		//		}
+		//	}
+		//}
 	}
 
 	// 宝箱を開けることにしたとき
@@ -990,5 +1075,47 @@ void Event::Drink(GameScene* game, Player* player)
 			_pushFlg = false;
 			game->shakeFlg = true;
 		}
+	}
+}
+
+void Event::Trap(GameScene* game, Player* player)
+{
+	if (game->mouse & MOUSE_INPUT_LEFT) {			 //マウスの左ボタンが押されていたら
+		if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 345 && game->cursorPos.y <= 345 + 75)
+		{
+			// クリック音
+			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
+			// 歩行音
+			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
+
+			game->_backFlg = true;
+
+			// 先に進む
+			game->walkCnt++;
+			//game->moveFlg = true;
+			game->eventState = EVENT_STATE::NON;
+			_event = EVENT_STATE::NON;
+			_nowEvent++;
+			_fateNum = -1;
+			_soundWalk = true;
+		}
+
+		// 調べる
+		if (!trapFlg)
+		{
+			if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 200 && game->cursorPos.y <= 200 + 75)
+			{
+				// クリック音
+				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
+				trapFlg = true;
+			}
+		}
+	}
+
+	// 調べることにしたとき
+	if (trapFlg)
+	{
+		// 即死トラップの発動
+		player->SetHP(player->GetHP() - player->GetMaxHP());
 	}
 }

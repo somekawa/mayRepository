@@ -34,6 +34,21 @@
                 <key>textureRotated</key>
                 <false/>
             </dict>
+            <key>moji_10.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{150,75}</string>
+                <key>spriteSourceSize</key>
+                <string>{150,75}</string>
+                <key>textureRect</key>
+                <string>{{1500,0},{150,75}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
             <key>moji_2.png</key>
             <dict>
                 <key>aliases</key>
@@ -60,7 +75,7 @@
                 <key>spriteSourceSize</key>
                 <string>{150,75}</string>
                 <key>textureRect</key>
-                <string>{{0,75},{150,75}}</string>
+                <string>{{450,0},{150,75}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -75,7 +90,7 @@
                 <key>spriteSourceSize</key>
                 <string>{150,75}</string>
                 <key>textureRect</key>
-                <string>{{150,75},{150,75}}</string>
+                <string>{{600,0},{150,75}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -90,7 +105,7 @@
                 <key>spriteSourceSize</key>
                 <string>{150,75}</string>
                 <key>textureRect</key>
-                <string>{{300,75},{150,75}}</string>
+                <string>{{750,0},{150,75}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -105,7 +120,7 @@
                 <key>spriteSourceSize</key>
                 <string>{150,75}</string>
                 <key>textureRect</key>
-                <string>{{0,150},{150,75}}</string>
+                <string>{{900,0},{150,75}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -120,7 +135,7 @@
                 <key>spriteSourceSize</key>
                 <string>{150,75}</string>
                 <key>textureRect</key>
-                <string>{{150,150},{150,75}}</string>
+                <string>{{1050,0},{150,75}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -135,7 +150,22 @@
                 <key>spriteSourceSize</key>
                 <string>{150,75}</string>
                 <key>textureRect</key>
-                <string>{{300,150},{150,75}}</string>
+                <string>{{1200,0},{150,75}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
+            <key>moji_9.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{150,75}</string>
+                <key>spriteSourceSize</key>
+                <string>{150,75}</string>
+                <key>textureRect</key>
+                <string>{{1350,0},{150,75}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -151,9 +181,9 @@
             <key>realTextureFileName</key>
             <string>sentakusi.png</string>
             <key>size</key>
-            <string>{450,225}</string>
+            <string>{1650,75}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:162fe8933bf0c98c190b7bd577614eb8:b2f6a203d2d486bbd3f3b9460ed62b20:5670c2ca2d0639291e0a99f76437dd10$</string>
+            <string>$TexturePacker:SmartUpdate:3d96068a7451a032d8f3cbc32ed7fd63:e01f19ed9bf327b74756d02408ae31b1:5670c2ca2d0639291e0a99f76437dd10$</string>
             <key>textureFileName</key>
             <string>sentakusi.png</string>
         </dict>
