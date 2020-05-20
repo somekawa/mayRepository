@@ -410,9 +410,9 @@ bool GameScene::Init(void)
 		return false; //エラー時の処理
 	}
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 5; i++)
 	{
-		FileRead_scanf(testFileHandle, "%d,%d,%d", &numkai[i][0].second, &numkai[i][1].second, &numkai[i][2].second);
+		FileRead_scanf(testFileHandle, "%d,%d,%d,%d", &numkai[i][0].second, &numkai[i][1].second, &numkai[i][2].second, &numkai[i][3].second);
 	}
 
 	//ファイルを閉じる
@@ -422,7 +422,7 @@ bool GameScene::Init(void)
 	// つまり、配列は[y][x]の順になっている
 	//int aa = num[0][1];
 
-	testx = 2;
+	testx = 0;
 	testy = 0;
 	plNowPoint = numkai[testy][testx].second;
 
@@ -877,19 +877,68 @@ void GameScene::Draw(void)
 
 	// 現在地
 	//DrawGraph(testx*50,550 - (testy*50), chipPNG[0], true);
-
+	//int offset = 50;
 	// 最初の1歩(スタート地点)
 	//DrawGraph(0, 550, chipPNG[0], true);
-	DrawGraph(2 * 50, 550 - (0 * 50), chipPNG[0], true);
+	if (plNowMark.x == 0 && plNowMark.y <= 2)
+	{
+		// Sのマークに後で変更する
+		DrawGraph(0 * 50, 550 - (0 * 50), chipPNG[0], true);
+	}
 	// 現在地を保存していく?
 	for (auto v = vec.begin(); v != vec.end(); ++v)
 	{
+		if (testy <= 2)
+		{
+			offset.y = 0;
+			//DrawRotaGraph(std::get<0>(*v).x + 25, std::get<0>(*v).y + 25, 1.0, std::get<2>(*v), chipPNG[std::get<1>(*v)], true);
+		}
+		else
+		{
+			offset.y = 50 * (testy - 2);
+			//DrawRotaGraph(std::get<0>(*v).x + 25, std::get<0>(*v).y + 25 + (offset.y), 1.0, std::get<2>(*v), chipPNG[std::get<1>(*v)], true);
+		}
+
+		if (testx <= 2)
+		{
+			offset.x = 0;
+		}
+		else
+		{
+			offset.x = 50 * (testx - 2);
+		}
+
+		if (std::get<0>(*v).y + 25 + offset.y >= 450 && std::get<0>(*v).x + 25 - offset.x <= 150)
+		{
+			DrawRotaGraph(std::get<0>(*v).x + 25 - offset.x, std::get<0>(*v).y + 25 + offset.y, 1.0, std::get<2>(*v), chipPNG[std::get<1>(*v)], true);
+		}
 		//DrawRotaGraph((*v).first.x+25, (*v).first.y+25,1.0,0, chipPNG[(*v).second], true);
-		DrawRotaGraph(std::get<0>(*v).x + 25, std::get<0>(*v).y + 25, 1.0, std::get<2>(*v), chipPNG[std::get<1>(*v)], true);
+		//DrawRotaGraph(std::get<0>(*v).x + 25, std::get<0>(*v).y + 25, 1.0, std::get<2>(*v), chipPNG[std::get<1>(*v)], true);
 	}
 
 	// 現在地
-	DrawRotaGraph(testx*50+25,550 - (testy*50)+25,1.0f, directRota, directPNG, true);
+	if (testy <= 2)
+	{
+		plNowMark.y = testy;
+		//DrawRotaGraph(testx * 50 + 25, 550 - (testy * 50) + 25, 1.0f, directRota, directPNG, true);
+	}
+	else
+	{
+		plNowMark.y = 2;
+		//DrawRotaGraph(testx * 50 + 25, 550 - (2 * 50) + 25, 1.0f, directRota, directPNG, true);
+	}
+	if (testx <= 2)
+	{
+		plNowMark.x = testx;
+		//DrawRotaGraph(testx * 50 + 25, 550 - (testy * 50) + 25, 1.0f, directRota, directPNG, true);
+	}
+	else
+	{
+		plNowMark.x = 2;
+		//DrawRotaGraph(testx * 50 + 25, 550 - (2 * 50) + 25, 1.0f, directRota, directPNG, true);
+	}
+
+	DrawRotaGraph(plNowMark.x * 50 + 25, 550 - (plNowMark.y * 50) + 25, 1.0f, directRota, directPNG, true);
 
 	ScreenFlip();
 }
@@ -911,7 +960,6 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 				TestKey();
 				//_plDirect = PL_DIRECTION::UP;
 			}
-			return;
 		}
 
 		if (plNowPoint == 1 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
@@ -921,7 +969,6 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 				TestKey();
 				//_plDirect = PL_DIRECTION::RIGHT;
 			}
-			return;
 		}
 
 		if (plNowPoint == 2 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
@@ -931,7 +978,6 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 				TestKey();
 				//_plDirect = PL_DIRECTION::LEFT;
 			}
-			return;
 		}
 
 		// バック処理
@@ -946,7 +992,6 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 					//eventState = EVENT_STATE::NON;
 					//_event->SetEvent(EVENT_STATE::NON);
 				//}
-				return;
 			}
 		}
 
@@ -961,13 +1006,11 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 				{
 					rightFlg = true;
 					TestKey();
-					return;
 				}
 				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
 				{
 					leftFlg = true;
 					TestKey();
-					return;
 				}
 			}
 		}
@@ -982,13 +1025,11 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 				{
 					leftFlg = true;
 					TestKey();
-					return;
 				}
 				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
 				{
 					rightFlg = true;
 					TestKey();
-					return;
 				}
 			}
 		}
@@ -1003,13 +1044,11 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 				{
 					rightFlg = true;
 					TestKey();
-					return;
 				}
 				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
 				{
 					leftFlg = true;
 					TestKey();
-					return;
 				}
 			}
 		}
@@ -1024,13 +1063,11 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 				{
 					rightFlg = true;
 					TestKey();
-					return;
 				}
 				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
 				{
 					leftFlg = true;
 					TestKey();
-					return;
 				}
 			}
 		}
@@ -1049,7 +1086,6 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 				rightFlg = true;
 				TestKey();
 			}
-			return;
 		}
 
 		// トの字型(直進と左への道)
@@ -1066,7 +1102,6 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 				leftFlg = true;
 				TestKey();
 			}
-			return;
 		}
 
 		//if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_F2]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_F2]))
@@ -1841,18 +1876,18 @@ void GameScene::TestDirect(void)
 			{
 				_plDirectOld = _plDirect;
 				_backFlg = false;
-				_plDirect = PL_DIRECTION::RIGHT;	// 右曲がり
-				rightFlg = true;
-				directRota = PI / 2;
+				_plDirect = PL_DIRECTION::LEFT;	// 左曲がり
+				leftFlg = true;
+				directRota = PI + PI / 2;
 				return;
 			}
 			else if (plNowPoint == 2)
 			{
 				_plDirectOld = _plDirect;
 				_backFlg = false;
-				_plDirect = PL_DIRECTION::LEFT;	// 左曲がり
-				leftFlg = true;
-				directRota = PI + PI / 2;
+				_plDirect = PL_DIRECTION::RIGHT;	// 右曲がり
+				rightFlg = true;
+				directRota = PI / 2;
 				return;
 			}
 		}

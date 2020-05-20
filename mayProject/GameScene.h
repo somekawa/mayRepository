@@ -175,7 +175,7 @@ private:
 	int testCnt = 0;
 
 	//int num[3][3];		// マップ的なもの
-	std::pair<bool, int> numkai[4][4];	// マップ(通ったことのあるところはtrue)
+	std::pair<bool, int> numkai[5][4];	// マップ(通ったことのあるところはtrue)
 	int plNowPoint;		// プレイヤーの現在地
 	//static int testx;			// プレイヤーの歩行時用変数x
 	//static int testy;			// プレイヤーの歩行時用変数y
@@ -192,4 +192,7 @@ private:
 	int directPNG;
 	float directRota = 0.0f;
 	int monsTimeCnt = 30;
+
+	VECTOR2 offset = {0,0};
+	VECTOR2 plNowMark = { 0,0 };
 };
