@@ -458,9 +458,9 @@ bool GameScene::Init(void)
 		return false; //エラー時の処理
 	}
 
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 10; i++)
 	{
-		FileRead_scanf(testFileHandle, "%d,%d,%d,%d", &numkai[i][0].second, &numkai[i][1].second, &numkai[i][2].second, &numkai[i][3].second);
+		FileRead_scanf(testFileHandle, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", &numkai[i][0].second, &numkai[i][1].second, &numkai[i][2].second, &numkai[i][3].second, &numkai[i][4].second, &numkai[i][5].second, &numkai[i][6].second, &numkai[i][7].second, &numkai[i][8].second, &numkai[i][9].second);
 	}
 
 	//ファイルを閉じる
@@ -1840,7 +1840,7 @@ void GameScene::TestDirect(void)
 	// 行き止まりだったら進行方向にたいしてバック処理
 	if (plNowPoint == 3 || _backFlg)
 	{
-		if (_plDirectOld == PL_DIRECTION::DOWN && plNowPoint == 4)
+		if (_plDirectOld == PL_DIRECTION::DOWN && (plNowPoint == 4 || plNowPoint == 8 || plNowPoint == 0))
 		{
 			if (_plDirect == PL_DIRECTION::RIGHT)
 			{
@@ -1849,6 +1849,15 @@ void GameScene::TestDirect(void)
 			else if (_plDirect == PL_DIRECTION::LEFT)
 			{
 				_plDirect = PL_DIRECTION::RIGHT;
+			}
+
+			if (_plDirect == PL_DIRECTION::UP)
+			{
+				_plDirect = PL_DIRECTION::DOWN;
+			}
+			else if (_plDirect == PL_DIRECTION::DOWN)
+			{
+				_plDirect == PL_DIRECTION::UP;
 			}
 		}
 		rightFlg = false;
@@ -1890,6 +1899,10 @@ void GameScene::TestDirect(void)
 			else if (_plDirect == PL_DIRECTION::DOWN)
 			{
 				directRota = PI;
+			}
+			else if (_plDirect == PL_DIRECTION::UP)
+			{
+				directRota = 0;
 			}
 			return;
 		}
@@ -2121,9 +2134,9 @@ void GameScene::TestDirect(void)
 		}
 		else if (plNowPoint == 1)
 		{
+			_plDirect = PL_DIRECTION::LEFT;	// 左曲がり
+			leftFlg = true;
 			_plDirectOld = _plDirect;
-			_plDirect = PL_DIRECTION::RIGHT;	// 右曲がり
-			rightFlg = true;
 			testx--;
 			directRota = PI + PI / 2;
 			return;
@@ -2131,8 +2144,8 @@ void GameScene::TestDirect(void)
 		else if (plNowPoint == 2)
 		{
 			_plDirectOld = _plDirect;
-			_plDirect = PL_DIRECTION::LEFT;	// 左曲がり
-			leftFlg = true;
+			_plDirect = PL_DIRECTION::RIGHT;	// 右曲がり
+			rightFlg = true;
 			testx++;
 			directRota = PI / 2;
 			return;
@@ -2253,6 +2266,9 @@ void GameScene::TestKey(void)
 			vec.emplace_back(VECTOR2(testx * 50, 550 - (testy * 50)),plNowPoint, directRota);
 			numkai[testy][testx].first = true;
 		}
+
+		auto aaa = numkai[testy][testx].second;
+		auto bbb = _plDirect;
 
 		// 通ったことのある道はフラグがtrueになる仕組み
 		// フラグがfalse(通ったことがない)なら追加する
