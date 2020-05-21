@@ -50,6 +50,13 @@ GameScene::~GameScene()
 	{
 		DeleteSoundMem(_soundSE[i]);
 	}
+
+	// vectorの解放
+	for (auto v = vec.begin(); v != vec.end(); ++v)
+	{
+		std::vector<std::tuple<VECTOR2, int, float>> arr(std::get<1>(*v));
+		std::vector<std::tuple<VECTOR2, int, float>>().swap(arr);
+	}
 }
 
 unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
@@ -93,11 +100,18 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 			if (cursorPos.x >= 50 && cursorPos.x <= 50 + 400 && cursorPos.y >= 225 && cursorPos.y <= 225 + 130)
 			{
 				// 場所をスタート地点に戻す
-				testx = 2;
+				testx = 0;
 				testy = 0;
 				plNowPoint = numkai[testy][testx].second;
+				directRota = 0.0f;
+				_plDirect = PL_DIRECTION::UP;
+				_plDirectOld = PL_DIRECTION::UP;
+				leftFlg = false;
+				rightFlg = false;
 
 				// イベント状態の初期化
+				_event->SetEventMonsEncountFlg(false);
+				_event->SetEventMonsFlg(false);
 				walkCnt = 0;
 				eventState = EVENT_STATE::NON;
 				_monster[0]->SetEnemyState(ENEMY_STATE::NON);
@@ -171,7 +185,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 	changeBGM();
 	plDead();
 	_menu->Update(this,_player, _monster[0],_cards);
-	_event->UpDate(this, _player, _menu, _item, _monster[0]);
+	_event->UpDate(this, _player, _menu, _item, _monster[0],_cards);
 	enemyItemDrop();
 	
 	// アイテム画面の時にはカードを動かせなくする
@@ -495,6 +509,9 @@ void GameScene::pngInit(void)
 	{
 		roadPNG[i] = LoadGraph(dan_stop.c_str());
 	}
+
+	roadPNG[13] = LoadGraph(dan_go.c_str());
+
 	//roadPNG[5] = LoadGraph(dan_stop.c_str());
 
 
@@ -505,6 +522,8 @@ void GameScene::pngInit(void)
 	// マップチップ
 	std::string mapchip = "image/mapchip/mapchip.png";
 	std::string mapchip_stop = "image/mapchip/chip_3.png";
+	std::string mapchip_danger = "image/mapchip/chip_danger.png";
+
 	//chipPNG[0] = LoadGraph(chip_go.c_str());
 
 	LoadDivGraph(mapchip.c_str(), 7, 7, 1, 50, 50, chipPNG);
@@ -512,6 +531,8 @@ void GameScene::pngInit(void)
 	{
 		chipPNG[i] = LoadGraph(mapchip_stop.c_str());
 	}
+
+	chipPNG[13] = LoadGraph(mapchip_danger.c_str());
 
 	// 進むの文字
 	//std::string walk = "image/walk.png";
@@ -680,7 +701,7 @@ void GameScene::Draw(void)
 	}
 
 	// 何もなしと敵以外の処理
-	if (eventState != EVENT_STATE::NON && eventState != EVENT_STATE::ENEMY)
+	if (/*eventState != EVENT_STATE::NON &&*/ eventState != EVENT_STATE::ENEMY)
 	{
 		_event->Draw(this, _player, _menu, _item);
 	}
@@ -728,7 +749,11 @@ void GameScene::Draw(void)
 			}
 			else
 			{
-				_monster[0]->Draw();
+				if (!_event->GetEventMonsFlg())
+				{
+					// 通常の敵
+					_monster[0]->Draw();
+				}
 			}
 		}
 	}
@@ -2221,7 +2246,8 @@ void GameScene::TestKey(void)
 
 	int num = plNowPoint;
 
-	if (num < 7)
+	// 特定敵イベント中はカウンターを止める
+	if (num < 7 && !_event->GetEventMonsEncountFlg())
 	{
 		if (monsTimeCnt > 0)
 		{
@@ -2255,6 +2281,17 @@ void GameScene::TestKey(void)
 			break;
 		case 12:
 			eventState = EVENT_STATE::TRAP;
+			break;
+		case 13:
+			if (!_event->GetEventMonsEndFlg())
+			{
+				eventState = EVENT_STATE::EVE_MONS;
+			}
+			else
+			{
+				eventState = EVENT_STATE::NON;
+				plNowPoint = 0;
+			}
 			break;
 		default:
 			eventState = EVENT_STATE::NON;
@@ -2324,7 +2361,7 @@ void GameScene::TestKey(void)
 	//	}
 	//}
 
-	// 敵の出現
+	// 敵の出現(特定敵イベントでもここに入るようにする)
 	if (eventState == EVENT_STATE::ENEMY)
 	{
 		if (_monster[0]->GetEnemyState() == ENEMY_STATE::NON)

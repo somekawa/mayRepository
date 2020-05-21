@@ -30,6 +30,7 @@ enum class MAP {
 	CHEST,
 	DRINK,
 	TRAP,			// 即死トラップ
+	EVE_MONS,		// イベントモンスター(通路画像の予定)
 	MAX
 };
 

@@ -9,6 +9,7 @@ class Player;
 class Menu;
 class Item;
 class Monster;
+class Cards;
 
 enum class EVENT_STATE {
 	NON,
@@ -19,6 +20,7 @@ enum class EVENT_STATE {
 	CHEST,		// 宝箱
 	DRINK,		// 飲み物
 	TRAP,		// 即死トラップ
+	EVE_MONS,	// イベントモンスター
 	MAX
 };
 
@@ -27,13 +29,18 @@ class Event
 public:
 	Event();
 	~Event();
-	void UpDate(GameScene* game,Player* player, Menu* menu,Item* item, Monster* monster);
+	void UpDate(GameScene* game,Player* player, Menu* menu,Item* item, Monster* monster,Cards* cards);
 	void Draw(GameScene* game,Player* player, Menu* menu, Item* item);
 	void SetEvent(EVENT_STATE state);	// ゲームシーンからイベントを設定する
 	int GetNowEvent(void);				// 現在のイベント番号を取得する
 	void SetNowEvent(int num);			// はじめからやり直すのに必要
 	void SetFateNum(int num);			// はじめからやり直すのに必要
 	void SetReset(void);			// 初めからやり直すときに宝箱の状態をリセットする
+	bool GetEventMonsFlg(void);
+	void SetEventMonsFlg(bool flag);	// はじめからやり直すのに必要
+	bool GetEventMonsEndFlg(void);
+	void SetEventMonsEncountFlg(bool flag);
+	bool GetEventMonsEncountFlg(void);
 private:
 	void Init(void);					// 初期化
 	void pngInit(void);					// 画像関係初期化
@@ -44,6 +51,7 @@ private:
 	void Chest(GameScene* game, Player* player, Menu* menu, Item* item);
 	void Drink(GameScene* game, Player* player);
 	void Trap(GameScene* game, Player* player);
+	void eventMons(GameScene* game, Monster* monster, Cards* cards);
 
 	EVENT_STATE _event;					// イベント情報用変数
 	bool _healYadoFlg;					// 回復を宿屋で頼むときにtrue
@@ -86,7 +94,7 @@ private:
 	// 謎の瓶の画像
 	int _drinkPNG;
 	// 選択肢の文字画像
-	int _sentakusiPNG[11];
+	int _sentakusiPNG[12];
 	// 矢印の画像
 	int yajirusiPNG;
 	// 空の宝箱
@@ -105,4 +113,9 @@ private:
 
 	bool trapFlg = false;	// 即死トラップ用。一度発動させたらそのままにしておく
 	bool nowTrapFlg = false;// 発動しながら一度以上死んだ場合
+
+	bool eventmonsFlg = false;
+	bool eventmonsencountFlg = false;
+	bool eventmonsEndFlg = false;
+	int eventMonsPNG;
 };

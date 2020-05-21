@@ -200,13 +200,25 @@ void Enemy_weak::SetEnemyNum(int num, int plLv)
 	//auto d = a + b + enemy_status[num].nameNum + c;
 	//_enemyPNG = LoadGraph(d.c_str());
 
-	// ダメージ量と体力をプレイヤーレベルで調整できるようにする
-	_attackDamage = enemy_status[num].attack + (plLv * 2);
-	_enemyHP = enemy_status[num].HP + (plLv * 3);
-	_enemyMaxHP = _enemyHP;
-	_enemyMaxTurn = enemy_status[num].turn;
-	_enemyNum = num;
-	_state = ENEMY_STATE::EXIST;
+	// 特定敵イベント
+	if (num == 6)
+	{
+		_attackDamage = 999;
+		_enemyHP = 500;
+		_enemyMaxHP = 500;
+		_enemyMaxTurn = 3;
+		_state = ENEMY_STATE::EXIST;
+	}
+	else
+	{
+		// ダメージ量と体力をプレイヤーレベルで調整できるようにする
+		_attackDamage = enemy_status[num].attack + (plLv * 2);
+		_enemyHP = enemy_status[num].HP + (plLv * 3);
+		_enemyMaxHP = _enemyHP;
+		_enemyMaxTurn = enemy_status[num].turn;
+		_enemyNum = num;
+		_state = ENEMY_STATE::EXIST;
+	}
 }
 
 float Enemy_weak::GetHPBar(void)

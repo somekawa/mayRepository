@@ -2,6 +2,7 @@
 #include "Event.h"
 #include "GameScene.h"
 #include "Player.h"
+#include "Cards.h"
 
 Event::Event()
 {
@@ -92,7 +93,7 @@ void Event::pngInit(void)
 	_drinkPNG = LoadGraph(nazo_bin.c_str());
 	// 文字画像の分割読み込み
 	std::string sentakusi = "image/sentakusi/sentakusi.png";
-	LoadDivGraph(sentakusi.c_str(),11, 11, 1, 150, 75, _sentakusiPNG);
+	LoadDivGraph(sentakusi.c_str(),12, 12, 1, 150, 75, _sentakusiPNG);
 	// 矢印
 	std::string yajirusi = "image/yajirusi.png";
 	yajirusiPNG = LoadGraph(yajirusi.c_str());
@@ -102,9 +103,12 @@ void Event::pngInit(void)
 	// 即死トラップの像
 	std::string zou = "image/daiza.png";
 	zouPNG = LoadGraph(zou.c_str());
+	// イベント敵
+	std::string eveMons = "image/monster/event_monster.png";
+	eventMonsPNG = LoadGraph(eveMons.c_str());
 }
 
-void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Monster* monster)
+void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Monster* monster,Cards* cards)
 {
 	if (_event == EVENT_STATE::YADO)
 	{
@@ -139,6 +143,11 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 	if (_event == EVENT_STATE::ENEMY)
 	{
 		Enemy(game, player, monster);
+	}
+
+	if (_event == EVENT_STATE::EVE_MONS)
+	{
+		eventMons(game, monster,cards);
 	}
 
 	// 歩行音からドア音までのつなぎ用
@@ -477,13 +486,52 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 
 		if (nowTrapFlg)
 		{
-			DrawFormatString(450, 70, 0x000000, "調べたら死ぬかもしれない");
+			if (eventmonsencountFlg && !eventmonsEndFlg)
+			{
+				DrawFormatString(450, 70, 0x000000, "背後に敵が迫っている…!");
+			}
+			else
+			{
+				DrawFormatString(450, 70, 0x000000, "即死トラップのようだ");
+			}
 		}
 		else
 		{
 			DrawFormatString(450, 70, 0x000000, "怪しげな像がある");
+			if (eventmonsencountFlg && !eventmonsEndFlg)
+			{
+				DrawFormatString(450, 90, 0xff0000, "背後に敵が迫っている…!");
+			}
 		}
 	}
+
+	// イベント敵と遭遇中
+	if (_event == EVENT_STATE::EVE_MONS)
+	{
+		DrawGraph(100, 75, eventMonsPNG, true);
+
+		// 戦闘に入る前
+		if (!eventmonsFlg)
+		{
+			// メッセージボックス
+			DrawGraph(420, 50, _messagePNG, true);
+			// 去る
+			DrawGraph(600, 345, _sentakusiPNG[10], true);
+			// 調べる
+			DrawGraph(600, 200, _sentakusiPNG[11], true);
+			DrawFormatString(450, 70, 0x000000, "強そうな敵がいる");
+		}
+	}
+
+	// イベントがNONでもeventmonFlg立ってたら描画してみる(画面に張り付き)
+	if (_event == EVENT_STATE::NON && eventmonsencountFlg)
+	{
+		DrawGraph(100, 75, eventMonsPNG, true);
+		// メッセージボックス
+		DrawGraph(420, 50, _messagePNG, true);
+		DrawFormatString(450, 70, 0x000000, "なんと敵が追いかけてきた!");
+	}
+
 }
 
 void Event::SetEvent(EVENT_STATE state)
@@ -520,6 +568,31 @@ void Event::SetReset(void)
 		nowTrapFlg = true;
 	}
 	trapFlg = false;
+}
+
+bool Event::GetEventMonsFlg(void)
+{
+	return eventmonsFlg;
+}
+
+void Event::SetEventMonsFlg(bool flag)
+{
+	eventmonsFlg = flag;
+}
+
+bool Event::GetEventMonsEndFlg(void)
+{
+	return eventmonsEndFlg;
+}
+
+void Event::SetEventMonsEncountFlg(bool flag)
+{
+	eventmonsencountFlg = flag;
+}
+
+bool Event::GetEventMonsEncountFlg(void)
+{
+	return eventmonsencountFlg;
 }
 
 void Event::Enemy(GameScene* game, Player* player, Monster* monster)
@@ -1117,5 +1190,57 @@ void Event::Trap(GameScene* game, Player* player)
 	{
 		// 即死トラップの発動
 		player->SetHP(player->GetHP() - player->GetMaxHP());
+
+		// とりあえずここで特定敵イベントを終了させる
+		if (eventmonsencountFlg && !eventmonsEndFlg)
+		{
+			eventmonsencountFlg = false;
+			eventmonsEndFlg = true;
+		}
+	}
+}
+
+void Event::eventMons(GameScene* game, Monster* monster, Cards* cards)
+{
+	eventmonsencountFlg = true;
+	if (game->mouse & MOUSE_INPUT_LEFT) {			 //マウスの左ボタンが押されていたら
+		if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 345 && game->cursorPos.y <= 345 + 75)
+		{
+			// クリック音
+			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
+			// 歩行音
+			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
+
+			game->_backFlg = true;
+
+			// 先に進む
+			game->walkCnt++;
+			//game->moveFlg = true;
+			game->eventState = EVENT_STATE::NON;
+			_event = EVENT_STATE::NON;
+			_nowEvent++;
+			_fateNum = -1;
+			_soundWalk = true;
+		}
+
+		// 戦う
+		if (!eventmonsFlg)
+		{
+			if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 200 && game->cursorPos.y <= 200 + 75)
+			{
+				// クリック音
+				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
+				eventmonsFlg = true;
+				auto ene = 6;
+				monster->SetEnemyNum(ene, 0);
+				cards->SetTurn(3);
+			}
+		}
+		//if(eventmonsFlg)
+		//{
+		//	auto ene = 6;
+		//	monster->SetEnemyNum(ene, 0);
+		//	cards->SetTurn(3);
+		//}
 	}
 }

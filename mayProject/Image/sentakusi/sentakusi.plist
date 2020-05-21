@@ -49,6 +49,21 @@
                 <key>textureRotated</key>
                 <false/>
             </dict>
+            <key>moji_11.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{150,75}</string>
+                <key>spriteSourceSize</key>
+                <string>{150,75}</string>
+                <key>textureRect</key>
+                <string>{{1650,0},{150,75}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
             <key>moji_2.png</key>
             <dict>
                 <key>aliases</key>
@@ -181,9 +196,9 @@
             <key>realTextureFileName</key>
             <string>sentakusi.png</string>
             <key>size</key>
-            <string>{1650,75}</string>
+            <string>{1800,75}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:3d96068a7451a032d8f3cbc32ed7fd63:e01f19ed9bf327b74756d02408ae31b1:5670c2ca2d0639291e0a99f76437dd10$</string>
+            <string>$TexturePacker:SmartUpdate:9ce468099035aaf7935203a732a6b234:7c719ed0e11464c7d10aaa33c17fb55e:5670c2ca2d0639291e0a99f76437dd10$</string>
             <key>textureFileName</key>
             <string>sentakusi.png</string>
         </dict>
