@@ -149,7 +149,6 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 	{
 		eventMons(game, monster,cards);
 	}
-
 	// 歩行音からドア音までのつなぎ用
 	// 1:再生中 0:再生していない
 	if (CheckSoundMem(_soundSE[2]) == 1 && _soundWalk)

@@ -21,6 +21,7 @@ enum class EVENT_STATE {
 	DRINK,		// 飲み物
 	TRAP,		// 即死トラップ
 	EVE_MONS,	// イベントモンスター
+	GOAL,
 	MAX
 };
 

@@ -31,6 +31,7 @@ enum class MAP {
 	DRINK,
 	TRAP,			// 即死トラップ
 	EVE_MONS,		// イベントモンスター(通路画像の予定)
+	GOAL,			// ゴール
 	MAX
 };
 
@@ -65,6 +66,7 @@ public:
 	bool _backFlg = false;
 	static int testx;			// プレイヤーの歩行時用変数x
 	static int testy;			// プレイヤーの歩行時用変数y
+	bool _openDoor;						// 扉を開ける
 private:
 	bool Init(void);					// 初期化
 	void pngInit(void);					// 画像用初期化
@@ -90,7 +92,7 @@ private:
 
 	// 扉関係
 	//bool doorFlg;						// 拡大していない扉 表示管理用フラグ
-	bool _openDoor;						// 扉を開ける
+	//bool _openDoor;						// 扉を開ける
 	float _doorExpand;					// 扉の拡大用変数
 	float _degree;						// 歩きモーション用
 	int _doorOpenTiming;				// 歩いてから扉が開くまでの時間調整用

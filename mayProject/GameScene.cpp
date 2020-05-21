@@ -36,12 +36,36 @@ GameScene::GameScene()
 
 GameScene::~GameScene()
 {
-	delete _cards;
-	delete _player;
-	delete _monster[0];
-	delete _menu;
-	delete _item;
-	delete _event;
+	if (_cards != nullptr)
+	{
+		delete _cards;
+		_cards = nullptr;
+	}
+	if (_player != nullptr)
+	{
+		delete _player;
+		_player = nullptr;
+	}
+	if (_monster[0] != nullptr)
+	{
+		delete _monster[0];
+		_monster[0] = nullptr;
+	}
+	if (_menu != nullptr)
+	{
+		delete _menu;
+		_menu = nullptr;
+	}
+	if (_item != nullptr)
+	{
+		delete _item;
+		_item = nullptr;
+	}
+	if (_event != nullptr)
+	{
+		delete _event;
+		_event = nullptr;
+	}
 
 	// 音関係
 	DeleteSoundMem(_gameBGM);
@@ -54,7 +78,7 @@ GameScene::~GameScene()
 	// vectorの解放
 	for (auto v = vec.begin(); v != vec.end(); ++v)
 	{
-		std::vector<std::tuple<VECTOR2, int, float>> arr(std::get<1>(*v));
+		std::vector<std::tuple<VECTOR2, int, float>> arr;
 		std::vector<std::tuple<VECTOR2, int, float>>().swap(arr);
 	}
 }
@@ -165,6 +189,16 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 		//	}
 		//}
 
+	}
+
+	// ゴール処理
+	if (eventState == EVENT_STATE::GOAL)
+	{
+		// 扉描画時にUPキーで出口処理
+		if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_UP]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_UP]))
+		{
+			_openDoor = true;
+		}
 	}
 
 	MouseClick_Go(ctl);
@@ -512,6 +546,8 @@ void GameScene::pngInit(void)
 
 	roadPNG[13] = LoadGraph(dan_go.c_str());
 
+	roadPNG[14] = LoadGraph(room_0.c_str());
+
 	//roadPNG[5] = LoadGraph(dan_stop.c_str());
 
 
@@ -533,6 +569,7 @@ void GameScene::pngInit(void)
 	}
 
 	chipPNG[13] = LoadGraph(mapchip_danger.c_str());
+	chipPNG[14] = LoadGraph(mapchip_danger.c_str());
 
 	// 進むの文字
 	//std::string walk = "image/walk.png";
@@ -668,7 +705,7 @@ void GameScene::Draw(void)
 			//DrawRotaGraph(340 + 204 / 2, 100 + 292 / 2, 1.5f, 0, doorPNG[1], false);
 
 			// ゴール前の扉を光らせる
-			if (walkCnt == _goalCnt)
+			if (walkCnt == _goalCnt || eventState == EVENT_STATE::GOAL)
 			{
 				//最後はそこからさらにドアを拡大していって、時間経過でクリア画面に移行させる
 				DrawRotaGraph(450, 300, _lastDoorExpand, 0, _room[2], false);
@@ -2292,6 +2329,10 @@ void GameScene::TestKey(void)
 				eventState = EVENT_STATE::NON;
 				plNowPoint = 0;
 			}
+			break;
+		case 14:
+			eventState = EVENT_STATE::GOAL;
+			//_openDoor = true;
 			break;
 		default:
 			eventState = EVENT_STATE::NON;
