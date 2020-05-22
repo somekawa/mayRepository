@@ -102,7 +102,7 @@ private:
 
 	// イベント関係
 	//int walkCnt;						// 歩いた回数
-	int _goalCnt;						// ゴールまでに必要な歩数
+	//int _goalCnt;						// ゴールまでに必要な歩数
 	int _eventNum[EVENT_MAXNUM];			// イベントが発生する歩数
 	int _bossEventNum;					// ボスの出てくるタイミング
 	// イベント内容の管理
@@ -180,6 +180,7 @@ private:
 	//int num[3][3];		// マップ的なもの
 	std::pair<bool, int> numkai[10][10];	// マップ(通ったことのあるところはtrue)
 	int plNowPoint;		// プレイヤーの現在地
+	int plOldPoint;
 	//static int testx;			// プレイヤーの歩行時用変数x
 	//static int testy;			// プレイヤーの歩行時用変数y
 	//std::map<bool, std::pair<int, int>> mapTest;

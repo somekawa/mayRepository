@@ -98,8 +98,8 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 		if (_player->GetHP() > 0)
 		{
 			// クリアではないとき
-			if (walkCnt != _goalCnt)
-			{
+			//if (walkCnt != _goalCnt)
+			//{
 				// 敵がいないときだけ押せる
 				if (eventState != EVENT_STATE::ENEMY)
 				{
@@ -116,7 +116,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 				}
 
 				//MouseClick_Go();
-			}
+			//}
 		}
 		else
 		{
@@ -345,7 +345,8 @@ bool GameScene::Init(void)
 	//
 	// ボスイベントの設定(最後のイベントのときに出るようにする)
 	//_bossEventNum = _eventNum[EVENT_NUM-1];
-	_goalCnt = _bossEventNum + 2;		// ボス撃破後した+2でゴール
+	
+	//_goalCnt = _bossEventNum + 2;		// ボス撃破後した+2でゴール
 
 	// 画面揺らし関係
 	shakeFlg = false;
@@ -639,14 +640,14 @@ void GameScene::Draw(void)
 	}
 	else
 	{
-		if (walkCnt != _goalCnt)
-		{
+		//if (walkCnt != _goalCnt)
+		//{
 			//DrawRotaGraph(450, 300, 1.0f, 0, _room[0], false);
 			//DrawRotaGraph(450, 300, 1.0f, 0, straightPNG, false);
 			//DrawRotaGraph(450-testCnt, 300, 1.0f, 0, rightPNG, false);
 			//DrawRotaGraph(450 - testCnt, 300, 1.0f, 0, roadPNG[1], false);
 			DrawRotaGraph(450 - testCnt, 300, 1.0f, 0, roadPNG[plNowPoint], false);
-		}
+		//}
 		_shakeTime = 0.0f;
 		_shakeChangeFlg = false;
 	}
@@ -705,7 +706,7 @@ void GameScene::Draw(void)
 			//DrawRotaGraph(340 + 204 / 2, 100 + 292 / 2, 1.5f, 0, doorPNG[1], false);
 
 			// ゴール前の扉を光らせる
-			if (walkCnt == _goalCnt || eventState == EVENT_STATE::GOAL)
+			if (/*walkCnt == _goalCnt ||*/ eventState == EVENT_STATE::GOAL)
 			{
 				//最後はそこからさらにドアを拡大していって、時間経過でクリア画面に移行させる
 				DrawRotaGraph(450, 300, _lastDoorExpand, 0, _room[2], false);
@@ -751,8 +752,8 @@ void GameScene::Draw(void)
 	//}
 
 	// ゲージ
-	DrawExtendGraph(800, 25, 800 + 50, 25 + 300, _gaugePNG, true);
-	DrawExtendGraph(800, 25, 800 + 50, 25 + 300 * (1.0f - ((float)walkCnt / (float)(_goalCnt))), _gaugeBackPNG, true);
+	//DrawExtendGraph(800, 25, 800 + 50, 25 + 300, _gaugePNG, true);
+	//DrawExtendGraph(800, 25, 800 + 50, 25 + 300 * (1.0f - ((float)walkCnt / (float)(_goalCnt))), _gaugeBackPNG, true);
 
 	// テスト表示
 	//DrawFormatString(0, 240, GetColor(255, 255, 255),"現在のレベルは%dです",_player->GetNowLevel());
@@ -1840,7 +1841,7 @@ void GameScene::TestDirect(void)
 	// 行き止まりだったら進行方向にたいしてバック処理
 	if (plNowPoint == 3 || _backFlg)
 	{
-		if (_plDirectOld == PL_DIRECTION::DOWN && (plNowPoint == 4 || plNowPoint == 8 || plNowPoint == 0))
+		if (_plDirectOld == PL_DIRECTION::DOWN && (plNowPoint == 4 || plNowPoint == 7 || plNowPoint == 8 || plNowPoint == 0))
 		{
 			if (_plDirect == PL_DIRECTION::RIGHT)
 			{
@@ -1850,8 +1851,7 @@ void GameScene::TestDirect(void)
 			{
 				_plDirect = PL_DIRECTION::RIGHT;
 			}
-
-			if (_plDirect == PL_DIRECTION::UP)
+			else if (_plDirect == PL_DIRECTION::UP)
 			{
 				_plDirect = PL_DIRECTION::DOWN;
 			}
@@ -1888,7 +1888,13 @@ void GameScene::TestDirect(void)
 		{
 			_backFlg = false;
 			_plDirect = _plDirectOld;
-			if (_plDirect == PL_DIRECTION::RIGHT)
+			//plNowPoint = plOldPoint;
+			if (plOldPoint == 5)
+			{
+				_plDirect = PL_DIRECTION::RIGHT;
+				directRota = PI / 2;
+			}
+			else if (_plDirect == PL_DIRECTION::RIGHT)
 			{
 				directRota = PI / 2;
 			}
@@ -1911,10 +1917,16 @@ void GameScene::TestDirect(void)
 		if (plNowPoint == 5)
 		{
 			_backFlg = false;
-			_plDirect = _plDirectOld;
-			if (_plDirect == PL_DIRECTION::UP)
+			//_plDirect = _plDirectOld;
+			if (_plDirectOld == PL_DIRECTION::UP)
 			{
 				directRota = 0;
+				_plDirect = _plDirectOld;
+			}
+			else if (_plDirectOld == PL_DIRECTION::RIGHT)
+			{
+				directRota = 0;
+				_plDirect = PL_DIRECTION::UP;
 			}
 			return;
 		}
@@ -2046,6 +2058,7 @@ void GameScene::TestDirect(void)
 		if (rightFlg && _plDirect != PL_DIRECTION::UP && _plDirect != PL_DIRECTION::DOWN)
 		{
 			_plDirectOld = _plDirect;
+			plOldPoint = plNowPoint;
 			_plDirect = PL_DIRECTION::DOWN;
 			testy--;
 			directRota = PI;
@@ -2055,6 +2068,7 @@ void GameScene::TestDirect(void)
 		if (leftFlg && _plDirect != PL_DIRECTION::UP && _plDirect != PL_DIRECTION::DOWN)
 		{
 			_plDirectOld = _plDirect;
+			plOldPoint = plNowPoint;
 			_plDirect = PL_DIRECTION::UP;
 			testy++;
 			directRota = 0;
@@ -2064,6 +2078,7 @@ void GameScene::TestDirect(void)
 		if (rightFlg && _plDirect == PL_DIRECTION::UP)
 		{
 			_plDirectOld = _plDirect;
+			plOldPoint = plNowPoint;
 			_plDirect = PL_DIRECTION::RIGHT;
 			testx++;
 			directRota = PI / 2;
@@ -2073,6 +2088,7 @@ void GameScene::TestDirect(void)
 		if (leftFlg && _plDirect == PL_DIRECTION::UP)
 		{
 			_plDirectOld = _plDirect;
+			plOldPoint = plNowPoint;
 			_plDirect = PL_DIRECTION::LEFT;
 			testx--;
 			directRota = PI + PI / 2;
@@ -2082,6 +2098,7 @@ void GameScene::TestDirect(void)
 		if (rightFlg && _plDirect == PL_DIRECTION::DOWN)
 		{
 			_plDirectOld = _plDirect;
+			plOldPoint = plNowPoint;
 			_plDirect = PL_DIRECTION::LEFT;
 			testx--;
 			directRota = PI + PI / 2;
@@ -2091,6 +2108,7 @@ void GameScene::TestDirect(void)
 		if (leftFlg && _plDirect == PL_DIRECTION::DOWN)
 		{
 			_plDirectOld = _plDirect;
+			plOldPoint = plNowPoint;
 			_plDirect = PL_DIRECTION::RIGHT;
 			testx++;
 			directRota = PI / 2;
@@ -2102,12 +2120,15 @@ void GameScene::TestDirect(void)
 	{
 		if ((plNowPoint == 0 || plNowPoint == 5 || plNowPoint == 6) && !rightFlg && !leftFlg)	// 直進
 		{
+			plOldPoint = plNowPoint;
+			_plDirectOld = _plDirect;
 			testy++;
 			return;
 		}
 		else if (plNowPoint == 1 || plNowPoint == 5)
 		{
 			_plDirectOld = _plDirect;
+			plOldPoint = plNowPoint;
 			_plDirect = PL_DIRECTION::RIGHT;	// 右曲がり
 			rightFlg = true;
 			testx++;
@@ -2117,6 +2138,7 @@ void GameScene::TestDirect(void)
 		else if (plNowPoint == 2 || plNowPoint == 6)
 		{
 			_plDirectOld = _plDirect;
+			plOldPoint = plNowPoint;
 			_plDirect = PL_DIRECTION::LEFT;	// 左曲がり
 			leftFlg = true;
 			testx--;
@@ -2129,6 +2151,7 @@ void GameScene::TestDirect(void)
 	{
 		if (plNowPoint == 0)	// 直進
 		{
+			plOldPoint = plNowPoint;
 			testy--;
 			return;
 		}
@@ -2137,6 +2160,7 @@ void GameScene::TestDirect(void)
 			_plDirect = PL_DIRECTION::LEFT;	// 左曲がり
 			leftFlg = true;
 			_plDirectOld = _plDirect;
+			plOldPoint = plNowPoint;
 			testx--;
 			directRota = PI + PI / 2;
 			return;
@@ -2144,6 +2168,7 @@ void GameScene::TestDirect(void)
 		else if (plNowPoint == 2)
 		{
 			_plDirectOld = _plDirect;
+			plOldPoint = plNowPoint;
 			_plDirect = PL_DIRECTION::RIGHT;	// 右曲がり
 			rightFlg = true;
 			testx++;
@@ -2156,12 +2181,14 @@ void GameScene::TestDirect(void)
 	{
 		if (plNowPoint == 0)	// 直進
 		{
+			plOldPoint = plNowPoint;
 			testx++;
 			return;
 		}
 		else if (plNowPoint == 1 && rightFlg)	// 右曲がり(下)
 		{
 			_plDirectOld = _plDirect;
+			plOldPoint = plNowPoint;
 			_plDirect = PL_DIRECTION::DOWN;
 			rightFlg = false;
 			testy--;
@@ -2171,6 +2198,7 @@ void GameScene::TestDirect(void)
 		else if (plNowPoint == 2 && rightFlg)	// 左曲がり(上)
 		{
 			_plDirectOld = _plDirect;
+			plOldPoint = plNowPoint;
 			_plDirect = PL_DIRECTION::UP;
 			rightFlg = false;
 			testy++;
@@ -2183,12 +2211,24 @@ void GameScene::TestDirect(void)
 	{
 		if (plNowPoint == 0)	// 直進
 		{
+			plOldPoint = plNowPoint;
 			testx--;
+			return;
+		}
+		else if (_plDirectOld == PL_DIRECTION::DOWN)
+		{
+			_plDirectOld = _plDirect;
+			plOldPoint = plNowPoint;
+			_plDirect = PL_DIRECTION::DOWN;
+			leftFlg = false;
+			testy--;
+			directRota = PI;
 			return;
 		}
 		else if (plNowPoint == 1 && leftFlg)	// 右曲がり(上)
 		{
 			_plDirectOld = _plDirect;
+			plOldPoint = plNowPoint;
 			_plDirect = PL_DIRECTION::UP;
 			leftFlg = false;
 			testy++;
@@ -2198,6 +2238,7 @@ void GameScene::TestDirect(void)
 		else if (plNowPoint == 2 && leftFlg)	// 左曲がり(下)
 		{
 			_plDirectOld = _plDirect;
+			plOldPoint = plNowPoint;
 			_plDirect = PL_DIRECTION::DOWN;
 			leftFlg = false;
 			testy--;
