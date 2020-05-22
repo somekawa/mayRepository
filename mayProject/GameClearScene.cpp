@@ -52,11 +52,12 @@ unique_Base GameClearScene::Update(unique_Base own, const GameCtl& ctl)
 	//oldMouse = mouse;
 
 	// だんだん暗くする
-	if (_pngBlend >= 128)
+	if (_pngBlend >= 0)
 	{
 		_pngBlend--;
 	}
 
+	parTest();
 	Draw();
 	// 自分のSceneのユニークポインタを返す 所有権も忘れずに!
 	return std::move(own);
@@ -64,17 +65,31 @@ unique_Base GameClearScene::Update(unique_Base own, const GameCtl& ctl)
 
 bool GameClearScene::Init(void)
 {
+	std::string particle = "image/particle.png";
+	partestPNG = LoadGraph(particle.c_str());
+
+	std::string white = "image/white.png";
+	whitePNG = LoadGraph(white.c_str());
+
 	std::string gameclear = "image/gameclear.png";
 	_gameClearPNG = LoadGraph(gameclear.c_str());
 
-	std::string clear = "image/clear.png";
+	std::string clear = "image/night_forest.png";
 	_backPNG = LoadGraph(clear.c_str());
 
 	std::string titleBackButton = "image/titleBackButton.png";
 	_backTitleButtonPNG = LoadGraph(titleBackButton.c_str());
 
-	_pngBlend = 256;
-
+	_pngBlend = 256;	
+	float expand = 0.0f;
+	for (int i = 0; i < 3; i++)
+	{
+		parEx[i] = expand;
+		parExFlg[i] = false;
+		posRandFlg[i] = false;
+		parPos[i] = { -100,-100 };
+		expand += 0.3f;
+	}
 	_seClick = LoadSoundMem("sound/se/click.mp3");
 
 	// BGMテスト(データが結構大きめ)
@@ -86,11 +101,95 @@ bool GameClearScene::Init(void)
 void GameClearScene::Draw(void)
 {
 	ClsDrawScreen();
-	// 加算ブレンド
-	SetDrawBlendMode(DX_BLENDMODE_ADD, _pngBlend);
 	DrawGraph(0, 0, _backPNG, true);
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-	DrawGraph(0, 0, _gameClearPNG, true);
+	DrawGraph(0, -256 + (256 - _pngBlend), _gameClearPNG, true);
 	DrawGraph(650, 500, _backTitleButtonPNG, true);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, _pngBlend);
+	DrawGraph(0, 0, whitePNG, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	// 加算ブレンド
+	//SetDrawBlendMode(DX_BLENDMODE_ADD, _pngBlend);
+	//DrawGraph(0, 0, _backPNG, true);
+	//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	//DrawGraph(0, -256 + (256 - _pngBlend), _gameClearPNG, true);
+
+
+	// 描画ブレンドモードを加算合成にする
+	SetDrawBlendMode(DX_BLENDMODE_ADD, _pngLight);
+	for (int i = 0; i < 3; i++)
+	{
+		DrawRotaGraph(parPos[i].x + 25, parPos[i].y + 25, parEx[i], 0, partestPNG, true);
+	}
+	// 描画ブレンドモードをノーブレンドにする
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
 	ScreenFlip();
+}
+
+void GameClearScene::parTest(void)
+{
+	for (int i = 0; i < 3; i++)
+	{
+		if (!parExFlg[i])
+		{
+			if (parEx[i] <= 1.0f)
+			{
+				parEx[i] += 0.01f;
+			}
+			else
+			{
+				parExFlg[i] = !parExFlg[i];
+			}
+		}
+		else
+		{
+			if (parEx[i] >= 0.0f)
+			{
+				parEx[i] -= 0.01f;
+			}
+			else
+			{
+				parExFlg[i] = !parExFlg[i];
+				posRandFlg[i] = true;
+			}
+		}
+
+		if (posRandFlg[i])
+		{
+			parPos[i].x = GetRand(850);
+			parPos[i].y = GetRand(200)+300;
+			posRandFlg[i] = false;
+		}
+	}
+	//if (!parExFlg[0])
+	//{
+	//	if (parEx[0] <= 1.0f)
+	//	{
+	//		parEx[0] += 0.01f;
+	//	}
+	//	else
+	//	{
+	//		parExFlg[0] = !parExFlg[0];
+	//	}
+	//}
+	//else
+	//{
+	//	if (parEx[0] >= 0.0f)
+	//	{
+	//		parEx[0] -= 0.01f;
+	//	}
+	//	else
+	//	{
+	//		parExFlg[0] = !parExFlg[0];
+	//		posRandFlg[0] = true;
+	//		a = 0;
+	//	}
+	//}
+
+	//if (posRandFlg[0])
+	//{
+	//	parPos[0].x = GetRand(850);
+	//	parPos[0].y = GetRand(550);
+	//	posRandFlg[0] = false;
+	//}
 }

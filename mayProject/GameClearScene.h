@@ -1,5 +1,7 @@
 #pragma once
+#include "VECTOR2.h"
 #include "BaseScene.h"
+
 class GameClearScene :
 	public BaseScene
 {
@@ -22,6 +24,16 @@ private:
 	int _clearBGM;						// BGM
 
 	bool flag = false;
+
+	int whitePNG;
+	int partestPNG;
+
+	void parTest(void);
+	VECTOR2 parPos[3];
+	float parEx[3];
+	bool parExFlg[3];
+	int _pngLight = 50;
+	bool posRandFlg[3];
 
 	//int oldMouse;
 };
