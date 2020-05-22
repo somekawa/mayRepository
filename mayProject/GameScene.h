@@ -154,6 +154,10 @@ private:
 	int _retryPNG;
 	// 死亡時のあきらめるの画像
 	int _deadPNG;
+	// 即死トラップで死亡時(敵遭遇前)の画像
+	int _messageDeathPNG;
+	// 即死トラップで死亡時(敵遭遇後)の画像
+	int _messageDeathPNG2;
 
 	// ダンジョン
 	// 直進

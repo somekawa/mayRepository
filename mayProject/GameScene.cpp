@@ -596,6 +596,14 @@ void GameScene::pngInit(void)
 	std::string dead = "image/dead.png";
 	_deadPNG = LoadGraph(dead.c_str());
 
+	// 即死トラップで死亡時(敵遭遇前)の画像
+	std::string messageDeath = "image/message_death.png";
+	_messageDeathPNG = LoadGraph(messageDeath.c_str());
+
+	// 即死トラップで死亡時(敵遭遇後)の画像
+	std::string messageDeath2 = "image/message_death2.png";
+	_messageDeathPNG2 = LoadGraph(messageDeath2.c_str());
+
 	//// スキルアイコン
 	//std::string skillicon = "image/skillicon.png";
 	//_skillIconPNG = LoadGraph(skillicon.c_str());
@@ -928,6 +936,17 @@ void GameScene::Draw(void)
 
 		// あきらめる
 		DrawGraph(450, 225, _deadPNG, true);
+
+		// 特定敵に出会う前に即死トラップで死んだとき
+		if (!_event->GetEventMonsEncountFlg() && !_event->GetEventMonsEndFlg())
+		{
+			DrawGraph(300, 0, _messageDeathPNG, true);
+		}
+		else if (_event->GetEventMonsEndFlg())
+		{
+			// 敵もろとも即死トラップで死んだとき
+			DrawGraph(300, 0, _messageDeathPNG2, true);
+		}
 	}
 
 	// マップチップ描画テスト
