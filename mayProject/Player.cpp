@@ -6,6 +6,11 @@
 #include "GameScene.h"
 #include "Player.h"
 
+// static変数の実体<型>クラス名::変数名 = 初期化;
+bool Player::loadFlg = false;
+
+int Player::saveTestNum[9] = { 0,0,0,0,0,0,0,0,0 };
+
 // スキルチャージ時間の最大値
 #define SKILL_CHARGE 10
 
@@ -50,18 +55,33 @@ void Player::Init(void)
 //
 //_nowNum = 0;
 
-	player_status.now_level = 1;
-	player_status.maxHP = 35;
-	player_status.plHP = player_status.maxHP;
-	player_status.attackDamage = 3;
-	//player_status.attackDamage = 999;
-	player_status.defense = 0;
-	player_status.next_level = 10;
-	player_status.money = 2000;
-	player_status.conditionTurnNum = 0;
-	player_status.condition = CONDITION::FINE;
-	//_plHP = player_status[_nowNum].maxHP;
-	//_plHP = 10;
+	if (!loadFlg)
+	{
+		player_status.now_level = 1;
+		player_status.maxHP = 35;
+		player_status.plHP = player_status.maxHP;
+		player_status.attackDamage = 3;
+		//player_status.attackDamage = 999;
+		player_status.defense = 0;
+		player_status.next_level = 10;
+		player_status.money = 2500;
+		player_status.conditionTurnNum = 0;
+		player_status.condition = CONDITION::FINE;
+		//_plHP = player_status[_nowNum].maxHP;
+		//_plHP = 10;
+	}
+	else
+	{
+		player_status.now_level = saveTestNum[0];
+		player_status.maxHP = saveTestNum[1];
+		player_status.plHP = saveTestNum[2];
+		player_status.attackDamage = saveTestNum[3];
+		player_status.defense = saveTestNum[4];
+		player_status.next_level = saveTestNum[5];
+		player_status.money = saveTestNum[6];
+		player_status.conditionTurnNum = saveTestNum[7];
+		player_status.condition = static_cast<CONDITION>(saveTestNum[8]);
+	}
 
 	_skillCharge = SKILL_CHARGE;
 	_skillFlg = false;
@@ -447,4 +467,48 @@ void Player::SetBarrierNum(int num)
 int Player::GetBarrierNum(void)
 {
 	return _barrierNum;
+}
+
+void Player::SaveTest(void)
+{
+	if (MessageBox(			// メッセージ
+		NULL,				
+		"現在の状態をセーブしますか?",
+		"確認ダイアログ",
+		MB_OKCANCEL
+	) == IDOK)
+	{
+		// セーブをする
+		FILE* file;
+		fopen_s(&file, "data/saveTest.csv", "wb");
+		fprintf(file, "%d,%d,%d,%d,%d,%d,%d,%d,%d", player_status.now_level, player_status.maxHP, player_status.plHP, player_status.attackDamage, player_status.defense, player_status.next_level, player_status.money, player_status.conditionTurnNum, player_status.condition);
+		fclose(file);
+	}
+}
+
+void Player::LoadTest(void)
+{
+	if (MessageBox(			// メッセージ
+		NULL,
+		"ロードしますか?",
+		"確認ダイアログ",
+		MB_OKCANCEL
+	) == IDOK)
+	{
+		// ロードをする
+		//ファイルを読み込む
+		int FileHandle;
+		FileHandle = FileRead_open("data/saveTest.csv");
+		if (FileHandle == NULL)
+		{
+			return;
+		}
+
+		FileRead_scanf(FileHandle, "%d,%d,%d,%d,%d,%d,%d,%d,%d", &player_status.now_level, &player_status.maxHP, &player_status.plHP, &player_status.attackDamage, &player_status.defense, &player_status.next_level, &player_status.money, &player_status.conditionTurnNum, &player_status.condition);
+
+		//ファイルを閉じる
+		FileRead_close(FileHandle);
+
+		loadFlg = true;
+	}
 }

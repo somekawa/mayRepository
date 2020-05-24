@@ -7,6 +7,9 @@
 #include "Monster.h"
 #include "Cards.h"
 
+// static変数の実体<型>クラス名::変数名 = 初期化;
+bool Menu::loadFlg = false;
+
 struct item
 {
 	VECTOR2 pos;		// ボックスの位置
@@ -67,11 +70,59 @@ void Menu::Init(void)
 	_nonNeedFlg = false;
 	_nonDamageFlg = false;
 
+	// テスト(ロード時にアイテム画像を描画する)
+	//std::string potion = "image/potion.png";
+	//std::pair<const char*, ITEM> pair;
+	//pair.first = potion.c_str();
+	//pair.second = ITEM::POTION;
+	std::string itemName[static_cast<int>(ITEM::MAX)-1];
+	std::pair<std::string, ITEM> pair[static_cast<int>(ITEM::MAX) - 1];
+
+	// アイテム関係
+	//ファイルを読み込む
+	auto FileHandle_item = FileRead_open("csv/itemName.csv");
+	if (FileHandle_item == NULL)
+	{
+		return; //エラー時の処理
+	}
+
+	std::string a = "image/";
+	std::string b = ".png";
+	for (int i = 0; i <= static_cast<int>(ITEM::MAX) - 2; i++)
+	{
+		char name[256];
+		// 画像名 説明 費用
+		//FileRead_scanf(FileHandle_item, "%[^,],%[^,],%d", _itemStruct[i].name, _itemStruct[i].setumei, &_itemStruct[i].itemCostMoney);
+		//auto d = a + _itemStruct[i].name + b;
+		//_itemStruct[i].png = LoadGraph(d.c_str());
+		FileRead_scanf(FileHandle_item, "%[^,]",name);
+		pair[i].first  = a + name + b;
+		pair[i].second = static_cast<ITEM>(i+1);
+	}
+	//ファイルを閉じる
+	FileRead_close(FileHandle_item);
+
 	// アイテムボックスの位置と所持アイテムの状態
 	for (int i = 0; i <= 11; i++)
 	{
 		itemBox[i].pos = { (((i % 3) + 3) * 100),((i / 3) + 1) * 100 - 30 };
-		itemBox[i]._item = ITEM::NON;
+		if (!loadFlg)
+		{
+			itemBox[i]._item = ITEM::NON;
+		}
+		else
+		{
+			// ロード時のアイテム処理
+			if (itemBox[i]._item == pair[i].second)
+			{
+				itemBox[i]._item = pair[i].second;
+				itemBox[i].png = LoadGraph(pair[i].first.c_str());
+			}
+			else
+			{
+				itemBox[i]._item = ITEM::NON;
+			}
+		}
 	}
 
 	pngInit();
@@ -131,6 +182,8 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 	if (_menu == MENU::SAVE)
 	{
 		// セーブ処理を書いてみる
+		//player->SaveTest();
+		SaveTest(player);
 	}
 
 	// ゲーム画面戻し
@@ -1085,4 +1138,51 @@ bool Menu::GetMeganeFlg(void)
 void Menu::SetMeganeFlg(bool flag)
 {
 	_meganeFlg = flag;
+}
+
+void Menu::SaveTest(Player* player)
+{
+	if (MessageBox(			// メッセージ
+		NULL,
+		"現在の状態をセーブしますか?",
+		"確認ダイアログ",
+		MB_OKCANCEL
+	) == IDOK)
+	{
+		// セーブをする
+		FILE* file;
+		fopen_s(&file, "data/saveTest.csv", "wb");
+		fprintf(file, "%d,%d,%d,%d,%d,%d,%d,%d,%d\n", player->GetNowLevel(), player->GetMaxHP(), player->GetHP(), player->GetAttackDamage(), player->GetDifense(), player->GetNextLevel(), player->GetMoney(), player->GetConditionTurn(), player->GetCondition());
+		fprintf(file, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", itemBox[0]._item, itemBox[1]._item, itemBox[2]._item, itemBox[3]._item, itemBox[4]._item, itemBox[5]._item, itemBox[6]._item, itemBox[7]._item, itemBox[8]._item, itemBox[9]._item, itemBox[10]._item, itemBox[11]._item);
+		fclose(file);
+	}
+}
+
+void Menu::LoadTest()
+{
+	if (MessageBox(			// メッセージ
+		NULL,
+		"ロードしますか?",
+		"確認ダイアログ",
+		MB_OKCANCEL
+	) == IDOK)
+	{
+		// ロードをする
+		//ファイルを読み込む
+		int FileHandle;
+		FileHandle = FileRead_open("data/saveTest.csv");
+		if (FileHandle == NULL)
+		{
+			return;
+		}
+
+		FileRead_scanf(FileHandle, "%d,%d,%d,%d,%d,%d,%d,%d,%d\n", &Player::saveTestNum[0], &Player::saveTestNum[1], &Player::saveTestNum[2], &Player::saveTestNum[3], &Player::saveTestNum[4], &Player::saveTestNum[5], &Player::saveTestNum[6], &Player::saveTestNum[7], &Player::saveTestNum[8]);
+		FileRead_scanf(FileHandle, "%d,%d,%d,%d,%d,%d,%d,%d,%d", &itemBox[0]._item, &itemBox[1]._item, &itemBox[2]._item, &itemBox[3]._item, &itemBox[4]._item, &itemBox[5]._item, &itemBox[6]._item, &itemBox[7]._item, &itemBox[8]._item, &itemBox[9]._item, &itemBox[10]._item, &itemBox[11]._item);
+
+		//ファイルを閉じる
+		FileRead_close(FileHandle);
+
+		Player::loadFlg = true;
+		loadFlg = true;
+	}
 }

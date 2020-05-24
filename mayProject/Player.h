@@ -40,6 +40,13 @@ public:
 	bool GetSkillBackFlg(void);			// スキル選択画面が表示されているかを取得する
 	void SetBarrierNum(int num);		// スキルのバリア値を設定
 	int GetBarrierNum(void);			// スキルのバリア値を取得
+
+	void SaveTest(void);
+	static void LoadTest(void);
+
+	static int saveTestNum[9];
+	static bool loadFlg;				// ロードで始めるときにinitでステータスを読み込まないようにするとき必要
+
 private:
 	void Init(void);					// 初期化
 	void pngInit(void);					// 画像初期化

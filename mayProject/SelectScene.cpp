@@ -1,6 +1,8 @@
 #include "DxLib.h"
+#include "Player.h"
 #include "GameScene.h"
 #include "TitleScene.h"
+#include "Menu.h"
 #include "SelectScene.h"
 
 // static•Ï”‚ÌÀ‘Ì<Œ^>ƒNƒ‰ƒX–¼::•Ï”–¼ = ‰Šú‰»;
@@ -26,6 +28,8 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 		if (x >= 250 && x <= 250 + 400 && y >= 100 && y <= 100 + 150)
 		{
 			modeTest = MODE::NORMAL;
+			//Player::LoadTest();
+			Menu::LoadTest();
 			return std::make_unique<GameScene>();
 		}
 		// “–‚½‚è”»’è(HARD‘I‘ğ)

@@ -51,6 +51,9 @@ public:
 
 	bool GetMeganeFlg(void);
 	void SetMeganeFlg(bool flag);
+
+	void SaveTest(Player* player);
+	static void LoadTest();
 private:
 	void Init(void);					// ‰Šú‰»
 	void pngInit(void);					// ‰æ‘œŠÖŒW‰Šú‰»
@@ -111,4 +114,6 @@ private:
 
 	// ƒNƒŠƒbƒN‰¹
 	int _seClick;
+
+	static bool loadFlg;
 };
