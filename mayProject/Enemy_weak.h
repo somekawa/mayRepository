@@ -2,7 +2,7 @@
 #include "Monster.h"
 #include "ITEMCLASS.h"
 
-#define MONSTER_CNT 5
+#define MONSTER_CNT 6
 
 class Enemy_weak :
 	public Monster

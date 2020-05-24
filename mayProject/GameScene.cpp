@@ -13,6 +13,7 @@
 // static変数の実体<型>クラス名::変数名 = 初期化;
 int GameScene::testx = 2;
 int GameScene::testy = 0;
+bool GameScene::monsterFlg = false;
 
 #define PI 3.141592653589793
 
@@ -806,7 +807,7 @@ void GameScene::Draw(void)
 	else
 	{
 		// ボスじゃないとき
-		if (walkCnt != _bossEventNum)
+		if (/*walkCnt != _bossEventNum*/testx != bossPos.x && testy != bossPos.y)
 		{
 			if ((eventState == EVENT_STATE::NON) || (eventState == EVENT_STATE::ENEMY))
 			{
@@ -942,7 +943,7 @@ void GameScene::Draw(void)
 		{
 			DrawGraph(300, 0, _messageDeathPNG, true);
 		}
-		else if (_event->GetEventMonsEndFlg())
+		else if (_event->GetEventMonsEndFlg() && !monsterFlg)
 		{
 			// 敵もろとも即死トラップで死んだとき
 			DrawGraph(300, 0, _messageDeathPNG2, true);
@@ -2357,64 +2358,72 @@ void GameScene::TestKey(void)
 	//{
 		//int randNum = GetRand(1);
 
-	int num = plNowPoint;
-
-	// 特定敵イベント中はカウンターを止める
-	if (num < 7 && !_event->GetEventMonsEncountFlg())
+	if (testx == bossPos.x && testy == bossPos.y)
 	{
-		if (monsTimeCnt > 0)
-		{
-			monsTimeCnt--;
-		}
-		else
-		{
-			eventState = EVENT_STATE::ENEMY;
-			monsTimeCnt = 3;
-		}
+		eventState = EVENT_STATE::ENEMY;
 	}
 	else
 	{
-		switch (num)	// 0~5
+		int num = plNowPoint;
+
+		// 特定敵イベント中はカウンターを止める
+		if (num < 7 && !_event->GetEventMonsEncountFlg())
 		{
-		case 7:
-			eventState = EVENT_STATE::YADO;
-			break;
-		case 8:
-			eventState = EVENT_STATE::SYOUNIN;
-			break;
-		case 9:
-			eventState = EVENT_STATE::BUTTON;
-			break;
-		case 10:
-			eventState = EVENT_STATE::CHEST;
-			//chestFate = GetRand(2);	// 0 ~ 2
-			break;
-		case 11:
-			eventState = EVENT_STATE::DRINK;
-			break;
-		case 12:
-			eventState = EVENT_STATE::TRAP;
-			break;
-		case 13:
-			if (!_event->GetEventMonsEndFlg())
+			if (monsTimeCnt > 0)
 			{
-				eventState = EVENT_STATE::EVE_MONS;
+				monsTimeCnt--;
 			}
 			else
 			{
-				eventState = EVENT_STATE::NON;
-				plNowPoint = 0;
+				eventState = EVENT_STATE::ENEMY;
+				monsTimeCnt = 3;
 			}
-			break;
-		case 14:
-			eventState = EVENT_STATE::GOAL;
-			//_openDoor = true;
-			break;
-		default:
-			eventState = EVENT_STATE::NON;
-			break;
+		}
+		else
+		{
+			switch (num)	// 0~5
+			{
+			case 7:
+				eventState = EVENT_STATE::YADO;
+				break;
+			case 8:
+				eventState = EVENT_STATE::SYOUNIN;
+				break;
+			case 9:
+				eventState = EVENT_STATE::BUTTON;
+				break;
+			case 10:
+				eventState = EVENT_STATE::CHEST;
+				//chestFate = GetRand(2);	// 0 ~ 2
+				break;
+			case 11:
+				eventState = EVENT_STATE::DRINK;
+				break;
+			case 12:
+				eventState = EVENT_STATE::TRAP;
+				break;
+			case 13:
+				if (!_event->GetEventMonsEndFlg())
+				{
+					eventState = EVENT_STATE::EVE_MONS;
+				}
+				else
+				{
+					eventState = EVENT_STATE::NON;
+					plNowPoint = 0;
+				}
+				break;
+			case 14:
+				eventState = EVENT_STATE::GOAL;
+				//_openDoor = true;
+				break;
+			default:
+				eventState = EVENT_STATE::NON;
+				break;
+			}
 		}
 	}
+
 
 
 	//	if (walkCnt == _bossEventNum)
@@ -2481,13 +2490,14 @@ void GameScene::TestKey(void)
 	// 敵の出現(特定敵イベントでもここに入るようにする)
 	if (eventState == EVENT_STATE::ENEMY)
 	{
+		monsterFlg = true;
 		if (_monster[0]->GetEnemyState() == ENEMY_STATE::NON)
 		{
 			//doorFlg = false;
 			moveFlg = false;
 
 			// ボスならこっち
-			if (walkCnt == _bossEventNum)
+			if (/*walkCnt == _bossEventNum*/testx == bossPos.x && testy == bossPos.y)
 			{
 				auto ene = 5;
 				_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ボス用)

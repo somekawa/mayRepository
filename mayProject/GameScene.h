@@ -67,6 +67,7 @@ public:
 	static int testx;			// プレイヤーの歩行時用変数x
 	static int testy;			// プレイヤーの歩行時用変数y
 	bool _openDoor;						// 扉を開ける
+	static bool monsterFlg;
 private:
 	bool Init(void);					// 初期化
 	void pngInit(void);					// 画像用初期化
@@ -203,4 +204,6 @@ private:
 
 	VECTOR2 offset = {0,0};
 	VECTOR2 plNowMark = { 0,0 };
+
+	VECTOR2 bossPos = { 9,5 };
 };

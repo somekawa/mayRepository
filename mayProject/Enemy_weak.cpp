@@ -1,5 +1,6 @@
 #include <string>
 #include "Dxlib.h"
+#include "GameScene.h"
 #include "SelectScene.h"
 #include "Enemy_weak.h"
 
@@ -148,6 +149,7 @@ void Enemy_weak::Damage(int damageNum)
 	_enemyHP -= damageNum;
 	if (_enemyHP <= 0 && _state == ENEMY_STATE::EXIST)
 	{
+		GameScene::monsterFlg = false;
 		_enemyHP = 0;
 		_state = ENEMY_STATE::DEATH;
 
