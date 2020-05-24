@@ -56,4 +56,6 @@ private:
 	// ‡ACARD_MODE‚É‡‚Á‚½‰æ‘œ‚ªpngSel‚É“ü‚ê‚ç‚ê‚é
 	// ‡BpngSel‚ğ‚Â‚©‚Á‚ÄDraw‚³‚ê‚é
 	std::pair<int, CARD_MEMBER>_cardPngSel_pair[static_cast<int>(CARD_MEMBER::MAX)];
+
+	int _se;								// d‚Ë‚½‚Æ‚«‚ÌSE
 };

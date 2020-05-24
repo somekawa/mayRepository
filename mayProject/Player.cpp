@@ -34,6 +34,7 @@ Player::Player()
 
 Player::~Player()
 {
+	DeleteSoundMem(_seLevelUp);
 }
 
 void Player::Init(void)
@@ -60,8 +61,8 @@ void Player::Init(void)
 		player_status.now_level = 1;
 		player_status.maxHP = 35;
 		player_status.plHP = player_status.maxHP;
-		player_status.attackDamage = 3;
-		//player_status.attackDamage = 999;
+		//player_status.attackDamage = 3;
+		player_status.attackDamage = 999;
 		player_status.defense = 0;
 		player_status.next_level = 10;
 		player_status.money = 2000;
@@ -92,6 +93,8 @@ void Player::Init(void)
 
 	_barrierMaxNum = 0;
 	_barrierNum = 0;
+
+	_seLevelUp = LoadSoundMem("sound/se/levelup.mp3");
 
 	pngInit();
 }
@@ -369,10 +372,16 @@ void Player::SetNextLevel(int num)
 	//	_nowNum++;
 	//}
 	player_status.next_level = num;
+	bool seFlg = false;
 
 	// レベルが連続で上がる処理としてwhileが必要
 	while (player_status.next_level <= 0)
 	{
+		if (!seFlg)
+		{
+			PlaySoundMem(_seLevelUp, DX_PLAYTYPE_BACK, true);
+			seFlg = true;
+		}
 		// ステータスアップ
 		//_nowNum++;
 		player_status.attackDamage += 1;

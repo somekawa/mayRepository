@@ -69,4 +69,6 @@ private:
 	int _barrierNum;					// バリアの値(特定値*プレイヤーレベルの予定)
 	int _barrierBarBackPNG;				// バリアバーの背景画像
 	int _barrierBarPNG;					// バリアバー画像
+
+	int _seLevelUp;
 };

@@ -20,6 +20,7 @@ Cards::Cards()
 
 Cards::~Cards()
 {
+	DeleteSoundMem(_se);
 }
 
 void Cards::Update(void)
@@ -212,6 +213,9 @@ void Cards::SetCardsSyurui(CARDS_SYURUI cards)
 
 bool Cards::Init(void)
 {
+	// SEテスト
+	_se = LoadSoundMem("sound/se/cards.mp3");
+
 	_turnNum = 3;	// 敵によって増減
 	_damageNum = 0;
 	_gaurdNum = 0;
@@ -503,6 +507,8 @@ void Cards::Move(int id)
 					else
 					{
 						// 同じカードの種類で重ねる時に行う処理
+						PlaySoundMem(_se, DX_PLAYTYPE_BACK, true);
+
 						card[id].pos.x = _setCardPos[card[id].num] - 140 / 2;
 						card[id].pos.y = 500;
 
@@ -560,6 +566,8 @@ void Cards::Move(int id)
 						else
 						{
 							// 同じカードの種類で重ねる時に行う処理
+							PlaySoundMem(_se, DX_PLAYTYPE_BACK, true);
+
 							card[id].pos.x = _setCardPos[card[id].num] - 140 / 2;
 							card[id].pos.y = 500;
 

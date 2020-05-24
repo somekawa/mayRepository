@@ -1030,7 +1030,7 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 {
 	// 進むボタン(X:750,Y:345)
 	// メニュー画面表示中は進むボタンを押せないようにする
-	if (!_menu->GetMenuFlg() && _menu->GetMenu() == MENU::NON)
+	if (!_menu->GetMenuFlg() && _menu->GetMenu() == MENU::NON && eventState == EVENT_STATE::NON)
 	{
 		//if (cursorPos.x >= 750 && cursorPos.x <= 750 + 150 && cursorPos.y >= 345 && cursorPos.y <= 345 + 75)
 		//{
@@ -1392,7 +1392,7 @@ void GameScene::EventUpdate(void)
 
 	if (eventState == EVENT_STATE::ENEMY)
 	{
-		if (walkCnt == _eventNum[_event->GetNowEvent()] && _monster[0]->GetEnemyState() == ENEMY_STATE::DEATH)
+		if (/*walkCnt == _eventNum[_event->GetNowEvent()] &&*/ _monster[0]->GetEnemyState() == ENEMY_STATE::DEATH)
 		{
 			_event->SetEvent(eventState);
 		}
