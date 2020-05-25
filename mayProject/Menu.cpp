@@ -25,7 +25,10 @@ Menu::Menu()
 Menu::~Menu()
 {
 	// 音関係
-	DeleteSoundMem(_seClick);
+	for (int i = 0; i < 5; i++)
+	{
+		DeleteSoundMem(_soundSE[i]);
+	}
 }
 
 void Menu::Init(void)
@@ -128,7 +131,11 @@ void Menu::Init(void)
 	pngInit();
 
 	// SE
-	_seClick = LoadSoundMem("sound/se/click.mp3");
+	_soundSE[0] = LoadSoundMem("sound/se/click.mp3");
+	_soundSE[1] = LoadSoundMem("sound/se/healCard.mp3");
+	_soundSE[2] = LoadSoundMem("sound/se/poison_care.mp3");
+	_soundSE[3] = LoadSoundMem("sound/se/charge.mp3");	
+	_soundSE[4] = LoadSoundMem("sound/se/dropItem.mp3");
 }
 
 void Menu::pngInit(void)
@@ -314,6 +321,9 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 				// 使うor装備
 				if (_cursorPos.x >= 50 && _cursorPos.x <= 50 + 150 && _cursorPos.y >= 400 && _cursorPos.y <= 400 + 75)
 				{
+					// クリック音
+					PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
+
 					// 装備(剣)ラムダ式
 					auto lambdaSword = [&](ITEM item) {
 						_itemAction = item;
@@ -557,6 +567,8 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 				// 捨てる
 				if (_cursorPos.x >= 50 && _cursorPos.x <= 50 + 150 && _cursorPos.y >= 500 && _cursorPos.y <= 500 + 75)
 				{
+					// クリック音
+					PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 
 					// 剣に関して
 					for (auto item : ITEM())
@@ -632,6 +644,7 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 	// プレイヤーの回復薬による回復
 	if (_itemAction == ITEM::POTION)
 	{
+		PlaySoundMem(_soundSE[1], DX_PLAYTYPE_BACK, true);
 		player->SetHP(player->GetHP() + 30);
 		_itemAction = ITEM::NON;
 		if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
@@ -643,6 +656,7 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 	// プレイヤーの体力増加剤による増加
 	if (_itemAction == ITEM::HEART)
 	{
+		PlaySoundMem(_soundSE[1], DX_PLAYTYPE_BACK, true);
 		player->SetMaxHP(player->GetMaxHP() + 10);
 		_itemAction = ITEM::NON;
 		if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
@@ -654,6 +668,7 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 	// プレイヤーの回復薬による回復
 	if (_itemAction == ITEM::POTION_BIG)
 	{
+		PlaySoundMem(_soundSE[1], DX_PLAYTYPE_BACK, true);
 		player->SetHP(player->GetHP() + 50);
 		_itemAction = ITEM::NON;
 		if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
@@ -665,6 +680,7 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 	// 解毒薬による状態異常回復
 	if (_itemAction == ITEM::DETOX)
 	{
+		PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 		player->SetCondition(CONDITION::FINE);
 		player->SetConditionTurn(-1);
 		_itemAction = ITEM::NON;
@@ -677,6 +693,7 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 	// プレイヤースキル発動5ターン短縮
 	if (_itemAction == ITEM::SKILL_FAST)
 	{
+		PlaySoundMem(_soundSE[3], DX_PLAYTYPE_BACK, true);
 		player->SetSkillCharge(player->GetSkillCharge() - 5);
 		if (player->GetSkillCharge() <= 0)
 		{
@@ -693,6 +710,7 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 	// 宝箱の中身を鑑定する
 	if (_itemAction == ITEM::MEGANE)
 	{
+		PlaySoundMem(_soundSE[3], DX_PLAYTYPE_BACK, true);
 		_meganeFlg = true;
 		_itemAction = ITEM::NON;
 		// メニュー画面を消す
@@ -781,6 +799,7 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 	// 敵魂攻撃アイテム
 	if (_itemAction == ITEM::ENEMY_1)
 	{
+		PlaySoundMem(_soundSE[4], DX_PLAYTYPE_BACK, true);
 		// 固定ダメージ20
 		monster->Damage(20);
 		_itemAction = ITEM::NON;
@@ -798,6 +817,7 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 
 	if (_itemAction == ITEM::ENEMY_2)
 	{
+		PlaySoundMem(_soundSE[4], DX_PLAYTYPE_BACK, true);
 		// 次のターンは敵の攻撃を無効化
 		_nonDamageFlg = true;
 		_itemAction = ITEM::NON;
@@ -810,6 +830,7 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 
 	if (_itemAction == ITEM::ENEMY_3)
 	{
+		PlaySoundMem(_soundSE[4], DX_PLAYTYPE_BACK, true);
 		// 敵のターンを巻き戻す
 		cards->SetTurn(monster->GetMaxTurn()+1);
 		_itemAction = ITEM::NON;
@@ -822,6 +843,7 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 
 	if (_itemAction == ITEM::ENEMY_4)
 	{
+		PlaySoundMem(_soundSE[4], DX_PLAYTYPE_BACK, true);
 		// 戦闘から逃走する
 		_escapeFlg = true;
 		_itemAction = ITEM::NON;
@@ -835,6 +857,7 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 	// 一時的に攻撃力up
 	if (_itemAction == ITEM::KYOUKA_POW)
 	{
+		PlaySoundMem(_soundSE[3], DX_PLAYTYPE_BACK, true);
 		_powUpNum = 5;
 		_itemAction = ITEM::NON;
 
@@ -968,7 +991,7 @@ void Menu::MenuButton_NonEnemy(void)
 			if (_cursorPos.x >= 0 && _cursorPos.x <= 0 + 150 && _cursorPos.y >= 0 && _cursorPos.y <= 0 + 75)
 			{
 				// クリック音
-				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 
 				_menuBackPngFlg = true;
 				_menuSelPngFlg = true;
@@ -983,7 +1006,7 @@ void Menu::MenuButton_NonEnemy(void)
 				if (_cursorPos.x >= menu_pair[i].first.x && _cursorPos.x <= menu_pair[i].first.x + buttonSize[i].x && _cursorPos.y >= menu_pair[i].first.y && _cursorPos.y <= menu_pair[i].first.y + buttonSize[i].y)
 				{
 					// クリック音
-					PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+					PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 
 					_menu = menu_pair[i].second;
 					_menuSelPngFlg = false;	// 文字消す
@@ -997,7 +1020,7 @@ void Menu::MenuButton_NonEnemy(void)
 			if (_cursorPos.x >= 375 && _cursorPos.x <= 375 + 150 && _cursorPos.y >= 470 && _cursorPos.y <= 470 + 60)
 			{
 				// クリック音
-				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 
 				_menuBackPngFlg = false;
 				_menuSelPngFlg = false;			// 文字消す
@@ -1018,7 +1041,7 @@ void Menu::MenuButton_Enemy(void)
 		if (_cursorPos.x >= 0 && _cursorPos.x <= 0 + 200 && _cursorPos.y >= 0 && _cursorPos.y <= 0 + 100)
 		{
 			// クリック音
-			PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 
 			_menu = MENU::ITEM;
 			_menuBackPngFlg = true;
@@ -1030,7 +1053,7 @@ void Menu::MenuButton_Enemy(void)
 			if (_cursorPos.x >= 375 && _cursorPos.x <= 375 + 150 && _cursorPos.y >= 470 && _cursorPos.y <= 470 + 60)
 			{
 				// クリック音
-				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 
 				_menuBackPngFlg = false;
 				_menuSelPngFlg = false;			// 文字消す

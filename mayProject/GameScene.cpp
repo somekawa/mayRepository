@@ -945,7 +945,7 @@ void GameScene::Draw(void)
 		DrawGraph(450, 225, _deadPNG, true);
 
 		// 特定敵に出会う前に即死トラップで死んだとき
-		if (!_event->GetEventMonsEncountFlg() && !_event->GetEventMonsEndFlg())
+		if (!_event->GetEventMonsEncountFlg() && !_event->GetEventMonsEndFlg() && eventState == EVENT_STATE::TRAP)
 		{
 			DrawGraph(300, 0, _messageDeathPNG, true);
 		}
@@ -1528,13 +1528,13 @@ void GameScene::pl_TurnEndAfter(void)
 			// 表示ターン数を0にして、画面揺らしに移行する
 			shakeFlg = true;
 		}
-		if (!shakeFlg)
-		{
+		//if (!shakeFlg)
+		//{
 			// 攻撃を受けた後はターンを復活させる(敵によって増減)
-			_cards->SetTurn(_monster[0]->GetMaxTurn());
-			_cards->SetGuard(0);
-			_onceFlg = false;
-		}
+			//_cards->SetTurn(_monster[0]->GetMaxTurn());
+			//_cards->SetGuard(0);
+			//_onceFlg = false;
+		//}
 	}
 }
 
@@ -1610,6 +1610,13 @@ void GameScene::shakeDraw(void)
 
 	if (_shakeTime >= 15.0f)
 	{
+		if (eventState == EVENT_STATE::ENEMY)
+		{
+			// 攻撃を受けた後はターンを復活させる
+			_cards->SetTurn(_monster[0]->GetMaxTurn());
+			_cards->SetGuard(0);
+			_onceFlg = false;
+		}
 		shakeFlg = false;
 		_blinkCnt = 0;
 		// 描画輝度を戻す

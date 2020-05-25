@@ -112,8 +112,7 @@ private:
 	// 選択アイテムを見やすくする画像
 	int _itemChoicePNG;
 
-	// クリック音
-	int _seClick;
+	int _soundSE[5];
 
 	static bool loadFlg;
 };
