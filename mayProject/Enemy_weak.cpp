@@ -126,6 +126,7 @@ bool Enemy_weak::Init(void)
 	_state = ENEMY_STATE::NON;
 	_dropItem = false;
 	_dropNum = -1;
+	_se = LoadSoundMem("sound/se/drop.mp3");
 	return true;
 }
 
@@ -159,7 +160,7 @@ void Enemy_weak::BossDraw(void)
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
-void Enemy_weak::Damage(int damageNum)
+void Enemy_weak::Damage(int damageNum, Cards* cards)
 {
 	_enemyHP -= damageNum;
 	if (_enemyHP <= 0 && _state == ENEMY_STATE::EXIST)
@@ -167,7 +168,7 @@ void Enemy_weak::Damage(int damageNum)
 		GameScene::monsterFlg = false;
 		_enemyHP = 0;
 		_state = ENEMY_STATE::DEATH;
-
+		cards->SetTurn(3);
 		// 確率でフラグを立てて、trueだったらアイテムをプレイヤーに渡す
 		int randNum = GetRand(0);	// 0~2
 		_dropNum = GetRand(3); // 0 1 2 3
@@ -175,6 +176,7 @@ void Enemy_weak::Damage(int damageNum)
 
 		if (randNum == 0)
 		{
+			PlaySoundMem(_se, DX_PLAYTYPE_BACK, true);
 			// アイテムドロップする
 			_dropItem = true;
 			//_drop = ITEM::ENEMY_2;

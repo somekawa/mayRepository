@@ -4,6 +4,8 @@
 
 #define MONSTER_CNT 6
 
+class Cards;
+
 class Enemy_weak :
 	public Monster
 {
@@ -14,7 +16,7 @@ public:
 	bool Init(void);					// 初期化
 	void Draw(void);					// 描画(雑魚敵とドロップアイテム)
 	void BossDraw(void);				// 雑魚敵と描画する画像の大きさが違うので別関数
-	void Damage(int damageNum);			// プレイヤーから敵へのダメージ用関数
+	void Damage(int damageNum,Cards* cards);			// プレイヤーから敵へのダメージ用関数
 	ENEMY_STATE GetEnemyState(void);	// 現在の敵の状態を取得する関数
 	void SetEnemyState(ENEMY_STATE st);	// イベント状態をNONに戻したいときに使う関数
 	int GetAttack(void);				// 敵の攻撃力の取得用関数
@@ -43,4 +45,6 @@ private:
 
 	int frogPNG;
 	int cnt = 0;
+
+	int _se;
 };

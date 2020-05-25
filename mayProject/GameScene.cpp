@@ -134,6 +134,9 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 				leftFlg = false;
 				rightFlg = false;
 
+				_cards->SetTurn(3);
+				shakeFlg = false;
+
 				// イベント状態の初期化
 				_event->SetEventMonsEncountFlg(false);
 				_event->SetEventMonsFlg(false);
@@ -167,7 +170,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 			}
 		}
 
-		_player->ClickUpDate(_monster[0],_menu,this);
+		_player->ClickUpDate(_monster[0],_menu,this,_cards);
 		//// スキル使用可能時のマウスクリック位置とアイコン(円)との当たり判定
 		//if (_skillFlg)
 		//{
@@ -1542,7 +1545,7 @@ void GameScene::pl_Attack(void)
 {
 	// 敵にダメージを与えたら、ダメージ量を0に戻す
 	// ダメージ計算(カード威力+基本攻撃力+装備による攻撃力プラス値+パワーアップ効果(ないときは0))
-	_monster[0]->Damage(_cards->GetDamage() + _player->GetAttackDamage() + _menu->GetEquipDamage() + _menu->GetPowUp());
+	_monster[0]->Damage(_cards->GetDamage() + _player->GetAttackDamage() + _menu->GetEquipDamage() + _menu->GetPowUp(),_cards);
 	_cards->SetDamage(0);
 
 	// 攻撃するごとに-1されていく
@@ -1776,12 +1779,13 @@ void GameScene::enemyItemDrop(void)
 		//}
 	}
 
-	if (moveFlg)
-	{
-		_monster[0]->SetDropFlg(false);
-		_onceFlg = false;
-		_anounceFlg = false;
-	}
+	// この処理でmoveした後はドロップアイテムが描画されないようになっていた
+	//if (moveFlg)
+	//{
+	//	_monster[0]->SetDropFlg(false);
+	//	_onceFlg = false;
+	//	_anounceFlg = false;
+	//}
 }
 
 void GameScene::cardEffect(void)

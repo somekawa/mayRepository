@@ -801,7 +801,7 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 	{
 		PlaySoundMem(_soundSE[4], DX_PLAYTYPE_BACK, true);
 		// 固定ダメージ20
-		monster->Damage(20);
+		monster->Damage(20,cards);
 		_itemAction = ITEM::NON;
 
 		//// メニュー画面を消す

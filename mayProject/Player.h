@@ -9,13 +9,14 @@ enum class CONDITION {
 class Monster;
 class Menu;
 class GameScene;
+class Cards;
 
 class Player
 {
 public:
 	Player();
 	~Player();
-	void ClickUpDate(Monster* monster, Menu* menu, GameScene* game);	// クリック時のみのアップデート関数
+	void ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* cards);	// クリック時のみのアップデート関数
 	void UpDate(void);					// 通常アップデート関数
 	void Draw(Menu* menu);				// 描画
 	void SetHP(int hpNum);				// 現在の体力を設定する
@@ -70,5 +71,6 @@ private:
 	int _barrierBarBackPNG;				// バリアバーの背景画像
 	int _barrierBarPNG;					// バリアバー画像
 
-	int _seLevelUp;
+	int _soundSE[3];
+	bool _seOnceFlg = false;
 };

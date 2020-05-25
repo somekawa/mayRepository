@@ -9,6 +9,8 @@ enum class ENEMY_STATE {
 	DEATH	// ë∂ç›ÇµÇƒÇ¢ÇΩÇ™éÄñSÇµÇΩ
 };
 
+class Cards;
+
 class Monster
 {
 public:
@@ -18,7 +20,7 @@ public:
 	virtual bool Init(void) = 0;
 	virtual void Draw(void) = 0;
 	virtual void BossDraw(void) = 0;
-	virtual void Damage(int damageNum) = 0;
+	virtual void Damage(int damageNum, Cards* cards) = 0;
 	virtual ENEMY_STATE GetEnemyState(void) = 0;
 	virtual void SetEnemyState(ENEMY_STATE st) = 0;
 	virtual void SetEnemyNum(int num,int plLv) = 0;

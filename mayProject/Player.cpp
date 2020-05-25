@@ -12,7 +12,7 @@ bool Player::loadFlg = false;
 int Player::saveTestNum[9] = { 0,0,0,0,0,0,0,0,0 };
 
 // スキルチャージ時間の最大値
-#define SKILL_CHARGE 10
+#define SKILL_CHARGE 1
 
 struct player
 {
@@ -34,7 +34,11 @@ Player::Player()
 
 Player::~Player()
 {
-	DeleteSoundMem(_seLevelUp);
+	// 音関係
+	for (int i = 0; i < 3; i++)
+	{
+		DeleteSoundMem(_soundSE[i]);
+	}
 }
 
 void Player::Init(void)
@@ -61,8 +65,8 @@ void Player::Init(void)
 		player_status.now_level = 1;
 		player_status.maxHP = 35;
 		player_status.plHP = player_status.maxHP;
-		player_status.attackDamage = 3;
-		//player_status.attackDamage = 999;
+		//player_status.attackDamage = 3;
+		player_status.attackDamage = 999;
 		player_status.defense = 0;
 		player_status.next_level = 10;
 		player_status.money = 2000;
@@ -94,7 +98,9 @@ void Player::Init(void)
 	_barrierMaxNum = 0;
 	_barrierNum = 0;
 
-	_seLevelUp = LoadSoundMem("sound/se/levelup.mp3");
+	_soundSE[0] = LoadSoundMem("sound/se/click.mp3");
+	_soundSE[1] = LoadSoundMem("sound/se/levelup.mp3");
+	_soundSE[2] = LoadSoundMem("sound/se/skill.mp3");
 
 	pngInit();
 }
@@ -186,7 +192,7 @@ void Player::Draw(Menu* menu)
 	}
 }
 
-void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game)
+void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game,Cards* cards)
 {
 	int x = 0;
 	int y = 0;
@@ -207,6 +213,7 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game)
 			// 当たり判定(当たっているとき)
 			if (c <= 34)
 			{
+				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 				// スキルはターン消費なしで行える動作
 				_skillBackFlg = true;
 				// 攻撃系(基礎攻撃力*10+武器威力で一定のダメージを与えられる)
@@ -224,11 +231,14 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game)
 		// やめるボタンとの当たり判定
 		if (x >= 385 && x <= 385 + 150 && y >= 320 && y <= 320 + 65)
 		{
+			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 			_skillBackFlg = false;
 		}
 
 		auto lambda = [&]() {
+			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 			// フラグと回数を元に戻す
+			_seOnceFlg = false;
 			_skillFlg = false;
 			_skillBackFlg = false;
 			_skillCharge = SKILL_CHARGE;
@@ -238,7 +248,7 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game)
 		if (x >= 290 && x <= 290 + 100 && y >= 150 && y <= 150 + 100)
 		{
 			// 攻撃系(基礎攻撃力*10+武器威力で一定のダメージを与えられる)
-			monster->Damage(player_status.attackDamage * 10 + menu->GetEquipDamage());
+			monster->Damage(player_status.attackDamage * 10 + menu->GetEquipDamage(),cards);
 			game->blinkFlg = true;
 			lambda();
 			//// フラグと回数を元に戻す
@@ -280,6 +290,11 @@ void Player::UpDate(void)
 	if (_skillCharge <= 0)
 	{
 		_skillFlg = true;
+		if (!_seOnceFlg)
+		{
+			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
+			_seOnceFlg = true;
+		}
 
 		// 明るくしたり暗くする処理
 		if (!_lightFlg)
@@ -379,7 +394,7 @@ void Player::SetNextLevel(int num)
 	{
 		if (!seFlg)
 		{
-			PlaySoundMem(_seLevelUp, DX_PLAYTYPE_BACK, true);
+			PlaySoundMem(_soundSE[1], DX_PLAYTYPE_BACK, true);
 			seFlg = true;
 		}
 		// ステータスアップ
