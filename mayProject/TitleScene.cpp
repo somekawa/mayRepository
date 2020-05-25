@@ -5,6 +5,9 @@
 #include "SelectScene.h"
 #include "TitleScene.h"
 
+// static•Ï”‚ÌÀ‘Ì<Œ^>ƒNƒ‰ƒX–¼::•Ï”–¼ = ‰Šú‰»;
+int TitleScene::_titleBGM = 0;
+
 TitleScene::TitleScene()
 {
 	Init();
@@ -37,7 +40,7 @@ unique_Base TitleScene::Update(unique_Base own, const GameCtl& ctl)
 		if (x >= 250 && x <= 250 + 400 && y >= 400 && y <= 400+150)
 		{
 			//PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
-			DeleteSoundMem(_titleBGM);
+			//DeleteSoundMem(_titleBGM);
 			if (CheckSoundMem(_seClick) == 0)
 			{
 				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);

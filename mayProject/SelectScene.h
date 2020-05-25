@@ -29,4 +29,8 @@ private:
 
 	int _pngLight;						// 画像の明るさ調整用変数	
 	bool _lightFlg;						// 画像の明るさ調整用フラグ
+
+	int _seClick;						// クリック音
+	bool toGameFlg = false;
+	bool toTitleFlg = false;
 };

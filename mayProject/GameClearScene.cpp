@@ -132,7 +132,7 @@ void GameClearScene::parTest(void)
 	{
 		if (!parExFlg[i])
 		{
-			if (parEx[i] <= 1.0f)
+			if (parEx[i] <= 0.7f)
 			{
 				parEx[i] += 0.01f;
 			}

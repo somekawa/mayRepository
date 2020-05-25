@@ -10,6 +10,7 @@ class Enemy_weak :
 public:
 	Enemy_weak();
 	~Enemy_weak();
+	void update(void);
 	bool Init(void);					// 初期化
 	void Draw(void);					// 描画(雑魚敵とドロップアイテム)
 	void BossDraw(void);				// 雑魚敵と描画する画像の大きさが違うので別関数
@@ -39,4 +40,7 @@ private:
 	bool _dropItem;						// ドロップアイテム用フラグ
 	int _dropNum;						// アイテムの画像番号
 	ITEM _drop;							// アイテムの種類
+
+	int frogPNG;
+	int cnt = 0;
 };

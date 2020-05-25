@@ -14,6 +14,7 @@ class Monster
 public:
 	Monster();
 	virtual ~Monster();
+	virtual void update(void) = 0;
 	virtual bool Init(void) = 0;
 	virtual void Draw(void) = 0;
 	virtual void BossDraw(void) = 0;

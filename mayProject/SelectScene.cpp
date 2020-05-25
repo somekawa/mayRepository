@@ -27,26 +27,61 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 		// 当たり判定(NORMAL選択時)
 		if (x >= 250 && x <= 250 + 400 && y >= 100 && y <= 100 + 150)
 		{
+			DeleteSoundMem(TitleScene::_titleBGM);
+			if (CheckSoundMem(_seClick) == 0)
+			{
+				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+				toGameFlg = true;
+			}
 			modeTest = MODE::NORMAL;
 			//Player::LoadTest();
 			Menu::LoadTest();
-			return std::make_unique<GameScene>();
+			//return std::make_unique<GameScene>();
 		}
 		// 当たり判定(HARD選択時)
 		if (x >= 250 && x <= 250 + 400 && y >= 300 && y <= 300 + 150)
 		{
+			DeleteSoundMem(TitleScene::_titleBGM);
+			if (CheckSoundMem(_seClick) == 0)
+			{
+				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+				toGameFlg = true;
+			}
 			modeTest = MODE::HARD;
-			return std::make_unique<GameScene>();
+			//return std::make_unique<GameScene>();
 		}
 
 		// 当たり判定(タイトルへ戻る)
 		if (x >= 650 && x <= 650 + 200 && y >= 450 && y <= 450 + 100)
 		{
-			return std::make_unique<TitleScene>();
+			if (CheckSoundMem(_seClick) == 0)
+			{
+				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+				toTitleFlg = true;
+			}
+			//return std::make_unique<TitleScene>();
 		}
 	}
 
 	_oldMouse = Mouse;
+
+	if (toGameFlg)
+	{
+		if (CheckSoundMem(_seClick) == 0)
+		{
+			DeleteSoundMem(_seClick);
+			return std::make_unique<GameScene>();
+		}
+	}
+	else if (toTitleFlg)
+	{
+		if (CheckSoundMem(_seClick) == 0)
+		{
+			DeleteSoundMem(_seClick);
+			return std::make_unique<TitleScene>();
+		}
+	}
+
 	Draw();
 
 	// 明るくしたり暗くする処理
@@ -91,6 +126,8 @@ bool SelectScene::Init(void)
 
 	_pngLight = 128;
 	_lightFlg = false;
+	// SEテスト
+	_seClick = LoadSoundMem("sound/se/click.mp3");
 	return true;
 }
 

@@ -159,6 +159,8 @@ private:
 	int _messageDeathPNG;
 	// 即死トラップで死亡時(敵遭遇後)の画像
 	int _messageDeathPNG2;
+	// ボス手前警告画像
+	int bossEmergencyPNG;
 
 	// ダンジョン
 	// 直進
@@ -200,10 +202,11 @@ private:
 	bool rightFlg = false;
 	int directPNG;
 	float directRota = 0.0f;
-	int monsTimeCnt = 3;
+	int monsTimeCnt = 9999;
 
 	VECTOR2 offset = {0,0};
 	VECTOR2 plNowMark = { 0,0 };
 
-	VECTOR2 bossPos = { 9,5 };
+	VECTOR2 bossPos = { 8,5 };
+	//VECTOR2 bossPos = { 0,2 };
 };

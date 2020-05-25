@@ -108,9 +108,9 @@ private:
 	int _seCnt;				// 歩行音からドア音までつなぐときに使う変数
 	bool _soundWalk;		// 歩行音からドア音までつなぐときに使うフラグ
 
-	int chestOpen[2];		// 開けたかどうか
-	int chestBingo[2];		// 中身が当たり
-	VECTOR2 chestPos[2];	// 宝箱の位置
+	int chestOpen[4];		// 開けたかどうか
+	int chestBingo[4];		// 中身が当たり
+	VECTOR2 chestPos[4];	// 宝箱の位置
 
 	bool trapFlg = false;	// 即死トラップ用。一度発動させたらそのままにしておく
 	bool nowTrapFlg = false;// 発動しながら一度以上死んだ場合

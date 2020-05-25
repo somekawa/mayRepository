@@ -222,6 +222,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 	_menu->Update(this,_player, _monster[0],_cards);
 	_event->UpDate(this, _player, _menu, _item, _monster[0],_cards);
 	enemyItemDrop();
+	_monster[0]->update();
 	
 	// アイテム画面の時にはカードを動かせなくする
 	if (_monster[0]->GetEnemyState() == ENEMY_STATE::EXIST && _menu->GetMenu() != MENU::ITEM)
@@ -604,6 +605,11 @@ void GameScene::pngInit(void)
 	// 即死トラップで死亡時(敵遭遇後)の画像
 	std::string messageDeath2 = "image/message_death2.png";
 	_messageDeathPNG2 = LoadGraph(messageDeath2.c_str());
+
+	// ボス手前警告画像
+	std::string emergency = "image/emergency.png";
+	bossEmergencyPNG = LoadGraph(emergency.c_str());
+
 
 	//// スキルアイコン
 	//std::string skillicon = "image/skillicon.png";
@@ -1022,6 +1028,12 @@ void GameScene::Draw(void)
 	}
 
 	DrawRotaGraph(plNowMark.x * 50 + 25, 550 - (plNowMark.y * 50) + 25, 1.0f, directRota, directPNG, true);
+
+	if (testx == bossPos.x-1 && testy == bossPos.y)
+	{
+		// ボスの警告用画像
+		DrawGraph(250, 100, bossEmergencyPNG, true);
+	}
 
 	ScreenFlip();
 }

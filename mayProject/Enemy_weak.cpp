@@ -23,6 +23,14 @@ Enemy_weak::~Enemy_weak()
 {
 }
 
+void Enemy_weak::update(void)
+{
+	if (cnt > 0)
+	{
+		cnt--;
+	}
+}
+
 bool Enemy_weak::Init(void)
 {
 	//std::string imageのところ
@@ -102,6 +110,10 @@ bool Enemy_weak::Init(void)
 	std::string boss = "image/monster/Boss.png";
 	_bossPNG = LoadGraph(boss.c_str());
 
+	// 霧画像
+	std::string frog = "image/frog.png";
+	frogPNG = LoadGraph(frog.c_str());
+
 	//std::string a = "image/monster";
 	//std::string b = "monster_";
 	//std::string c = ".png";
@@ -142,6 +154,9 @@ void Enemy_weak::Draw(void)
 void Enemy_weak::BossDraw(void)
 {
 	DrawRotaGraph(450, 270, 1.0f, 0, _bossPNG, true);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, cnt);
+	DrawGraph(0, 0, frogPNG, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
 void Enemy_weak::Damage(int damageNum)
@@ -213,6 +228,10 @@ void Enemy_weak::SetEnemyNum(int num, int plLv)
 	}
 	else
 	{
+		if (num == 5)
+		{
+			cnt = 256;
+		}
 		// ダメージ量と体力をプレイヤーレベルで調整できるようにする
 		_attackDamage = enemy_status[num].attack + (plLv * 2);
 		_enemyHP = enemy_status[num].HP + (plLv * 3);

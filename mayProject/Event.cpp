@@ -50,7 +50,7 @@ void Event::Init(void)
 		return; //エラー時の処理
 	}
 
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		FileRead_scanf(testFileHandle, "%d,%d,%d,%d", &chestOpen[i], &chestBingo[i], &chestPos[i].x, &chestPos[i].y);
 	}
@@ -337,7 +337,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 
 		// 宝箱チェック
 		int a = 0;
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 4; i++)
 		{
 			if (chestPos[i].x == GameScene::testx && chestPos[i].y == GameScene::testy)
 			{
@@ -403,7 +403,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 		
 					if (chestBingo[a] == 0)
 					{
-						DrawFormatString(450, 70, 0xff0000, "\n\nゴーストが見える");
+						DrawFormatString(450, 70, 0xff0000, "\n\nゴーストが取り憑いている");
 					}
 				}
 			}
@@ -556,7 +556,7 @@ void Event::SetFateNum(int num)
 void Event::SetReset(void)
 {
 	// 宝箱の状態をリセットする
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		chestOpen[i] = 0;
 	}
@@ -956,7 +956,7 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
 
 		// 宝箱チェック
 		int a = 0;
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 4; i++)
 		{
 			if (chestPos[i].x == GameScene::testx && chestPos[i].y == GameScene::testy)
 			{
