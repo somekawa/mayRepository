@@ -307,7 +307,7 @@ bool GameScene::Init(void)
 	// その他
 	blinkFlg = false;
 	_blinkCnt = 0;
-	_monsTimeCnt = 2;
+	_monsTimeCnt = 9999;
 	_walkDirect = 0;
 	_plDeadChangeWinColor = 255;
 	_poisonCnt = 256;
@@ -1366,7 +1366,9 @@ void GameScene::Direct(void)
 			}
 			else if (_plDirect == PL_DIRECTION::LEFT)
 			{
-				_directRota = PI + PI / 2;
+				_plDirect = PL_DIRECTION::RIGHT;
+				//_directRota = PI + PI / 2;
+				_directRota = PI / 2;
 			}
 			else if (_plDirect == PL_DIRECTION::DOWN)
 			{
@@ -1388,11 +1390,13 @@ void GameScene::Direct(void)
 			{
 				_directRota = 0;
 				_plDirect = _plDirectOld;
+				_plOldPoint = 5;
 			}
 			else if (_plDirectOld == PL_DIRECTION::RIGHT)
 			{
 				_directRota = 0;
 				_plDirect = PL_DIRECTION::UP;
+				_plOldPoint = 5;
 			}
 			return;
 		}
