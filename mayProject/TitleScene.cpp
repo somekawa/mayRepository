@@ -115,5 +115,6 @@ void TitleScene::Draw(void)
 	DrawGraph(0, 0,_titlePNG, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	DrawGraph(250, 400, _startPNG, true);
+
 	ScreenFlip();
 }

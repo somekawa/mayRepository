@@ -239,6 +239,24 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 		}
 	}
 
+	if (kiri1 < 900.0f)
+	{
+		kiri1 += 0.5f;
+	}
+	else
+	{
+		kiri1 = -900.0f;
+	}
+
+	if (kiri2 < 900.0f)
+	{
+		kiri2 += 0.5f;
+	}
+	else
+	{
+		kiri2 = -900.0f;
+	}
+
 	Draw();	
 	mouseOld = mouse;
 	cardEffect();
@@ -613,6 +631,13 @@ void GameScene::pngInit(void)
 	std::string emergency = "image/emergency.png";
 	bossEmergencyPNG = LoadGraph(emergency.c_str());
 
+	// 霧
+	std::string kiri = "image/kiri.png";
+	kiriPNG[0] = LoadGraph(kiri.c_str());
+
+	std::string kiri2 = "image/kiri2.png";
+	kiriPNG[1] = LoadGraph(kiri2.c_str());
+
 
 	//// スキルアイコン
 	//std::string skillicon = "image/skillicon.png";
@@ -831,6 +856,12 @@ void GameScene::Draw(void)
 			}
 		}
 	}
+
+	// 霧表現
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
+	DrawGraph(0 + kiri1, 0, kiriPNG[0], true);
+	DrawGraph(0 + kiri2, 0, kiriPNG[1], true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	// プレイヤー
 	// HPバー関連画像サイズ

@@ -161,6 +161,11 @@ private:
 	int _messageDeathPNG2;
 	// ボス手前警告画像
 	int bossEmergencyPNG;
+	// 霧
+	int kiriPNG[2];
+	float kiri1 = 0.0f;
+	float kiri2 = -900.0f;
+
 
 	// ダンジョン
 	// 直進
