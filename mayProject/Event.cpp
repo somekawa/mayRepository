@@ -57,6 +57,15 @@ void Event::Init(void)
 
 	//ファイルを閉じる
 	FileRead_close(testFileHandle);
+
+	buttonPos[0] = { 9,1 };
+	buttonPos[1] = { 7,7 };
+
+	//buttonPos[0] = { 0,2 };
+	//buttonPos[1] = { 1,1 };
+
+	buttonPush[0] = false;
+	buttonPush[1] = false;
 }
 
 void Event::pngInit(void)
@@ -305,28 +314,39 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 	// ボタン出現中
 	if (_event == EVENT_STATE::BUTTON)
 	{
-		// メッセージボックス
-		DrawGraph(420, 50, _messagePNG, true);
+		for (int i = 0; i < 2; i++)
+		{
+			if (buttonPos[i].x == game->plPosX && buttonPos[i].y == game->plPosY)
+			{
+				buttonNum = i;
+			}
+		}
 
-		// 進む(ボタン無視)
+		if (!buttonPush[buttonNum])
+		{
+			// メッセージボックス
+			DrawGraph(420, 50, _messagePNG, true);
+
+			if (_fateNum == -1)
+			{
+				// 押す
+				DrawGraph(600, 200, _sentakusiPNG[4], true);
+				DrawFormatString(450, 70, 0x000000, "壁にボタンがついている...\n");
+			}
+
+			if (_fateNum == 0)
+			{
+				DrawFormatString(450, 70, 0x000000, "なんと1000円がでてきた!\n");
+			}
+
+			if (_fateNum > 0)
+			{
+				DrawFormatString(450, 70, 0x000000, "体中に電流が流れた!!");
+			}
+		}
+
+		// 去る
 		DrawGraph(600, 345, _sentakusiPNG[10], true);
-
-		if (_fateNum == -1)
-		{
-			// 押す
-			DrawGraph(600, 200, _sentakusiPNG[4], true);
-			DrawFormatString(450, 70, 0x000000, "壁にボタンがついている...\n");
-		}
-
-		if (_fateNum == 0)
-		{
-			DrawFormatString(450, 70, 0x000000, "なんと1000円がでてきた!\n");
-		}
-
-		if (_fateNum > 0)
-		{
-			DrawFormatString(450, 70, 0x000000, "体中に電流が流れた!!");
-		}
 	}
 
 	// 宝箱出現中
@@ -555,6 +575,10 @@ void Event::SetFateNum(int num)
 
 void Event::SetReset(void)
 {
+	// ボタンの状態をリセットする
+	buttonPush[0] = false;
+	buttonPush[1] = false;
+
 	// 宝箱の状態をリセットする
 	for (int i = 0; i < 4; i++)
 	{
@@ -880,33 +904,57 @@ void Event::Button(GameScene* game, Player* player)
 			game->eventState = EVENT_STATE::NON;
 			_event = EVENT_STATE::NON;
 			_nowEvent++;
-			_pushFlg = false;
 			_fateNum = -1;
 			_soundWalk = true;
+
+			buttonEventFlg = false;
+			if (_pushFlg)
+			{
+				buttonPush[buttonNum] = true;
+				_pushFlg = false;
+			}
 		}
 
 		// 押す
-		if (_fateNum == -1)
+		for (int i = 0; i < 2; i++)
+		{
+			if (buttonPos[i].x == game->plPosX && buttonPos[i].y == game->plPosY)
+			{
+				buttonNum = i;
+			}
+		}
+
+		if (_fateNum == -1 && !buttonPush[buttonNum])
 		{
 			if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 200 && game->cursorPos.y <= 200 + 75)
 			{
 				// クリック音
 				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-
 				_pushFlg = true;
 				_fateNum = GetRand(2);	// 0 ~ 2
 			}
 		}
+		//if (_fateNum == -1 && !buttonPush)
+		//{
+		//	if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 200 && game->cursorPos.y <= 200 + 75)
+		//	{
+		//		// クリック音
+		//		PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
+		//		_pushFlg = true;
+		//		_fateNum = GetRand(2);	// 0 ~ 2
+		//	}
+		//}
 	}
 
 	// ボタンを押すことにしたとき
-	if (_pushFlg)
+	if (_pushFlg && !buttonEventFlg)
 	{
 		if (_fateNum == 0)
 		{
 			// ラッキー!お金もらえる
 			player->SetMoney(player->GetMoney() + 1000);
-			_pushFlg = false;
+			//_pushFlg = false;
+			buttonEventFlg = true;
 		}
 		else
 		{
@@ -916,8 +964,9 @@ void Event::Button(GameScene* game, Player* player)
 			// アンラッキー!びりびりの刑で体力マイナス
 			// 体力の1/4ぐらい削ろうかな
 			player->SetHP(player->GetHP() - (float)player->GetMaxHP() * (1.0f / 4.0f));
-			_pushFlg = false;
+			//_pushFlg = false;
 			game->shakeFlg = true;
+			buttonEventFlg = true;
 		}
 	}
 }

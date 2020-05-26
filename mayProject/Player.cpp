@@ -12,7 +12,7 @@ bool Player::loadFlg = false;
 int Player::saveTestNum[9] = { 0,0,0,0,0,0,0,0,0 };
 
 // スキルチャージ時間の最大値
-#define SKILL_CHARGE 1
+#define SKILL_CHARGE 10
 
 struct player
 {
