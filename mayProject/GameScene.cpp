@@ -307,7 +307,7 @@ bool GameScene::Init(void)
 	// その他
 	blinkFlg = false;
 	_blinkCnt = 0;
-	_monsTimeCnt = 9999;
+	_monsTimeCnt = 2;
 	_walkDirect = 0;
 	_plDeadChangeWinColor = 255;
 	_poisonCnt = 256;
@@ -591,18 +591,18 @@ void GameScene::Draw(void)
 	else
 	{
 		// ボスじゃないとき
-		if (plPosX != bossPos.x && plPosY != bossPos.y)
-		{
-			if ((eventState == EVENT_STATE::NON) || (eventState == EVENT_STATE::ENEMY))
-			{
-				_monster[0]->Draw();
-			}
-		}
-		else
+		if (plPosX == bossPos.x && plPosY == bossPos.y)
 		{
 			if (eventState == EVENT_STATE::ENEMY && _monster[0]->GetEnemyState() != ENEMY_STATE::DEATH)
 			{
 				_monster[0]->BossDraw();
+			}
+		}
+		else
+		{
+			if ((eventState == EVENT_STATE::NON) || (eventState == EVENT_STATE::ENEMY))
+			{
+				_monster[0]->Draw();
 			}
 		}
 	}
@@ -629,6 +629,64 @@ void GameScene::Draw(void)
 	if (_menu->GetPowUp() != 0)
 	{
 		DrawFormatString(750, 505, 0xffffff, "攻撃強化:+%d", _menu->GetPowUp());
+	}
+
+	if (_plNowMark.x == 0 && _plNowMark.y <= 2)
+	{
+		// Sのマークに後で変更する
+		DrawGraph(0 * 50, 550 - (0 * 50), chipPNG[0], true);
+	}
+	// 現在地を保存していく
+	for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
+	{
+		if (plPosY <= 2)
+		{
+			_mapChipDrawOffset.y = 0;
+		}
+		else
+		{
+			_mapChipDrawOffset.y = 50 * (plPosY - 2);
+		}
+
+		if (plPosX <= 2)
+		{
+			_mapChipDrawOffset.x = 0;
+		}
+		else
+		{
+			_mapChipDrawOffset.x = 50 * (plPosX - 2);
+		}
+
+		if (std::get<0>(*v).y + 25 + _mapChipDrawOffset.y >= 450 && std::get<0>(*v).x + 25 - _mapChipDrawOffset.x <= 150)
+		{
+			DrawRotaGraph(std::get<0>(*v).x + 25 - _mapChipDrawOffset.x, std::get<0>(*v).y + 25 + _mapChipDrawOffset.y, 1.0, std::get<2>(*v), chipPNG[std::get<1>(*v)], true);
+		}
+	}
+
+	// 現在地
+	if (plPosY <= 2)
+	{
+		_plNowMark.y = plPosY;
+	}
+	else
+	{
+		_plNowMark.y = 2;
+	}
+	if (plPosX <= 2)
+	{
+		_plNowMark.x = plPosX;
+	}
+	else
+	{
+		_plNowMark.x = 2;
+	}
+
+	DrawRotaGraph(_plNowMark.x * 50 + 25, 550 - (_plNowMark.y * 50) + 25, 1.0f, _directRota, directPNG, true);
+
+	if (plPosX == bossPos.x - 1 && plPosY == bossPos.y)
+	{
+		// ボスの警告用画像
+		DrawGraph(250, 100, bossEmergencyPNG, true);
 	}
 
 	if (_monster[0]->GetEnemyState() == ENEMY_STATE::EXIST)
@@ -699,64 +757,6 @@ void GameScene::Draw(void)
 			// 敵もろとも即死トラップで死んだとき
 			DrawGraph(300, 0, _messageDeathPNG2, true);
 		}
-	}
-
-	if (_plNowMark.x == 0 && _plNowMark.y <= 2)
-	{
-		// Sのマークに後で変更する
-		DrawGraph(0 * 50, 550 - (0 * 50), chipPNG[0], true);
-	}
-	// 現在地を保存していく
-	for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
-	{
-		if (plPosY <= 2)
-		{
-			_mapChipDrawOffset.y = 0;
-		}
-		else
-		{
-			_mapChipDrawOffset.y = 50 * (plPosY - 2);
-		}
-
-		if (plPosX <= 2)
-		{
-			_mapChipDrawOffset.x = 0;
-		}
-		else
-		{
-			_mapChipDrawOffset.x = 50 * (plPosX - 2);
-		}
-
-		if (std::get<0>(*v).y + 25 + _mapChipDrawOffset.y >= 450 && std::get<0>(*v).x + 25 - _mapChipDrawOffset.x <= 150)
-		{
-			DrawRotaGraph(std::get<0>(*v).x + 25 - _mapChipDrawOffset.x, std::get<0>(*v).y + 25 + _mapChipDrawOffset.y, 1.0, std::get<2>(*v), chipPNG[std::get<1>(*v)], true);
-		}
-	}
-
-	// 現在地
-	if (plPosY <= 2)
-	{
-		_plNowMark.y = plPosY;
-	}
-	else
-	{
-		_plNowMark.y = 2;
-	}
-	if (plPosX <= 2)
-	{
-		_plNowMark.x = plPosX;
-	}
-	else
-	{
-		_plNowMark.x = 2;
-	}
-
-	DrawRotaGraph(_plNowMark.x * 50 + 25, 550 - (_plNowMark.y * 50) + 25, 1.0f, _directRota, directPNG, true);
-
-	if (plPosX == bossPos.x-1 && plPosY == bossPos.y)
-	{
-		// ボスの警告用画像
-		DrawGraph(250, 100, bossEmergencyPNG, true);
 	}
 
 	ScreenFlip();
@@ -1230,14 +1230,6 @@ void GameScene::enemyItemDrop(void)
 			}
 		}
 	}
-
-	// この処理でmoveした後はドロップアイテムが描画されないようになっていた
-	//if (moveFlg)
-	//{
-	//	_monster[0]->SetDropFlg(false);
-	//	_onceFlg = false;
-	//	_anounceFlg = false;
-	//}
 }
 
 void GameScene::cardEffect(void)
@@ -1724,6 +1716,14 @@ void GameScene::Direct(void)
 
 void GameScene::Key(void)
 {
+	// ドロップアイテム処理
+	if (_monster[0]->GetDropFlg())
+	{
+		_monster[0]->SetDropFlg(false);
+		_onceFlg = false;
+		_anounceFlg = false;
+	}
+
 	_walkDirect = 0;
 	_soundWalk = true;
 	moveFlg = true;
@@ -1840,7 +1840,7 @@ void GameScene::Key(void)
 			moveFlg = false;
 
 			// ボスならこっち
-			if (/*walkCnt == _bossEventNum*/plPosX == bossPos.x && plPosY == bossPos.y)
+			if (plPosX == bossPos.x && plPosY == bossPos.y)
 			{
 				auto ene = 5;
 				_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ボス用)
