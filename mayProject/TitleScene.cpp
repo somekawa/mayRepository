@@ -1,7 +1,7 @@
 #include "DxLib.h"
 #include "SceneMng.h"
 #include "GameCtl.h"
-//#include "GameScene.h"
+#include "GameClearScene.h"
 #include "SelectScene.h"
 #include "TitleScene.h"
 
@@ -17,13 +17,34 @@ TitleScene::~TitleScene()
 {
 }
 
+bool TitleScene::Init(void)
+{
+	pngInit();
+	_pngLight = 128;
+	_lightFlg = false;
+	_seFlg = false;
+	_seClick = LoadSoundMem("sound/se/click.mp3");
+	_titleBGM = LoadSoundMem("sound/bgm/title.mp3");
+	PlaySoundMem(_titleBGM, DX_PLAYTYPE_LOOP, true);
+	return true;
+}
+
+void TitleScene::pngInit(void)
+{
+	std::string title = "image/title.png";
+	_titlePNG = LoadGraph(title.c_str());
+
+	std::string start = "image/start.png";
+	_startPNG = LoadGraph(start.c_str());
+}
+
 unique_Base TitleScene::Update(unique_Base own, const GameCtl& ctl)
 {
 	//if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_F1]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_F1]))
 	//{
 	//	return std::make_unique<GameScene>();
 	//}
-
+	//
 	// 再生中でなければ再生を行う(0:再生していない)
 	// 現在はInitでループ設定している。
 	//if (CheckSoundMem(_titleBGM) == 0)
@@ -44,7 +65,7 @@ unique_Base TitleScene::Update(unique_Base own, const GameCtl& ctl)
 			if (CheckSoundMem(_seClick) == 0)
 			{
 				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
-				flag = true;
+				_seFlg = true;
 			}
 			//return std::make_unique<SelectScene>();
 		}
@@ -53,16 +74,13 @@ unique_Base TitleScene::Update(unique_Base own, const GameCtl& ctl)
 	_oldMouse = Mouse;
 	Draw();
 
-	if (flag)
+	if (_seFlg && CheckSoundMem(_seClick) == 0)
 	{
-		if (CheckSoundMem(_seClick) == 0)
-		{
-			DeleteSoundMem(_seClick);
-			return std::make_unique<SelectScene>();
-		}
+		DeleteSoundMem(_seClick);
+		return std::make_unique<SelectScene>();
 	}
 
-	// 明るくしたり暗くする処理
+	// 明るさ調整処理
 	if (!_lightFlg)
 	{
 		if (_pngLight <= 255)
@@ -88,25 +106,6 @@ unique_Base TitleScene::Update(unique_Base own, const GameCtl& ctl)
 	return std::move(own);
 }
 
-bool TitleScene::Init(void)
-{
-	std::string title = "image/title.png";
-	_titlePNG = LoadGraph(title.c_str());
-
-	std::string start = "image/start.png";
-	_startPNG = LoadGraph(start.c_str());
-
-	_pngLight = 128;
-	_lightFlg = false;
-
-	// SEテスト
-	_seClick = LoadSoundMem("sound/se/click.mp3");
-	// BGMテスト
-	_titleBGM = LoadSoundMem("sound/bgm/title.mp3");
-	PlaySoundMem(_titleBGM, DX_PLAYTYPE_LOOP, true);
-	return true;
-}
-
 void TitleScene::Draw(void)
 {
 	ClsDrawScreen();
@@ -115,6 +114,5 @@ void TitleScene::Draw(void)
 	DrawGraph(0, 0,_titlePNG, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	DrawGraph(250, 400, _startPNG, true);
-
 	ScreenFlip();
 }

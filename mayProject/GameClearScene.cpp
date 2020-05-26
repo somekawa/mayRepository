@@ -3,6 +3,18 @@
 #include "TitleScene.h"
 #include "GameClearScene.h"
 
+#define PARTICLE_NUM 3
+
+// パーティクル構造体
+struct particle
+{
+	VECTOR2 parPos;		// 座標
+	float parEx;		// 拡大率
+	bool parExFlg;		// 拡大率切替用フラグ
+	bool posRandFlg;	// 座標のランダム用フラグ
+	int light;			// 明るさ調整
+} particle_status[PARTICLE_NUM];
+
 GameClearScene::GameClearScene()
 {
 	Init();
@@ -10,6 +22,48 @@ GameClearScene::GameClearScene()
 
 GameClearScene::~GameClearScene()
 {
+}
+
+bool GameClearScene::Init(void)
+{
+	pngInit();
+
+	float expand = 0.0f;
+	for (int i = 0; i < PARTICLE_NUM; i++)
+	{
+		particle_status[i].parEx = expand;
+		particle_status[i].parExFlg = false;
+		particle_status[i].posRandFlg = false;
+		particle_status[i].parPos = { -100,-100 };
+		particle_status[i].light = 50;
+		expand += 0.3f;
+	}
+
+	_pngBlend = 256;
+	_seFlg = false;
+	_seClick = LoadSoundMem("sound/se/click.mp3");
+
+	_clearBGM = LoadSoundMem("sound/bgm/clear.mp3");
+	PlaySoundMem(_clearBGM, DX_PLAYTYPE_LOOP, true);
+	return true;
+}
+
+void GameClearScene::pngInit(void)
+{
+	std::string particle = "image/particle.png";
+	_particlePNG = LoadGraph(particle.c_str());
+
+	std::string white = "image/white.png";
+	_whitePNG = LoadGraph(white.c_str());
+
+	std::string gameclear = "image/gameclear.png";
+	_gameClearPNG = LoadGraph(gameclear.c_str());
+
+	std::string clear = "image/night_forest.png";
+	_backPNG = LoadGraph(clear.c_str());
+
+	std::string titleBackButton = "image/titleBackButton.png";
+	_backTitleButtonPNG = LoadGraph(titleBackButton.c_str());
 }
 
 unique_Base GameClearScene::Update(unique_Base own, const GameCtl& ctl)
@@ -26,7 +80,7 @@ unique_Base GameClearScene::Update(unique_Base own, const GameCtl& ctl)
 	auto Mouse = GetMouseInput();                //マウスの入力状態取得
 	GetMousePoint(&x, &y);					     //マウスの座標取得
 	if (Mouse & MOUSE_INPUT_LEFT/* && !(oldMouse & MOUSE_INPUT_LEFT)*/) {	 //マウスの左ボタンが押されていたら
-		// 当たり判定(とりあえず左上のボックスと)
+		// 当たり判定
 		if (x >= 650 && x <= 650 + 200 && y >= 500 && y <= 500 + 100)
 		{
 			//PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
@@ -34,19 +88,16 @@ unique_Base GameClearScene::Update(unique_Base own, const GameCtl& ctl)
 			if (CheckSoundMem(_seClick) == 0)
 			{
 				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
-				flag = true;
+				_seFlg = true;
 			}
 		}
 		//return std::make_unique<TitleScene>();
 	}
 
-	if (flag)
+	if (_seFlg && CheckSoundMem(_seClick) == 0)
 	{
-		if (CheckSoundMem(_seClick) == 0)
-		{
-			DeleteSoundMem(_seClick);
-			return std::make_unique<TitleScene>();
-		}
+		DeleteSoundMem(_seClick);
+		return std::make_unique<TitleScene>();
 	}
 
 	//oldMouse = mouse;
@@ -57,45 +108,10 @@ unique_Base GameClearScene::Update(unique_Base own, const GameCtl& ctl)
 		_pngBlend--;
 	}
 
-	parTest();
+	Particle();
 	Draw();
 	// 自分のSceneのユニークポインタを返す 所有権も忘れずに!
 	return std::move(own);
-}
-
-bool GameClearScene::Init(void)
-{
-	std::string particle = "image/particle.png";
-	partestPNG = LoadGraph(particle.c_str());
-
-	std::string white = "image/white.png";
-	whitePNG = LoadGraph(white.c_str());
-
-	std::string gameclear = "image/gameclear.png";
-	_gameClearPNG = LoadGraph(gameclear.c_str());
-
-	std::string clear = "image/night_forest.png";
-	_backPNG = LoadGraph(clear.c_str());
-
-	std::string titleBackButton = "image/titleBackButton.png";
-	_backTitleButtonPNG = LoadGraph(titleBackButton.c_str());
-
-	_pngBlend = 256;	
-	float expand = 0.0f;
-	for (int i = 0; i < 3; i++)
-	{
-		parEx[i] = expand;
-		parExFlg[i] = false;
-		posRandFlg[i] = false;
-		parPos[i] = { -100,-100 };
-		expand += 0.3f;
-	}
-	_seClick = LoadSoundMem("sound/se/click.mp3");
-
-	// BGMテスト(データが結構大きめ)
-	_clearBGM = LoadSoundMem("sound/bgm/clear.mp3");
-	PlaySoundMem(_clearBGM, DX_PLAYTYPE_LOOP, true);
-	return true;
 }
 
 void GameClearScene::Draw(void)
@@ -105,20 +121,14 @@ void GameClearScene::Draw(void)
 	DrawGraph(0, -256 + (256 - _pngBlend), _gameClearPNG, true);
 	DrawGraph(650, 500, _backTitleButtonPNG, true);
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, _pngBlend);
-	DrawGraph(0, 0, whitePNG, true);
+	DrawGraph(0, 0, _whitePNG, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-	// 加算ブレンド
-	//SetDrawBlendMode(DX_BLENDMODE_ADD, _pngBlend);
-	//DrawGraph(0, 0, _backPNG, true);
-	//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-	//DrawGraph(0, -256 + (256 - _pngBlend), _gameClearPNG, true);
-
 
 	// 描画ブレンドモードを加算合成にする
-	SetDrawBlendMode(DX_BLENDMODE_ADD, _pngLight);
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < PARTICLE_NUM; i++)
 	{
-		DrawRotaGraph(parPos[i].x + 25, parPos[i].y + 25, parEx[i], 0, partestPNG, true);
+		SetDrawBlendMode(DX_BLENDMODE_ADD, particle_status[i].light);
+		DrawRotaGraph(particle_status[i].parPos.x + 25, particle_status[i].parPos.y + 25, particle_status[i].parEx, 0, _particlePNG, true);
 	}
 	// 描画ブレンドモードをノーブレンドにする
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
@@ -126,70 +136,41 @@ void GameClearScene::Draw(void)
 	ScreenFlip();
 }
 
-void GameClearScene::parTest(void)
+void GameClearScene::Particle(void)
 {
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < PARTICLE_NUM; i++)
 	{
-		if (!parExFlg[i])
+		if (!particle_status[i].parExFlg)
 		{
-			if (parEx[i] <= 0.7f)
+			if (particle_status[i].parEx <= 0.7f)
 			{
-				parEx[i] += 0.01f;
+				particle_status[i].light++;
+				particle_status[i].parEx += 0.01f;
 			}
 			else
 			{
-				parExFlg[i] = !parExFlg[i];
+				particle_status[i].parExFlg = !particle_status[i].parExFlg;
 			}
 		}
 		else
 		{
-			if (parEx[i] >= 0.0f)
+			if (particle_status[i].parEx >= 0.0f)
 			{
-				parEx[i] -= 0.01f;
+				particle_status[i].light--;
+				particle_status[i].parEx -= 0.01f;
 			}
 			else
 			{
-				parExFlg[i] = !parExFlg[i];
-				posRandFlg[i] = true;
+				particle_status[i].parExFlg = !particle_status[i].parExFlg;
+				particle_status[i].posRandFlg = true;
 			}
 		}
 
-		if (posRandFlg[i])
+		if (particle_status[i].posRandFlg)
 		{
-			parPos[i].x = GetRand(850);
-			parPos[i].y = GetRand(200)+300;
-			posRandFlg[i] = false;
+			particle_status[i].parPos.x = GetRand(850);
+			particle_status[i].parPos.y = GetRand(200)+300;
+			particle_status[i].posRandFlg = false;
 		}
 	}
-	//if (!parExFlg[0])
-	//{
-	//	if (parEx[0] <= 1.0f)
-	//	{
-	//		parEx[0] += 0.01f;
-	//	}
-	//	else
-	//	{
-	//		parExFlg[0] = !parExFlg[0];
-	//	}
-	//}
-	//else
-	//{
-	//	if (parEx[0] >= 0.0f)
-	//	{
-	//		parEx[0] -= 0.01f;
-	//	}
-	//	else
-	//	{
-	//		parExFlg[0] = !parExFlg[0];
-	//		posRandFlg[0] = true;
-	//		a = 0;
-	//	}
-	//}
-
-	//if (posRandFlg[0])
-	//{
-	//	parPos[0].x = GetRand(850);
-	//	parPos[0].y = GetRand(550);
-	//	posRandFlg[0] = false;
-	//}
 }

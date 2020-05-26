@@ -339,12 +339,12 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 		int a = 0;
 		for (int i = 0; i < 4; i++)
 		{
-			if (chestPos[i].x == GameScene::testx && chestPos[i].y == GameScene::testy)
+			if (chestPos[i].x == GameScene::plPosX && chestPos[i].y == GameScene::plPosY)
 			{
 				a = i;
 			}
 		}
-		//if (chestPos[0].x == GameScene::testx && chestPos[0].y == GameScene::testy)
+		//if (chestPos[0].x == GameScene::plPosX && chestPos[0].y == GameScene::plPosY)
 		//{
 			if (chestOpen[a] == 0)
 			{
@@ -620,10 +620,9 @@ void Event::Yado(GameScene* game, Player* player)
 			// 歩行音
 			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
-			game->_backFlg = true;
+			game->backFlg = true;
 
 			// 先に進む
-			game->walkCnt++;
 			//game->moveFlg = true;
 			game->eventState = EVENT_STATE::NON;
 			_event = EVENT_STATE::NON;
@@ -669,10 +668,9 @@ void Event::Syounin(GameScene* game, Player* player, Menu* menu, Item* item)
 			// 歩行音
 			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
-			game->_backFlg = true;
+			game->backFlg = true;
 
 			// 先に進む
-			game->walkCnt++;
 			_chooseNum = -1;		// -1にしないと、選択した状態で進むを押したら次の商人でsoldoutになっちゃう
 			game->eventState = EVENT_STATE::NON;
 			_event = EVENT_STATE::NON;
@@ -875,10 +873,9 @@ void Event::Button(GameScene* game, Player* player)
 			// 歩行音
 			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
-			game->_backFlg = true;
+			game->backFlg = true;
 
 			// 先に進む
-			game->walkCnt++;
 			//game->moveFlg = true;
 			game->eventState = EVENT_STATE::NON;
 			_event = EVENT_STATE::NON;
@@ -935,10 +932,9 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
 			// 歩行音
 			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
-			game->_backFlg = true;
+			game->backFlg = true;
 
 			// 先に進む
-			game->walkCnt++;
 			//game->moveFlg = true;
 			game->eventState = EVENT_STATE::NON;
 			_event = EVENT_STATE::NON;
@@ -958,7 +954,7 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
 		int a = 0;
 		for (int i = 0; i < 4; i++)
 		{
-			if (chestPos[i].x == GameScene::testx && chestPos[i].y == GameScene::testy)
+			if (chestPos[i].x == GameScene::plPosX && chestPos[i].y == GameScene::plPosY)
 			{
 				a = i;
 			}
@@ -972,7 +968,7 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
 				//_fateNum = GetRand(2);	// 0 ~ 2
 				//_fateNum = 0;
 				//_fateNum = game->chestFate;
-				//if (chestPos[i].x == GameScene::testx && chestPos[i].y == GameScene::testy)
+				//if (chestPos[i].x == GameScene::plPosX && chestPos[i].y == GameScene::plPosY)
 				//{
 					// あたりかはずれかをいれる
 					// 開けたことにする
@@ -994,7 +990,7 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
 		//		//_fateNum = GetRand(2);	// 0 ~ 2
 		//		//_fateNum = 0;
 		//		//_fateNum = game->chestFate;
-		//		if (chestPos[0].x == GameScene::testx && chestPos[0].y == GameScene::testy)
+		//		if (chestPos[0].x == GameScene::plPosX && chestPos[0].y == GameScene::plPosY)
 		//		{
 		//			// あたりかはずれかをいれる
 		//			// 開けたことにする
@@ -1102,10 +1098,9 @@ void Event::Drink(GameScene* game, Player* player)
 			// 歩行音
 			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
-			game->_backFlg = true;
+			game->backFlg = true;
 
 			// 先に進む
-			game->walkCnt++;
 			//game->moveFlg = true;
 			game->eventState = EVENT_STATE::NON;
 			_event = EVENT_STATE::NON;
@@ -1160,10 +1155,9 @@ void Event::Trap(GameScene* game, Player* player)
 			// 歩行音
 			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
-			game->_backFlg = true;
+			game->backFlg = true;
 
 			// 先に進む
-			game->walkCnt++;
 			//game->moveFlg = true;
 			game->eventState = EVENT_STATE::NON;
 			_event = EVENT_STATE::NON;
@@ -1210,10 +1204,9 @@ void Event::eventMons(GameScene* game, Monster* monster, Cards* cards)
 			// 歩行音
 			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
-			game->_backFlg = true;
+			game->backFlg = true;
 
 			// 先に進む
-			game->walkCnt++;
 			//game->moveFlg = true;
 			game->eventState = EVENT_STATE::NON;
 			_event = EVENT_STATE::NON;

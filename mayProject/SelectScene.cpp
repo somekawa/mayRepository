@@ -17,6 +17,32 @@ SelectScene::~SelectScene()
 {
 }
 
+bool SelectScene::Init(void)
+{
+	pngInit();
+	_pngLight = 128;
+	_lightFlg = false;
+	_toGameFlg = false;
+	_toTitleFlg = false;
+	_seClick = LoadSoundMem("sound/se/click.mp3");
+	return true;
+}
+
+void SelectScene::pngInit(void)
+{
+	std::string normal = "image/normal.png";
+	_normalPNG = LoadGraph(normal.c_str());
+
+	std::string hard = "image/hard.png";
+	_hardPNG = LoadGraph(hard.c_str());
+
+	std::string renga = "image/renga.png";
+	_backPNG = LoadGraph(renga.c_str());
+
+	std::string titleBackButton = "image/titleBackButton.png";
+	_titleBackPNG = LoadGraph(titleBackButton.c_str());
+}
+
 unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 {
 	int x = 0;
@@ -31,25 +57,24 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 			if (CheckSoundMem(_seClick) == 0)
 			{
 				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
-				toGameFlg = true;
+				_toGameFlg = true;
 			}
 			modeTest = MODE::NORMAL;
-			//Player::LoadTest();
 			Menu::LoadTest();
 			//return std::make_unique<GameScene>();
 		}
 		// 当たり判定(HARD選択時)
-		if (x >= 250 && x <= 250 + 400 && y >= 300 && y <= 300 + 150)
-		{
-			DeleteSoundMem(TitleScene::_titleBGM);
-			if (CheckSoundMem(_seClick) == 0)
-			{
-				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
-				toGameFlg = true;
-			}
-			modeTest = MODE::HARD;
-			//return std::make_unique<GameScene>();
-		}
+		//if (x >= 250 && x <= 250 + 400 && y >= 300 && y <= 300 + 150)
+		//{
+		//	DeleteSoundMem(TitleScene::_titleBGM);
+		//	if (CheckSoundMem(_seClick) == 0)
+		//	{
+		//		PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+		//		_toGameFlg = true;
+		//	}
+		//	modeTest = MODE::HARD;
+		//	//return std::make_unique<GameScene>();
+		//}
 
 		// 当たり判定(タイトルへ戻る)
 		if (x >= 650 && x <= 650 + 200 && y >= 450 && y <= 450 + 100)
@@ -57,7 +82,7 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 			if (CheckSoundMem(_seClick) == 0)
 			{
 				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
-				toTitleFlg = true;
+				_toTitleFlg = true;
 			}
 			//return std::make_unique<TitleScene>();
 		}
@@ -65,26 +90,20 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 
 	_oldMouse = Mouse;
 
-	if (toGameFlg)
+	if (_toGameFlg && CheckSoundMem(_seClick) == 0)
 	{
-		if (CheckSoundMem(_seClick) == 0)
-		{
-			DeleteSoundMem(_seClick);
-			return std::make_unique<GameScene>();
-		}
+		DeleteSoundMem(_seClick);
+		return std::make_unique<GameScene>();
 	}
-	else if (toTitleFlg)
+	else if (_toTitleFlg && CheckSoundMem(_seClick) == 0)
 	{
-		if (CheckSoundMem(_seClick) == 0)
-		{
-			DeleteSoundMem(_seClick);
-			return std::make_unique<TitleScene>();
-		}
+		DeleteSoundMem(_seClick);
+		return std::make_unique<TitleScene>();
 	}
 
 	Draw();
 
-	// 明るくしたり暗くする処理
+	// 明るさ調整処理
 	if (!_lightFlg)
 	{
 		if (_pngLight <= 255)
@@ -108,27 +127,6 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 
 	// 自分のSceneのユニークポインタを返す 所有権も忘れずに!
 	return std::move(own);
-}
-
-bool SelectScene::Init(void)
-{
-	std::string normal = "image/normal.png";
-	_normalPNG = LoadGraph(normal.c_str());
-
-	std::string hard = "image/hard.png";
-	_hardPNG = LoadGraph(hard.c_str());
-
-	std::string renga = "image/renga.png";
-	_backPNG = LoadGraph(renga.c_str());
-
-	std::string titleBackButton = "image/titleBackButton.png";
-	_titleBackPNG = LoadGraph(titleBackButton.c_str());
-
-	_pngLight = 128;
-	_lightFlg = false;
-	// SEテスト
-	_seClick = LoadSoundMem("sound/se/click.mp3");
-	return true;
 }
 
 void SelectScene::Draw(void)

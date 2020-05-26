@@ -13,6 +13,7 @@ public:
 	static int _titleBGM;				// BGM
 private:
 	bool Init(void);					// 初期化
+	void pngInit(void);					// 画像用初期化
 	void Draw(void);					// 描画
 
 	int _titlePNG;						// タイトル画像
@@ -22,8 +23,8 @@ private:
 	bool _lightFlg;						// 画像の明るさ調整用フラグ
 
 	// ゲームシーンからタイトルへ戻ってきたときにボタンの位置が同じせいで、またゲームシーンに入るのを防ぐ
-	int _oldMouse;
+	int _oldMouse;						// 1フレーム前のクリック情報保存用
 
 	int _seClick;						// クリック音
-	bool flag = false;
+	bool _seFlg;						// SE用フラグ
 };

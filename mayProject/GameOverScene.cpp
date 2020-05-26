@@ -12,6 +12,35 @@ GameOverScene::~GameOverScene()
 {
 }
 
+bool GameOverScene::Init(void)
+{
+	pngInit();
+
+	_pngBlend = 0;
+
+	_seClick = LoadSoundMem("sound/se/click.mp3");
+	_seFlg = false;
+
+	_overBGM = LoadSoundMem("sound/bgm/over.mp3");
+	PlaySoundMem(_overBGM, DX_PLAYTYPE_LOOP, true);
+	return true;
+}
+
+void GameOverScene::pngInit(void)
+{
+	std::string blood = "image/blood.png";
+	_bloodPNG = LoadGraph(blood.c_str());
+
+	std::string renga = "image/renga.png";
+	_backPNG = LoadGraph(renga.c_str());
+
+	std::string over = "image/over.png";
+	_gameOverPNG = LoadGraph(over.c_str());
+
+	std::string titleBackButton = "image/titleBackButton.png";
+	_titleBackPNG = LoadGraph(titleBackButton.c_str());
+}
+
 unique_Base GameOverScene::Update(unique_Base own, const GameCtl& ctl)
 {
 	// 再生中でなければ再生を行う(0:再生していない)
@@ -34,19 +63,16 @@ unique_Base GameOverScene::Update(unique_Base own, const GameCtl& ctl)
 			if (CheckSoundMem(_seClick) == 0)
 			{
 				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
-				flag = true;
+				_seFlg = true;
 			}
 			//return std::make_unique<TitleScene>();
 		}
 	}
 
-	if (flag)
+	if (_seFlg && CheckSoundMem(_seClick) == 0)
 	{
-		if (CheckSoundMem(_seClick) == 0)
-		{
-			DeleteSoundMem(_seClick);
-			return std::make_unique<TitleScene>();
-		}
+		DeleteSoundMem(_seClick);
+		return std::make_unique<TitleScene>();
 	}
 
 	Draw();
@@ -59,30 +85,6 @@ unique_Base GameOverScene::Update(unique_Base own, const GameCtl& ctl)
 
 	// 自分のSceneのユニークポインタを返す 所有権も忘れずに!
 	return std::move(own);
-}
-
-bool GameOverScene::Init(void)
-{
-	std::string blood = "image/blood.png";
-	_bloodPNG = LoadGraph(blood.c_str());
-
-	std::string renga = "image/renga.png";
-	_backPNG = LoadGraph(renga.c_str());
-
-	std::string over = "image/over.png";
-	_gameOverPNG = LoadGraph(over.c_str());
-
-	std::string titleBackButton = "image/titleBackButton.png";
-	_titleBackPNG = LoadGraph(titleBackButton.c_str());
-
-	_pngBlend = 0;
-
-	_seClick = LoadSoundMem("sound/se/click.mp3");
-
-	// BGMテスト
-	_overBGM = LoadSoundMem("sound/bgm/over.mp3");
-	PlaySoundMem(_overBGM, DX_PLAYTYPE_LOOP, true);
-	return true;
 }
 
 void GameOverScene::Draw(void)

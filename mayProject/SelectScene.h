@@ -19,18 +19,19 @@ public:
 	static MODE modeTest;
 private:
 	bool Init(void);					// 初期化
+	void pngInit(void);					// 画像用初期化
 	void Draw(void);					// 描画
 
-	int _oldMouse;
-	int _titleBackPNG;		//「タイトルへ」の文字画像
-	int _backPNG;			// 背景画像
-	int _normalPNG;			
-	int _hardPNG;
+	int _oldMouse;						// 1フレーム前のクリック情報保存用
+
+	int _titleBackPNG;					//「タイトルへ」の文字画像
+	int _backPNG;						// 背景画像
+	int _normalPNG;						//「NORMAL」の文字画像
+	int _hardPNG;						//「HARD」の文字画像
 
 	int _pngLight;						// 画像の明るさ調整用変数	
 	bool _lightFlg;						// 画像の明るさ調整用フラグ
-
+	bool _toGameFlg;					// GameSceneへの移行用フラグ
+	bool _toTitleFlg;					// TitleSceneへの移行用フラグ
 	int _seClick;						// クリック音
-	bool toGameFlg = false;
-	bool toTitleFlg = false;
 };
