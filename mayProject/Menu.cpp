@@ -278,7 +278,7 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 					}
 				}
 
-				if (itemBox[_chooseNum]._item == ITEM::ENEMY_1 || itemBox[_chooseNum]._item == ITEM::ENEMY_4)
+				if (itemBox[_chooseNum]._item == ITEM::ENEMY_1)
 				{
 					if (monster->GetEnemyState() != ENEMY_STATE::EXIST)
 					{
@@ -297,6 +297,14 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 				if (itemBox[_chooseNum]._item == ITEM::ENEMY_3)
 				{
 					if (monster->GetEnemyState() != ENEMY_STATE::EXIST || cards->GetTurn() == monster->GetMaxTurn())
+					{
+						_nonNeedFlg = true;
+					}
+				}
+
+				if (itemBox[_chooseNum]._item == ITEM::ENEMY_4)
+				{
+					if (monster->GetEnemyState() != ENEMY_STATE::EXIST || monster->GetEnemyNum() == 5 || monster->GetEnemyNum() == 6)
 					{
 						_nonNeedFlg = true;
 					}
@@ -1199,7 +1207,7 @@ void Menu::LoadTest()
 			return;
 		}
 
-		FileRead_scanf(FileHandle, "%d,%d,%d,%d,%d,%d,%d,%d,%d\n", &Player::saveTestNum[0], &Player::saveTestNum[1], &Player::saveTestNum[2], &Player::saveTestNum[3], &Player::saveTestNum[4], &Player::saveTestNum[5], &Player::saveTestNum[6], &Player::saveTestNum[7], &Player::saveTestNum[8]);
+		FileRead_scanf(FileHandle, "%d,%d,%d,%d,%d,%d,%d,%d,%d\n", &Player::saveData[0], &Player::saveData[1], &Player::saveData[2], &Player::saveData[3], &Player::saveData[4], &Player::saveData[5], &Player::saveData[6], &Player::saveData[7], &Player::saveData[8]);
 		FileRead_scanf(FileHandle, "%d,%d,%d,%d,%d,%d,%d,%d,%d", &itemBox[0]._item, &itemBox[1]._item, &itemBox[2]._item, &itemBox[3]._item, &itemBox[4]._item, &itemBox[5]._item, &itemBox[6]._item, &itemBox[7]._item, &itemBox[8]._item, &itemBox[9]._item, &itemBox[10]._item, &itemBox[11]._item);
 
 		//ƒtƒ@ƒCƒ‹‚ð•Â‚¶‚é

@@ -8,8 +8,7 @@
 
 // static変数の実体<型>クラス名::変数名 = 初期化;
 bool Player::loadFlg = false;
-
-int Player::saveTestNum[9] = { 0,0,0,0,0,0,0,0,0 };
+int Player::saveData[9] = { 0,0,0,0,0,0,0,0,0 };
 
 // スキルチャージ時間の最大値
 #define SKILL_CHARGE 10
@@ -25,7 +24,7 @@ struct player
 	int money;				// 所持金(敵を倒すと手に入り、物を購入すると減る)
 	int conditionTurnNum;	// 状態異常の時間
 	CONDITION condition;	// 健康状態
-} player_status/*[40]*/;	// 最大レベルは40かな
+} player_status;
 
 Player::Player()
 {
@@ -69,32 +68,32 @@ void Player::Init(void)
 		player_status.attackDamage = 999;
 		player_status.defense = 0;
 		player_status.next_level = 10;
-		player_status.money = 2000;
+		player_status.money = 1000;
 		player_status.conditionTurnNum = 0;
 		player_status.condition = CONDITION::FINE;
-		//_plHP = player_status[_nowNum].maxHP;
-		//_plHP = 10;
 	}
 	else
 	{
-		player_status.now_level = saveTestNum[0];
-		player_status.maxHP = saveTestNum[1];
-		player_status.plHP = saveTestNum[2];
-		player_status.attackDamage = saveTestNum[3];
-		player_status.defense = saveTestNum[4];
-		player_status.next_level = saveTestNum[5];
-		player_status.money = saveTestNum[6];
-		player_status.conditionTurnNum = saveTestNum[7];
-		player_status.condition = static_cast<CONDITION>(saveTestNum[8]);
+		player_status.now_level = saveData[0];
+		player_status.maxHP = saveData[1];
+		player_status.plHP = saveData[2];
+		player_status.attackDamage = saveData[3];
+		player_status.defense = saveData[4];
+		player_status.next_level = saveData[5];
+		player_status.money = saveData[6];
+		player_status.conditionTurnNum = saveData[7];
+		player_status.condition = static_cast<CONDITION>(saveData[8]);
 	}
 
+	// スキル関係
 	_skillCharge = SKILL_CHARGE;
 	_skillFlg = false;
 	_skillBackFlg = false;
-
 	_pngLight = 50;
 	_lightFlg = false;
+	_seSkillOnceFlg = false;
 
+	// バリア関係
 	_barrierMaxNum = 0;
 	_barrierNum = 0;
 
@@ -148,6 +147,116 @@ void Player::pngInit(void)
 	_barrierBarPNG = LoadGraph(barrier_bar.c_str());
 }
 
+void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* cards)
+{
+	int x = 0;
+	int y = 0;
+	auto Mouse = GetMouseInput();     // マウスの入力状態取得
+	// スキル使用可能時のマウスクリック位置とアイコン(円)との当たり判定
+	// アイテム画面中はスキルチャージアイコンを押せない
+	if (!menu->GetMenuBackPngFlg())
+	{
+		if (_skillFlg)
+		{
+			GetMousePoint(&x, &y);	 // マウスの座標取得
+
+			// 782,564(アイコン描画位置)
+			float a = x - 782;
+			float b = y - 564;
+			float c = sqrt(a * a + b * b);
+
+			// 当たり判定(当たっているとき)
+			if (c <= 34)
+			{
+				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
+				// スキルはターン消費なしで行える動作
+				_skillBackFlg = true;
+			}
+		}
+	}
+
+	if (_skillBackFlg)
+	{
+		// やめるボタンとの当たり判定
+		if (x >= 385 && x <= 385 + 150 && y >= 320 && y <= 320 + 65)
+		{
+			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
+			_skillBackFlg = false;
+		}
+
+		auto lambda = [&]() {
+			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
+			// フラグと回数を元に戻す
+			_seSkillOnceFlg = false;
+			_skillFlg = false;
+			_skillBackFlg = false;
+			_skillCharge = SKILL_CHARGE;
+		};
+
+		// 攻撃アイコンとの当たり判定
+		if (x >= 290 && x <= 290 + 100 && y >= 150 && y <= 150 + 100)
+		{
+			// 攻撃系(基礎攻撃力*10+武器威力で一定のダメージを与えられる)
+			monster->Damage(player_status.attackDamage * 10 + menu->GetEquipDamage(), cards);
+			game->blinkFlg = true;
+			lambda();
+		}
+
+		// 防御アイコンとの当たり判定
+		if (x >= 410 && x <= 410 + 100 && y >= 150 && y <= 150 + 100)
+		{
+			// 防御系(特定値*プレイヤーレベル)
+			_barrierMaxNum = 20 + 3 * player_status.now_level;
+			_barrierNum = 20 + 3 * player_status.now_level;
+			lambda();
+		}
+
+		// 回復アイコンとの当たり判定
+		if (x >= 530 && x <= 530 + 100 && y >= 150 && y <= 150 + 100)
+		{
+			// 回復系(全回復もしかしたらリジェネ風に変更するかも)
+			player_status.plHP = player_status.maxHP;
+			lambda();
+		}
+	}
+}
+
+void Player::UpDate(void)
+{
+	// スキルが使用可能な時にフラグを立てて、当たり判定を行う
+	if (_skillCharge <= 0)
+	{
+		_skillFlg = true;
+		if (!_seSkillOnceFlg)
+		{
+			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
+			_seSkillOnceFlg = true;
+		}
+
+		// アイコン明るさ調整処理
+		if (!_lightFlg)
+		{
+			if (_pngLight <= 255)
+			{
+				_pngLight += 5;
+				if (_pngLight >= 255)
+				{
+					_lightFlg = true;
+				}
+			}
+		}
+
+		if (_lightFlg)
+		{
+			_pngLight -= 5;
+			if (_pngLight <= 50)
+			{
+				_lightFlg = false;
+			}
+		}
+	}
+}
+
 void Player::Draw(Menu* menu)
 {
 	if (_skillCharge != 0)
@@ -170,10 +279,11 @@ void Player::Draw(Menu* menu)
 	// スキルアイコンを押されたら背景を描画する
 	if (_skillBackFlg)
 	{
+		int iconIntervalX = 120;	// アイコンの描画間隔
 		DrawGraph(250, 90, _skillBackPNG, true);
 		DrawGraph(290, 150, _skillAttackIconPNG, true);
-		DrawGraph(410, 150, _skillBarrierIconPNG, true);
-		DrawGraph(530, 150, _skillHealIconPNG, true);
+		DrawGraph(290 + iconIntervalX, 150, _skillBarrierIconPNG, true);
+		DrawGraph(290 + iconIntervalX * 2, 150, _skillHealIconPNG, true);
 		DrawFormatString(280,250, 0x000000, "攻撃スキル:\n%dダメージ", player_status.attackDamage * 10 + menu->GetEquipDamage());
 		DrawFormatString(410,250, 0x000000, "防御スキル:\n耐久%dの\nバリア展開", 20 + 3 * player_status.now_level);
 		DrawFormatString(530, 250, 0x000000, "回復スキル:\n体力を全回復");
@@ -192,142 +302,10 @@ void Player::Draw(Menu* menu)
 	}
 }
 
-void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game,Cards* cards)
-{
-	int x = 0;
-	int y = 0;
-	auto Mouse = GetMouseInput();                //マウスの入力状態取得
-	// スキル使用可能時のマウスクリック位置とアイコン(円)との当たり判定
-	// アイテム画面中はスキルチャージアイコンを押せない
-	if (!menu->GetMenuBackPngFlg())
-	{
-		if (_skillFlg)
-		{
-			GetMousePoint(&x, &y);					     //マウスの座標取得
-
-			// 782,564(アイコン描画位置)
-			float a = x - 782;
-			float b = y - 564;
-			float c = sqrt(a * a + b * b);
-
-			// 当たり判定(当たっているとき)
-			if (c <= 34)
-			{
-				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-				// スキルはターン消費なしで行える動作
-				_skillBackFlg = true;
-				// 攻撃系(基礎攻撃力*10+武器威力で一定のダメージを与えられる)
-				//monster->Damage(player_status.attackDamage * 10 + menu->GetEquipDamage());
-				//game->blinkFlg = true;
-				// フラグと回数を元に戻す
-				//_skillFlg = false;
-				//_skillCharge = SKILL_CHARGE;
-			}
-		}
-	}
-
-	if (_skillBackFlg)
-	{
-		// やめるボタンとの当たり判定
-		if (x >= 385 && x <= 385 + 150 && y >= 320 && y <= 320 + 65)
-		{
-			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-			_skillBackFlg = false;
-		}
-
-		auto lambda = [&]() {
-			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-			// フラグと回数を元に戻す
-			_seOnceFlg = false;
-			_skillFlg = false;
-			_skillBackFlg = false;
-			_skillCharge = SKILL_CHARGE;
-		};
-
-		// 攻撃アイコンとの当たり判定
-		if (x >= 290 && x <= 290 + 100 && y >= 150 && y <= 150 + 100)
-		{
-			// 攻撃系(基礎攻撃力*10+武器威力で一定のダメージを与えられる)
-			monster->Damage(player_status.attackDamage * 10 + menu->GetEquipDamage(),cards);
-			game->blinkFlg = true;
-			lambda();
-			//// フラグと回数を元に戻す
-			//_skillFlg = false;
-			//_skillBackFlg = false;
-			//_skillCharge = SKILL_CHARGE;
-		}
-
-		// 防御アイコンとの当たり判定
-		if (x >= 410 && x <= 410 + 100 && y >= 150 && y <= 150 + 100)
-		{
-			_barrierMaxNum = 20 + 3 * player_status.now_level;
-			_barrierNum = 20 + 3 * player_status.now_level;
-			// 防御系(特定値*プレイヤーレベル)
-			lambda();
-			//// フラグと回数を元に戻す
-			//_skillFlg = false;
-			//_skillBackFlg = false;
-			//_skillCharge = SKILL_CHARGE;
-		}
-
-		// 回復アイコンとの当たり判定
-		if (x >= 530 && x <= 530 + 100 && y >= 150 && y <= 150 + 100)
-		{
-			player_status.plHP = player_status.maxHP;
-			// 回復系(全回復もしかしたらリジェネ風に変更するかも)
-			lambda();
-			//// フラグと回数を元に戻す
-			//_skillFlg = false;
-			//_skillBackFlg = false;
-			//_skillCharge = SKILL_CHARGE;
-		}
-	}
-}
-
-void Player::UpDate(void)
-{
-	// スキルが使用可能な時にフラグを立てて、当たり判定を行う
-	if (_skillCharge <= 0)
-	{
-		_skillFlg = true;
-		if (!_seOnceFlg)
-		{
-			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
-			_seOnceFlg = true;
-		}
-
-		// 明るくしたり暗くする処理
-		if (!_lightFlg)
-		{
-			if (_pngLight <= 255)
-			{
-				_pngLight += 5;
-				if (_pngLight == 255)
-				{
-					_lightFlg = true;
-				}
-			}
-		}
-
-		if (_lightFlg)
-		{
-			_pngLight -= 5;
-			if (_pngLight <= 50)
-			{
-				_lightFlg = false;
-			}
-		}
-	}
-}
-
 void Player::SetHP(int hpNum)
 {
 	player_status.plHP = hpNum;
 	// 最大HPを超えないように気を付ける
-	//if (_plHP >= player_status[_nowNum].maxHP)
-	//{
-	//	_plHP = player_status[_nowNum].maxHP;
-	//}
 	if (player_status.plHP >= player_status.maxHP)
 	{
 		player_status.plHP = player_status.maxHP;
@@ -352,19 +330,16 @@ void Player::SetMaxHP(int hpNum)
 
 int Player::GetMaxHP(void)
 {
-	//return player_status[_nowNum].maxHP;
 	return player_status.maxHP;
 }
 
 float Player::GetHPBar(void)
 {
-	//return (float)_plHP / (float)player_status[_nowNum].maxHP;
 	return (float)player_status.plHP / (float)player_status.maxHP;
 }
 
 int Player::GetAttackDamage(void)
 {
-	//return player_status[_nowNum].attackDamage;
 	return player_status.attackDamage;
 }
 
@@ -380,12 +355,6 @@ int Player::GetDifense(void)
 
 void Player::SetNextLevel(int num)
 {
-	//player_status[_nowNum].next_level = num;
-	//if (player_status[_nowNum].next_level <= 0)
-	//{
-	//	// ステータスアップ
-	//	_nowNum++;
-	//}
 	player_status.next_level = num;
 	bool seFlg = false;
 
@@ -398,38 +367,22 @@ void Player::SetNextLevel(int num)
 			seFlg = true;
 		}
 		// ステータスアップ
-		//_nowNum++;
 		player_status.attackDamage += 1;
 		player_status.maxHP += 3;
 		player_status.now_level++;
 
-		// 次のレベルまでの経験値は少しずつ高くしていきたい
+		// 次のレベルまでの経験値は少しずつ高くする
 		player_status.next_level += 10 * player_status.now_level;
-
 	}
-
-	//if (player_status.next_level <= 0)
-	//{
-	//	// ステータスアップ
-	//	//_nowNum++;
-	//	player_status.attackDamage += 2;
-	//	player_status.maxHP += 10;
-	//	player_status.now_level++;
-	//
-	//	// 次のレベルまでの経験値は少しずつ高くしていきたい
-	//	player_status.next_level += 10 * player_status.now_level;
-	//}
 }
 
 int Player::GetNextLevel(void)
 {
-	//return player_status[_nowNum].next_level;
 	return player_status.next_level;
 }
 
 int Player::GetNowLevel(void)
 {
-	//return player_status[_nowNum].now_level;
 	return player_status.now_level;
 }
 
@@ -469,7 +422,6 @@ int Player::GetConditionTurn(void)
 
 void Player::SetSkillCharge(int num)
 {
-	// スキルチャージが0より大きいときは減らしていく
 	_skillCharge = num;
 }
 
@@ -491,48 +443,4 @@ void Player::SetBarrierNum(int num)
 int Player::GetBarrierNum(void)
 {
 	return _barrierNum;
-}
-
-void Player::SaveTest(void)
-{
-	if (MessageBox(			// メッセージ
-		NULL,				
-		"現在の状態をセーブしますか?",
-		"確認ダイアログ",
-		MB_OKCANCEL
-	) == IDOK)
-	{
-		// セーブをする
-		FILE* file;
-		fopen_s(&file, "data/saveTest.csv", "wb");
-		fprintf(file, "%d,%d,%d,%d,%d,%d,%d,%d,%d", player_status.now_level, player_status.maxHP, player_status.plHP, player_status.attackDamage, player_status.defense, player_status.next_level, player_status.money, player_status.conditionTurnNum, player_status.condition);
-		fclose(file);
-	}
-}
-
-void Player::LoadTest(void)
-{
-	if (MessageBox(			// メッセージ
-		NULL,
-		"ロードしますか?",
-		"確認ダイアログ",
-		MB_OKCANCEL
-	) == IDOK)
-	{
-		// ロードをする
-		//ファイルを読み込む
-		int FileHandle;
-		FileHandle = FileRead_open("data/saveTest.csv");
-		if (FileHandle == NULL)
-		{
-			return;
-		}
-
-		FileRead_scanf(FileHandle, "%d,%d,%d,%d,%d,%d,%d,%d,%d", &player_status.now_level, &player_status.maxHP, &player_status.plHP, &player_status.attackDamage, &player_status.defense, &player_status.next_level, &player_status.money, &player_status.conditionTurnNum, &player_status.condition);
-
-		//ファイルを閉じる
-		FileRead_close(FileHandle);
-
-		loadFlg = true;
-	}
 }

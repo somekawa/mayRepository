@@ -23,27 +23,8 @@ Enemy_weak::~Enemy_weak()
 {
 }
 
-void Enemy_weak::update(void)
-{
-	if (cnt > 0)
-	{
-		cnt--;
-	}
-}
-
 bool Enemy_weak::Init(void)
 {
-	//std::string imageのところ
-	//std::string name
-	//std::string .pngのところ
-	// image + name + .pngみたいに組み合わせる?
-	//
-	//std::string a = "image/";
-	//std::string b = "kinoko";
-	//std::string c = ".png";
-	//auto d = a + b + c;
-	//_enemyPNG = LoadGraph(d.c_str());
-
 	int FileHandle;
 	if (SelectScene::modeTest == MODE::NORMAL)
 	{
@@ -64,45 +45,39 @@ bool Enemy_weak::Init(void)
 		}
 	}
 
-	//ファイルを読み込む
-	//auto FileHandle = FileRead_open("csv/enemyData.csv");
-	//if (FileHandle == NULL)
-	//{
-	//	return -1; //エラー時の処理
-	//}
-
-	//FileRead_scanf
-	//	はファイルの中身をscanfを使うような要領で読み込んでいきます。
-	//	例えばファイルの中身が「1 2 3」だったら
-	//	FileRead_scanf(FileHandle, "%d %d %d", &a, &b, &c);
-	//とすることでaに１、bに2、cに3が入ります。
-
 	for (int i = 0; i < MONSTER_CNT; i++)
 	{
-		FileRead_scanf(FileHandle, "%d,%d,%d,%d,%d",&enemy_status[i].turn, &enemy_status[i].HP, &enemy_status[i].attack, &enemy_status[i].keikenti, &enemy_status[i].money);
+		FileRead_scanf(FileHandle, "%d,%d,%d,%d,%d", &enemy_status[i].turn, &enemy_status[i].HP, &enemy_status[i].attack, &enemy_status[i].keikenti, &enemy_status[i].money);
 	}
 
 	//ファイルを閉じる
 	FileRead_close(FileHandle);
 
+	pngInit();
+	_enemyState = ENEMY_STATE::NON;
+	_bossFrogCnt = 0;
+	_dropItem = false;
+	_dropItemNum = -1;
+	_se = LoadSoundMem("sound/se/drop.mp3");
+	return true;
+}
+
+void Enemy_weak::pngInit(void)
+{
 	if (SelectScene::modeTest == MODE::NORMAL)
 	{
-		// 敵の分割読み込み
+		// 敵の分割読み込み(NORMALが選択された時)
 		std::string monster = "image/monster/mons.png";
 		LoadDivGraph(monster.c_str(), 5, 5, 1, 400, 400, _enemyPNG);
 	}
 	else if (SelectScene::modeTest == MODE::HARD)
 	{
-		// 敵の分割読み込み
+		// 敵の分割読み込み(HARDが選択された時)
 		std::string monster = "image/monster/mons2.png";
 		LoadDivGraph(monster.c_str(), 5, 5, 1, 400, 400, _enemyPNG);
 	}
 
-	//// 敵の分割読み込み
-	//std::string monster = "image/monster/mons.png";
-	//LoadDivGraph(monster.c_str(), 5, 5, 1, 400, 400, _enemyPNG);
-
-	// 敵の魂アイテム分割読み込み
+	// ドロップアイテム分割読み込み
 	std::string item = "image/item_monster.png";
 	LoadDivGraph(item.c_str(), 4, 2, 2, 193, 198, _eneItemPNG);
 
@@ -110,43 +85,35 @@ bool Enemy_weak::Init(void)
 	std::string boss = "image/monster/Boss.png";
 	_bossPNG = LoadGraph(boss.c_str());
 
-	// 霧画像
+	// ボス用スモーク画像
 	std::string frog = "image/frog.png";
 	frogPNG = LoadGraph(frog.c_str());
+}
 
-	//std::string a = "image/monster";
-	//std::string b = "monster_";
-	//std::string c = ".png";
-	//auto d = a + b + enemy_status[0].nameNum + c;
-	//_enemyPNG = LoadGraph(d.c_str());
-	//
-	//_enemyHP = enemy_status[0].HP;
-	//_enemyMaxHP = _enemyHP;
-	//_enemyMaxTurn = enemy_status[0].turn;
-	_state = ENEMY_STATE::NON;
-	_dropItem = false;
-	_dropNum = -1;
-	_se = LoadSoundMem("sound/se/drop.mp3");
-	return true;
+void Enemy_weak::update(void)
+{
+	if (_bossFrogCnt > 0)
+	{
+		_bossFrogCnt--;
+	}
 }
 
 void Enemy_weak::Draw(void)
 {
 	// ClsDrawScreen();
-	// 画面描画(画像中央を中心にする為にRotaGraphを使用中)
 	// 敵が存在する間だけ描画するように設定
-	if (_state == ENEMY_STATE::EXIST)
+	if (_enemyState == ENEMY_STATE::EXIST)
 	{
 		// 最後の引数がtrueじゃなかったら透過されない
 		DrawRotaGraph(450, 270, 1.0f, 0, _enemyPNG[_enemyNum], true);
 	}
 
 	// 敵が死亡したときのドロップアイテムの描画処理
-	if (_state == ENEMY_STATE::DEATH)
+	if (_enemyState == ENEMY_STATE::DEATH)
 	{
 		if (_dropItem)
 		{
-			DrawRotaGraph(450, 270, 1.0f, 0, _eneItemPNG[_dropNum], true);
+			DrawRotaGraph(450, 270, 1.0f, 0, _eneItemPNG[_dropItemNum], true);
 		}
 	}
 	// ScreenFlip();
@@ -155,7 +122,7 @@ void Enemy_weak::Draw(void)
 void Enemy_weak::BossDraw(void)
 {
 	DrawRotaGraph(450, 270, 1.0f, 0, _bossPNG, true);
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, cnt);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, _bossFrogCnt);
 	DrawGraph(0, 0, frogPNG, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
@@ -163,24 +130,23 @@ void Enemy_weak::BossDraw(void)
 void Enemy_weak::Damage(int damageNum, Cards* cards)
 {
 	_enemyHP -= damageNum;
-	if (_enemyHP <= 0 && _state == ENEMY_STATE::EXIST)
+	if (_enemyHP <= 0 && _enemyState == ENEMY_STATE::EXIST)
 	{
 		GameScene::monsterFlg = false;
 		_enemyHP = 0;
-		_state = ENEMY_STATE::DEATH;
+		_enemyState = ENEMY_STATE::DEATH;
 		cards->SetTurn(3);
 		// 確率でフラグを立てて、trueだったらアイテムをプレイヤーに渡す
 		int randNum = GetRand(0);	// 0~2
-		_dropNum = GetRand(3); // 0 1 2 3
-		int dropItemNum = _dropNum + 13;  // 13 14 15 16に変換
+		_dropItemNum = 3;//GetRand(3); // 0 1 2 3
+		int dropItemNum = _dropItemNum + 13;  // 13 14 15 16に変換
 
 		if (randNum == 0)
 		{
 			PlaySoundMem(_se, DX_PLAYTYPE_BACK, true);
 			// アイテムドロップする
 			_dropItem = true;
-			//_drop = ITEM::ENEMY_2;
-			_drop = static_cast<ITEM>(dropItemNum);
+			_dropItemSyurui = static_cast<ITEM>(dropItemNum);
 		}
 		else
 		{
@@ -192,17 +158,16 @@ void Enemy_weak::Damage(int damageNum, Cards* cards)
 
 ENEMY_STATE Enemy_weak::GetEnemyState(void)
 {
-	return _state;
+	return _enemyState;
 }
 
 void Enemy_weak::SetEnemyState(ENEMY_STATE st)
 {
-	_state = st;
+	_enemyState = st;
 }
 
 int Enemy_weak::GetAttack(void)
 {
-	//return enemy_status[_enemyNum].attack;
 	return _attackDamage;
 }
 
@@ -213,12 +178,6 @@ int Enemy_weak::GetMaxTurn(void)
 
 void Enemy_weak::SetEnemyNum(int num, int plLv)
 {
-	//std::string a = "image/monster/";
-	//std::string b = "monster_";
-	//std::string c = ".png";
-	//auto d = a + b + enemy_status[num].nameNum + c;
-	//_enemyPNG = LoadGraph(d.c_str());
-
 	// 特定敵イベント
 	if (num == 6)
 	{
@@ -226,13 +185,14 @@ void Enemy_weak::SetEnemyNum(int num, int plLv)
 		_enemyHP = 500;
 		_enemyMaxHP = 500;
 		_enemyMaxTurn = 3;
-		_state = ENEMY_STATE::EXIST;
+		_enemyState = ENEMY_STATE::EXIST;
+		_enemyNum = num;
 	}
 	else
 	{
 		if (num == 5)
-		{
-			cnt = 256;
+		{	// ボスのときにはスモークの準備をする
+			_bossFrogCnt = 256;
 		}
 		// ダメージ量と体力をプレイヤーレベルで調整できるようにする
 		_attackDamage = enemy_status[num].attack + (plLv * 2);
@@ -240,7 +200,7 @@ void Enemy_weak::SetEnemyNum(int num, int plLv)
 		_enemyMaxHP = _enemyHP;
 		_enemyMaxTurn = enemy_status[num].turn;
 		_enemyNum = num;
-		_state = ENEMY_STATE::EXIST;
+		_enemyState = ENEMY_STATE::EXIST;
 	}
 }
 
@@ -271,5 +231,10 @@ void Enemy_weak::SetDropFlg(bool flag)
 
 ITEM Enemy_weak::GetDrop(void)
 {
-	return _drop;
+	return _dropItemSyurui;
+}
+
+int Enemy_weak::GetEnemyNum(void)
+{
+	return _enemyNum;
 }

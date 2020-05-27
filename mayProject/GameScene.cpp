@@ -11,7 +11,7 @@
 #include "SelectScene.h"
 
 // static変数の実体<型>クラス名::変数名 = 初期化;
-int GameScene::plPosX = 2;
+int GameScene::plPosX = 0;
 int GameScene::plPosY = 0;
 bool GameScene::monsterFlg = false;
 
@@ -77,177 +77,6 @@ GameScene::~GameScene()
 	}
 }
 
-unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
-{
-	//if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_F2]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_F2]))
-	//{
-	//	return std::make_unique<TitleScene>();
-	//}
-
-	mouse = GetMouseInput();					 //マウスの入力状態取得
-	GetMousePoint(&cursorPos.x, &cursorPos.y);	 //マウスの座標取得
-	if (mouse & MOUSE_INPUT_LEFT && !(mouseOld & MOUSE_INPUT_LEFT)) {	 //マウスの左ボタンが押されていたら
-
-		// プレイヤーが死亡していないとき
-		if (_player->GetHP() > 0)
-		{
-			// 敵がいないときだけ押せる
-			if (eventState != EVENT_STATE::ENEMY)
-			{
-				_menu->MenuButton_NonEnemy();
-			}
-			else
-			{
-				// 敵がいるとき(アイテムだけ)
-				if (!_player->GetSkillBackFlg())
-				{
-					// スキル選択画面が押されていないときだけ
-					_menu->MenuButton_Enemy();
-				}
-			}
-		}
-		else
-		{
-			// レベルをそのままにはじめからやり直す
-			if (cursorPos.x >= 50 && cursorPos.x <= 50 + 400 && cursorPos.y >= 225 && cursorPos.y <= 225 + 130)
-			{
-				// 場所をスタート地点に戻す
-				plPosX = 0;
-				plPosY = 0;
-				_plNowPoint = _dungeonMap[plPosY][plPosX].second;
-				_directRota = 0.0f;
-				_plDirect = PL_DIRECTION::UP;
-				_plDirectOld = PL_DIRECTION::UP;
-				_leftFlg = false;
-				_rightFlg = false;
-
-				_cards->SetTurn(3);
-				shakeFlg = false;
-
-				// イベント状態の初期化
-				_event->SetEventMonsEncountFlg(false);
-				_event->SetEventMonsFlg(false);
-				eventState = EVENT_STATE::NON;
-				_monster[0]->SetEnemyState(ENEMY_STATE::NON);
-				_event->SetNowEvent(0);		
-				_event->SetEvent(EVENT_STATE::NON);
-				_event->SetFateNum(-1);
-
-				// 宝箱の状態をリセットする
-				_event->SetReset();
-
-				// HPは最大まで回復してあげる
-				_player->SetHP(_player->GetMaxHP());
-				// 毒状態で死亡したときなどは元に戻す
-				_player->SetCondition(CONDITION::FINE);
-				_player->SetConditionTurn(0);
-
-				_plDeadChangeWinColor = 255;
-				// 音量の設定
-				ChangeVolumeSoundMem(255, _gameBGM);
-			}
-
-			// あきらめてゲームオーバー画面へ
-			if (cursorPos.x >= 450 && cursorPos.x <= 450 + 400 && cursorPos.y >= 225 && cursorPos.y <= 225 + 130)
-			{
-				DeleteSoundMem(_gameBGM);
-				DeleteSoundMem(_battleBGM);
-				return std::make_unique<GameOverScene>();
-			}
-		}
-
-		_player->ClickUpDate(_monster[0],_menu,this,_cards);
-	}
-
-	// ゴール処理
-	if (eventState == EVENT_STATE::GOAL)
-	{
-		// 扉描画時にUPキーで出口処理
-		if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_UP]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_UP]))
-		{
-			openDoor = true;
-		}
-	}
-
-	MouseClick_Go(ctl);
-
-	// タイトルへ戻る
-	if (_menu->GetMenu() == MENU::TO_TITLE)
-	{
-		return std::make_unique<TitleScene>();
-	}
-
-	// 歩行回数がゴールに到達したらクリア画面へ移行
-	if (_changeToClear)
-	{
-		return std::make_unique<GameClearScene>();
-	}
-
-	doorWalk();
-	changeBGM();
-	plDead();
-	_menu->Update(this,_player, _monster[0],_cards);
-	_event->UpDate(this, _player, _menu, _item, _monster[0],_cards);
-	enemyItemDrop();
-	_monster[0]->update();
-	
-	// アイテム画面の時にはカードを動かせなくする
-	if (_monster[0]->GetEnemyState() == ENEMY_STATE::EXIST && _menu->GetMenu() != MENU::ITEM)
-	{
-		// スキル選択画面では動かせなくする
-		if (!_player->GetSkillBackFlg())
-		{
-			// 戦闘中以外は必要ない。
-			_cards->Update();		// カードの情報
-
-		}
-	}
-
-	// 霧処理
-	if (kiri[0] < 900.0f)
-	{
-		kiri[0] += 0.5f;
-	}
-	else
-	{
-		kiri[0] = -900.0f;
-	}
-
-	if (kiri[1] < 900.0f)
-	{
-		kiri[1] += 0.5f;
-	}
-	else
-	{
-		kiri[1] = -900.0f;
-	}
-
-	Draw();	
-	mouseOld = mouse;
-	cardEffect();
-
-	_player->UpDate();
-
-	// 5ターン分経過
-	if (_player->GetConditionTurn() <= 0)
-	{
-		_player->SetCondition(CONDITION::FINE);
-		_player->SetConditionTurn(0);
-	}
-
-	pl_TurnEndAfter();
-	EventUpdate();
-
-	// 逃走アイテムが使用されたら敵を消す
-	if (_menu->GetEscapeFlg())
-	{
-		_monster[0]->SetEnemyState(ENEMY_STATE::NON);
-		_menu->SetEscapeFlg(false);
-	}
-
-	return std::move(own);
-}
-
 bool GameScene::Init(void)
 {
 	// 文字の調整
@@ -307,7 +136,7 @@ bool GameScene::Init(void)
 	// その他
 	blinkFlg = false;
 	_blinkCnt = 0;
-	_monsTimeCnt = 9999;
+	_monsTimeCnt = 30;
 	_walkDirect = 0;
 	_plDeadChangeWinColor = 255;
 	_poisonCnt = 256;
@@ -448,6 +277,177 @@ void GameScene::pngInit(void)
 
 	std::string kiri2 = "image/kiri2.png";
 	kiriPNG[1] = LoadGraph(kiri2.c_str());
+}
+
+unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
+{
+	//if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_F2]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_F2]))
+	//{
+	//	return std::make_unique<TitleScene>();
+	//}
+
+	mouse = GetMouseInput();					 //マウスの入力状態取得
+	GetMousePoint(&cursorPos.x, &cursorPos.y);	 //マウスの座標取得
+	if (mouse & MOUSE_INPUT_LEFT && !(mouseOld & MOUSE_INPUT_LEFT)) {	 //マウスの左ボタンが押されていたら
+
+		// プレイヤーが死亡していないとき
+		if (_player->GetHP() > 0)
+		{
+			// 敵がいないときだけ押せる
+			if (eventState != EVENT_STATE::ENEMY && eventState != EVENT_STATE::EVE_MONS)
+			{
+				_menu->MenuButton_NonEnemy();
+			}
+			else
+			{
+				// 敵がいるとき(アイテムだけ)
+				if (!_player->GetSkillBackFlg())
+				{
+					// スキル選択画面が押されていないときだけ
+					_menu->MenuButton_Enemy();
+				}
+			}
+		}
+		else
+		{
+			// レベルをそのままにはじめからやり直す
+			if (cursorPos.x >= 50 && cursorPos.x <= 50 + 400 && cursorPos.y >= 225 && cursorPos.y <= 225 + 130)
+			{
+				// 場所をスタート地点に戻す
+				plPosX = 0;
+				plPosY = 0;
+				_plNowPoint = _dungeonMap[plPosY][plPosX].second;
+				_directRota = 0.0f;
+				_plDirect = PL_DIRECTION::UP;
+				_plDirectOld = PL_DIRECTION::UP;
+				_leftFlg = false;
+				_rightFlg = false;
+
+				_cards->SetTurn(3);
+				shakeFlg = false;
+
+				// イベント状態の初期化
+				_event->SetEventMonsEncountFlg(false);
+				_event->SetEventMonsFlg(false);
+				eventState = EVENT_STATE::NON;
+				_monster[0]->SetEnemyState(ENEMY_STATE::NON);
+				_event->SetNowEvent(0);
+				_event->SetEvent(EVENT_STATE::NON);
+				_event->SetFateNum(-1);
+
+				// 宝箱の状態をリセットする
+				_event->SetReset();
+
+				// HPは最大まで回復してあげる
+				_player->SetHP(_player->GetMaxHP());
+				// 毒状態で死亡したときなどは元に戻す
+				_player->SetCondition(CONDITION::FINE);
+				_player->SetConditionTurn(0);
+
+				_plDeadChangeWinColor = 255;
+				// 音量の設定
+				ChangeVolumeSoundMem(255, _gameBGM);
+			}
+
+			// あきらめてゲームオーバー画面へ
+			if (cursorPos.x >= 450 && cursorPos.x <= 450 + 400 && cursorPos.y >= 225 && cursorPos.y <= 225 + 130)
+			{
+				DeleteSoundMem(_gameBGM);
+				DeleteSoundMem(_battleBGM);
+				return std::make_unique<GameOverScene>();
+			}
+		}
+
+		_player->ClickUpDate(_monster[0], _menu, this, _cards);
+	}
+
+	// ゴール処理
+	if (eventState == EVENT_STATE::GOAL)
+	{
+		// 扉描画時にUPキーで出口処理
+		if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_UP]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_UP]))
+		{
+			openDoor = true;
+		}
+	}
+
+	MouseClick_Go(ctl);
+
+	// タイトルへ戻る
+	if (_menu->GetMenu() == MENU::TO_TITLE)
+	{
+		return std::make_unique<TitleScene>();
+	}
+
+	// 歩行回数がゴールに到達したらクリア画面へ移行
+	if (_changeToClear)
+	{
+		return std::make_unique<GameClearScene>();
+	}
+
+	doorWalk();
+	changeBGM();
+	plDead();
+	_menu->Update(this, _player, _monster[0], _cards);
+	_event->UpDate(this, _player, _menu, _item, _monster[0], _cards);
+	enemyItemDrop();
+	_monster[0]->update();
+
+	// アイテム画面の時にはカードを動かせなくする
+	if (_monster[0]->GetEnemyState() == ENEMY_STATE::EXIST && _menu->GetMenu() != MENU::ITEM)
+	{
+		// スキル選択画面では動かせなくする
+		if (!_player->GetSkillBackFlg())
+		{
+			// 戦闘中以外は必要ない。
+			_cards->Update();		// カードの情報
+
+		}
+	}
+
+	// 霧処理
+	if (kiri[0] < 900.0f)
+	{
+		kiri[0] += 0.5f;
+	}
+	else
+	{
+		kiri[0] = -900.0f;
+	}
+
+	if (kiri[1] < 900.0f)
+	{
+		kiri[1] += 0.5f;
+	}
+	else
+	{
+		kiri[1] = -900.0f;
+	}
+
+	Draw();
+	mouseOld = mouse;
+	cardEffect();
+
+	_player->UpDate();
+
+	// 5ターン分経過
+	if (_player->GetConditionTurn() <= 0)
+	{
+		_player->SetCondition(CONDITION::FINE);
+		_player->SetConditionTurn(0);
+	}
+
+	pl_TurnEndAfter();
+	EventUpdate();
+
+	// 逃走アイテムが使用されたら敵を消す
+	if (_menu->GetEscapeFlg())
+	{
+		_monster[0]->SetEnemyState(ENEMY_STATE::NON);
+		_menu->SetEscapeFlg(false);
+	}
+
+	return std::move(own);
 }
 
 void GameScene::Draw(void)
@@ -796,10 +796,14 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 		// バック処理
 		if (eventState == EVENT_STATE::NON)
 		{
-			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_DOWN]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_DOWN]))
+			// 現在地がスタート地点でなければバック処理できる
+			if (plPosX > 0 || plPosY > 0)
 			{
-				backFlg = true;
-				Key();
+				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_DOWN]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_DOWN]))
+				{
+					backFlg = true;
+					Key();
+				}
 			}
 		}
 
@@ -1786,7 +1790,7 @@ void GameScene::Key(void)
 			else
 			{
 				eventState = EVENT_STATE::ENEMY;
-				_monsTimeCnt = 3;
+				_monsTimeCnt = 30;
 			}
 		}
 		else

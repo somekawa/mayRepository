@@ -16,8 +16,9 @@ class Monster
 public:
 	Monster();
 	virtual ~Monster();
-	virtual void update(void) = 0;
 	virtual bool Init(void) = 0;
+	virtual void pngInit(void) = 0;
+	virtual void update(void) = 0;
 	virtual void Draw(void) = 0;
 	virtual void BossDraw(void) = 0;
 	virtual void Damage(int damageNum, Cards* cards) = 0;
@@ -32,4 +33,5 @@ public:
 	virtual bool GetDropFlg(void) = 0;
 	virtual void SetDropFlg(bool flag) = 0;
 	virtual ITEM GetDrop(void) = 0;
+	virtual int GetEnemyNum(void) = 0;
 };

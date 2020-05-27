@@ -60,12 +60,13 @@ void Event::Init(void)
 
 	buttonPos[0] = { 9,1 };
 	buttonPos[1] = { 7,7 };
-
-	//buttonPos[0] = { 0,2 };
-	//buttonPos[1] = { 1,1 };
-
 	buttonPush[0] = false;
 	buttonPush[1] = false;
+
+	drinkPos[0] = { 6,3 };
+	drinkPos[1] = { 0,9 };
+	drinkme[0] = false;
+	drinkme[1] = false;
 }
 
 void Event::pngInit(void)
@@ -467,29 +468,39 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 	// 瓶出現中
 	if (_event == EVENT_STATE::DRINK)
 	{
-		// メッセージボックス
-		DrawGraph(420, 50, _messagePNG, true);
-		// 瓶画像
-		DrawGraph(350, 250, _drinkPNG, true);
-		// 進む(瓶無視)
+		for (int i = 0; i < 2; i++)
+		{
+			if (drinkPos[i].x == game->plPosX && drinkPos[i].y == game->plPosY)
+			{
+				drinkNum = i;
+			}
+		}
+
+		if (!drinkme[drinkNum])
+		{
+			// メッセージボックス
+			DrawGraph(420, 50, _messagePNG, true);
+			// 瓶画像
+			DrawGraph(350, 250, _drinkPNG, true);
+			if (_fateNum == -1)
+			{
+				// 飲む
+				DrawGraph(600, 200, _sentakusiPNG[1], true);
+				DrawFormatString(450, 70, 0x000000, "[Drink Me]\nとかかれた瓶がある...");
+			}
+
+			if (_fateNum == 0)
+			{
+				DrawFormatString(450, 70, 0x000000, "体が頑丈になった!\n防御力が上がった");
+			}
+
+			if (_fateNum > 0)
+			{
+				DrawFormatString(450, 70, 0x000000, "毒にかかってしまった...");
+			}
+		}
+		// 去る
 		DrawGraph(600, 345, _sentakusiPNG[10], true);
-
-		if (_fateNum == -1)
-		{
-			// 飲む
-			DrawGraph(600, 200, _sentakusiPNG[1], true);
-			DrawFormatString(450, 70, 0x000000, "[Drink Me]\nとかかれた瓶がある...");
-		}
-
-		if (_fateNum == 0)
-		{
-			DrawFormatString(450, 70, 0x000000, "体が頑丈になった!\n防御力が上がった");
-		}
-
-		if (_fateNum > 0)
-		{
-			DrawFormatString(450, 70, 0x000000, "毒にかかってしまった...");
-		}
 	}
 
 	// 即死トラップ出現中
@@ -578,6 +589,10 @@ void Event::SetReset(void)
 	// ボタンの状態をリセットする
 	buttonPush[0] = false;
 	buttonPush[1] = false;
+
+	// 飲み物の状態をリセットする
+	drinkme[0] = false;
+	drinkme[1] = false;
 
 	// 宝箱の状態をリセットする
 	for (int i = 0; i < 4; i++)
@@ -1154,13 +1169,27 @@ void Event::Drink(GameScene* game, Player* player)
 			game->eventState = EVENT_STATE::NON;
 			_event = EVENT_STATE::NON;
 			_nowEvent++;
-			_pushFlg = false;
 			_fateNum = -1;
 			_soundWalk = true;
+
+			drinkEventFlg = false;
+			if (_pushFlg)
+			{
+				drinkme[drinkNum] = true;
+				_pushFlg = false;
+			}
+		}
+
+		for (int i = 0; i < 2; i++)
+		{
+			if (drinkPos[i].x == game->plPosX && drinkPos[i].y == game->plPosY)
+			{
+				drinkNum = i;
+			}
 		}
 
 		// 飲む
-		if (_fateNum == -1)
+		if (_fateNum == -1 && !drinkme[drinkNum])
 		{
 			if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 200 && game->cursorPos.y <= 200 + 75)
 			{
@@ -1173,13 +1202,14 @@ void Event::Drink(GameScene* game, Player* player)
 	}
 
 	// 飲むことにしたとき
-	if (_pushFlg)
+	if (_pushFlg && !drinkEventFlg)
 	{
 		if (_fateNum == 0)
 		{
 			// ラッキー!基礎防御力が上がる
 			player->SetDifense(player->GetDifense() + 2);
-			_pushFlg = false;
+			//_pushFlg = false;
+			drinkEventFlg = true;
 		}
 		else
 		{
@@ -1188,8 +1218,9 @@ void Event::Drink(GameScene* game, Player* player)
 
 			// アンラッキー!毒にかかる
 			player->SetCondition(CONDITION::POISON);
-			_pushFlg = false;
+			//_pushFlg = false;
 			game->shakeFlg = true;
+			drinkEventFlg = true;
 		}
 	}
 }

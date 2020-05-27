@@ -112,10 +112,17 @@ private:
 	int chestBingo[4];		// 中身が当たり
 	VECTOR2 chestPos[4];	// 宝箱の位置
 
+	// ボタン
 	int buttonNum = -1;
 	bool buttonPush[2];
 	VECTOR2 buttonPos[2];
 	bool buttonEventFlg = false;
+
+	// 飲み物
+	int drinkNum = -1;
+	bool drinkme[2];
+	VECTOR2 drinkPos[2];
+	bool drinkEventFlg = false;
 
 	bool trapFlg = false;	// 即死トラップ用。一度発動させたらそのままにしておく
 	bool nowTrapFlg = false;// 発動しながら一度以上死んだ場合

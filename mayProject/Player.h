@@ -42,19 +42,25 @@ public:
 	void SetBarrierNum(int num);		// スキルのバリア値を設定
 	int GetBarrierNum(void);			// スキルのバリア値を取得
 
-	void SaveTest(void);
-	static void LoadTest(void);
-
-	static int saveTestNum[9];
+	static int saveData[9];				// ロードで始めるときに読み込んだデータを保存する配列
 	static bool loadFlg;				// ロードで始めるときにinitでステータスを読み込まないようにするとき必要
-
 private:
 	void Init(void);					// 初期化
 	void pngInit(void);					// 画像初期化
+
 	// スキル関係
 	int _skillCharge;					// スキルチャージ
 	bool _skillFlg;						// スキルが使用可能になったらtrue
 	bool _skillBackFlg;					// スキルアイコン押下時true
+	int _pngLight;						// アイコンの明るさ調整用変数	
+	bool _lightFlg;						// アイコンの明るさ調整用フラグ
+	bool _seSkillOnceFlg;				// スキル発動可能時に一度だけSEを鳴らすときに使用する
+
+	// バリア関係
+	int _barrierMaxNum;					// バリアの最大値
+	int _barrierNum;					// バリアの値(特定値*プレイヤーレベル)
+
+	// 画像関係
 	int _skillIconPNG;					// スキルアイコン
 	int _skillAnnouncePNG;				// スキル使用可能案内
 	int _skillBackPNG;					// スキル用背景画像
@@ -63,14 +69,8 @@ private:
 	int _skillHealIconPNG;				// 回復系スキル選択用アイコン
 	int _skillCancelPNG;				//「やめる」の文字画像
 	int _skillMuscleIconPNG;			// 力こぶのアイコン画像
-	int _pngLight;						// アイコンの明るさ調整用変数	
-	bool _lightFlg;						// アイコンの明るさ調整用フラグ
-
-	int _barrierMaxNum;					// バリアの最大値
-	int _barrierNum;					// バリアの値(特定値*プレイヤーレベルの予定)
 	int _barrierBarBackPNG;				// バリアバーの背景画像
 	int _barrierBarPNG;					// バリアバー画像
 
-	int _soundSE[3];
-	bool _seOnceFlg = false;
+	int _soundSE[3];					// SE
 };
