@@ -136,15 +136,16 @@ bool GameScene::Init(void)
 	// その他
 	blinkFlg = false;
 	_blinkCnt = 0;
-	_monsTimeCnt = 30;
+	_monsTimeCnt = 5;
 	_walkDirect = 0;
 	_plDeadChangeWinColor = 255;
 	_poisonCnt = 256;
 	_onceFlg = false;
 	_anounceFlg = false;
-	kiri[0] = 0.0f;
-	kiri[1] = -900.0f;
-	bossPos = { 8,5 };
+	_kiri[0] = 0.0f;
+	_kiri[1] = -900.0f;
+	_bossPos = { 8,5 };
+	_keyFlg = false;
 
 	// SE
 	_soundSE[0] = LoadSoundMem("sound/se/click.mp3");			// クリック音
@@ -207,37 +208,37 @@ void GameScene::pngInit(void)
 	// トの字型(直線と左への道)
 	std::string dan_TONOJI_SL = "image/dan_TONOJI_SL.png";
 
-	roadPNG[0] = LoadGraph(dan_go.c_str());
-	roadPNG[1] = LoadGraph(dan_right.c_str());
-	roadPNG[2] = LoadGraph(dan_left.c_str());
-	roadPNG[3] = LoadGraph(dan_stop.c_str());
-	roadPNG[4] = LoadGraph(dan_T.c_str());
-	roadPNG[5] = LoadGraph(dan_TONOJI_SR.c_str());
-	roadPNG[6] = LoadGraph(dan_TONOJI_SL.c_str());
+	_roadPNG[0] = LoadGraph(dan_go.c_str());
+	_roadPNG[1] = LoadGraph(dan_right.c_str());
+	_roadPNG[2] = LoadGraph(dan_left.c_str());
+	_roadPNG[3] = LoadGraph(dan_stop.c_str());
+	_roadPNG[4] = LoadGraph(dan_T.c_str());
+	_roadPNG[5] = LoadGraph(dan_TONOJI_SR.c_str());
+	_roadPNG[6] = LoadGraph(dan_TONOJI_SL.c_str());
 
 	for (int i = 7; i < 13; i++)
 	{
-		roadPNG[i] = LoadGraph(dan_stop.c_str());
+		_roadPNG[i] = LoadGraph(dan_stop.c_str());
 	}
-	roadPNG[13] = LoadGraph(dan_go.c_str());
-	roadPNG[14] = LoadGraph(room_0.c_str());
+	_roadPNG[13] = LoadGraph(dan_go.c_str());
+	_roadPNG[14] = LoadGraph(room_0.c_str());
 
 	// 現在地用▲マーク
 	std::string direct = "image/direct.png";
-	directPNG = LoadGraph(direct.c_str());
+	_directPNG = LoadGraph(direct.c_str());
 	
 	// マップチップ
 	std::string mapchip = "image/mapchip/mapchip.png";
 	std::string mapchip_stop = "image/mapchip/chip_3.png";
 	std::string mapchip_danger = "image/mapchip/chip_danger.png";
 
-	LoadDivGraph(mapchip.c_str(), 7, 7, 1, 50, 50, chipPNG);
+	LoadDivGraph(mapchip.c_str(), 7, 7, 1, 50, 50, _chipPNG);
 	for (int i = 7; i < 13; i++)
 	{
-		chipPNG[i] = LoadGraph(mapchip_stop.c_str());
+		_chipPNG[i] = LoadGraph(mapchip_stop.c_str());
 	}
-	chipPNG[13] = LoadGraph(mapchip_danger.c_str());
-	chipPNG[14] = LoadGraph(mapchip_danger.c_str());
+	_chipPNG[13] = LoadGraph(mapchip_danger.c_str());
+	_chipPNG[14] = LoadGraph(mapchip_danger.c_str());
 
 	// 白
 	std::string white = "image/white.png";
@@ -269,14 +270,14 @@ void GameScene::pngInit(void)
 
 	// ボス手前警告画像
 	std::string emergency = "image/emergency.png";
-	bossEmergencyPNG = LoadGraph(emergency.c_str());
+	_bossEmergencyPNG = LoadGraph(emergency.c_str());
 
 	// 霧
 	std::string kiri = "image/kiri.png";
-	kiriPNG[0] = LoadGraph(kiri.c_str());
+	_kiriPNG[0] = LoadGraph(kiri.c_str());
 
 	std::string kiri2 = "image/kiri2.png";
-	kiriPNG[1] = LoadGraph(kiri2.c_str());
+	_kiriPNG[1] = LoadGraph(kiri2.c_str());
 }
 
 unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
@@ -406,22 +407,22 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 	}
 
 	// 霧処理
-	if (kiri[0] < 900.0f)
+	if (_kiri[0] < 900.0f)
 	{
-		kiri[0] += 0.5f;
+		_kiri[0] += 0.5f;
 	}
 	else
 	{
-		kiri[0] = -900.0f;
+		_kiri[0] = -900.0f;
 	}
 
-	if (kiri[1] < 900.0f)
+	if (_kiri[1] < 900.0f)
 	{
-		kiri[1] += 0.5f;
+		_kiri[1] += 0.5f;
 	}
 	else
 	{
-		kiri[1] = -900.0f;
+		_kiri[1] = -900.0f;
 	}
 
 	Draw();
@@ -476,7 +477,7 @@ void GameScene::Draw(void)
 	}
 	else
 	{
-		DrawRotaGraph(450 - _walkDirect, 300, 1.0f, 0, roadPNG[_plNowPoint], false);
+		DrawRotaGraph(450 - _walkDirect, 300, 1.0f, 0, _roadPNG[_plNowPoint], false);
 		_shakeTime = 0.0f;
 		_shakeChangeFlg = false;
 	}
@@ -486,6 +487,11 @@ void GameScene::Draw(void)
 	{
 		if (moveFlg)
 		{
+			if (!_soundWalk && _doorExpand <= 1.0f)
+			{
+				_soundWalk = true;
+			}
+
 			// 歩いてるときに揺れてる感じが出したい
 			_degree += 1.0f * 7.0f;
 			auto radian = _degree * PI / 180.0;
@@ -520,7 +526,7 @@ void GameScene::Draw(void)
 					_doorOpenTiming--;
 				}
 			}
-			DrawRotaGraph(450 - _walkDirect, move + 300, _doorExpand, 0, roadPNG[_plNowPoint], false);
+			DrawRotaGraph(450 - _walkDirect, move + 300, _doorExpand, 0, _roadPNG[_plNowPoint], false);
 		}
 
 		if (openDoor)
@@ -549,7 +555,7 @@ void GameScene::Draw(void)
 	else
 	{
 		openDoor = true;
-		DrawRotaGraph(450, 300, 1.0f, 0, roadPNG[_plNowPoint], false);
+		DrawRotaGraph(450, 300, 1.0f, 0, _roadPNG[_plNowPoint], false);
 	}
 
 	// 何もなしと敵以外の処理
@@ -574,7 +580,7 @@ void GameScene::Draw(void)
 		if (_blinkCnt % 10 == 0)
 		{
 			// ボスならこっち
-			if (plPosX == bossPos.x && plPosY == bossPos.y)
+			if (plPosX == _bossPos.x && plPosY == _bossPos.y)
 			{
 				_monster[0]->BossDraw();
 			}
@@ -591,7 +597,7 @@ void GameScene::Draw(void)
 	else
 	{
 		// ボスじゃないとき
-		if (plPosX == bossPos.x && plPosY == bossPos.y)
+		if (plPosX == _bossPos.x && plPosY == _bossPos.y)
 		{
 			if (eventState == EVENT_STATE::ENEMY && _monster[0]->GetEnemyState() != ENEMY_STATE::DEATH)
 			{
@@ -609,8 +615,8 @@ void GameScene::Draw(void)
 
 	// 霧表現
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
-	DrawGraph(0 + kiri[0], 0, kiriPNG[0], true);
-	DrawGraph(0 + kiri[1], 0, kiriPNG[1], true);
+	DrawGraph(0 + _kiri[0], 0, _kiriPNG[0], true);
+	DrawGraph(0 + _kiri[1], 0, _kiriPNG[1], true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	// プレイヤー
@@ -634,7 +640,7 @@ void GameScene::Draw(void)
 	if (_plNowMark.x == 0 && _plNowMark.y <= 2)
 	{
 		// Sのマークに後で変更する
-		DrawGraph(0 * 50, 550 - (0 * 50), chipPNG[0], true);
+		DrawGraph(0 * 50, 550 - (0 * 50), _chipPNG[0], true);
 	}
 	// 現在地を保存していく
 	for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
@@ -659,7 +665,7 @@ void GameScene::Draw(void)
 
 		if (std::get<0>(*v).y + 25 + _mapChipDrawOffset.y >= 450 && std::get<0>(*v).x + 25 - _mapChipDrawOffset.x <= 150)
 		{
-			DrawRotaGraph(std::get<0>(*v).x + 25 - _mapChipDrawOffset.x, std::get<0>(*v).y + 25 + _mapChipDrawOffset.y, 1.0, std::get<2>(*v), chipPNG[std::get<1>(*v)], true);
+			DrawRotaGraph(std::get<0>(*v).x + 25 - _mapChipDrawOffset.x, std::get<0>(*v).y + 25 + _mapChipDrawOffset.y, 1.0, std::get<2>(*v), _chipPNG[std::get<1>(*v)], true);
 		}
 	}
 
@@ -681,12 +687,12 @@ void GameScene::Draw(void)
 		_plNowMark.x = 2;
 	}
 
-	DrawRotaGraph(_plNowMark.x * 50 + 25, 550 - (_plNowMark.y * 50) + 25, 1.0f, _directRota, directPNG, true);
+	DrawRotaGraph(_plNowMark.x * 50 + 25, 550 - (_plNowMark.y * 50) + 25, 1.0f, _directRota, _directPNG, true);
 
-	if (plPosX == bossPos.x - 1 && plPosY == bossPos.y)
+	if (plPosX == _bossPos.x - 1 && plPosY == _bossPos.y)
 	{
 		// ボスの警告用画像
-		DrawGraph(250, 100, bossEmergencyPNG, true);
+		DrawGraph(250, 100, _bossEmergencyPNG, true);
 	}
 
 	if (_monster[0]->GetEnemyState() == ENEMY_STATE::EXIST)
@@ -769,26 +775,29 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 	if (!_menu->GetMenuFlg() && _menu->GetMenu() == MENU::NON && eventState == EVENT_STATE::NON)
 	{
 		// キーボード操作(画像拡大最中は処理しない)
-		if (_plNowPoint == 0 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
+		if (_plNowPoint == 0 && !_keyFlg)
 		{
 			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_UP]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_UP]))
 			{
+				_keyFlg = true;
 				Key();
 			}
 		}
 
-		if (_plNowPoint == 1 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
+		if (_plNowPoint == 1 && !_keyFlg)
 		{
 			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_RIGHT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_RIGHT]))
 			{
+				_keyFlg = true;
 				Key();
 			}
 		}
 
-		if (_plNowPoint == 2 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
+		if (_plNowPoint == 2 && !_keyFlg)
 		{
 			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
 			{
+				_keyFlg = true;
 				Key();
 			}
 		}
@@ -797,10 +806,11 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 		if (eventState == EVENT_STATE::NON)
 		{
 			// 現在地がスタート地点でなければバック処理できる
-			if (plPosX > 0 || plPosY > 0)
+			if (plPosX > 0 || plPosY > 0 && !_keyFlg)
 			{
 				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_DOWN]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_DOWN]))
 				{
+					_keyFlg = true;
 					backFlg = true;
 					Key();
 				}
@@ -810,17 +820,19 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 		// T字路テスト
 		if (_plDirect == PL_DIRECTION::RIGHT)
 		{
-			if (_plNowPoint == 4 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
+			if (_plNowPoint == 4 && !_keyFlg)
 			{
 				_rightFlg = false;
 				_leftFlg = false;
 				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_RIGHT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_RIGHT]))
 				{
+					_keyFlg = true;
 					_rightFlg = true;
 					Key();
 				}
 				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
 				{
+					_keyFlg = true;
 					_leftFlg = true;
 					Key();
 				}
@@ -829,17 +841,19 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 
 		if (_plDirect == PL_DIRECTION::LEFT)
 		{
-			if (_plNowPoint == 4 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
+			if (_plNowPoint == 4 && !_keyFlg)
 			{
 				_rightFlg = false;
 				_leftFlg = false;
 				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_RIGHT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_RIGHT]))
 				{
+					_keyFlg = true;
 					_leftFlg = true;
 					Key();
 				}
 				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
 				{
+					_keyFlg = true;
 					_rightFlg = true;
 					Key();
 				}
@@ -848,17 +862,19 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 
 		if (_plDirect == PL_DIRECTION::UP)
 		{
-			if (_plNowPoint == 4 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
+			if (_plNowPoint == 4 && !_keyFlg)
 			{
 				_rightFlg = false;
 				_leftFlg = false;
 				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_RIGHT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_RIGHT]))
 				{
+					_keyFlg = true;
 					_rightFlg = true;
 					Key();
 				}
 				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
 				{
+					_keyFlg = true;
 					_leftFlg = true;
 					Key();
 				}
@@ -867,17 +883,19 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 
 		if (_plDirect == PL_DIRECTION::DOWN)
 		{
-			if (_plNowPoint == 4 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
+			if (_plNowPoint == 4 && !_keyFlg)
 			{
 				_rightFlg = false;
 				_leftFlg = false;
 				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_RIGHT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_RIGHT]))
 				{
+					_keyFlg = true;
 					_rightFlg = true;
 					Key();
 				}
 				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
 				{
+					_keyFlg = true;
 					_leftFlg = true;
 					Key();
 				}
@@ -885,32 +903,36 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 		}
 
 		// トの字型(直進と右への道)
-		if (_plNowPoint == 5 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
+		if (_plNowPoint == 5 && !_keyFlg)
 		{
 			_rightFlg = false;
 			_leftFlg = false;
 			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_UP]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_UP]))
 			{
+				_keyFlg = true;
 				Key();
 			}
 			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_RIGHT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_RIGHT]))
 			{
+				_keyFlg = true;
 				_rightFlg = true;
 				Key();
 			}
 		}
 
 		// トの字型(直進と左への道)
-		if (_plNowPoint == 6 && (_doorExpand == 1.0f || _doorExpand >= 1.5f))
+		if (_plNowPoint == 6 && !_keyFlg)
 		{
 			_rightFlg = false;
 			_leftFlg = false;
 			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_UP]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_UP]))
 			{
+				_keyFlg = true;
 				Key();
 			}
 			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
 			{
+				_keyFlg = true;
 				_leftFlg = true;
 				Key();
 			}
@@ -1084,7 +1106,7 @@ void GameScene::shakeDraw(void)
 		}
 	}
 
-	DrawRotaGraph(450 + _shackPos.x, 300 + _shackPos.y, 1.0f, 0, roadPNG[_plNowPoint], false);
+	DrawRotaGraph(450 + _shackPos.x, 300 + _shackPos.y, 1.0f, 0, _roadPNG[_plNowPoint], false);
 
 	if (_shakeTime >= 15.0f)
 	{
@@ -1130,23 +1152,39 @@ void GameScene::doorWalk(void)
 {
 	// 歩行音からドア音までのつなぎ用
 	// 1:再生中 0:再生していない
-	if (CheckSoundMem(_soundSE[1]) == 1 && _soundWalk)
+	//if (CheckSoundMem(_soundSE[1]) == 1 && _soundWalk)
+	//{
+	//	_soundWalk = true;
+	//	_seCnt = 20;
+	//}
+	//else if (CheckSoundMem(_soundSE[1]) == 0 && _soundWalk)
+	//{
+	//	if (_seCnt >= 0)
+	//	{
+	//		_seCnt--;
+	//	}
+	//	else
+	//	{
+	//		// ドア音
+	//		PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
+	//		_soundWalk = false;
+	//	}
+	//}
+
+	// 1:再生中 0:再生していない
+	if (_soundWalk)
 	{
-		_soundWalk = true;
-		_seCnt = 20;
+		PlaySoundMem(_soundSE[1], DX_PLAYTYPE_BACK, true);
+		_soundWalk = false;
 	}
-	else if (CheckSoundMem(_soundSE[1]) == 0 && _soundWalk)
+
+	if (CheckSoundMem(_soundSE[1]) == 1)
 	{
-		if (_seCnt >= 0)
-		{
-			_seCnt--;
-		}
-		else
-		{
-			// ドア音
-			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
-			_soundWalk = false;
-		}
+		_keyFlg = true;
+	}
+	else
+	{
+		_keyFlg = false;
 	}
 }
 
@@ -1733,7 +1771,6 @@ void GameScene::Key(void)
 	}
 
 	_walkDirect = 0;
-	_soundWalk = true;
 	moveFlg = true;
 	// プレイヤーが状態異常のとき
 	if (_player->GetCondition() == CONDITION::POISON)
@@ -1762,7 +1799,7 @@ void GameScene::Key(void)
 		}
 
 		// クリック音
-		PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
+		//PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 
 		_monster[0]->SetEnemyState(ENEMY_STATE::NON);
 		//doorFlg = true;
@@ -1772,7 +1809,7 @@ void GameScene::Key(void)
 		_doorExpand = 1.0f;
 	}
 
-	if (plPosX == bossPos.x && plPosY == bossPos.y)
+	if (plPosX == _bossPos.x && plPosY == _bossPos.y)
 	{
 		eventState = EVENT_STATE::ENEMY;
 	}
@@ -1780,7 +1817,7 @@ void GameScene::Key(void)
 	{
 		int num = _plNowPoint;
 
-		// 特定敵イベント中はカウンターを止める
+		// 通常移動マスじゃないときと特定敵イベント中はカウンターを止める
 		if (num < 7 && !_event->GetEventMonsEncountFlg())
 		{
 			if (_monsTimeCnt > 0)
@@ -1790,7 +1827,7 @@ void GameScene::Key(void)
 			else
 			{
 				eventState = EVENT_STATE::ENEMY;
-				_monsTimeCnt = 30;
+				_monsTimeCnt = GetRand(5) + 8;
 			}
 		}
 		else
@@ -1848,7 +1885,7 @@ void GameScene::Key(void)
 			moveFlg = false;
 
 			// ボスならこっち
-			if (plPosX == bossPos.x && plPosY == bossPos.y)
+			if (plPosX == _bossPos.x && plPosY == _bossPos.y)
 			{
 				auto ene = 5;
 				_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ボス用)

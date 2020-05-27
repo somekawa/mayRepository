@@ -161,24 +161,24 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 	}
 	// 歩行音からドア音までのつなぎ用
 	// 1:再生中 0:再生していない
-	if (CheckSoundMem(_soundSE[2]) == 1 && _soundWalk)
-	{
-		_soundWalk = true;
-		_seCnt = 20;
-	}
-	else if (CheckSoundMem(_soundSE[2]) == 0 && _soundWalk)
-	{
-		if (_seCnt >= 0)
-		{
-			_seCnt--;
-		}
-		else
-		{
-			// ドア音
-			PlaySoundMem(_soundSE[5], DX_PLAYTYPE_BACK, true);
-			_soundWalk = false;
-		}
-	}
+	//if (CheckSoundMem(_soundSE[2]) == 1 && _soundWalk)
+	//{
+	//	_soundWalk = true;
+	//	_seCnt = 20;
+	//}
+	//else if (CheckSoundMem(_soundSE[2]) == 0 && _soundWalk)
+	//{
+	//	if (_seCnt >= 0)
+	//	{
+	//		_seCnt--;
+	//	}
+	//	else
+	//	{
+	//		// ドア音
+	//		PlaySoundMem(_soundSE[5], DX_PLAYTYPE_BACK, true);
+	//		_soundWalk = false;
+	//	}
+	//}
 }
 
 void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
@@ -252,7 +252,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 			{
 				// 2ページ目
 				// アイテム表示
-				for (int i = 0; i <= 3; i++)
+				for (int i = 0; i <= 7; i++)
 				{
 					DrawGraph(item->GetPos(i).x, item->GetPos(i).y, _itemBoxPNG, true);
 					DrawGraph(item->GetPos(i).x, item->GetPos(i).y, item->GetPair(i+8).first, true);
@@ -657,7 +657,7 @@ void Event::Yado(GameScene* game, Player* player)
 			// クリック音
 			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 			// 歩行音
-			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
+			//PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
 			game->backFlg = true;
 
@@ -668,7 +668,7 @@ void Event::Yado(GameScene* game, Player* player)
 			_nowEvent++;
 			_healYadoFlg = false;
 			_nonMoneyFlg = false;
-			_soundWalk = true;
+			//_soundWalk = true;
 		}
 
 		// 回復してほしい
@@ -705,7 +705,7 @@ void Event::Syounin(GameScene* game, Player* player, Menu* menu, Item* item)
 			// クリック音
 			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 			// 歩行音
-			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
+			//PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
 			game->backFlg = true;
 
@@ -718,7 +718,7 @@ void Event::Syounin(GameScene* game, Player* player, Menu* menu, Item* item)
 			_chooseFlg = false;
 			_nonMoneyFlg = false;
 			//game->moveFlg = true;
-			_soundWalk = true;
+			//_soundWalk = true;
 
 			// アイテムの補充処理
 			for (int i = 0; i <= 10; i++)
@@ -734,8 +734,8 @@ void Event::Syounin(GameScene* game, Player* player, Menu* menu, Item* item)
 				// soldoutの画像をそれぞれで用意しちゃってるのでアドレスが違うから=にならない
 				//if (item->GetPair(i).second == ITEM::NON)
 				//{
-					item->SetHojuPair(i,_nowEvent);
-					item->SetPos(i);
+					//item->SetHojuPair(i,_nowEvent);
+					//item->SetPos(i);
 				//}
 			}
 
@@ -885,12 +885,12 @@ void Event::Syounin(GameScene* game, Player* player, Menu* menu, Item* item)
 							if (!_itemNextPage)
 							{
 								menu->Setitem(item->GetPair(_chooseNum).second, item->GetPair(_chooseNum).first);
-								item->SetSoldOutPair(_chooseNum);
+								//item->SetSoldOutPair(_chooseNum);
 							}
 							else
 							{
 								menu->Setitem(item->GetPair(_chooseNum+8).second, item->GetPair(_chooseNum+8).first);
-								item->SetSoldOutPair(_chooseNum+8);
+								//item->SetSoldOutPair(_chooseNum+8);
 							}
 							//item->SetSoldOutPair(_chooseNum);
 							_chooseFlg = false;
@@ -910,7 +910,7 @@ void Event::Button(GameScene* game, Player* player)
 			// クリック音
 			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 			// 歩行音
-			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
+			//PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
 			game->backFlg = true;
 
@@ -920,7 +920,7 @@ void Event::Button(GameScene* game, Player* player)
 			_event = EVENT_STATE::NON;
 			_nowEvent++;
 			_fateNum = -1;
-			_soundWalk = true;
+			//_soundWalk = true;
 
 			buttonEventFlg = false;
 			if (_pushFlg)
@@ -994,7 +994,7 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
 			// クリック音
 			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 			// 歩行音
-			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
+			//PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
 			game->backFlg = true;
 
@@ -1007,7 +1007,7 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
 			_fateNum = -1;
 			_anounceFlg = false;
 			_getFlg = false;
-			_soundWalk = true;
+			//_soundWalk = true;
 			if (menu->GetMeganeFlg())
 			{
 				menu->SetMeganeFlg(false);
@@ -1160,7 +1160,7 @@ void Event::Drink(GameScene* game, Player* player)
 			// クリック音
 			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 			// 歩行音
-			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
+			//PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
 			game->backFlg = true;
 
@@ -1170,7 +1170,7 @@ void Event::Drink(GameScene* game, Player* player)
 			_event = EVENT_STATE::NON;
 			_nowEvent++;
 			_fateNum = -1;
-			_soundWalk = true;
+			//_soundWalk = true;
 
 			drinkEventFlg = false;
 			if (_pushFlg)
@@ -1233,7 +1233,7 @@ void Event::Trap(GameScene* game, Player* player)
 			// クリック音
 			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 			// 歩行音
-			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
+			//PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
 			game->backFlg = true;
 
@@ -1243,7 +1243,7 @@ void Event::Trap(GameScene* game, Player* player)
 			_event = EVENT_STATE::NON;
 			_nowEvent++;
 			_fateNum = -1;
-			_soundWalk = true;
+			//_soundWalk = true;
 		}
 
 		// 調べる
@@ -1282,7 +1282,7 @@ void Event::eventMons(GameScene* game, Monster* monster, Cards* cards)
 			// クリック音
 			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 			// 歩行音
-			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
+			//PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 
 			game->backFlg = true;
 
@@ -1292,7 +1292,7 @@ void Event::eventMons(GameScene* game, Monster* monster, Cards* cards)
 			_event = EVENT_STATE::NON;
 			_nowEvent++;
 			_fateNum = -1;
-			_soundWalk = true;
+			//_soundWalk = true;
 		}
 
 		// 戦う

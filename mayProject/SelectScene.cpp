@@ -7,6 +7,7 @@
 
 // static変数の実体<型>クラス名::変数名 = 初期化;
 MODE SelectScene::modeTest = MODE::NON;
+bool SelectScene::pushFlg = false;
 
 SelectScene::SelectScene()
 {
@@ -24,6 +25,7 @@ bool SelectScene::Init(void)
 	_lightFlg = false;
 	_toGameFlg = false;
 	_toTitleFlg = false;
+	pushFlg = false;
 	_seClick = LoadSoundMem("sound/se/click.mp3");
 	return true;
 }
@@ -49,48 +51,52 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 	int y = 0;
 	auto Mouse = GetMouseInput();                //マウスの入力状態取得
 	GetMousePoint(&x, &y);					     //マウスの座標取得
-	if (Mouse & MOUSE_INPUT_LEFT && !(_oldMouse & MOUSE_INPUT_LEFT)) {	 //マウスの左ボタンが押されていたら
-		// 当たり判定(NORMAL選択時)
-		if (x >= 250 && x <= 250 + 400 && y >= 100 && y <= 100 + 150)
-		{
-			DeleteSoundMem(TitleScene::_titleBGM);
-			if (CheckSoundMem(_seClick) == 0)
-			{
-				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
-				_toGameFlg = true;
-			}
-			modeTest = MODE::NORMAL;
-			Menu::LoadTest();
-			//return std::make_unique<GameScene>();
-		}
-		// 当たり判定(HARD選択時)
-		//if (x >= 250 && x <= 250 + 400 && y >= 300 && y <= 300 + 150)
-		//{
-		//	DeleteSoundMem(TitleScene::_titleBGM);
-		//	if (CheckSoundMem(_seClick) == 0)
-		//	{
-		//		PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
-		//		_toGameFlg = true;
-		//	}
-		//	modeTest = MODE::HARD;
-		//	//return std::make_unique<GameScene>();
-		//}
 
-		// 当たり判定(タイトルへ戻る)
-		if (x >= 650 && x <= 650 + 200 && y >= 450 && y <= 450 + 100)
-		{
-			if (CheckSoundMem(_seClick) == 0)
+	if (!pushFlg)
+	{
+		if (Mouse & MOUSE_INPUT_LEFT && !(_oldMouse & MOUSE_INPUT_LEFT)) {	 //マウスの左ボタンが押されていたら
+		// 当たり判定(NORMAL選択時)
+			if (x >= 250 && x <= 250 + 400 && y >= 100 && y <= 100 + 150)
 			{
-				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
-				_toTitleFlg = true;
+				DeleteSoundMem(TitleScene::_titleBGM);
+				if (CheckSoundMem(_seClick) == 0)
+				{
+					PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+					_toGameFlg = true;
+				}
+				modeTest = MODE::NORMAL;
+				Menu::LoadTest();
+				//return std::make_unique<GameScene>();
 			}
-			//return std::make_unique<TitleScene>();
+			// 当たり判定(HARD選択時)
+			//if (x >= 250 && x <= 250 + 400 && y >= 300 && y <= 300 + 150)
+			//{
+			//	DeleteSoundMem(TitleScene::_titleBGM);
+			//	if (CheckSoundMem(_seClick) == 0)
+			//	{
+			//		PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+			//		_toGameFlg = true;
+			//	}
+			//	modeTest = MODE::HARD;
+			//	//return std::make_unique<GameScene>();
+			//}
+
+			// 当たり判定(タイトルへ戻る)
+			if (x >= 650 && x <= 650 + 200 && y >= 450 && y <= 450 + 100)
+			{
+				if (CheckSoundMem(_seClick) == 0)
+				{
+					PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+					_toTitleFlg = true;
+				}
+				//return std::make_unique<TitleScene>();
+			}
 		}
 	}
 
 	_oldMouse = Mouse;
 
-	if (_toGameFlg && CheckSoundMem(_seClick) == 0)
+	if (pushFlg && _toGameFlg && CheckSoundMem(_seClick) == 0)
 	{
 		DeleteSoundMem(_seClick);
 		return std::make_unique<GameScene>();

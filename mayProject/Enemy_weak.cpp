@@ -137,16 +137,16 @@ void Enemy_weak::Damage(int damageNum, Cards* cards)
 		_enemyState = ENEMY_STATE::DEATH;
 		cards->SetTurn(3);
 		// 確率でフラグを立てて、trueだったらアイテムをプレイヤーに渡す
-		int randNum = GetRand(0);	// 0~2
-		_dropItemNum = 3;//GetRand(3); // 0 1 2 3
-		int dropItemNum = _dropItemNum + 13;  // 13 14 15 16に変換
+		int randNum = GetRand(2);	// 0~2
+		_dropItemNum = GetRand(3); // 0 1 2 3
+		int ItemNum = _dropItemNum + 13;  // 13 14 15 16に変換
 
 		if (randNum == 0)
 		{
 			PlaySoundMem(_se, DX_PLAYTYPE_BACK, true);
 			// アイテムドロップする
 			_dropItem = true;
-			_dropItemSyurui = static_cast<ITEM>(dropItemNum);
+			_dropItemSyurui = static_cast<ITEM>(ItemNum);
 		}
 		else
 		{

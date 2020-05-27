@@ -1,5 +1,6 @@
 #include <DxLib.h>
 #include <string>
+#include "SelectScene.h"
 #include "GameScene.h"
 #include "Menu.h"
 #include "Player.h"
@@ -1215,5 +1216,20 @@ void Menu::LoadTest()
 
 		Player::loadFlg = true;
 		loadFlg = true;
+		SelectScene::pushFlg = true;
 	}
+	else if (MessageBox(			// メッセージ
+		NULL,
+		"はじめからしますか?",
+		"確認ダイアログ",
+		MB_OKCANCEL
+	) == IDOK)
+	{
+		SelectScene::pushFlg = true;
+	}
+	else
+	{
+		SelectScene::pushFlg = false;
+	}
+
 }

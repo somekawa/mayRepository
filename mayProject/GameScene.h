@@ -120,8 +120,9 @@ private:
 	int _poisonCnt;						// 戦闘中の毒効果の紫色画面の時間(初期値は255より大きい必要がある)
 	bool _onceFlg;						// 敵からのドロップアイテム表示に使用と敵の待機ターンが0の時に使用
 	bool _anounceFlg;					// 敵からのドロップアイテムで持ち物がいっぱいの時に案内を出す
-	float kiri[2];						// 霧
-	VECTOR2 bossPos;					// ボス登場位置
+	float _kiri[2];						// 霧
+	VECTOR2 _bossPos;					// ボス登場位置
+	bool _keyFlg;						// キーが押されたらtrueになり足音SEがなり終わったらfalseになる
 
 	//std::map<bool, std::pair<int, int>> mapTest;
 	//std::map<int, int> mapTest;
@@ -153,14 +154,14 @@ private:
 	// 即死トラップで死亡時(敵遭遇後)の画像
 	int _messageDeathPNG2;
 	// ボス手前警告画像
-	int bossEmergencyPNG;
+	int _bossEmergencyPNG;
 	// 自分アイコン画像(▲のやつ)
-	int directPNG;				
+	int _directPNG;				
 	// ダンジョン関連
-	int roadPNG[static_cast<int>(MAP::MAX)];
-	int chipPNG[static_cast<int>(MAP::MAX)];
+	int _roadPNG[static_cast<int>(MAP::MAX)];
+	int _chipPNG[static_cast<int>(MAP::MAX)];
 	// 霧
-	int kiriPNG[2];
+	int _kiriPNG[2];
 
 	/*音関係*/
 	// SE関連
