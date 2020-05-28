@@ -139,27 +139,72 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 {
 	if (_event == EVENT_STATE::YADO)
 	{
-		Yado(game,player);
+		if (_eventMonsFlg && !_onceFlg)
+		{
+			monster->SetEnemyNum(6, 0);
+			cards->SetTurn(3);
+			_onceFlg = true;
+		}
+		else
+		{
+			Yado(game, player);
+		}
 	}
 
 	if (_event == EVENT_STATE::SYOUNIN)
 	{
-		Syounin(game, player,menu,item);
+		if (_eventMonsFlg && !_onceFlg)
+		{
+			monster->SetEnemyNum(6, 0);
+			cards->SetTurn(3);
+			_onceFlg = true;
+		}
+		else
+		{
+			Syounin(game, player, menu, item);
+		}
 	}
 
 	if (_event == EVENT_STATE::BUTTON)
 	{
-		Button(game, player);
+		if (_eventMonsFlg && !_onceFlg)
+		{
+			monster->SetEnemyNum(6, 0);
+			cards->SetTurn(3);
+			_onceFlg = true;
+		}
+		else
+		{
+			Button(game, player);
+		}
 	}
 
 	if (_event == EVENT_STATE::CHEST)
 	{
-		Chest(game, player, menu, item);
+		if (_eventMonsFlg && !_onceFlg)
+		{
+			monster->SetEnemyNum(6, 0);
+			cards->SetTurn(3);
+			_onceFlg = true;
+		}
+		else
+		{
+			Chest(game, player, menu, item);
+		}
 	}
 
 	if (_event == EVENT_STATE::DRINK)
 	{
-		Drink(game, player);
+		if (_eventMonsFlg && !_onceFlg)
+		{
+			monster->SetEnemyNum(6, 0);
+			cards->SetTurn(3);
+			_onceFlg = true;
+		}
+		else
+		{
+			Drink(game, player);
+		}
 	}
 
 	if (_event == EVENT_STATE::TRAP)
@@ -181,7 +226,7 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 {
 	// 宿屋
-	if (_event == EVENT_STATE::YADO)
+	if (_event == EVENT_STATE::YADO && !_eventMonsFlg)
 	{
 		// 人画像
 		DrawGraph(0, 0, _healHumanPNG, true);
@@ -211,7 +256,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 	}
 
 	// 商人
-	if (_event == EVENT_STATE::SYOUNIN)
+	if (_event == EVENT_STATE::SYOUNIN && !_eventMonsFlg)
 	{
 		// 人画像
 		DrawGraph(100, 0, _syouninPNG, true);
@@ -289,7 +334,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 	}
 
 	// ボタン出現中
-	if (_event == EVENT_STATE::BUTTON)
+	if (_event == EVENT_STATE::BUTTON && !_eventMonsFlg)
 	{
 		for (int i = 0; i < 2; i++)
 		{
@@ -327,7 +372,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 	}
 
 	// 宝箱出現中
-	if (_event == EVENT_STATE::CHEST)
+	if (_event == EVENT_STATE::CHEST && !_eventMonsFlg)
 	{
 		// メッセージボックス
 		DrawGraph(420, 50, _messagePNG, true);
@@ -404,7 +449,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 	}
 
 	// 瓶出現中
-	if (_event == EVENT_STATE::DRINK)
+	if (_event == EVENT_STATE::DRINK && !_eventMonsFlg)
 	{
 		for (int i = 0; i < 2; i++)
 		{
@@ -474,7 +519,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 	}
 
 	// イベント敵と遭遇中
-	if (_event == EVENT_STATE::EVE_MONS)
+	if (_event == EVENT_STATE::EVE_MONS || _event != EVENT_STATE::NON && _eventMonsFlg)
 	{
 		DrawGraph(100, 75, _eventMonsPNG, true);
 
@@ -513,6 +558,8 @@ void Event::SetFateNum(int num)
 
 void Event::SetReset(void)
 {
+	_onceFlg = false;
+
 	// ボタンの状態をリセットする
 	_buttonPush[0] = false;
 	_buttonPush[1] = false;
@@ -576,7 +623,6 @@ void Event::Enemy(GameScene* game, Player* player, Monster* monster)
 void Event::Yado(GameScene* game, Player* player)
 {
 	if (game->mouse & MOUSE_INPUT_LEFT) {			 //マウスの左ボタンが押されていたら
-		// 回復いらない
 		if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 345 && game->cursorPos.y <= 345 + 75)
 		{
 			// クリック音

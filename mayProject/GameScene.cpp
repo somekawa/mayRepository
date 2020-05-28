@@ -299,7 +299,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 		if (_player->GetHP() > 0)
 		{
 			// 敵がいないときだけ押せる
-			if (eventState != EVENT_STATE::ENEMY && eventState != EVENT_STATE::EVE_MONS)
+			if (eventState != EVENT_STATE::ENEMY && eventState != EVENT_STATE::EVE_MONS && !_event->GetEventMonsFlg())
 			{
 				_menu->MenuButton_NonEnemy();
 			}
@@ -318,6 +318,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 			// レベルをそのままにはじめからやり直す
 			if (cursorPos.x >= 50 && cursorPos.x <= 50 + 400 && cursorPos.y >= 225 && cursorPos.y <= 225 + 130)
 			{
+				_onceFlg = false;
 				// 場所をスタート地点に戻す
 				plPosX = 0;
 				plPosY = 0;
@@ -1851,6 +1852,23 @@ void GameScene::Key(void)
 	{
 		int num = _plNowPoint;
 
+		// 行き止まりか他イベントの場所に入り込んだ時には特定敵と強制戦闘
+		if (_event->GetEventMonsEncountFlg())
+		{
+			if (num == 3 && !_event->GetEventMonsEndFlg())
+			{
+				eventState = EVENT_STATE::EVE_MONS;
+				_event->SetEventMonsFlg(true);
+				_monster[0]->SetEnemyNum(6, 0);
+				_cards->SetTurn(3);
+				return;
+			}
+			if (num >= 7 && num <= 11)
+			{
+				_event->SetEventMonsFlg(true);
+			}
+		}
+
 		// 通常移動マスじゃないときと特定敵イベント中はカウンターを止める
 		if (num < 7 && !_event->GetEventMonsEncountFlg())
 		{
@@ -1894,6 +1912,7 @@ void GameScene::Key(void)
 				}
 				else
 				{
+					_event->SetEventMonsEncountFlg(false);
 					eventState = EVENT_STATE::NON;
 					_plNowPoint = 0;
 				}
@@ -1915,7 +1934,6 @@ void GameScene::Key(void)
 		monsterFlg = true;
 		if (_monster[0]->GetEnemyState() == ENEMY_STATE::NON)
 		{
-			//doorFlg = false;
 			moveFlg = false;
 
 			// ボスならこっち
@@ -1938,7 +1956,6 @@ void GameScene::Key(void)
 	// 宿屋・商人・ボタン・宝箱の出現
 	if (eventState != EVENT_STATE::NON && eventState != EVENT_STATE::ENEMY)
 	{
-		//doorFlg = false;
 		moveFlg = false;
 	}
 }

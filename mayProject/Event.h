@@ -70,6 +70,8 @@ private:
 	bool _getFlg;						// アイテムをとるボタン
 	bool _anounceFlg;					// アイテムがいっぱいのときにお知らせする
 
+	bool _onceFlg = false;
+
 	// 宝箱関連
 	int _chestOpen[4];					// 開けたかどうか
 	int _chestBingo[4];					// 中身の当たり/はずれ
