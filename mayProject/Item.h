@@ -18,8 +18,8 @@ public:
 	char* GetSetumei(int num);					// 指定されたアイテムの説明を取得する
 	int GetCostMoney(int num);					// 指定されたアイテムの値段を取得する
 	std::pair<int, ITEM> GetPair(int num);		// 指定されたitem_pairの情報を取得する
-	void SetHojuPair(int num,int noweventnum);	// アイテムの補充を行う
-	void SetSoldOutPair(int num);				// アイテムの売り切れ設定を行う
+	//void SetHojuPair(int num,int noweventnum);// アイテムの補充を行う
+	//void SetSoldOutPair(int num);				// アイテムの売り切れ設定を行う
 	VECTOR2 GetPos(int num);					// アイテムの座標を取得する
 	void SetPos(int num);						// アイテムの座標を設定する(補充で使う)
 private:
@@ -29,5 +29,5 @@ private:
 	VECTOR2 _itemPos[12];										// アイテム設置場所設定用
 
 	//「Sold Out」の文字画像
-	int _soldoutPNG;
+	//int _soldoutPNG;
 };

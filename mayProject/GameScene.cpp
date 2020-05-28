@@ -14,6 +14,7 @@
 int GameScene::plPosX = 0;
 int GameScene::plPosY = 0;
 bool GameScene::monsterFlg = false;
+bool GameScene::bossClearFlg = false;
 
 #define PI 3.141592653589793
 
@@ -121,6 +122,7 @@ bool GameScene::Init(void)
 	FileRead_close(mapFileHandle);
 
 	// ダンジョン関係
+	bossClearFlg = false;
 	backFlg = false;
 	plPosX = 0;
 	plPosY = 0;
@@ -132,6 +134,7 @@ bool GameScene::Init(void)
 	_directRota = 0.0f;
 	_mapChipDrawOffset = { 0,0 };
 	_plNowMark = { 0,0 };
+	_allMapFlg = false;
 
 	// その他
 	blinkFlg = false;
@@ -145,6 +148,7 @@ bool GameScene::Init(void)
 	_kiri[0] = 0.0f;
 	_kiri[1] = -900.0f;
 	_bossPos = { 8,5 };
+	//_bossPos = { 0,2 };
 	_keyFlg = false;
 
 	// SE
@@ -332,7 +336,6 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 				_event->SetEventMonsFlg(false);
 				eventState = EVENT_STATE::NON;
 				_monster[0]->SetEnemyState(ENEMY_STATE::NON);
-				_event->SetNowEvent(0);
 				_event->SetEvent(EVENT_STATE::NON);
 				_event->SetFateNum(-1);
 
@@ -423,6 +426,12 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 	else
 	{
 		_kiri[1] = -900.0f;
+	}
+
+	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_F2]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_F2]))
+	{
+		// 全体マップを描画したり消したりする
+		_allMapFlg = !_allMapFlg;
 	}
 
 	Draw();
@@ -564,6 +573,24 @@ void GameScene::Draw(void)
 		_event->Draw(this, _player, _menu, _item);
 	}
 
+	// 霧表現
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
+	DrawGraph(0 + _kiri[0], 0, _kiriPNG[0], true);
+	DrawGraph(0 + _kiri[1], 0, _kiriPNG[1], true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+	// マップ描画(敵出現時は描画しない)
+	if (_allMapFlg && eventState != EVENT_STATE::ENEMY)
+	{
+		// 全体マップの表示
+		allMapDraw();
+	}
+	else if (!_allMapFlg && eventState != EVENT_STATE::ENEMY)
+	{
+		// 部分マップの表示
+		smallMapDraw();
+	}
+
 	// 敵に攻撃したら敵が点滅する
 	if (blinkFlg)
 	{
@@ -580,7 +607,7 @@ void GameScene::Draw(void)
 		if (_blinkCnt % 10 == 0)
 		{
 			// ボスならこっち
-			if (plPosX == _bossPos.x && plPosY == _bossPos.y)
+			if (plPosX == _bossPos.x && plPosY == _bossPos.y && !bossClearFlg)
 			{
 				_monster[0]->BossDraw();
 			}
@@ -597,7 +624,7 @@ void GameScene::Draw(void)
 	else
 	{
 		// ボスじゃないとき
-		if (plPosX == _bossPos.x && plPosY == _bossPos.y)
+		if (plPosX == _bossPos.x && plPosY == _bossPos.y && !bossClearFlg)
 		{
 			if (eventState == EVENT_STATE::ENEMY && _monster[0]->GetEnemyState() != ENEMY_STATE::DEATH)
 			{
@@ -612,12 +639,6 @@ void GameScene::Draw(void)
 			}
 		}
 	}
-
-	// 霧表現
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
-	DrawGraph(0 + _kiri[0], 0, _kiriPNG[0], true);
-	DrawGraph(0 + _kiri[1], 0, _kiriPNG[1], true);
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	// プレイヤー
 	// HPバー関連画像サイズ
@@ -636,58 +657,6 @@ void GameScene::Draw(void)
 	{
 		DrawFormatString(750, 505, 0xffffff, "攻撃強化:+%d", _menu->GetPowUp());
 	}
-
-	if (_plNowMark.x == 0 && _plNowMark.y <= 2)
-	{
-		// Sのマークに後で変更する
-		DrawGraph(0 * 50, 550 - (0 * 50), _chipPNG[0], true);
-	}
-	// 現在地を保存していく
-	for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
-	{
-		if (plPosY <= 2)
-		{
-			_mapChipDrawOffset.y = 0;
-		}
-		else
-		{
-			_mapChipDrawOffset.y = 50 * (plPosY - 2);
-		}
-
-		if (plPosX <= 2)
-		{
-			_mapChipDrawOffset.x = 0;
-		}
-		else
-		{
-			_mapChipDrawOffset.x = 50 * (plPosX - 2);
-		}
-
-		if (std::get<0>(*v).y + 25 + _mapChipDrawOffset.y >= 450 && std::get<0>(*v).x + 25 - _mapChipDrawOffset.x <= 150)
-		{
-			DrawRotaGraph(std::get<0>(*v).x + 25 - _mapChipDrawOffset.x, std::get<0>(*v).y + 25 + _mapChipDrawOffset.y, 1.0, std::get<2>(*v), _chipPNG[std::get<1>(*v)], true);
-		}
-	}
-
-	// 現在地
-	if (plPosY <= 2)
-	{
-		_plNowMark.y = plPosY;
-	}
-	else
-	{
-		_plNowMark.y = 2;
-	}
-	if (plPosX <= 2)
-	{
-		_plNowMark.x = plPosX;
-	}
-	else
-	{
-		_plNowMark.x = 2;
-	}
-
-	DrawRotaGraph(_plNowMark.x * 50 + 25, 550 - (_plNowMark.y * 50) + 25, 1.0f, _directRota, _directPNG, true);
 
 	if (plPosX == _bossPos.x - 1 && plPosY == _bossPos.y)
 	{
@@ -1344,6 +1313,71 @@ void GameScene::cardEffect(void)
 	}
 }
 
+void GameScene::allMapDraw(void)
+{
+	VECTOR2 mapOffset = { 200,-100 };
+	for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
+	{
+		DrawRotaGraph(std::get<0>(*v).x + 25 + mapOffset.x, std::get<0>(*v).y + 25 + mapOffset.y, 1.0, std::get<2>(*v), _chipPNG[std::get<1>(*v)], true);
+	}
+	DrawRotaGraph(plPosX * 50 + 25 + mapOffset.x, 550 - (plPosY * 50) + 25 + mapOffset.y, 1.0f, _directRota, _directPNG, true);
+}
+
+void GameScene::smallMapDraw(void)
+{
+	if (_plNowMark.x == 0 && _plNowMark.y <= 2)
+	{
+		// Sのマークに後で変更する
+		DrawGraph(0 * 50, 550 - (0 * 50), _chipPNG[0], true);
+	}
+	// 現在地を保存していく
+	for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
+	{
+		if (plPosY <= 2)
+		{
+			_mapChipDrawOffset.y = 0;
+		}
+		else
+		{
+			_mapChipDrawOffset.y = 50 * (plPosY - 2);
+		}
+
+		if (plPosX <= 2)
+		{
+			_mapChipDrawOffset.x = 0;
+		}
+		else
+		{
+			_mapChipDrawOffset.x = 50 * (plPosX - 2);
+		}
+
+		if (std::get<0>(*v).y + 25 + _mapChipDrawOffset.y >= 450 && std::get<0>(*v).x + 25 - _mapChipDrawOffset.x <= 150)
+		{
+			DrawRotaGraph(std::get<0>(*v).x + 25 - _mapChipDrawOffset.x, std::get<0>(*v).y + 25 + _mapChipDrawOffset.y, 1.0, std::get<2>(*v), _chipPNG[std::get<1>(*v)], true);
+		}
+	}
+
+	// 現在地
+	if (plPosY <= 2)
+	{
+		_plNowMark.y = plPosY;
+	}
+	else
+	{
+		_plNowMark.y = 2;
+	}
+	if (plPosX <= 2)
+	{
+		_plNowMark.x = plPosX;
+	}
+	else
+	{
+		_plNowMark.x = 2;
+	}
+
+	DrawRotaGraph(_plNowMark.x * 50 + 25, 550 - (_plNowMark.y * 50) + 25, 1.0f, _directRota, _directPNG, true);
+}
+
 void GameScene::Direct(void)
 {
 	// 行き止まりだったら進行方向にたいしてバック処理
@@ -1885,7 +1919,7 @@ void GameScene::Key(void)
 			moveFlg = false;
 
 			// ボスならこっち
-			if (plPosX == _bossPos.x && plPosY == _bossPos.y)
+			if (plPosX == _bossPos.x && plPosY == _bossPos.y && !bossClearFlg)
 			{
 				auto ene = 5;
 				_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ボス用)

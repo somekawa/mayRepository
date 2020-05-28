@@ -132,6 +132,12 @@ void Enemy_weak::Damage(int damageNum, Cards* cards)
 	_enemyHP -= damageNum;
 	if (_enemyHP <= 0 && _enemyState == ENEMY_STATE::EXIST)
 	{
+		// ボス撃破時はフラグをtrueにして同じ座標に来てもボスが出てこないようにする
+		if (_enemyNum == 5)
+		{
+			GameScene::bossClearFlg = true;
+		}
+
 		GameScene::monsterFlg = false;
 		_enemyHP = 0;
 		_enemyState = ENEMY_STATE::DEATH;

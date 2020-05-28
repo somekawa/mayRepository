@@ -61,6 +61,7 @@ public:
 	static int plPosX;					// プレイヤーの歩行時用変数x
 	static int plPosY;					// プレイヤーの歩行時用変数y
 	static bool monsterFlg;				// 敵とのエンカウント用フラグ
+	static bool bossClearFlg;			// ボス撃破でtrueにする
 private:
 	bool Init(void);					// 初期化
 	void pngInit(void);					// 画像用初期化
@@ -76,6 +77,8 @@ private:
 	void plDead(void);					// プレイヤー死亡時
 	void enemyItemDrop(void);			// 敵からのアイテムドロップ処理
 	void cardEffect(void);				// カードの効果
+	void allMapDraw(void);				// 全体マップの描画
+	void smallMapDraw(void);			// 部分マップの描画
 
 	Monster* _monster[1];
 	Cards* _cards;
@@ -111,6 +114,7 @@ private:
 	PL_DIRECTION _plDirectOld;	// プレイヤーの前回向いていた方向
 	VECTOR2 _mapChipDrawOffset;	// マップチップの描画位置オフセット
 	VECTOR2 _plNowMark;			// 自分アイコン描画位置調整用
+	bool _allMapFlg;			// 全体マップ表示のときはtrue
 
 	// その他
 	int _blinkCnt;						// 攻撃を食らったときに起こる点滅

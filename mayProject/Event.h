@@ -21,7 +21,7 @@ enum class EVENT_STATE {
 	DRINK,		// 飲み物
 	TRAP,		// 即死トラップ
 	EVE_MONS,	// イベントモンスター
-	GOAL,
+	GOAL,		// 出口
 	MAX
 };
 
@@ -32,19 +32,17 @@ public:
 	~Event();
 	void UpDate(GameScene* game,Player* player, Menu* menu,Item* item, Monster* monster,Cards* cards);
 	void Draw(GameScene* game,Player* player, Menu* menu, Item* item);
-	void SetEvent(EVENT_STATE state);	// ゲームシーンからイベントを設定する
-	int GetNowEvent(void);				// 現在のイベント番号を取得する
-	void SetNowEvent(int num);			// はじめからやり直すのに必要
-	void SetFateNum(int num);			// はじめからやり直すのに必要
-	void SetReset(void);			// 初めからやり直すときに宝箱の状態をリセットする
-	bool GetEventMonsFlg(void);
-	void SetEventMonsFlg(bool flag);	// はじめからやり直すのに必要
-	bool GetEventMonsEndFlg(void);
-	void SetEventMonsEncountFlg(bool flag);
-	bool GetEventMonsEncountFlg(void);
+	void SetEvent(EVENT_STATE state);		// ゲームシーンからイベントを設定する
+	void SetFateNum(int num);				// はじめからやり直すのに必要
+	void SetReset(void);					// はじめからやり直すときにイベントの状態をリセットする
+	bool GetEventMonsFlg(void);				// 特定敵イベントで戦うを選択したか取得する関数
+	void SetEventMonsFlg(bool flag);		// はじめからやり直すのに必要
+	bool GetEventMonsEndFlg(void);			// 特定敵イベントが終了したかを取得する関数
+	void SetEventMonsEncountFlg(bool flag);	// 特定敵イベントの遭遇状態を設定する関数
+	bool GetEventMonsEncountFlg(void);		// 特定敵イベントに遭遇したかを取得する関数
 private:
-	void Init(void);					// 初期化
-	void pngInit(void);					// 画像関係初期化
+	void Init(void);						// 初期化
+	void pngInit(void);						// 画像関係初期化
 	void Enemy(GameScene* game, Player* player, Monster* monster);
 	void Yado(GameScene* game, Player* player);
 	void Syounin(GameScene* game, Player* player, Menu* menu,Item* item);
@@ -55,24 +53,48 @@ private:
 	void eventMons(GameScene* game, Monster* monster, Cards* cards);
 
 	EVENT_STATE _event;					// イベント情報用変数
+
+	// 宿屋・商人
 	bool _healYadoFlg;					// 回復を宿屋で頼むときにtrue
 	bool _nonMoneyFlg;					// 所持金が足りないときにtrue(宿屋と商人で使用)
-
-	int _nowEvent;						// 現在のイベント
-
 	bool _buyFlg;						// 買い物をするとしたときにアイテムを表示させるためのフラグ
 	bool _chooseFlg;					// 購入をおしたらtrueにする
 	int _chooseNum;						// 選択中の商品の番号保存用(場所とかしかわからない)
 	ITEM _itemInfo;						// アイテムの情報用
+	bool _itemNextPage;					// 商品ページをめくったらtrueになる
 
 	// ボタン・宝箱・飲み物イベントで使用
-	bool _pushFlg;						// ボタンを押したらtrueにする
-	int _fateNum;						// 0のときは良いことが起こる
+	bool _pushFlg;						// イベント発動時trueにする
+	int _fateNum;						// イベントの内容を保存する変数
 
 	bool _getFlg;						// アイテムをとるボタン
-	bool _anounceFlg;					// アイテムがいっぱいとのお知らせ
+	bool _anounceFlg;					// アイテムがいっぱいのときにお知らせする
 
-	bool _itemNextPage = false;
+	// 宝箱関連
+	int _chestOpen[4];					// 開けたかどうか
+	int _chestBingo[4];					// 中身の当たり/はずれ
+	VECTOR2 _chestPos[4];				// 宝箱の位置
+
+	// ボタン
+	int _buttonNum;						// 現在地とイベント場所が一致したときにその値を保存する変数
+	bool _buttonPush[2];				// 押したかどうか
+	VECTOR2 _buttonPos[2];				// ボタンの位置
+	bool _buttonEventFlg;				// ボタン押下時にtrueにする
+
+	// 飲み物
+	int _drinkNum;						// 現在地とイベント場所が一致したときにその値を保存する変数
+	bool _drinking[2];					// 飲んだかどうか
+	VECTOR2 _drinkPos[2];				// 飲み物の位置
+	bool _drinkEventFlg;				// 飲むことにしたときにtrueにする
+
+	// 即死トラップ
+	bool _trapFlg;						// 1度発動させたらそのままtrueにしておく
+	bool _nowTrapFlg;					// 発動しながら1度以上死んだ場合にtrue
+
+	// 特定敵
+	bool _eventMonsFlg;					// 戦うを選択時にtrue			
+	bool _eventMonsEncountFlg;			// 遭遇時にtrue
+	bool _eventMonsEndFlg;				// 即死トラップ使用して倒した際にtrue
 
 	// 宿屋の画像
 	int _healHumanPNG;
@@ -96,39 +118,15 @@ private:
 	int _drinkPNG;
 	// 選択肢の文字画像
 	int _sentakusiPNG[12];
-	// 矢印の画像
-	int yajirusiPNG;
+	// 商品ページを移動するための矢印の画像
+	int _yajirusiPNG;
 	// 空の宝箱
-	int karaPNG;
+	int _karaPNG;
 	// 即死トラップの像
-	int zouPNG;
+	int _zouPNG;
+	// 特定敵画像
+	int _eventMonsPNG;
 
 	// SE
-	int _soundSE[6];
-	int _seCnt;				// 歩行音からドア音までつなぐときに使う変数
-	bool _soundWalk;		// 歩行音からドア音までつなぐときに使うフラグ
-
-	int chestOpen[4];		// 開けたかどうか
-	int chestBingo[4];		// 中身が当たり
-	VECTOR2 chestPos[4];	// 宝箱の位置
-
-	// ボタン
-	int buttonNum = -1;
-	bool buttonPush[2];
-	VECTOR2 buttonPos[2];
-	bool buttonEventFlg = false;
-
-	// 飲み物
-	int drinkNum = -1;
-	bool drinkme[2];
-	VECTOR2 drinkPos[2];
-	bool drinkEventFlg = false;
-
-	bool trapFlg = false;	// 即死トラップ用。一度発動させたらそのままにしておく
-	bool nowTrapFlg = false;// 発動しながら一度以上死んだ場合
-
-	bool eventmonsFlg = false;
-	bool eventmonsencountFlg = false;
-	bool eventmonsEndFlg = false;
-	int eventMonsPNG;
+	int _soundSE[4];
 };
