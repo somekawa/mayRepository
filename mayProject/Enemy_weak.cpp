@@ -55,7 +55,7 @@ bool Enemy_weak::Init(void)
 
 	pngInit();
 	_enemyState = ENEMY_STATE::NON;
-	_bossFrogCnt = 0;
+	_bossFogCnt = 0;
 	_dropItem = false;
 	_dropItemNum = -1;
 	_se = LoadSoundMem("sound/se/drop.mp3");
@@ -86,15 +86,15 @@ void Enemy_weak::pngInit(void)
 	_bossPNG = LoadGraph(boss.c_str());
 
 	// ボス用スモーク画像
-	std::string frog = "image/frog.png";
-	frogPNG = LoadGraph(frog.c_str());
+	std::string fog = "image/fog.png";
+	fogPNG = LoadGraph(fog.c_str());
 }
 
 void Enemy_weak::update(void)
 {
-	if (_bossFrogCnt > 0)
+	if (_bossFogCnt > 0)
 	{
-		_bossFrogCnt--;
+		_bossFogCnt--;
 	}
 }
 
@@ -105,7 +105,7 @@ void Enemy_weak::Draw(void)
 	if (_enemyState == ENEMY_STATE::EXIST)
 	{
 		// 最後の引数がtrueじゃなかったら透過されない
-		DrawRotaGraph(450, 270, 1.0f, 0, _enemyPNG[_enemyNum], true);
+		DrawRotaGraph(450, 300, 1.0f, 0, _enemyPNG[_enemyNum], true);
 	}
 
 	// 敵が死亡したときのドロップアイテムの描画処理
@@ -122,8 +122,8 @@ void Enemy_weak::Draw(void)
 void Enemy_weak::BossDraw(void)
 {
 	DrawRotaGraph(450, 270, 1.0f, 0, _bossPNG, true);
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, _bossFrogCnt);
-	DrawGraph(0, 0, frogPNG, true);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, _bossFogCnt);
+	DrawGraph(0, 0, fogPNG, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
@@ -198,7 +198,7 @@ void Enemy_weak::SetEnemyNum(int num, int plLv)
 	{
 		if (num == 5)
 		{	// ボスのときにはスモークの準備をする
-			_bossFrogCnt = 256;
+			_bossFogCnt = 256;
 		}
 		// ダメージ量と体力をプレイヤーレベルで調整できるようにする
 		_attackDamage = enemy_status[num].attack + (plLv * 2);

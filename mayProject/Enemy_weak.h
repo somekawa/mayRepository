@@ -38,7 +38,7 @@ private:
 	int _attackDamage;					// 敵の攻撃力保存用(通常の攻撃力+プレイヤーレベルでの補正)
 	ENEMY_STATE _enemyState;			// 現在の敵の状態設定用
 
-	int _bossFrogCnt;					// ボスのスモーク調整用変数
+	int _bossFogCnt;					// ボスのスモーク調整用変数
 
 	// ドロップアイテム関係
 	bool _dropItem;						// ドロップアイテム用フラグ
@@ -51,5 +51,5 @@ private:
 	int _enemyPNG[MONSTER_CNT];			// 雑魚画像
 	int _bossPNG;						// ボス画像
 	int _eneItemPNG[4];					// ドロップアイテム画像
-	int frogPNG;						// ボス用スモーク画像
+	int fogPNG;						// ボス用スモーク画像
 };

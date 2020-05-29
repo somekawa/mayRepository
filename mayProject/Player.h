@@ -41,12 +41,16 @@ public:
 	bool GetSkillBackFlg(void);			// スキル選択画面が表示されているかを取得する
 	void SetBarrierNum(int num);		// スキルのバリア値を設定
 	int GetBarrierNum(void);			// スキルのバリア値を取得
+	void SetLevelUpAnounceFlg(bool flag);// レベルが上がったことを通知するフラグを設定する
+	bool GetLevelUpAnounceFlg(void);	 // レベルが上がったことを通知するフラグを取得する
 
 	static int saveData[9];				// ロードで始めるときに読み込んだデータを保存する配列
 	static bool loadFlg;				// ロードで始めるときにinitでステータスを読み込まないようにするとき必要
 private:
 	void Init(void);					// 初期化
 	void pngInit(void);					// 画像初期化
+
+	bool _levelUpAnounceFlg = false;	// レベルが上がったときにtrueになる
 
 	// スキル関係
 	int _skillCharge;					// スキルチャージ

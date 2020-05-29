@@ -34,6 +34,81 @@
                 <key>textureRotated</key>
                 <false/>
             </dict>
+            <key>chip_10.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{50,50}</string>
+                <key>spriteSourceSize</key>
+                <string>{50,50}</string>
+                <key>textureRect</key>
+                <string>{{500,0},{50,50}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
+            <key>chip_11.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{50,50}</string>
+                <key>spriteSourceSize</key>
+                <string>{50,50}</string>
+                <key>textureRect</key>
+                <string>{{550,0},{50,50}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
+            <key>chip_12.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{50,50}</string>
+                <key>spriteSourceSize</key>
+                <string>{50,50}</string>
+                <key>textureRect</key>
+                <string>{{600,0},{50,50}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
+            <key>chip_13.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{50,50}</string>
+                <key>spriteSourceSize</key>
+                <string>{50,50}</string>
+                <key>textureRect</key>
+                <string>{{650,0},{50,50}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
+            <key>chip_14.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{50,50}</string>
+                <key>spriteSourceSize</key>
+                <string>{50,50}</string>
+                <key>textureRect</key>
+                <string>{{700,0},{50,50}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
             <key>chip_2.png</key>
             <dict>
                 <key>aliases</key>
@@ -109,6 +184,51 @@
                 <key>textureRotated</key>
                 <false/>
             </dict>
+            <key>chip_7.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{50,50}</string>
+                <key>spriteSourceSize</key>
+                <string>{50,50}</string>
+                <key>textureRect</key>
+                <string>{{350,0},{50,50}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
+            <key>chip_8.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{50,50}</string>
+                <key>spriteSourceSize</key>
+                <string>{50,50}</string>
+                <key>textureRect</key>
+                <string>{{400,0},{50,50}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
+            <key>chip_9.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{50,50}</string>
+                <key>spriteSourceSize</key>
+                <string>{50,50}</string>
+                <key>textureRect</key>
+                <string>{{450,0},{50,50}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
         </dict>
         <key>metadata</key>
         <dict>
@@ -121,9 +241,9 @@
             <key>realTextureFileName</key>
             <string>mapchip.png</string>
             <key>size</key>
-            <string>{350,50}</string>
+            <string>{750,50}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:f48a26d5caa9f5baf5fbf41d9a848783:9adf470776ab9a4a190854d4903d862f:481fdb228cbebbb88d179f191436236a$</string>
+            <string>$TexturePacker:SmartUpdate:48d938150e2a465e5c74b1d6ca9a6ea8:a61e34c17775d051f2a8a8494ebc399f:481fdb228cbebbb88d179f191436236a$</string>
             <key>textureFileName</key>
             <string>mapchip.png</string>
         </dict>

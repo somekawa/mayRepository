@@ -64,8 +64,8 @@ void Player::Init(void)
 		player_status.now_level = 1;
 		player_status.maxHP = 35;
 		player_status.plHP = player_status.maxHP;
-		player_status.attackDamage = 3;
-		//player_status.attackDamage = 999;
+		//player_status.attackDamage = 3;
+		player_status.attackDamage = 999;
 		player_status.defense = 0;
 		player_status.next_level = 10;
 		player_status.money = 1000;
@@ -100,6 +100,9 @@ void Player::Init(void)
 	_soundSE[0] = LoadSoundMem("sound/se/click.mp3");
 	_soundSE[1] = LoadSoundMem("sound/se/levelup.mp3");
 	_soundSE[2] = LoadSoundMem("sound/se/skill.mp3");
+
+	// 音量を下げる
+	ChangeVolumeSoundMem(128, _soundSE[1]);
 
 	pngInit();
 }
@@ -293,12 +296,11 @@ void Player::Draw(Menu* menu)
 	// バリアバーの表示
 	if (_barrierNum > 0)
 	{
+		int posx = 600;
+		int posy = 350;
 		DrawFormatString(600, 325, 0xffffff, "バリア耐久:%d/%d", _barrierNum, _barrierMaxNum);
-
-		int pgx = 150;
-		int pgy = 25;
-		DrawExtendGraph(600, 350, 600 + pgx, 350 + pgy, _barrierBarBackPNG, true);
-		DrawExtendGraph(600, 350, 600 + pgx * ((float)_barrierNum / (float)_barrierMaxNum), 350 + pgy, _barrierBarPNG, true);
+		DrawExtendGraph(posx, posy, posx + 150, posy + 33, _barrierBarBackPNG, true);
+		DrawExtendGraph(posx+3, posy+4, posx+3 + 145 * ((float)_barrierNum / (float)_barrierMaxNum), posy+4 + 25, _barrierBarPNG, true);
 	}
 }
 
@@ -361,13 +363,14 @@ void Player::SetNextLevel(int num)
 	// レベルが連続で上がる処理としてwhileが必要
 	while (player_status.next_level <= 0)
 	{
+		_levelUpAnounceFlg = true;
 		if (!seFlg)
 		{
 			PlaySoundMem(_soundSE[1], DX_PLAYTYPE_BACK, true);
 			seFlg = true;
 		}
 		// ステータスアップ
-		player_status.attackDamage += 1;
+		player_status.attackDamage += 2;
 		player_status.maxHP += 3;
 		player_status.now_level++;
 
@@ -443,4 +446,14 @@ void Player::SetBarrierNum(int num)
 int Player::GetBarrierNum(void)
 {
 	return _barrierNum;
+}
+
+void Player::SetLevelUpAnounceFlg(bool flag)
+{
+	_levelUpAnounceFlg = flag;
+}
+
+bool Player::GetLevelUpAnounceFlg(void)
+{
+	return _levelUpAnounceFlg;
 }

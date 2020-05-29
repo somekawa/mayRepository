@@ -165,7 +165,7 @@ bool GameScene::Init(void)
 	// BGM
 	_gameBGM = LoadSoundMem("sound/bgm/dangeon.mp3");
 	_battleBGM = LoadSoundMem("sound/bgm/battle.mp3");
-	//PlaySoundMem(_gameBGM, DX_PLAYTYPE_LOOP, true);
+	PlaySoundMem(_gameBGM, DX_PLAYTYPE_LOOP, true);
 	return true;
 }
 
@@ -233,16 +233,10 @@ void GameScene::pngInit(void)
 	
 	// マップチップ
 	std::string mapchip = "image/mapchip/mapchip.png";
-	std::string mapchip_stop = "image/mapchip/chip_3.png";
-	std::string mapchip_danger = "image/mapchip/chip_danger.png";
+	std::string mapchip_start = "image/mapchip/start_chip.png";
 
-	LoadDivGraph(mapchip.c_str(), 7, 7, 1, 50, 50, _chipPNG);
-	for (int i = 7; i < 13; i++)
-	{
-		_chipPNG[i] = LoadGraph(mapchip_stop.c_str());
-	}
-	_chipPNG[13] = LoadGraph(mapchip_danger.c_str());
-	_chipPNG[14] = LoadGraph(mapchip_danger.c_str());
+	LoadDivGraph(mapchip.c_str(), 15, 15, 1, 50, 50, _chipPNG);
+	_startChipPNG = LoadGraph(mapchip_start.c_str());
 
 	// 白
 	std::string white = "image/white.png";
@@ -278,10 +272,14 @@ void GameScene::pngInit(void)
 
 	// 霧
 	std::string kiri = "image/kiri.png";
-	_kiriPNG[0] = LoadGraph(kiri.c_str());
+	_dungeonFogPNG[0] = LoadGraph(kiri.c_str());
 
 	std::string kiri2 = "image/kiri2.png";
-	_kiriPNG[1] = LoadGraph(kiri2.c_str());
+	_dungeonFogPNG[1] = LoadGraph(kiri2.c_str());
+
+	// レベルアップの時の枠
+	std::string square = "image/square.png";
+	_levelUpFramePNG = LoadGraph(square.c_str());
 }
 
 unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
@@ -350,8 +348,9 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 				_player->SetConditionTurn(0);
 
 				_plDeadChangeWinColor = 255;
-				// 音量の設定
+				// 音量の設定(最大に戻す)
 				ChangeVolumeSoundMem(255, _gameBGM);
+				ChangeVolumeSoundMem(255, _battleBGM);
 			}
 
 			// あきらめてゲームオーバー画面へ
@@ -397,6 +396,21 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 	_event->UpDate(this, _player, _menu, _item, _monster[0], _cards);
 	enemyItemDrop();
 	_monster[0]->update();
+
+	//	時間経過でレベルアップしていたときに立ててたフラグをfalseに戻す
+	if (_player->GetLevelUpAnounceFlg())
+	{
+		if (_levelUpAnounceTime > 0)
+		{
+			_levelUpAnounceTime--;
+		}
+		else
+		{		
+			_player->SetLevelUpAnounceFlg(false);
+			_levelUpAnounceTime = 180;
+		}
+	}
+
 
 	// アイテム画面の時にはカードを動かせなくする
 	if (_monster[0]->GetEnemyState() == ENEMY_STATE::EXIST && _menu->GetMenu() != MENU::ITEM)
@@ -576,8 +590,8 @@ void GameScene::Draw(void)
 
 	// 霧表現
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
-	DrawGraph(0 + _kiri[0], 0, _kiriPNG[0], true);
-	DrawGraph(0 + _kiri[1], 0, _kiriPNG[1], true);
+	DrawGraph(0 + _kiri[0], 0, _dungeonFogPNG[0], true);
+	DrawGraph(0 + _kiri[1], 0, _dungeonFogPNG[1], true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	// マップ描画(敵出現時は描画しない)
@@ -643,10 +657,10 @@ void GameScene::Draw(void)
 
 	// プレイヤー
 	// HPバー関連画像サイズ
-	int pgx = 100;
-	int pgy = 25;
-	DrawExtendGraph(750, 450, 750 + pgx, 450 + pgy, _hpBarBack, true);
-	DrawExtendGraph(750, 450, 750 + pgx * _player->GetHPBar(), 450 + pgy, _hpBarPl, true);
+	int posx = 750;
+	int posy = 450;
+	DrawExtendGraph(posx, posy, posx + 130, posy + 33, _hpBarBack, true);
+	DrawExtendGraph(posx+3, posy+4, posx+3 + 125 * _player->GetHPBar(), posy+4 + 25, _hpBarPl, true);
 
 	// 右下案内表示
 	DrawFormatString(750, 425, 0xffffff, "体力:%d / %d", _player->GetHP(), _player->GetMaxHP());
@@ -667,14 +681,17 @@ void GameScene::Draw(void)
 
 	if (_monster[0]->GetEnemyState() == ENEMY_STATE::EXIST)
 	{
+		int posx = 600;
+		int posy = 80;
+
 		DrawGraph(550, 0, _enemyInfoPNG, true);
 
 		// 敵がいるときのみ描画
 		DrawGraph(650, 150, _turnPNG[_cards->GetTurn()], true);
 
 		// 敵(HPバー関連)
-		DrawExtendGraph(600, 80, 600 + pgx, 80 + pgy, _hpBarBack, true);
-		DrawExtendGraph(600, 80, 600 + pgx * _monster[0]->GetHPBar(), 80 + pgy, _hpBarEn, true);
+		DrawExtendGraph(posx, posy, posx + 110, posy + 33, _hpBarBack, true);
+		DrawExtendGraph(posx+3, posy+4, posx+3 + 105 * _monster[0]->GetHPBar(), posy+4 + 25, _hpBarEn, true);
 
 		// 戦闘中以外は邪魔なので非表示で
 		_cards->Draw(_player,_menu);
@@ -693,6 +710,16 @@ void GameScene::Draw(void)
 			// 持ち物満タンだからもてないよ
 			DrawFormatString(600, 180, 0xffffff, "所持品がいっぱいだ");
 		}
+	}
+
+	// レベル上がったよ
+	if (_player->GetLevelUpAnounceFlg())
+	{	
+		DrawGraph(0, 300, _levelUpFramePNG, true);
+		// 指定秒数の間、描画する
+		DrawFormatString(30, 320, 0x000000, "レベルが%dになった", _player->GetNowLevel());
+		DrawFormatString(30, 340, 0x000000, "HPの最大が%dになった",_player->GetMaxHP());
+		DrawFormatString(30, 360, 0x000000, "攻撃力が%dになった", _player->GetAttackDamage());
 	}
 
 	// 戦闘中の毒の描画(プレイヤーがカードを使ったときにくらう毒のダメージ)
@@ -964,6 +991,18 @@ void GameScene::pl_TurnEndAfter(void)
 
 		if (!_onceFlg)
 		{
+			// 敵の種類によっては毒にかかる
+			if (_monster[0]->GetEnemyNum() == 0)
+			{
+				int poison = GetRand(1);	// 0か1
+				if (poison == 0)			// 0なら毒にかかる
+				{
+					// 毒音
+					PlaySoundMem(_soundSE[7], DX_PLAYTYPE_BACK, true);
+					_player->SetCondition(CONDITION::POISON);
+				}
+			}
+
 			// ダメージ音
 			PlaySoundMem(_soundSE[6], DX_PLAYTYPE_BACK, true);
 
@@ -1317,6 +1356,8 @@ void GameScene::cardEffect(void)
 void GameScene::allMapDraw(void)
 {
 	VECTOR2 mapOffset = { 200,-100 };
+	// Sのマーク
+	DrawGraph(0 * 50 + mapOffset.x, 550 - (0 * 50) + mapOffset.y, _startChipPNG, true);
 	for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
 	{
 		DrawRotaGraph(std::get<0>(*v).x + 25 + mapOffset.x, std::get<0>(*v).y + 25 + mapOffset.y, 1.0, std::get<2>(*v), _chipPNG[std::get<1>(*v)], true);
@@ -1328,8 +1369,8 @@ void GameScene::smallMapDraw(void)
 {
 	if (_plNowMark.x == 0 && _plNowMark.y <= 2)
 	{
-		// Sのマークに後で変更する
-		DrawGraph(0 * 50, 550 - (0 * 50), _chipPNG[0], true);
+		// Sのマーク
+		DrawGraph(0 * 50, 550 - (0 * 50), _startChipPNG, true);
 	}
 	// 現在地を保存していく
 	for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
@@ -1821,23 +1862,27 @@ void GameScene::Key(void)
 		shakeFlg = true;
 	}
 
-	// 扉が開いていたら再設定
 	if (openDoor)
 	{
 		Direct();
 		_plNowPoint = _dungeonMap[plPosY][plPosX].second;
 		if (!_dungeonMap[plPosY][plPosX].first)
 		{
-			_mapVec.emplace_back(VECTOR2(plPosX * 50, 550 - (plPosY * 50)),_plNowPoint, _directRota);
+			if ((_plNowPoint >= 7 && _plNowPoint <= 11) || _plNowPoint == 13 || _plNowPoint == 14)
+			{
+				// イベントアイコン(即死トラップ以外)のときはマップチップを回転させずに保存する
+				_mapVec.emplace_back(VECTOR2(plPosX * 50, 550 - (plPosY * 50)), _plNowPoint, 0.0f);
+			}
+			else
+			{
+				// 通常道と即死トラップの保存
+				_mapVec.emplace_back(VECTOR2(plPosX * 50, 550 - (plPosY * 50)), _plNowPoint, _directRota);
+			}
 			// 通ったことのある道はフラグがtrueになる仕組み
 			_dungeonMap[plPosY][plPosX].first = true;
 		}
 
-		// クリック音
-		//PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-
 		_monster[0]->SetEnemyState(ENEMY_STATE::NON);
-		//doorFlg = true;
 		moveFlg = false;
 		openDoor = false;
 		_degree = 0.0f;
@@ -1936,18 +1981,17 @@ void GameScene::Key(void)
 		{
 			moveFlg = false;
 
-			// ボスならこっち
 			if (plPosX == _bossPos.x && plPosY == _bossPos.y && !bossClearFlg)
 			{
-				auto ene = 5;
-				_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ボス用)
+				// ボスならこっち
+				_monster[0]->SetEnemyNum(5, _player->GetNowLevel());		// これで敵の情報をセットしている(ボス用)
 				_cards->SetTurn(_monster[0]->GetMaxTurn());
 			}
 			else
 			{
 				// 敵は0~4まで
 				auto ene = GetRand(4);
-				_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ランダムにする)
+				_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ランダム)
 				_cards->SetTurn(_monster[0]->GetMaxTurn());
 			}
 		}

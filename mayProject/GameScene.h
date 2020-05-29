@@ -127,6 +127,7 @@ private:
 	float _kiri[2];						// 霧
 	VECTOR2 _bossPos;					// ボス登場位置
 	bool _keyFlg;						// キーが押されたらtrueになり足音SEがなり終わったらfalseになる
+	int _levelUpAnounceTime = 180;
 
 	//std::map<bool, std::pair<int, int>> mapTest;
 	//std::map<int, int> mapTest;
@@ -164,8 +165,11 @@ private:
 	// ダンジョン関連
 	int _roadPNG[static_cast<int>(MAP::MAX)];
 	int _chipPNG[static_cast<int>(MAP::MAX)];
+	int _startChipPNG;
 	// 霧
-	int _kiriPNG[2];
+	int _dungeonFogPNG[2];
+	// レベルアップの時の枠
+	int _levelUpFramePNG;
 
 	/*音関係*/
 	// SE関連
