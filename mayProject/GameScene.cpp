@@ -182,9 +182,11 @@ void GameScene::pngInit(void)
 
 	// プレイヤーのHPバー
 	std::string hpbar_pl = "image/hpbar_pl.png";
+	std::string hpbar_plPoison = "image/hpbar_plPoison.png";
 	std::string hpbar_en = "image/hpbar_en.png";
 	std::string hpbar_back = "image/hpbar_back.png";
 	_hpBarPl = LoadGraph(hpbar_pl.c_str());
+	_hpBarPlPoison = LoadGraph(hpbar_plPoison.c_str());
 	_hpBarEn = LoadGraph(hpbar_en.c_str());
 	_hpBarBack = LoadGraph(hpbar_back.c_str());
 
@@ -659,8 +661,19 @@ void GameScene::Draw(void)
 	// HPバー関連画像サイズ
 	int posx = 750;
 	int posy = 450;
+	int plHPBar;
+	if (_player->GetCondition() == CONDITION::POISON)
+	{
+		// 毒状態の時はHPバーの色をこっちにする
+		plHPBar = _hpBarPlPoison;
+	}
+	else
+	{
+		// 通常状態の時のHPバーの色
+		plHPBar = _hpBarPl;
+	}
 	DrawExtendGraph(posx, posy, posx + 130, posy + 33, _hpBarBack, true);
-	DrawExtendGraph(posx+3, posy+4, posx+3 + 125 * _player->GetHPBar(), posy+4 + 25, _hpBarPl, true);
+	DrawExtendGraph(posx+3, posy+4, posx+3 + 125 * _player->GetHPBar(), posy+4 + 25, plHPBar, true);
 
 	// 右下案内表示
 	DrawFormatString(750, 425, 0xffffff, "体力:%d / %d", _player->GetHP(), _player->GetMaxHP());

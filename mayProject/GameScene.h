@@ -138,6 +138,7 @@ private:
 	int _turnPNG[6];
 	// HPƒo[‰æ‘œ
 	int _hpBarPl;
+	int _hpBarPlPoison;
 	int _hpBarEn;
 	int _hpBarBack;
 	// •”‰®(”àŠJ•Â‚İ)‚Ì‰æ‘œ
