@@ -40,6 +40,8 @@ public:
 	bool GetEventMonsEndFlg(void);			// 特定敵イベントが終了したかを取得する関数
 	void SetEventMonsEncountFlg(bool flag);	// 特定敵イベントの遭遇状態を設定する関数
 	bool GetEventMonsEncountFlg(void);		// 特定敵イベントに遭遇したかを取得する関数
+	void SetCautionFlg(bool flag);
+	bool GetCautionFlg(void);
 private:
 	void Init(void);						// 初期化
 	void pngInit(void);						// 画像関係初期化
@@ -71,6 +73,7 @@ private:
 	bool _anounceFlg;					// アイテムがいっぱいのときにお知らせする
 
 	bool _onceFlg = false;
+	bool _kyouseiButtleFlg = false;
 
 	// 宝箱関連
 	int _chestOpen[4];					// 開けたかどうか

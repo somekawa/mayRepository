@@ -128,6 +128,7 @@ private:
 	VECTOR2 _bossPos;					// ボス登場位置
 	bool _keyFlg;						// キーが押されたらtrueになり足音SEがなり終わったらfalseになる
 	int _levelUpAnounceTime = 180;
+	int _kyouseiButtlePngMoveCnt = 0;
 
 	//std::map<bool, std::pair<int, int>> mapTest;
 	//std::map<int, int> mapTest;
@@ -171,6 +172,10 @@ private:
 	int _dungeonFogPNG[2];
 	// レベルアップの時の枠
 	int _levelUpFramePNG;
+	// 強制戦闘文字画像
+	int _kyouseiPNG;
+	// 赤画像
+	int _redCautionPNG;
 
 	/*音関係*/
 	// SE関連

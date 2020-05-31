@@ -282,6 +282,14 @@ void GameScene::pngInit(void)
 	// レベルアップの時の枠
 	std::string square = "image/square.png";
 	_levelUpFramePNG = LoadGraph(square.c_str());
+
+	// 強制戦闘の文字画像
+	std::string kyousei = "image/kyousei.png";
+	_kyouseiPNG = LoadGraph(kyousei.c_str());
+
+	// 赤画像
+	std::string caution = "image/red_caution.png";
+	_redCautionPNG = LoadGraph(caution.c_str());
 }
 
 unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
@@ -444,6 +452,28 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 	{
 		_kiri[1] = -900.0f;
 	}
+
+	if (_event->GetCautionFlg())
+	{
+		if (_kyouseiButtlePngMoveCnt <= 250)
+		{
+			_kyouseiButtlePngMoveCnt += 20;
+		}
+		else if (_kyouseiButtlePngMoveCnt > 250 && _kyouseiButtlePngMoveCnt <= 300)
+		{
+			_kyouseiButtlePngMoveCnt++;
+		}
+		else if (_kyouseiButtlePngMoveCnt > 300 && _kyouseiButtlePngMoveCnt <= 900)
+		{
+			_kyouseiButtlePngMoveCnt += 20;
+		}
+		else
+		{
+			_kyouseiButtlePngMoveCnt = 0;
+			_event->SetCautionFlg(false);
+		}
+	}
+
 
 	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_F2]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_F2]))
 	{
@@ -773,6 +803,13 @@ void GameScene::Draw(void)
 			// 敵もろとも即死トラップで死んだとき
 			DrawGraph(300, 0, _messageDeathPNG2, true);
 		}
+	}
+
+	if (_event->GetCautionFlg())
+	{
+		// 強制戦闘の案内時に描画する
+		DrawGraph(0, 0, _redCautionPNG, true);
+		DrawGraph(_kyouseiButtlePngMoveCnt, 250, _kyouseiPNG, true);
 	}
 
 	ScreenFlip();

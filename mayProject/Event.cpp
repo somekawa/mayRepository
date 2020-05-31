@@ -144,6 +144,7 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 			monster->SetEnemyNum(6, 0);
 			cards->SetTurn(3);
 			_onceFlg = true;
+			_kyouseiButtleFlg = true;
 		}
 		else
 		{
@@ -158,6 +159,7 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 			monster->SetEnemyNum(6, 0);
 			cards->SetTurn(3);
 			_onceFlg = true;
+			_kyouseiButtleFlg = true;
 		}
 		else
 		{
@@ -172,6 +174,7 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 			monster->SetEnemyNum(6, 0);
 			cards->SetTurn(3);
 			_onceFlg = true;
+			_kyouseiButtleFlg = true;
 		}
 		else
 		{
@@ -186,6 +189,7 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 			monster->SetEnemyNum(6, 0);
 			cards->SetTurn(3);
 			_onceFlg = true;
+			_kyouseiButtleFlg = true;
 		}
 		else
 		{
@@ -200,6 +204,7 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 			monster->SetEnemyNum(6, 0);
 			cards->SetTurn(3);
 			_onceFlg = true;
+			_kyouseiButtleFlg = true;
 		}
 		else
 		{
@@ -605,6 +610,16 @@ void Event::SetEventMonsEncountFlg(bool flag)
 bool Event::GetEventMonsEncountFlg(void)
 {
 	return _eventMonsEncountFlg;
+}
+
+void Event::SetCautionFlg(bool flag)
+{
+	_kyouseiButtleFlg = flag;
+}
+
+bool Event::GetCautionFlg(void)
+{
+	return _kyouseiButtleFlg;
 }
 
 void Event::Enemy(GameScene* game, Player* player, Monster* monster)
