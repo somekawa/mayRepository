@@ -55,7 +55,7 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 	if (!pushFlg)
 	{
 		if (Mouse & MOUSE_INPUT_LEFT && !(_oldMouse & MOUSE_INPUT_LEFT)) {	 //マウスの左ボタンが押されていたら
-		// 当たり判定(NORMAL選択時)
+			// 当たり判定(NORMAL選択時)
 			if (x >= 250 && x <= 250 + 400 && y >= 100 && y <= 100 + 150)
 			{
 				DeleteSoundMem(TitleScene::_titleBGM);
@@ -69,17 +69,18 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 				//return std::make_unique<GameScene>();
 			}
 			// 当たり判定(HARD選択時)
-			//if (x >= 250 && x <= 250 + 400 && y >= 300 && y <= 300 + 150)
-			//{
-			//	DeleteSoundMem(TitleScene::_titleBGM);
-			//	if (CheckSoundMem(_seClick) == 0)
-			//	{
-			//		PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
-			//		_toGameFlg = true;
-			//	}
-			//	modeTest = MODE::HARD;
-			//	//return std::make_unique<GameScene>();
-			//}
+			if (x >= 250 && x <= 250 + 400 && y >= 300 && y <= 300 + 150)
+			{
+				DeleteSoundMem(TitleScene::_titleBGM);
+				if (CheckSoundMem(_seClick) == 0)
+				{
+					PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
+					_toGameFlg = true;
+				}
+				modeTest = MODE::HARD;
+				Menu::LoadTest();
+				//return std::make_unique<GameScene>();
+			}
 
 			// 当たり判定(タイトルへ戻る)
 			if (x >= 650 && x <= 650 + 200 && y >= 450 && y <= 450 + 100)

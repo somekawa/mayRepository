@@ -3,6 +3,7 @@
 #include "GameScene.h"
 #include "Player.h"
 #include "Cards.h"
+#include "SelectScene.h"
 
 Event::Event()
 {
@@ -38,32 +39,56 @@ void Event::Init(void)
 	_anounceFlg = false;
 
 	// 宝箱設定
-	auto testFileHandle = FileRead_open("csv/chest.csv");
-	if (testFileHandle == NULL)
+	int chestHandle;
+	// ボタンと飲み物の座標設定
+	int posHandle;
+
+	if (SelectScene::modeTest == MODE::NORMAL)
 	{
-		return; //エラー時の処理
+		chestHandle = FileRead_open("csv/chest1.csv");
+		posHandle = FileRead_open("csv/buttonDrink1.csv");
+		if (chestHandle == NULL || posHandle == NULL)
+		{
+			return; //エラー時の処理
+		}
+	}
+	else if (SelectScene::modeTest == MODE::HARD)
+	{
+		chestHandle = FileRead_open("csv/chest2.csv");
+		posHandle = FileRead_open("csv/buttonDrink2.csv");
+		if (chestHandle == NULL || posHandle == NULL)
+		{
+			return; //エラー時の処理
+		}
 	}
 
 	for (int i = 0; i < 4; i++)
 	{
-		FileRead_scanf(testFileHandle, "%d,%d,%d,%d", &_chestOpen[i], &_chestBingo[i], &_chestPos[i].x, &_chestPos[i].y);
+		FileRead_scanf(chestHandle, "%d,%d,%d,%d", &_chestOpen[i], &_chestBingo[i], &_chestPos[i].x, &_chestPos[i].y);
+	}
+	//ファイルを閉じる
+	FileRead_close(chestHandle);
+
+	for (int i = 0; i < 4; i++)
+	{
+		FileRead_scanf(posHandle, "%d,%d", &_buttonDrink[i].x, &_buttonDrink[i].y);
 	}
 
 	//ファイルを閉じる
-	FileRead_close(testFileHandle);
+	FileRead_close(posHandle);
 
 	// ボタン
 	_buttonNum = -1;
-	_buttonPos[0] = { 9,1 };
-	_buttonPos[1] = { 7,7 };
+	//_buttonPos[0] = { 9,1 };
+	//_buttonPos[1] = { 7,7 };
 	_buttonPush[0] = false;
 	_buttonPush[1] = false;
 	_buttonEventFlg = false;
 
 	// 飲み物
 	_drinkNum = -1;
-	_drinkPos[0] = { 6,3 };
-	_drinkPos[1] = { 0,9 };
+	//_drinkPos[0] = { 6,3 };
+	//_drinkPos[1] = { 0,9 };
 	_drinking[0] = false;
 	_drinking[1] = false;
 	_drinkEventFlg = false;
@@ -341,9 +366,9 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 	// ボタン出現中
 	if (_event == EVENT_STATE::BUTTON && !_eventMonsFlg)
 	{
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 4; i++)
 		{
-			if (_buttonPos[i].x == game->plPosX && _buttonPos[i].y == game->plPosY)
+			if (_buttonDrink[i].x == game->plPosX && _buttonDrink[i].y == game->plPosY)
 			{
 				_buttonNum = i;
 			}
@@ -456,9 +481,9 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 	// 瓶出現中
 	if (_event == EVENT_STATE::DRINK && !_eventMonsFlg)
 	{
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 4; i++)
 		{
-			if (_drinkPos[i].x == game->plPosX && _drinkPos[i].y == game->plPosY)
+			if (_buttonDrink[i].x == game->plPosX && _buttonDrink[i].y == game->plPosY)
 			{
 				_drinkNum = i;
 			}
@@ -833,9 +858,9 @@ void Event::Button(GameScene* game, Player* player)
 		}
 
 		// 押す
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 4; i++)
 		{
-			if (_buttonPos[i].x == game->plPosX && _buttonPos[i].y == game->plPosY)
+			if (_buttonDrink[i].x == game->plPosX && _buttonDrink[i].y == game->plPosY)
 			{
 				_buttonNum = i;
 			}
@@ -1012,9 +1037,9 @@ void Event::Drink(GameScene* game, Player* player)
 			}
 		}
 
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 4; i++)
 		{
-			if (_drinkPos[i].x == game->plPosX && _drinkPos[i].y == game->plPosY)
+			if (_buttonDrink[i].x == game->plPosX && _buttonDrink[i].y == game->plPosY)
 			{
 				_drinkNum = i;
 			}

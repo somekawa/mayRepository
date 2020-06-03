@@ -77,19 +77,20 @@ private:
 
 	// 宝箱関連
 	int _chestOpen[4];					// 開けたかどうか
-	int _chestBingo[4];					// 中身の当たり/はずれ
+	int _chestBingo[4];					// 中身の当たり(1)/はずれ(0)
 	VECTOR2 _chestPos[4];				// 宝箱の位置
 
 	// ボタン
+	VECTOR2 _buttonDrink[4];			// ボタンとドリンクの座標
 	int _buttonNum;						// 現在地とイベント場所が一致したときにその値を保存する変数
 	bool _buttonPush[2];				// 押したかどうか
-	VECTOR2 _buttonPos[2];				// ボタンの位置
+	//VECTOR2 _buttonPos[2];			// ボタンの位置
 	bool _buttonEventFlg;				// ボタン押下時にtrueにする
 
 	// 飲み物
 	int _drinkNum;						// 現在地とイベント場所が一致したときにその値を保存する変数
 	bool _drinking[2];					// 飲んだかどうか
-	VECTOR2 _drinkPos[2];				// 飲み物の位置
+	//VECTOR2 _drinkPos[2];				// 飲み物の位置
 	bool _drinkEventFlg;				// 飲むことにしたときにtrueにする
 
 	// 即死トラップ

@@ -109,11 +109,28 @@ bool GameScene::Init(void)
 	_shackPos = { 0,0 };
 
 	// マップ読み込み(配列は[y][x]の順になっている)
-	auto mapFileHandle = FileRead_open("csv/map.csv");
-	if (mapFileHandle == NULL)
+	int mapFileHandle;
+	if (SelectScene::modeTest == MODE::NORMAL)
 	{
-		return false; //エラー時の処理
+		mapFileHandle = FileRead_open("csv/map1.csv");
+		if (mapFileHandle == NULL)
+		{
+			return false; //エラー時の処理
+		}
+		_bossPos = { 8,5 };			
+		_bossemErgencyPos = {7,5};
 	}
+	else if (SelectScene::modeTest == MODE::HARD)
+	{
+		mapFileHandle = FileRead_open("csv/map2.csv");
+		if (mapFileHandle == NULL)
+		{
+			return false; //エラー時の処理
+		}
+		_bossPos = { 5,9 };
+		_bossemErgencyPos = { 5,8 };
+	}
+
 	for (int i = 0; i < 10; i++)
 	{
 		FileRead_scanf(mapFileHandle, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", &_dungeonMap[i][0].second, &_dungeonMap[i][1].second, &_dungeonMap[i][2].second, &_dungeonMap[i][3].second, &_dungeonMap[i][4].second, &_dungeonMap[i][5].second, &_dungeonMap[i][6].second, &_dungeonMap[i][7].second, &_dungeonMap[i][8].second, &_dungeonMap[i][9].second);
@@ -147,8 +164,6 @@ bool GameScene::Init(void)
 	_anounceFlg = false;
 	_kiri[0] = 0.0f;
 	_kiri[1] = -900.0f;
-	_bossPos = { 8,5 };
-	//_bossPos = { 0,2 };
 	_keyFlg = false;
 
 	// SE
@@ -1414,7 +1429,7 @@ void GameScene::cardEffect(void)
 
 void GameScene::allMapDraw(void)
 {
-	VECTOR2 mapOffset = { 200,-100 };
+	VECTOR2 mapOffset = { 200,0 };
 	// Sのマーク
 	DrawGraph(0 * 50 + mapOffset.x, 550 - (0 * 50) + mapOffset.y, _startChipPNG, true);
 	for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)

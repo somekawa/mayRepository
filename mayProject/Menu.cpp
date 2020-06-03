@@ -1183,7 +1183,7 @@ void Menu::SaveTest(Player* player)
 	{
 		// セーブをする
 		FILE* file;
-		fopen_s(&file, "data/saveTest.csv", "wb");
+		fopen_s(&file, "data/save1.csv", "wb");
 		fprintf(file, "%d,%d,%d,%d,%d,%d,%d,%d,%d\n", player->GetNowLevel(), player->GetMaxHP(), player->GetHP(), player->GetAttackDamage(), player->GetDifense(), player->GetNextLevel(), player->GetMoney(), player->GetConditionTurn(), player->GetCondition());
 		fprintf(file, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", itemBox[0]._item, itemBox[1]._item, itemBox[2]._item, itemBox[3]._item, itemBox[4]._item, itemBox[5]._item, itemBox[6]._item, itemBox[7]._item, itemBox[8]._item, itemBox[9]._item, itemBox[10]._item, itemBox[11]._item);
 		fclose(file);
@@ -1202,7 +1202,7 @@ void Menu::LoadTest()
 		// ロードをする
 		//ファイルを読み込む
 		int FileHandle;
-		FileHandle = FileRead_open("data/saveTest.csv");
+		FileHandle = FileRead_open("data/save1.csv");
 		if (FileHandle == NULL)
 		{
 			return;
@@ -1231,5 +1231,4 @@ void Menu::LoadTest()
 	{
 		SelectScene::pushFlg = false;
 	}
-
 }

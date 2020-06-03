@@ -3,9 +3,9 @@
 
  //難易度選択(数字はイベント総数。csvの数字量(-1まで含めた)と一致させる)
 enum class MODE {
-	NON = 0,
-	NORMAL = 26,
-	HARD = 41,
+	NON ,
+	NORMAL,
+	HARD,
 };
 
 class SelectScene :
