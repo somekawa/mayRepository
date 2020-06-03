@@ -17,6 +17,7 @@ public:
 	void update(void);					// アップデート関数
 	void Draw(void);					// 描画(雑魚敵とドロップアイテム)
 	void BossDraw(void);				// 雑魚敵と描画する画像の大きさが違うので別関数
+	void EffectDraw(void);				// 攻撃エフェクトの描画
 	void Damage(int damageNum,Cards* cards);	// プレイヤーから敵へのダメージ用関数
 	ENEMY_STATE GetEnemyState(void);	// 現在の敵の状態を取得する関数
 	void SetEnemyState(ENEMY_STATE st);	// イベント状態をNONに戻したいときに使う関数
@@ -30,6 +31,7 @@ public:
 	void SetDropFlg(bool flag);			// ドロップアイテムの設定する関数
 	ITEM GetDrop(void);					// ドロップアイテムの種類を取得する関数
 	int GetEnemyNum(void);				// 敵の番号を取得する関数
+	void SetAnimCnt(int num);			// アニメーションカウントを0に戻すときに使う関数
 private:
 	int _enemyHP;						// 現在HP
 	int _enemyMaxHP;					// 最大HP(通常の体力+プレイヤーレベルでの補正)
@@ -39,6 +41,9 @@ private:
 	ENEMY_STATE _enemyState;			// 現在の敵の状態設定用
 
 	int _bossFogCnt;					// ボスのスモーク調整用変数
+
+	int _animCnt;						// アニメーションカウンタ
+	int _animUpDateSpeedCnt;			// アニメーション更新速度調整カウンタ
 
 	// ドロップアイテム関係
 	bool _dropItem;						// ドロップアイテム用フラグ
@@ -51,5 +56,6 @@ private:
 	int _enemyPNG[MONSTER_CNT];			// 雑魚画像
 	int _bossPNG;						// ボス画像
 	int _eneItemPNG[4];					// ドロップアイテム画像
-	int fogPNG;						// ボス用スモーク画像
+	int _fogPNG;						// ボス用スモーク画像
+	int _AttackEffectPNG[8];			// 攻撃エフェクト画像
 };

@@ -21,6 +21,7 @@ public:
 	virtual void update(void) = 0;
 	virtual void Draw(void) = 0;
 	virtual void BossDraw(void) = 0;
+	virtual void EffectDraw(void) = 0;
 	virtual void Damage(int damageNum, Cards* cards) = 0;
 	virtual ENEMY_STATE GetEnemyState(void) = 0;
 	virtual void SetEnemyState(ENEMY_STATE st) = 0;
@@ -34,4 +35,5 @@ public:
 	virtual void SetDropFlg(bool flag) = 0;
 	virtual ITEM GetDrop(void) = 0;
 	virtual int GetEnemyNum(void) = 0;
+	virtual void SetAnimCnt(int num) = 0;
 };

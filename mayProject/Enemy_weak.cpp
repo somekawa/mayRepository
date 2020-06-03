@@ -4,6 +4,8 @@
 #include "SelectScene.h"
 #include "Enemy_weak.h"
 
+#define PI 3.141592653589793
+
 struct enemy
 {
 	int turn;	 // 待機ターン数
@@ -58,6 +60,8 @@ bool Enemy_weak::Init(void)
 	_bossFogCnt = 0;
 	_dropItem = false;
 	_dropItemNum = -1;
+	_animCnt = 0;
+	_animUpDateSpeedCnt = 0;
 	_se = LoadSoundMem("sound/se/drop.mp3");
 	return true;
 }
@@ -87,7 +91,11 @@ void Enemy_weak::pngInit(void)
 
 	// ボス用スモーク画像
 	std::string fog = "image/fog.png";
-	fogPNG = LoadGraph(fog.c_str());
+	_fogPNG = LoadGraph(fog.c_str());
+
+	// 攻撃用エフェクト画像
+	std::string eneAttack = "image/eneAttack.png";
+	LoadDivGraph(eneAttack.c_str(), 8, 5, 2, 240, 240, _AttackEffectPNG);
 }
 
 void Enemy_weak::update(void)
@@ -123,8 +131,26 @@ void Enemy_weak::BossDraw(void)
 {
 	DrawRotaGraph(450, 270, 1.0f, 0, _bossPNG, true);
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, _bossFogCnt);
-	DrawGraph(0, 0, fogPNG, true);
+	DrawGraph(0, 0, _fogPNG, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+}
+
+void Enemy_weak::EffectDraw(void)
+{
+	if (_animCnt < 8)
+	{
+		DrawRotaGraph(450,300,5.0f,PI/5, _AttackEffectPNG[_animCnt], true);
+		_animUpDateSpeedCnt++;
+		if (_animUpDateSpeedCnt % 3 == 0)
+		{	// アニメーション速度の調整
+			_animCnt++;
+		}
+	}
+	else
+	{
+		_animUpDateSpeedCnt = 0;
+		return;
+	}
 }
 
 void Enemy_weak::Damage(int damageNum, Cards* cards)
@@ -243,4 +269,9 @@ ITEM Enemy_weak::GetDrop(void)
 int Enemy_weak::GetEnemyNum(void)
 {
 	return _enemyNum;
+}
+
+void Enemy_weak::SetAnimCnt(int num)
+{
+	_animCnt = num;
 }

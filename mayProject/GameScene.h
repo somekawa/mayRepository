@@ -129,6 +129,7 @@ private:
 	bool _keyFlg;						// ƒL[‚ª‰Ÿ‚³‚ê‚½‚çtrue‚É‚È‚è‘«‰¹SE‚ª‚È‚èI‚í‚Á‚½‚çfalse‚É‚È‚é
 	int _levelUpAnounceTime = 180;
 	int _kyouseiButtlePngMoveCnt = 0;
+	bool _turnEndOnceFlg = false;
 
 	//std::map<bool, std::pair<int, int>> mapTest;
 	//std::map<int, int> mapTest;

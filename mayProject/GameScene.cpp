@@ -326,7 +326,9 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 			// レベルをそのままにはじめからやり直す
 			if (cursorPos.x >= 50 && cursorPos.x <= 50 + 400 && cursorPos.y >= 225 && cursorPos.y <= 225 + 130)
 			{
+				_monster[0]->SetAnimCnt(0);
 				_onceFlg = false;
+				_turnEndOnceFlg = false;
 				// 場所をスタート地点に戻す
 				plPosX = 0;
 				plPosY = 0;
@@ -687,6 +689,12 @@ void GameScene::Draw(void)
 		}
 	}
 
+	if (_turnEndOnceFlg)
+	{
+		// 攻撃エフェクト
+		_monster[0]->EffectDraw();
+	}
+
 	// プレイヤー
 	// HPバー関連画像サイズ
 	int posx = 750;
@@ -1039,7 +1047,7 @@ void GameScene::pl_TurnEndAfter(void)
 		// プレイヤーのターンが終了したらここに飛んできて、敵のターンに代わる
 		// 敵が攻撃してくるのでプレイヤーのHPを減らす処理をする
 
-		if (!_onceFlg)
+		if (!_turnEndOnceFlg)
 		{
 			// 敵の種類によっては毒にかかる
 			if (_monster[0]->GetEnemyNum() == 0)
@@ -1056,7 +1064,7 @@ void GameScene::pl_TurnEndAfter(void)
 			// ダメージ音
 			PlaySoundMem(_soundSE[6], DX_PLAYTYPE_BACK, true);
 
-			_onceFlg = true;
+			_turnEndOnceFlg = true;
 			/*防御の仕組み*/
 			float a = (float)_cards->GetGuard() * 10.0f;	//30%
 			float b = (100.0f - a) / 100.0f;	//100%-30%=70%/100% = 0.7
@@ -1167,21 +1175,6 @@ void GameScene::shakeDraw(void)
 
 	DrawRotaGraph(450 + _shackPos.x, 300 + _shackPos.y, 1.0f, 0, _roadPNG[_plNowPoint], false);
 
-	if (_shakeTime >= 15.0f)
-	{
-		if (eventState == EVENT_STATE::ENEMY)
-		{
-			// 攻撃を受けた後はターンを復活させる
-			_cards->SetTurn(_monster[0]->GetMaxTurn());
-			_cards->SetGuard(0);
-			_onceFlg = false;
-		}
-		shakeFlg = false;
-		_blinkCnt = 0;
-		// 描画輝度を戻す
-		SetDrawBright(255, 255, 255);
-	}
-
 	_blinkCnt++;
 	// 画面全体を点滅
 	if (_blinkCnt % 10 == 0)
@@ -1204,6 +1197,22 @@ void GameScene::shakeDraw(void)
 			SetDrawBright(255, 0, 255);
 		}
 		DrawGraph(0, 0, _whitePNG, true);
+	}
+
+	if (_shakeTime >= 15.0f)
+	{
+		if (eventState == EVENT_STATE::ENEMY)
+		{
+			// 攻撃を受けた後はターンを復活させる
+			_cards->SetTurn(_monster[0]->GetMaxTurn());
+			_cards->SetGuard(0);
+			_monster[0]->SetAnimCnt(0);
+			_turnEndOnceFlg = false;
+		}
+		shakeFlg = false;
+		_blinkCnt = 0;
+		// 描画輝度を戻す
+		SetDrawBright(255, 255, 255);
 	}
 }
 
