@@ -104,7 +104,7 @@ private:
 	void Direct(void);			// 移動と向きを変える関数
 	void Key(void);				// キー処理関数
 	std::pair<bool, int> _dungeonMap[10][10];				// マップ(通ったことのあるところはtrue)
-	std::vector<std::tuple<VECTOR2, int, float>> _mapVec;	// マップ移動軌跡(位置とミニマップ用に現在の番号に画像回転)
+	std::vector<std::tuple<VECTOR2, int, float, PL_DIRECTION>> _mapVec;	// マップ移動軌跡 <現在座標,現在位置番号,画像回転角度,プレイヤーの向き>
 	int _plNowPoint;			// プレイヤーの現在地
 	int _plOldPoint;			// プレイヤーの前回いた位置
 	bool _leftFlg;				// 左折したらtrue

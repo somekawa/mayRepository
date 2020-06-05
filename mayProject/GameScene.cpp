@@ -156,7 +156,7 @@ bool GameScene::Init(void)
 	// その他
 	blinkFlg = false;
 	_blinkCnt = 0;
-	_monsTimeCnt = 5;
+	_monsTimeCnt = 9999;
 	_walkDirect = 0;
 	_plDeadChangeWinColor = 255;
 	_poisonCnt = 256;
@@ -1544,178 +1544,192 @@ void GameScene::Direct(void)
 
 		_plNowPoint = _dungeonMap[plPosY][plPosX].second;
 
-		// 方向だけ転換させる--------
-
-		// T字路
-		if (_plNowPoint == 4)
+		// 方向だけ転換させる
+		for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
 		{
-			backFlg = false;
-			_plDirect = _plDirectOld;
-			//_plNowPoint = _plOldPoint;
-			if (_plOldPoint == 5)
+			
+			if (plPosX * 50 == std::get<0>(*v).x && 550 - (plPosY * 50) == std::get<0>(*v).y)
 			{
-				_plDirect = PL_DIRECTION::RIGHT;
-				_directRota = PI / 2;
-			}
-			else if (_plDirect == PL_DIRECTION::RIGHT)
-			{
-				_directRota = PI / 2;
-			}
-			else if (_plDirect == PL_DIRECTION::LEFT)
-			{
-				_plDirect = PL_DIRECTION::RIGHT;
-				//_directRota = PI + PI / 2;
-				_directRota = PI / 2;
-			}
-			else if (_plDirect == PL_DIRECTION::DOWN)
-			{
-				_directRota = PI;
-			}
-			else if (_plDirect == PL_DIRECTION::UP)
-			{
-				_directRota = 0;
-			}
-			return;
-		}
-
-		// トの字型(直進と右への道)
-		if (_plNowPoint == 5)
-		{
-			backFlg = false;
-			//_plDirect = _plDirectOld;
-			if (_plDirectOld == PL_DIRECTION::UP)
-			{
-				_directRota = 0;
-				_plDirect = _plDirectOld;
-				_plOldPoint = 5;
-			}
-			else if (_plDirectOld == PL_DIRECTION::RIGHT)
-			{
-				_directRota = 0;
-				_plDirect = PL_DIRECTION::UP;
-				_plOldPoint = 5;
-			}
-			return;
-		}
-		// トの字型(直進と左への道)
-		if (_plNowPoint == 6)
-		{
-			backFlg = false;
-			_plDirect = _plDirectOld;
-			if (_plDirect == PL_DIRECTION::UP)
-			{
-				_directRota = 0;
-			}
-			return;
-		}
-
-		if (_plDirect == PL_DIRECTION::UP)
-		{
-			if ((_plNowPoint == 0 || _plNowPoint == 5) && !_rightFlg)	// 直進
-			{
+				_directRota = std::get<2>(*v);
+				_plDirect = std::get<3>(*v);
 				backFlg = false;
-				return;
-			}
-			else if (_plNowPoint == 1)
-			{
-				_plDirectOld = _plDirect;
-				backFlg = false;
-				_plDirect = PL_DIRECTION::LEFT;	// 左曲がり
-				_leftFlg = true;
-				_directRota = PI + PI / 2;
-				return;
-			}
-			else if (_plNowPoint == 2)
-			{
-				_plDirectOld = _plDirect;
-				backFlg = false;
-				_plDirect = PL_DIRECTION::RIGHT;	// 右曲がり
-				_rightFlg = true;
-				_directRota = PI / 2;
 				return;
 			}
 		}
-
-		if (_plDirect == PL_DIRECTION::DOWN)
-		{
-			if (_plNowPoint == 0)	// 直進
-			{
-				backFlg = false;
-				return;
-			}
-			else if (_plNowPoint == 1)
-			{
-				//_plDirectOld = _plDirect;
-				backFlg = false;
-				_plDirect = PL_DIRECTION::RIGHT;	// 右曲がり
-				_rightFlg = true;
-				_directRota = PI / 2;
-				return;
-			}
-			else if (_plNowPoint == 2)
-			{
-				//_plDirectOld = _plDirect;
-				backFlg = false;
-				_plDirect = PL_DIRECTION::LEFT;	// 左曲がり
-				_leftFlg = true;
-				_directRota = PI + PI / 2;
-				return;
-			}
-		}
-
-		if (_plDirect == PL_DIRECTION::RIGHT)
-		{
-			if (_plNowPoint == 0)	// 直進
-			{
-				backFlg = false;
-				return;
-			}
-			else if (_plNowPoint == 1)	
-			{
-				_plDirectOld = _plDirect;
-				backFlg = false;
-				_plDirect = PL_DIRECTION::UP;
-				_directRota = 0.0f;
-				return;
-			}
-			else if (_plNowPoint == 2)	
-			{
-				_plDirectOld = _plDirect;
-				backFlg = false;
-				_plDirect = PL_DIRECTION::DOWN;
-				_directRota = PI;
-				return;
-			}
-		}
-
-		if (_plDirect == PL_DIRECTION::LEFT)
-		{
-			if (_plNowPoint == 0)	// 直進
-			{
-				backFlg = false;
-				return;
-			}
-			else if (_plNowPoint == 1)	
-			{
-				_plDirectOld = _plDirect;
-				backFlg = false;
-				_plDirect = PL_DIRECTION::DOWN;
-				_leftFlg = false;
-				_directRota = PI;
-				return;
-			}
-			else if (_plNowPoint == 2)	
-			{
-				_plDirectOld = _plDirect;
-				backFlg = false;
-				_plDirect = PL_DIRECTION::UP;
-				_leftFlg = false;
-				_directRota = 0.0f;
-				return;
-			}
-		}
+		/*for文前*/
+		//	// 方向だけ転換させる--------
+		//
+		//	// T字路
+		//	if (_plNowPoint == 4)
+		//	{
+		//		backFlg = false;
+		//		_plDirect = _plDirectOld;
+		//		//_plNowPoint = _plOldPoint;
+		//		if (_plOldPoint == 5)
+		//		{
+		//			_plDirect = PL_DIRECTION::RIGHT;
+		//			_directRota = PI / 2;
+		//		}
+		//		else if (_plDirect == PL_DIRECTION::RIGHT)
+		//		{
+		//			_directRota = PI / 2;
+		//		}
+		//		else if (_plDirect == PL_DIRECTION::LEFT)
+		//		{
+		//			_plDirect = PL_DIRECTION::RIGHT;
+		//			//_directRota = PI + PI / 2;
+		//			_directRota = PI / 2;
+		//		}
+		//		else if (_plDirect == PL_DIRECTION::DOWN)
+		//		{
+		//			_directRota = PI;
+		//		}
+		//		else if (_plDirect == PL_DIRECTION::UP)
+		//		{
+		//			_directRota = 0;
+		//		}
+		//		return;
+		//	}
+		//
+		//	// トの字型(直進と右への道)
+		//	if (_plNowPoint == 5)
+		//	{
+		//		backFlg = false;
+		//		//_plDirect = _plDirectOld;
+		//		if (_plDirectOld == PL_DIRECTION::UP)
+		//		{
+		//			_directRota = 0;
+		//			_plDirect = _plDirectOld;
+		//			_plOldPoint = 5;
+		//		}
+		//		else if (_plDirectOld == PL_DIRECTION::RIGHT)
+		//		{
+		//			_directRota = 0;
+		//			_plDirect = PL_DIRECTION::UP;
+		//			_plOldPoint = 5;
+		//		}
+		//		return;
+		//	}
+		//	// トの字型(直進と左への道)
+		//	if (_plNowPoint == 6)
+		//	{
+		//		backFlg = false;
+		//		_plDirect = _plDirectOld;
+		//		if (_plDirect == PL_DIRECTION::UP)
+		//		{
+		//			_directRota = 0;
+		//		}
+		//		return;
+		//	}
+		//
+		//	if (_plDirect == PL_DIRECTION::UP)
+		//	{
+		//		if ((_plNowPoint == 0 || _plNowPoint == 5) && !_rightFlg)	// 直進
+		//		{
+		//			backFlg = false;
+		//			return;
+		//		}
+		//		else if (_plNowPoint == 1)
+		//		{
+		//			_plDirectOld = _plDirect;
+		//			backFlg = false;
+		//			_plDirect = PL_DIRECTION::LEFT;	// 左曲がり
+		//			_leftFlg = true;
+		//			_directRota = PI + PI / 2;
+		//			return;
+		//		}
+		//		else if (_plNowPoint == 2)
+		//		{
+		//			_plDirectOld = _plDirect;
+		//			backFlg = false;
+		//			_plDirect = PL_DIRECTION::RIGHT;	// 右曲がり
+		//			_rightFlg = true;
+		//			_directRota = PI / 2;
+		//			return;
+		//		}
+		//	}
+		//
+		//	if (_plDirect == PL_DIRECTION::DOWN)
+		//	{
+		//		if (_plNowPoint == 0)	// 直進
+		//		{
+		//			backFlg = false;
+		//			return;
+		//		}
+		//		else if (_plNowPoint == 1)
+		//		{
+		//			//_plDirectOld = _plDirect;
+		//			backFlg = false;
+		//			_plDirect = PL_DIRECTION::RIGHT;	// 右曲がり
+		//			_rightFlg = true;
+		//			_directRota = PI / 2;
+		//			return;
+		//		}
+		//		else if (_plNowPoint == 2)
+		//		{
+		//			//_plDirectOld = _plDirect;
+		//			backFlg = false;
+		//			_plDirect = PL_DIRECTION::LEFT;	// 左曲がり
+		//			_leftFlg = true;
+		//			_directRota = PI + PI / 2;
+		//			return;
+		//		}
+		//	}
+		//
+		//	if (_plDirect == PL_DIRECTION::RIGHT)
+		//	{
+		//		if (_plNowPoint == 0)	// 直進
+		//		{
+		//			backFlg = false;
+		//			return;
+		//		}
+		//		else if (_plNowPoint == 1)	
+		//		{
+		//			_plDirectOld = _plDirect;
+		//			backFlg = false;
+		//			_plDirect = PL_DIRECTION::UP;
+		//			_directRota = 0.0f;
+		//			return;
+		//		}
+		//		else if (_plNowPoint == 2)	
+		//		{
+		//			_plDirectOld = _plDirect;
+		//			backFlg = false;
+		//			_plDirect = PL_DIRECTION::DOWN;
+		//			_directRota = PI;
+		//			return;
+		//		}
+		//	}
+		//
+		//	if (_plDirect == PL_DIRECTION::LEFT)
+		//	{
+		//		if (_plNowPoint == 0)	// 直進
+		//		{
+		//			backFlg = false;
+		//			return;
+		//		}
+		//		else if (_plNowPoint == 1)	
+		//		{
+		//			_plDirectOld = _plDirect;
+		//			backFlg = false;
+		//			_plDirect = PL_DIRECTION::DOWN;
+		//			_leftFlg = false;
+		//			_directRota = PI;
+		//			return;
+		//		}
+		//		else if (_plNowPoint == 2)	
+		//		{
+		//			_plDirectOld = _plDirect;
+		//			backFlg = false;
+		//			_plDirect = PL_DIRECTION::UP;
+		//			_leftFlg = false;
+		//			_directRota = 0.0f;
+		//			return;
+		//		}
+		//	}
+		//}
+		////------------------------------------------
 	}
-	//------------------------------------------
 
 	// T字路
 	if (_plNowPoint == 4)
@@ -1950,12 +1964,12 @@ void GameScene::Key(void)
 			if ((_plNowPoint >= 7 && _plNowPoint <= 11) || _plNowPoint == 13 || _plNowPoint == 14)
 			{
 				// イベントアイコン(即死トラップ以外)のときはマップチップを回転させずに保存する
-				_mapVec.emplace_back(VECTOR2(plPosX * 50, 550 - (plPosY * 50)), _plNowPoint, 0.0f);
+				_mapVec.emplace_back(VECTOR2(plPosX * 50, 550 - (plPosY * 50)), _plNowPoint, 0.0f,_plDirect);
 			}
 			else
 			{
 				// 通常道と即死トラップの保存
-				_mapVec.emplace_back(VECTOR2(plPosX * 50, 550 - (plPosY * 50)), _plNowPoint, _directRota);
+				_mapVec.emplace_back(VECTOR2(plPosX * 50, 550 - (plPosY * 50)), _plNowPoint, _directRota, _plDirect);
 			}
 			// 通ったことのある道はフラグがtrueになる仕組み
 			_dungeonMap[plPosY][plPosX].first = true;
