@@ -6,6 +6,13 @@ enum class CONDITION {
 	POISON	// 毒
 };
 
+enum class SKILL {
+	NON,
+	SWORD,
+	GUARD,
+	HEAL
+};
+
 class Monster;
 class Menu;
 class GameScene;
@@ -19,6 +26,7 @@ public:
 	void ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* cards);	// クリック時のみのアップデート関数
 	void UpDate(void);					// 通常アップデート関数
 	void Draw(Menu* menu);				// 描画
+	void SkillDraw(void);				// スキル描画
 	void SetHP(int hpNum);				// 現在の体力を設定する
 	int GetHP(void);					// 現在の体力を取得する
 	void SetMaxHP(int hpNum);			// 最大体力を設定する(体力増加剤で必要)
@@ -75,6 +83,14 @@ private:
 	int _skillMuscleIconPNG;			// 力こぶのアイコン画像
 	int _barrierBarBackPNG;				// バリアバーの背景画像
 	int _barrierBarPNG;					// バリアバー画像
+
+	// アニメーション関係
+	SKILL _skill = SKILL::NON;
+	int _skillAnimSword[12];
+	int _skillAnimGuard[10];
+	int _skillAnimHeal[10];
+	int _animCnt;						// アニメーションカウンタ
+	int _animUpDateSpeedCnt;			// アニメーション更新速度調整カウンタ
 
 	int _soundSE[3];					// SE
 };

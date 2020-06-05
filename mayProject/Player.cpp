@@ -11,7 +11,7 @@ bool Player::loadFlg = false;
 int Player::saveData[9] = { 0,0,0,0,0,0,0,0,0 };
 
 // スキルチャージ時間の最大値
-#define SKILL_CHARGE 10
+#define SKILL_CHARGE 1
 
 struct player
 {
@@ -92,6 +92,8 @@ void Player::Init(void)
 	_pngLight = 50;
 	_lightFlg = false;
 	_seSkillOnceFlg = false;
+	_animCnt = 0;
+	_animUpDateSpeedCnt = 0;
 
 	// バリア関係
 	_barrierMaxNum = 0;
@@ -150,6 +152,16 @@ void Player::pngInit(void)
 	// バリアバー画像
 	std::string barrier_bar = "image/barrier_bar.png";
 	_barrierBarPNG = LoadGraph(barrier_bar.c_str());
+
+	// スキルアニメーション(剣)
+	std::string swordAnim = "image/anim/swordAnim.png";
+	LoadDivGraph(swordAnim.c_str(), 12, 1, 12, 640, 240, _skillAnimSword);
+	// スキルアニメーション(バリア)
+	std::string gaurdAnim = "image/anim/gaurdAnim.png";
+	LoadDivGraph(gaurdAnim.c_str(), 10, 5, 2, 240, 240, _skillAnimGuard);
+	// スキルアニメーション(回復)
+	std::string healAnim = "image/anim/healAnim.png";
+	LoadDivGraph(healAnim.c_str(), 10, 10, 1, 240, 240, _skillAnimHeal);
 }
 
 void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* cards)
@@ -201,6 +213,7 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* c
 		// 攻撃アイコンとの当たり判定
 		if (x >= 290 && x <= 290 + 100 && y >= 150 && y <= 150 + 100)
 		{
+			_skill = SKILL::SWORD;
 			// 攻撃系(基礎攻撃力*10+武器威力で一定のダメージを与えられる)
 			monster->Damage(player_status.attackDamage * 10 + menu->GetEquipDamage(), cards);
 			game->blinkFlg = true;
@@ -210,6 +223,7 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* c
 		// 防御アイコンとの当たり判定
 		if (x >= 410 && x <= 410 + 100 && y >= 150 && y <= 150 + 100)
 		{
+			_skill = SKILL::GUARD;
 			// 防御系(特定値*プレイヤーレベル)
 			_barrierMaxNum = 20 + 3 * player_status.now_level;
 			_barrierNum = 20 + 3 * player_status.now_level;
@@ -219,8 +233,11 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* c
 		// 回復アイコンとの当たり判定
 		if (x >= 530 && x <= 530 + 100 && y >= 150 && y <= 150 + 100)
 		{
-			// 回復系(全回復もしかしたらリジェネ風に変更するかも)
+			_skill = SKILL::HEAL;
+			// 回復系(全回復+状態異常回復)
 			player_status.plHP = player_status.maxHP;
+			player_status.condition = CONDITION::FINE;
+			player_status.conditionTurnNum = 0;
 			lambda();
 		}
 	}
@@ -228,6 +245,20 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* c
 
 void Player::UpDate(void)
 {
+	if (_skill != SKILL::NON)
+	{
+		_animUpDateSpeedCnt++;
+		if (_animUpDateSpeedCnt % 3 == 0)
+		{
+			_animCnt++;
+		}
+	}
+	else
+	{
+		_animUpDateSpeedCnt = 0;
+		_animCnt = 0;
+	}
+
 	// スキルが使用可能な時にフラグを立てて、当たり判定を行う
 	if (_skillCharge <= 0)
 	{
@@ -304,6 +335,49 @@ void Player::Draw(Menu* menu)
 		DrawExtendGraph(posx, posy, posx + 150, posy + 33, _barrierBarBackPNG, true);
 		DrawExtendGraph(posx+3, posy+4, posx+3 + 145 * ((float)_barrierNum / (float)_barrierMaxNum), posy+4 + 25, _barrierBarPNG, true);
 	}
+}
+
+void Player::SkillDraw(void)
+{
+	if (_skill == SKILL::SWORD)
+	{
+		if (_animCnt <= 11)
+		{
+			DrawRotaGraph(300, 300, 2.0f, 0, _skillAnimSword[_animCnt], true);
+		}
+		else
+		{
+			_skill = SKILL::NON;
+		}
+	}
+
+	if (_skill == SKILL::GUARD)
+	{
+		if (_animCnt <= 9)
+		{
+			DrawRotaGraph(450, 250, 2.0f, 0, _skillAnimGuard[_animCnt], true);
+		}
+		else
+		{
+			_skill = SKILL::NON;
+		}
+	}
+
+	if (_skill == SKILL::HEAL)
+	{
+		if (_animCnt <= 9)
+		{
+			// 不透過画像のため加算処理で描画する必要がある
+			SetDrawBlendMode(DX_BLENDMODE_ADD, 256);
+			DrawRotaGraph(450, 250, 2.0f, 0, _skillAnimHeal[_animCnt], true);
+			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 1);
+		}
+		else
+		{
+			_skill = SKILL::NON;
+		}
+	}
+
 }
 
 void Player::SetHP(int hpNum)

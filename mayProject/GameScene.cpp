@@ -831,6 +831,8 @@ void GameScene::Draw(void)
 		}
 	}
 
+	_player->SkillDraw();
+
 	if (_event->GetCautionFlg())
 	{
 		// 強制戦闘の案内時に描画する
