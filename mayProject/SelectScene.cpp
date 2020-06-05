@@ -65,7 +65,7 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 					_toGameFlg = true;
 				}
 				modeTest = MODE::NORMAL;
-				Menu::LoadTest();
+				Menu::Load();
 				//return std::make_unique<GameScene>();
 			}
 			// “–‚½‚è”»’è(HARD‘I‘ðŽž)
@@ -78,7 +78,7 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 					_toGameFlg = true;
 				}
 				modeTest = MODE::HARD;
-				Menu::LoadTest();
+				Menu::Load();
 				//return std::make_unique<GameScene>();
 			}
 

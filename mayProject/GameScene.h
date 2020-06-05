@@ -127,10 +127,10 @@ private:
 	float _kiri[2];						// 霧
 	VECTOR2 _bossPos;					// ボス登場位置
 	bool _keyFlg;						// キーが押されたらtrueになり足音SEがなり終わったらfalseになる
-	int _levelUpAnounceTime = 180;
-	int _kyouseiButtlePngMoveCnt = 0;
-	bool _turnEndOnceFlg = false;
-	VECTOR2 _bossemErgencyPos;
+	int _levelUpAnounceTime;			// レベルアップ時の案内表示時間
+	int _kyouseiButtlePngMoveCnt;		// 「強制戦闘」の文字画像の移動処理用
+	bool _turnEndOnceFlg;				// プレイヤーターン終了時にtrueにする
+	VECTOR2 _bossemErgencyPos;			// ボス前の警告画像を出す座標
 
 	//std::map<bool, std::pair<int, int>> mapTest;
 	//std::map<int, int> mapTest;

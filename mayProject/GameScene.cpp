@@ -165,6 +165,9 @@ bool GameScene::Init(void)
 	_kiri[0] = 0.0f;
 	_kiri[1] = -900.0f;
 	_keyFlg = false;
+	_levelUpAnounceTime = 180;
+	_kyouseiButtlePngMoveCnt = 0;
+	_turnEndOnceFlg = false;
 
 	// SE
 	_soundSE[0] = LoadSoundMem("sound/se/click.mp3");			// クリック音

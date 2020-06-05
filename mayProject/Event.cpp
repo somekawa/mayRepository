@@ -37,6 +37,8 @@ void Event::Init(void)
 	// ‚»‚Ì‘¼
 	_getFlg = false;
 	_anounceFlg = false;
+	_onceFlg = false;
+	_kyouseiButtleFlg = false;
 
 	// •ó” İ’è
 	int chestHandle;

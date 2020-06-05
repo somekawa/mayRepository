@@ -46,14 +46,14 @@ public:
 
 	bool GetMenuBackPngFlg(void);		// アイテム背景が描画されているか取得する
 
-	bool GetEscapeFlg(void);			
-	void SetEscapeFlg(bool flag);	
+	bool GetEscapeFlg(void);			// 戦闘から逃げるアイテムの情報を取得する		
+	void SetEscapeFlg(bool flag);		// 戦闘から逃げるアイテムの情報を設定する
 
-	bool GetMeganeFlg(void);
-	void SetMeganeFlg(bool flag);
+	bool GetMeganeFlg(void);			// 宝箱の中身を鑑定するアイテムの情報を取得する
+	void SetMeganeFlg(bool flag);		// 宝箱の中身を鑑定するアイテムの情報を設定する
 
-	void SaveTest(Player* player);
-	static void LoadTest();
+	void Save(Player* player);			// セーブ
+	static void Load(void);				// ロード
 private:
 	void Init(void);					// 初期化
 	void pngInit(void);					// 画像関係初期化
@@ -85,8 +85,8 @@ private:
 	bool _useOrThrowAway;				// アイテム選択時にtrue
 	bool _nonNeedFlg;					// アイテムを使っても効果がないときにtrue
 	bool _nonDamageFlg;					// 無敵効果のアイテム用フラグ
-	bool _escapeFlg = false;			// 逃走のアイテム用フラグ
-	bool _meganeFlg = false;			// 宝箱の中身を鑑定するアイテム用フラグ
+	bool _escapeFlg;					// 逃走のアイテム用フラグ
+	bool _meganeFlg;					// 宝箱の中身を鑑定するアイテム用フラグ
 
 	/*画像関係*/
 	// メニュー項目画像

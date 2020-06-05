@@ -73,6 +73,8 @@ void Menu::Init(void)
 	_useOrThrowAway = false;
 	_nonNeedFlg = false;
 	_nonDamageFlg = false;
+	_escapeFlg = false;
+	_meganeFlg = false;
 
 	// テスト(ロード時にアイテム画像を描画する)
 	//std::string potion = "image/potion.png";
@@ -190,8 +192,8 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 	if (_menu == MENU::SAVE)
 	{
 		// セーブ処理を書いてみる
-		//player->SaveTest();
-		SaveTest(player);
+		//player->Save();
+		Save(player);
 	}
 
 	// ゲーム画面戻し
@@ -1172,7 +1174,7 @@ void Menu::SetMeganeFlg(bool flag)
 	_meganeFlg = flag;
 }
 
-void Menu::SaveTest(Player* player)
+void Menu::Save(Player* player)
 {
 	if (MessageBox(			// メッセージ
 		NULL,
@@ -1190,7 +1192,7 @@ void Menu::SaveTest(Player* player)
 	}
 }
 
-void Menu::LoadTest()
+void Menu::Load()
 {
 	if (MessageBox(			// メッセージ
 		NULL,

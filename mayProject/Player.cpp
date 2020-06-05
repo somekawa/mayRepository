@@ -97,6 +97,8 @@ void Player::Init(void)
 	_barrierMaxNum = 0;
 	_barrierNum = 0;
 
+	_levelUpAnounceFlg = false;
+
 	_soundSE[0] = LoadSoundMem("sound/se/click.mp3");
 	_soundSE[1] = LoadSoundMem("sound/se/levelup.mp3");
 	_soundSE[2] = LoadSoundMem("sound/se/skill.mp3");

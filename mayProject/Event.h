@@ -72,8 +72,8 @@ private:
 	bool _getFlg;						// アイテムをとるボタン
 	bool _anounceFlg;					// アイテムがいっぱいのときにお知らせする
 
-	bool _onceFlg = false;
-	bool _kyouseiButtleFlg = false;
+	bool _onceFlg;						// 強制戦闘時に敵情報を描画するときに使用
+	bool _kyouseiButtleFlg;				// 強制戦闘案内画像の描画に使用
 
 	// 宝箱関連
 	int _chestOpen[4];					// 開けたかどうか

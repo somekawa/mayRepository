@@ -50,7 +50,7 @@ private:
 	void Init(void);					// 初期化
 	void pngInit(void);					// 画像初期化
 
-	bool _levelUpAnounceFlg = false;	// レベルが上がったときにtrueになる
+	bool _levelUpAnounceFlg;			// レベルが上がったときにtrueになる
 
 	// スキル関係
 	int _skillCharge;					// スキルチャージ
