@@ -11,7 +11,7 @@ bool Player::loadFlg = false;
 int Player::saveData[9] = { 0,0,0,0,0,0,0,0,0 };
 
 // スキルチャージ時間の最大値
-#define SKILL_CHARGE 1
+#define SKILL_CHARGE 10
 
 struct player
 {
@@ -34,7 +34,7 @@ Player::Player()
 Player::~Player()
 {
 	// 音関係
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 6; i++)
 	{
 		DeleteSoundMem(_soundSE[i]);
 	}
@@ -104,6 +104,10 @@ void Player::Init(void)
 	_soundSE[0] = LoadSoundMem("sound/se/click.mp3");
 	_soundSE[1] = LoadSoundMem("sound/se/levelup.mp3");
 	_soundSE[2] = LoadSoundMem("sound/se/skill.mp3");
+	_soundSE[3] = LoadSoundMem("sound/se/skill_sword_short.mp3");
+	_soundSE[4] = LoadSoundMem("sound/se/skill_barrier.mp3");
+	_soundSE[5] = LoadSoundMem("sound/se/skill_heal.mp3");
+
 
 	// 音量を下げる
 	ChangeVolumeSoundMem(128, _soundSE[1]);
@@ -213,9 +217,10 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* c
 		// 攻撃アイコンとの当たり判定
 		if (x >= 290 && x <= 290 + 100 && y >= 150 && y <= 150 + 100)
 		{
+			PlaySoundMem(_soundSE[3], DX_PLAYTYPE_BACK, true);
 			_skill = SKILL::SWORD;
-			// 攻撃系(基礎攻撃力*10+武器威力で一定のダメージを与えられる)
-			monster->Damage(player_status.attackDamage * 10 + menu->GetEquipDamage(), cards);
+			// 攻撃系(基礎攻撃力*5+武器威力で一定のダメージを与えられる)
+			monster->Damage(player_status.attackDamage * 5 + menu->GetEquipDamage(), cards);
 			game->blinkFlg = true;
 			lambda();
 		}
@@ -223,6 +228,7 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* c
 		// 防御アイコンとの当たり判定
 		if (x >= 410 && x <= 410 + 100 && y >= 150 && y <= 150 + 100)
 		{
+			PlaySoundMem(_soundSE[4], DX_PLAYTYPE_BACK, true);
 			_skill = SKILL::GUARD;
 			// 防御系(特定値*プレイヤーレベル)
 			_barrierMaxNum = 20 + 3 * player_status.now_level;
@@ -233,6 +239,7 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* c
 		// 回復アイコンとの当たり判定
 		if (x >= 530 && x <= 530 + 100 && y >= 150 && y <= 150 + 100)
 		{
+			PlaySoundMem(_soundSE[5], DX_PLAYTYPE_BACK, true);
 			_skill = SKILL::HEAL;
 			// 回復系(全回復+状態異常回復)
 			player_status.plHP = player_status.maxHP;
@@ -320,9 +327,9 @@ void Player::Draw(Menu* menu)
 		DrawGraph(290, 150, _skillAttackIconPNG, true);
 		DrawGraph(290 + iconIntervalX, 150, _skillBarrierIconPNG, true);
 		DrawGraph(290 + iconIntervalX * 2, 150, _skillHealIconPNG, true);
-		DrawFormatString(280,250, 0x000000, "攻撃スキル:\n%dダメージ", player_status.attackDamage * 10 + menu->GetEquipDamage());
+		DrawFormatString(280,250, 0x000000, "攻撃スキル:\n%dダメージ", player_status.attackDamage * 5 + menu->GetEquipDamage());
 		DrawFormatString(410,250, 0x000000, "防御スキル:\n耐久%dの\nバリア展開", 20 + 3 * player_status.now_level);
-		DrawFormatString(530, 250, 0x000000, "回復スキル:\n体力を全回復");
+		DrawFormatString(530, 250, 0x000000, "回復スキル:\n体力+状態異常\n全回復");
 		DrawGraph(385, 320, _skillCancelPNG, true);
 	}
 

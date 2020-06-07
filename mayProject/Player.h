@@ -92,5 +92,5 @@ private:
 	int _animCnt;						// アニメーションカウンタ
 	int _animUpDateSpeedCnt;			// アニメーション更新速度調整カウンタ
 
-	int _soundSE[3];					// SE
+	int _soundSE[6];					// SE
 };
