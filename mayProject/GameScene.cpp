@@ -9,6 +9,7 @@
 #include "Item.h"
 #include "Enemy_weak.h"
 #include "SelectScene.h"
+#include "MoveObj.h"
 
 // static変数の実体<型>クラス名::変数名 = 初期化;
 int GameScene::plPosX = 0;
@@ -399,7 +400,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 	if (eventState == EVENT_STATE::GOAL)
 	{
 		// 扉描画時にUPキーで出口処理
-		if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_UP]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_UP]))
+		if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_W]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_W]))
 		{
 			openDoor = true;
 		}
@@ -849,41 +850,13 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 	// メニュー画面表示中は進むボタンを押せないようにする
 	if (!_menu->GetMenuFlg() && _menu->GetMenu() == MENU::NON && eventState == EVENT_STATE::NON)
 	{
-		// キーボード操作(画像拡大最中は処理しない)
-		if (_plNowPoint == 0 && !_keyFlg)
-		{
-			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_UP]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_UP]))
-			{
-				_keyFlg = true;
-				Key();
-			}
-		}
-
-		if (_plNowPoint == 1 && !_keyFlg)
-		{
-			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_RIGHT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_RIGHT]))
-			{
-				_keyFlg = true;
-				Key();
-			}
-		}
-
-		if (_plNowPoint == 2 && !_keyFlg)
-		{
-			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
-			{
-				_keyFlg = true;
-				Key();
-			}
-		}
-
 		// バック処理
 		if (eventState == EVENT_STATE::NON)
 		{
 			// 現在地がスタート地点でなければバック処理できる
 			if (plPosX > 0 || plPosY > 0 && !_keyFlg)
 			{
-				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_DOWN]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_DOWN]))
+				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_S]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_S]))
 				{
 					_keyFlg = true;
 					backFlg = true;
@@ -892,148 +865,158 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 			}
 		}
 
-		// T字路テスト
-		if (_plDirect == PL_DIRECTION::RIGHT)
+		// 移動操作(画像拡大最中は処理しない)
+		if (!_keyFlg)
 		{
-			if (_plNowPoint == 4 && !_keyFlg)
+			// 関数オブジェクト
+			auto obj = MoveObj();
+			if (obj(ctl, _plNowPoint, _rightFlg, _leftFlg, _plDirect))
 			{
-				_rightFlg = false;
-				_leftFlg = false;
-				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_RIGHT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_RIGHT]))
-				{
-					_keyFlg = true;
-					_rightFlg = true;
-					Key();
-				}
-				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
-				{
-					_keyFlg = true;
-					_leftFlg = true;
-					Key();
-				}
+				_keyFlg = true;
+				Key();
 			}
+			//if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_W]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_W]))
+			//{
+			//	_keyFlg = true;
+			//	Key();
+			//}
 		}
 
-		if (_plDirect == PL_DIRECTION::LEFT)
-		{
-			if (_plNowPoint == 4 && !_keyFlg)
-			{
-				_rightFlg = false;
-				_leftFlg = false;
-				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_RIGHT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_RIGHT]))
-				{
-					_keyFlg = true;
-					_leftFlg = true;
-					Key();
-				}
-				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
-				{
-					_keyFlg = true;
-					_rightFlg = true;
-					Key();
-				}
-			}
-		}
-
-		if (_plDirect == PL_DIRECTION::UP)
-		{
-			if (_plNowPoint == 4 && !_keyFlg)
-			{
-				_rightFlg = false;
-				_leftFlg = false;
-				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_RIGHT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_RIGHT]))
-				{
-					_keyFlg = true;
-					_rightFlg = true;
-					Key();
-				}
-				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
-				{
-					_keyFlg = true;
-					_leftFlg = true;
-					Key();
-				}
-			}
-		}
-
-		if (_plDirect == PL_DIRECTION::DOWN)
-		{
-			if (_plNowPoint == 4 && !_keyFlg)
-			{
-				_rightFlg = false;
-				_leftFlg = false;
-				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_RIGHT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_RIGHT]))
-				{
-					_keyFlg = true;
-					_rightFlg = true;
-					Key();
-				}
-				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
-				{
-					_keyFlg = true;
-					_leftFlg = true;
-					Key();
-				}
-			}
-		}
-
+		/*関数オブジェクトを使う前*/
+		//if (_plNowPoint == 1 && !_keyFlg)
+		//{
+		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_D]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_D]))
+		//	{
+		//		_keyFlg = true;
+		//		Key();
+		//	}
+		//}
+		//
+		//if (_plNowPoint == 2 && !_keyFlg)
+		//{
+		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_A]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_A]))
+		//	{
+		//		_keyFlg = true;
+		//		Key();
+		//	}
+		//}
+		// T字路
+		//if (/*_plDirect == PL_DIRECTION::RIGHT*/ /*&& _plNowPoint == 4 &&*/ !_keyFlg)
+		//{
+			//_rightFlg = false;
+			//_leftFlg = false;
+		//
+			// 関数オブジェクト
+		//	auto obj = MoveObj();
+			//if (obj(ctl, _plNowPoint, _rightFlg, _leftFlg, _plDirect))
+			//{
+				//_keyFlg = true;
+				//Key();
+			//}
+		//
+			//if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_D]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_D]))
+			//{
+			//	_keyFlg = true;
+			//	_rightFlg = true;
+			//	Key();
+			//}
+			//if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_A]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_A]))
+			//{
+			//	_keyFlg = true;
+			//	_leftFlg = true;
+			//	Key();
+			//}
+		//}
+		//if (_plDirect == PL_DIRECTION::LEFT && _plNowPoint == 4 && !_keyFlg)
+		//{
+		//	_rightFlg = false;
+		//	_leftFlg = false;
+		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_D]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_D]))
+		//	{
+		//		_keyFlg = true;
+		//		_leftFlg = true;
+		//		Key();
+		//	}
+		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_A]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_A]))
+		//	{
+		//		_keyFlg = true;
+		//		_rightFlg = true;
+		//		Key();
+		//	}
+		//}
+		//if (_plDirect == PL_DIRECTION::UP && _plNowPoint == 4 && !_keyFlg)
+		//{
+		//	_rightFlg = false;
+		//	_leftFlg = false;
+		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_D]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_D]))
+		//	{
+		//		_keyFlg = true;
+		//		_rightFlg = true;
+		//		Key();
+		//	}
+		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_A]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_A]))
+		//	{
+		//		_keyFlg = true;
+		//		_leftFlg = true;
+		//		Key();
+		//	}
+		//}
+		//if (_plDirect == PL_DIRECTION::DOWN && _plNowPoint == 4 && !_keyFlg)
+		//{
+		//	_rightFlg = false;
+		//	_leftFlg = false;
+		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_D]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_D]))
+		//	{
+		//		_keyFlg = true;
+		//		_rightFlg = true;
+		//		Key();
+		//	}
+		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_A]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_A]))
+		//	{
+		//		_keyFlg = true;
+		//		_leftFlg = true;
+		//		Key();
+		//	}
+		//}
 		// トの字型(直進と右への道)
-		if (_plNowPoint == 5 && !_keyFlg)
-		{
-			_rightFlg = false;
-			_leftFlg = false;
-			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_UP]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_UP]))
-			{
-				_keyFlg = true;
-				Key();
-			}
-			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_RIGHT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_RIGHT]))
-			{
-				_keyFlg = true;
-				_rightFlg = true;
-				Key();
-			}
-		}
-
+		//if (_plNowPoint == 5 && !_keyFlg)
+		//{
+		//	_rightFlg = false;
+		//	_leftFlg = false;
+		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_W]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_W]))
+		//	{
+		//		_keyFlg = true;
+		//		Key();
+		//	}
+		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_D]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_D]))
+		//	{
+		//		_keyFlg = true;
+		//		_rightFlg = true;
+		//		Key();
+		//	}
+		//}
 		// トの字型(直進と左への道)
-		if (_plNowPoint == 6 && !_keyFlg)
-		{
-			_rightFlg = false;
-			_leftFlg = false;
-			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_UP]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_UP]))
-			{
-				_keyFlg = true;
-				Key();
-			}
-			if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_LEFT]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_LEFT]))
-			{
-				_keyFlg = true;
-				_leftFlg = true;
-				Key();
-			}
-		}
+		//if (_plNowPoint == 6 && !_keyFlg)
+		//{
+		//	_rightFlg = false;
+		//	_leftFlg = false;
+		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_W]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_W]))
+		//	{
+		//		_keyFlg = true;
+		//		Key();
+		//	}
+		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_A]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_A]))
+		//	{
+		//		_keyFlg = true;
+		//		_leftFlg = true;
+		//		Key();
+		//	}
+		//}
 	}
 }
 
 void GameScene::EventUpdate(void)
 {
-	// 次のイベントへ更新 
-	// 番号が一致しているときにしか入ってこないようにする
-	//if (walkCnt == _eventNum[_event->GetNowEvent()] && _monster[0]->GetEnemyState() == ENEMY_STATE::DEATH)
-	//{
-	//	// 今は8以上ないから8以降はここに入り続けるので数字がバグる
-	//	//_nowEvent++;
-	//
-	//	eventState = EVENT_STATE::NON;
-	//
-	//	// プレイヤーnext_level - 敵経験値
-	//	// next_level <= 0ならnowNumを+1して、ステータス更新
-	//	_player->SetNextLevel(_player->GetNextLevel() - _monster[0]->GetKeikenti());
-	//
-	//	// 所持金を増やす
-	//	_player->SetMoney(_player->GetMoney() + _monster[0]->GetMoney());
-	//}
-
 	if (eventState == EVENT_STATE::ENEMY)
 	{
 		if (_monster[0]->GetEnemyState() == ENEMY_STATE::DEATH)
@@ -1042,7 +1025,6 @@ void GameScene::EventUpdate(void)
 		}
 	}
 
-	// for文で回せそう	
 	for (auto eve = static_cast<int>(EVENT_STATE::YADO); eve <= static_cast<int>(EVENT_STATE::MAX);)
 	{
 		if (eve == static_cast<int>(eventState))
