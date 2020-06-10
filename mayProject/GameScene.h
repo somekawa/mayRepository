@@ -72,7 +72,7 @@ private:
 	void pl_Attack(void);				// プレイヤーの攻撃
 	void pl_Heal(void);					// プレイヤーの回復
 	void shakeDraw(void);				// 画面を少し揺らす
-	void doorWalk(void);				// 足音とドア音のつなぎ
+	void Walk(void);					// 足音とキー入力の受付処理をする
 	void changeBGM(void);				// 通常BGMと戦闘BGMの切替
 	void plDead(void);					// プレイヤー死亡時
 	void enemyItemDrop(void);			// 敵からのアイテムドロップ処理

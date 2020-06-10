@@ -119,7 +119,7 @@ bool GameScene::Init(void)
 			return false; //エラー時の処理
 		}
 		_bossPos = { 8,5 };			
-		_bossemErgencyPos = {7,5};
+		_bossemErgencyPos = { 7,5 };
 	}
 	else if (SelectScene::modeTest == MODE::HARD)
 	{
@@ -200,7 +200,7 @@ void GameScene::pngInit(void)
 	std::string number = "image/number/number.png";
 	LoadDivGraph(number.c_str(), 6, 6, 1, 40, 50, _turnPNG);
 
-	// プレイヤーのHPバー
+	// HPバー
 	std::string hpbar_en = "image/hpbar_en.png";
 	std::string hpbar_back = "image/hpbar_back.png";
 	_hpBarEn = LoadGraph(hpbar_en.c_str());
@@ -372,7 +372,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 		return std::make_unique<GameClearScene>();
 	}
 
-	doorWalk();
+	Walk();
 	changeBGM();
 	plDead();
 	_menu->Update(this, _player, _monster[0], _cards);
@@ -628,7 +628,7 @@ void GameScene::Draw(void)
 
 	_player->Draw(_menu);
 
-	if (plPosX == _bossPos.x - 1 && plPosY == _bossPos.y)
+	if (plPosX == _bossemErgencyPos.x && plPosY == _bossemErgencyPos.y)
 	{
 		// ボスの警告用画像
 		DrawGraph(250, 100, _bossEmergencyPNG, true);
@@ -759,11 +759,6 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 				_keyFlg = true;
 				Key();
 			}
-			//if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_W]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_W]))
-			//{
-			//	_keyFlg = true;
-			//	Key();
-			//}
 		}
 
 		/*関数オブジェクトを使う前*/
@@ -932,7 +927,6 @@ void GameScene::pl_TurnEndAfter(void)
 	{
 		// プレイヤーのターンが終了したらここに飛んできて、敵のターンに代わる
 		// 敵が攻撃してくるのでプレイヤーのHPを減らす処理をする
-
 		if (!_turnEndOnceFlg)
 		{
 			// 敵の種類によっては毒にかかる
@@ -949,8 +943,8 @@ void GameScene::pl_TurnEndAfter(void)
 
 			// ダメージ音
 			PlaySoundMem(_soundSE[6], DX_PLAYTYPE_BACK, true);
-
 			_turnEndOnceFlg = true;
+
 			/*防御の仕組み*/
 			//float a = (float)_cards->GetGuard() * 10.0f;	//30%
 			//float b = (100.0f - a) / 100.0f;	//100%-30%=70%/100% = 0.7
@@ -1097,7 +1091,7 @@ void GameScene::shakeDraw(void)
 	}
 }
 
-void GameScene::doorWalk(void)
+void GameScene::Walk(void)
 {
 	if (_keyFlg && _walkCnt > 0.0f)
 	{
@@ -1210,6 +1204,18 @@ void GameScene::enemyItemDrop(void)
 
 void GameScene::cardEffect(void)
 {
+	auto lambdaEffect = [&](int seNum) {
+		// カードごとの音
+		PlaySoundMem(_soundSE[seNum], DX_PLAYTYPE_BACK, true);
+
+		// スキルチャージが0より大きいときは減らしていく
+		if (_player->GetSkillCharge() > 0)
+		{
+			_player->SetSkillCharge(_player->GetSkillCharge() - 1);
+		}
+		_cards->SetCardsSyurui(CARDS_SYURUI::NON);
+	};
+
 	auto lambdaPoison = [&]() {
 		// 毒音
 		PlaySoundMem(_soundSE[7], DX_PLAYTYPE_BACK, true);
@@ -1223,58 +1229,61 @@ void GameScene::cardEffect(void)
 	if (_cards->GetCardsSyurui() == CARDS_SYURUI::ATTACK)
 	{
 		// 攻撃カード音
-		PlaySoundMem(_soundSE[3], DX_PLAYTYPE_BACK, true);
-
+		//PlaySoundMem(_soundSE[3], DX_PLAYTYPE_BACK, true);
+		//
 		// スキルチャージが0より大きいときは減らしていく
-		if (_player->GetSkillCharge() > 0)
-		{
-			_player->SetSkillCharge(_player->GetSkillCharge() - 1);
-		}
+		//if (_player->GetSkillCharge() > 0)
+		//{
+		//	_player->SetSkillCharge(_player->GetSkillCharge() - 1);
+		//}
+		//_cards->SetCardsSyurui(CARDS_SYURUI::NON);
 
 		if (_player->GetCondition() == CONDITION::POISON)
 		{
 			lambdaPoison();
 		}
 		pl_Attack();
-		_cards->SetCardsSyurui(CARDS_SYURUI::NON);
+		lambdaEffect(3);
 		blinkFlg = true;
 	}
 
 	if (_cards->GetCardsSyurui() == CARDS_SYURUI::HEAL)
 	{
 		// 回復カード音
-		PlaySoundMem(_soundSE[5], DX_PLAYTYPE_BACK, true);
-
-		//// スキルチャージが0より大きいときは減らしていく
-		if (_player->GetSkillCharge() > 0)
-		{
-			_player->SetSkillCharge(_player->GetSkillCharge() - 1);
-		}
+		//PlaySoundMem(_soundSE[5], DX_PLAYTYPE_BACK, true);
+		//
+		// スキルチャージが0より大きいときは減らしていく
+		//if (_player->GetSkillCharge() > 0)
+		//{
+		//	_player->SetSkillCharge(_player->GetSkillCharge() - 1);
+		//}
+		//_cards->SetCardsSyurui(CARDS_SYURUI::NON);
 
 		if (_player->GetCondition() == CONDITION::POISON)
 		{
 			lambdaPoison();
 		}
+		lambdaEffect(5);
 		pl_Heal();
-		_cards->SetCardsSyurui(CARDS_SYURUI::NON);
 	}
 
 	if (_cards->GetCardsSyurui() == CARDS_SYURUI::GUARD)
 	{
 		// 防御カード音
-		PlaySoundMem(_soundSE[4], DX_PLAYTYPE_BACK, true);
-
+		//PlaySoundMem(_soundSE[4], DX_PLAYTYPE_BACK, true);
+		//
 		// スキルチャージが0より大きいときは減らしていく
-		if (_player->GetSkillCharge() > 0)
-		{
-			_player->SetSkillCharge(_player->GetSkillCharge() - 1);
-		}
+		//if (_player->GetSkillCharge() > 0)
+		//{
+		//	_player->SetSkillCharge(_player->GetSkillCharge() - 1);
+		//}
+		//_cards->SetCardsSyurui(CARDS_SYURUI::NON);
 
 		if (_player->GetCondition() == CONDITION::POISON)
 		{
 			lambdaPoison();
 		}
-		_cards->SetCardsSyurui(CARDS_SYURUI::NON);
+		lambdaEffect(4);
 	}
 }
 
@@ -1347,7 +1356,7 @@ void GameScene::smallMapDraw(void)
 
 void GameScene::Direct(void)
 {
-	// 行き止まりだったら進行方向にたいしてバック処理
+	// 行き止まりまたは、バックキー押下時にバック処理
 	if (_plNowPoint == 3 || backFlg)
 	{
 		if (_plDirectOld == PL_DIRECTION::DOWN && (_plNowPoint == 4 || _plNowPoint == 7 || _plNowPoint == 8 || _plNowPoint == 0))
@@ -1393,7 +1402,7 @@ void GameScene::Direct(void)
 		// 方向だけ転換させる
 		for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
 		{
-			
+			// 現在地を見て、登録している方向と回転角度を代入する
 			if (plPosX * 50 == std::get<0>(*v).x && 550 - (plPosY * 50) == std::get<0>(*v).y)
 			{
 				_directRota = std::get<2>(*v);
@@ -1577,68 +1586,55 @@ void GameScene::Direct(void)
 		////------------------------------------------
 	}
 
+	auto lambda = [&](PL_DIRECTION dir,float rota) {
+		_plDirectOld = _plDirect;
+		_plOldPoint = _plNowPoint;
+		_plDirect = dir;
+		_directRota = rota;
+	};
+
 	// T字路
 	if (_plNowPoint == 4)
 	{
-		//_rightFlg = false;
-		//_leftFlg = false;
 		if (_rightFlg && _plDirect != PL_DIRECTION::UP && _plDirect != PL_DIRECTION::DOWN)
 		{
-			_plDirectOld = _plDirect;
-			_plOldPoint = _plNowPoint;
-			_plDirect = PL_DIRECTION::DOWN;
+			lambda(PL_DIRECTION::DOWN, PI);
 			plPosY--;
-			_directRota = PI;
 			return;
 		}
 
 		if (_leftFlg && _plDirect != PL_DIRECTION::UP && _plDirect != PL_DIRECTION::DOWN)
 		{
-			_plDirectOld = _plDirect;
-			_plOldPoint = _plNowPoint;
-			_plDirect = PL_DIRECTION::UP;
+			lambda(PL_DIRECTION::UP, 0);
 			plPosY++;
-			_directRota = 0;
 			return;
 		}
 
 		if (_rightFlg && _plDirect == PL_DIRECTION::UP)
 		{
-			_plDirectOld = _plDirect;
-			_plOldPoint = _plNowPoint;
-			_plDirect = PL_DIRECTION::RIGHT;
+			lambda(PL_DIRECTION::RIGHT, PI / 2);
 			plPosX++;
-			_directRota = PI / 2;
 			return;
 		}
 
 		if (_leftFlg && _plDirect == PL_DIRECTION::UP)
 		{
-			_plDirectOld = _plDirect;
-			_plOldPoint = _plNowPoint;
-			_plDirect = PL_DIRECTION::LEFT;
+			lambda(PL_DIRECTION::LEFT,PI + PI / 2);
 			plPosX--;
-			_directRota = PI + PI / 2;
 			return;
 		}
 
 		if (_rightFlg && _plDirect == PL_DIRECTION::DOWN)
 		{
-			_plDirectOld = _plDirect;
-			_plOldPoint = _plNowPoint;
-			_plDirect = PL_DIRECTION::LEFT;
+			lambda(PL_DIRECTION::LEFT, PI + PI / 2);
 			plPosX--;
-			_directRota = PI + PI / 2;
 			return;
 		}
 
 		if (_leftFlg && _plDirect == PL_DIRECTION::DOWN)
 		{
-			_plDirectOld = _plDirect;
-			_plOldPoint = _plNowPoint;
-			_plDirect = PL_DIRECTION::RIGHT;
+			lambda(PL_DIRECTION::RIGHT, PI / 2);
 			plPosX++;
-			_directRota = PI / 2;
 			return;
 		}
 	}
@@ -1654,22 +1650,16 @@ void GameScene::Direct(void)
 		}
 		else if (_plNowPoint == 1 || _plNowPoint == 5)
 		{
-			_plDirectOld = _plDirect;
-			_plOldPoint = _plNowPoint;
-			_plDirect = PL_DIRECTION::RIGHT;	// 右曲がり
+			lambda(PL_DIRECTION::RIGHT, PI / 2);
 			_rightFlg = true;
 			plPosX++;
-			_directRota =  PI / 2;
 			return;
 		}
 		else if (_plNowPoint == 2 || _plNowPoint == 6)
 		{
-			_plDirectOld = _plDirect;
-			_plOldPoint = _plNowPoint;
-			_plDirect = PL_DIRECTION::LEFT;	// 左曲がり
+			lambda(PL_DIRECTION::LEFT, PI + PI / 2);
 			_leftFlg = true;
 			plPosX--;
-			_directRota = PI + PI / 2;
 			return;
 		}
 	}
@@ -1684,22 +1674,16 @@ void GameScene::Direct(void)
 		}
 		else if (_plNowPoint == 1)
 		{
-			_plDirect = PL_DIRECTION::LEFT;	// 左曲がり
+			lambda(PL_DIRECTION::LEFT, PI + PI / 2);
 			_leftFlg = true;
-			_plDirectOld = _plDirect;
-			_plOldPoint = _plNowPoint;
 			plPosX--;
-			_directRota = PI + PI / 2;
 			return;
 		}
 		else if (_plNowPoint == 2)
 		{
-			_plDirectOld = _plDirect;
-			_plOldPoint = _plNowPoint;
-			_plDirect = PL_DIRECTION::RIGHT;	// 右曲がり
+			lambda(PL_DIRECTION::RIGHT, PI / 2);
 			_rightFlg = true;
 			plPosX++;
-			_directRota = PI / 2;
 			return;
 		}
 	}
@@ -1714,22 +1698,16 @@ void GameScene::Direct(void)
 		}
 		else if (_plNowPoint == 1 && _rightFlg)	// 右曲がり(下)
 		{
-			_plDirectOld = _plDirect;
-			_plOldPoint = _plNowPoint;
-			_plDirect = PL_DIRECTION::DOWN;
+			lambda(PL_DIRECTION::DOWN, PI);
 			_rightFlg = false;
 			plPosY--;
-			_directRota = PI;
 			return;
 		}
 		else if (_plNowPoint == 2 && _rightFlg)	// 左曲がり(上)
 		{
-			_plDirectOld = _plDirect;
-			_plOldPoint = _plNowPoint;
-			_plDirect = PL_DIRECTION::UP;
+			lambda(PL_DIRECTION::UP, 0.0f);
 			_rightFlg = false;
 			plPosY++;
-			_directRota = 0.0f;
 			return;
 		}
 	}
@@ -1744,32 +1722,23 @@ void GameScene::Direct(void)
 		}
 		else if (_plDirectOld == PL_DIRECTION::DOWN)
 		{
-			_plDirectOld = _plDirect;
-			_plOldPoint = _plNowPoint;
-			_plDirect = PL_DIRECTION::DOWN;
+			lambda(PL_DIRECTION::DOWN, PI);
 			_leftFlg = false;
 			plPosY--;
-			_directRota = PI;
 			return;
 		}
 		else if (_plNowPoint == 1 && _leftFlg)	// 右曲がり(上)
 		{
-			_plDirectOld = _plDirect;
-			_plOldPoint = _plNowPoint;
-			_plDirect = PL_DIRECTION::UP;
+			lambda(PL_DIRECTION::UP, 0.0f);
 			_leftFlg = false;
 			plPosY++;
-			_directRota = 0.0f;
 			return;
 		}
 		else if (_plNowPoint == 2 && _leftFlg)	// 左曲がり(下)
 		{
-			_plDirectOld = _plDirect;
-			_plOldPoint = _plNowPoint;
-			_plDirect = PL_DIRECTION::DOWN;
+			lambda(PL_DIRECTION::DOWN, PI);
 			_leftFlg = false;
 			plPosY--;
-			_directRota = PI;
 			return;
 		}
 	}
@@ -1881,7 +1850,6 @@ void GameScene::Key(void)
 				break;
 			case 10:
 				eventState = EVENT_STATE::CHEST;
-				//chestFate = GetRand(2);	// 0 ~ 2
 				break;
 			case 11:
 				eventState = EVENT_STATE::DRINK;
@@ -1903,7 +1871,6 @@ void GameScene::Key(void)
 				break;
 			case 14:
 				eventState = EVENT_STATE::GOAL;
-				//openDoor = true;
 				break;
 			default:
 				eventState = EVENT_STATE::NON;
