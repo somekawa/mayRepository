@@ -79,6 +79,9 @@ private:
 	void cardEffect(void);				// カードの効果
 	void allMapDraw(void);				// 全体マップの描画
 	void smallMapDraw(void);			// 部分マップの描画
+	void DungeonFog(void);				// 霧の効果
+	void ButtleCaution(void);			// 強制戦闘の案内を出す
+	void GameReset(void);				// ゲームオーバー時にやりなおすを選択したときに再設定するものを集めた関数
 
 	Monster* _monster[1];
 	Cards* _cards;
@@ -124,7 +127,7 @@ private:
 	int _poisonCnt;						// 戦闘中の毒効果の紫色画面の時間(初期値は255より大きい必要がある)
 	bool _onceFlg;						// 敵からのドロップアイテム表示に使用と敵の待機ターンが0の時に使用
 	bool _anounceFlg;					// 敵からのドロップアイテムで持ち物がいっぱいの時に案内を出す
-	float _kiri[2];						// 霧
+	float _dunFog[2];					// 霧
 	VECTOR2 _bossPos;					// ボス登場位置
 	bool _keyFlg;						// キーが押されたらtrueになり足音SEがなり終わったらfalseになる
 	int _levelUpAnounceTime;			// レベルアップ時の案内表示時間
@@ -140,8 +143,6 @@ private:
 	// 敵ターンまでのカウント用画像
 	int _turnPNG[6];
 	// HPバー画像
-	int _hpBarPl;
-	int _hpBarPlPoison;
 	int _hpBarEn;
 	int _hpBarBack;
 	// 部屋(扉開閉込み)の画像
@@ -184,6 +185,7 @@ private:
 	int _soundSE[8];	// SE
 	int _seCnt;			// 歩き音からドア音までの鳴る間隔
 	bool _soundWalk;	// 歩き音からドア音につなぐときに必要なフラグ
+	float _walkCnt;		// 歩く音とキーの入力受付タイミングの調整
 	// BGM関連
 	int _gameBGM;		// 通常BGM
 	int _battleBGM;		// 戦闘BGM

@@ -157,6 +157,14 @@ void Player::pngInit(void)
 	std::string barrier_bar = "image/barrier_bar.png";
 	_barrierBarPNG = LoadGraph(barrier_bar.c_str());
 
+	// プレイヤーのHPバー
+	std::string hpbar_pl = "image/hpbar_pl.png";
+	std::string hpbar_plPoison = "image/hpbar_plPoison.png";
+	std::string hpbar_back = "image/hpbar_back.png";
+	_hpBarPl = LoadGraph(hpbar_pl.c_str());
+	_hpBarPlPoison = LoadGraph(hpbar_plPoison.c_str());
+	_hpBarBack = LoadGraph(hpbar_back.c_str());
+
 	// スキルアニメーション(剣)
 	std::string swordAnim = "image/anim/swordAnim.png";
 	LoadDivGraph(swordAnim.c_str(), 12, 1, 12, 640, 240, _skillAnimSword);
@@ -301,6 +309,37 @@ void Player::UpDate(void)
 }
 
 void Player::Draw(Menu* menu)
+{
+	// HPバー関連画像サイズ
+	int posx = 750;
+	int posy = 450;
+	int plHPBar;
+	if (player_status.condition == CONDITION::POISON)
+	{
+		// 毒状態の時はHPバーの色をこっちにする
+		plHPBar = _hpBarPlPoison;
+	}
+	else
+	{
+		// 通常状態の時のHPバーの色
+		plHPBar = _hpBarPl;
+	}
+	DrawExtendGraph(posx, posy, posx + 130, posy + 33, _hpBarBack, true);
+	DrawExtendGraph(posx + 3, posy + 4, posx + 3 + 125 * ((float)player_status.plHP / (float)player_status.maxHP), posy + 4 + 25, plHPBar, true);
+
+	// 右下案内表示
+	DrawFormatString(750, 425, 0xffffff, "体力:%d / %d", player_status.plHP, player_status.maxHP);
+	if (player_status.conditionTurnNum != 0)
+	{
+		DrawFormatString(750, 480, 0xffffff, "毒回復まで:%d", player_status.conditionTurnNum);
+	}
+	if (menu->GetPowUp() != 0)
+	{
+		DrawFormatString(750, 505, 0xffffff, "攻撃強化:+%d", menu->GetPowUp());
+	}
+}
+
+void Player::BattleDraw(Menu* menu)
 {
 	if (_skillCharge != 0)
 	{

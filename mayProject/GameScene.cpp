@@ -163,8 +163,8 @@ bool GameScene::Init(void)
 	_poisonCnt = 256;
 	_onceFlg = false;
 	_anounceFlg = false;
-	_kiri[0] = 0.0f;
-	_kiri[1] = -900.0f;
+	_dunFog[0] = 0.0f;
+	_dunFog[1] = -900.0f;
 	_keyFlg = false;
 	_levelUpAnounceTime = 180;
 	_kyouseiButtlePngMoveCnt = 0;
@@ -180,6 +180,7 @@ bool GameScene::Init(void)
 	_soundSE[6] = LoadSoundMem("sound/se/damage.mp3");			// ダメージ
 	_soundSE[7] = LoadSoundMem("sound/se/poison.mp3");			// 毒音
 	_soundWalk = false;
+	_walkCnt = 12.0f;
 
 	// BGM
 	_gameBGM = LoadSoundMem("sound/bgm/dangeon.mp3");
@@ -200,53 +201,40 @@ void GameScene::pngInit(void)
 	LoadDivGraph(number.c_str(), 6, 6, 1, 40, 50, _turnPNG);
 
 	// プレイヤーのHPバー
-	std::string hpbar_pl = "image/hpbar_pl.png";
-	std::string hpbar_plPoison = "image/hpbar_plPoison.png";
 	std::string hpbar_en = "image/hpbar_en.png";
 	std::string hpbar_back = "image/hpbar_back.png";
-	_hpBarPl = LoadGraph(hpbar_pl.c_str());
-	_hpBarPlPoison = LoadGraph(hpbar_plPoison.c_str());
 	_hpBarEn = LoadGraph(hpbar_en.c_str());
 	_hpBarBack = LoadGraph(hpbar_back.c_str());
 
 	// 扉
-	std::string room_0 = "image/room_0.png";
-	std::string room_1 = "image/room_1.png";
-	std::string room_2 = "image/room_2.png";
-	_room[0] = LoadGraph(room_0.c_str());
-	_room[1] = LoadGraph(room_1.c_str());
-	_room[2] = LoadGraph(room_2.c_str());
+	std::string room[3];
+	room[0] = "image/room_0.png";
+	room[1] = "image/room_1.png";
+	room[2] = "image/room_2.png";
+	for (int i = 0; i < 3; i++)
+	{
+		_room[i] = LoadGraph(room[i].c_str());
+	}
 
 	// ダンジョン
-	// 直進
-	std::string dan_go = "image/dan_go.png";
-	// 右折のみ
-	std::string dan_right = "image/dan_right.png";
-	// 左折のみ
-	std::string dan_left = "image/dan_left.png";
-	// 行き止まり
-	std::string dan_stop = "image/dan_stop.png";
-	// T字路
-	std::string dan_T = "image/dan_T.png";
-	// トの字型(直線と右への道)
-	std::string dan_TONOJI_SR = "image/dan_TONOJI_SR.png";
-	// トの字型(直線と左への道)
-	std::string dan_TONOJI_SL = "image/dan_TONOJI_SL.png";
-
-	_roadPNG[0] = LoadGraph(dan_go.c_str());
-	_roadPNG[1] = LoadGraph(dan_right.c_str());
-	_roadPNG[2] = LoadGraph(dan_left.c_str());
-	_roadPNG[3] = LoadGraph(dan_stop.c_str());
-	_roadPNG[4] = LoadGraph(dan_T.c_str());
-	_roadPNG[5] = LoadGraph(dan_TONOJI_SR.c_str());
-	_roadPNG[6] = LoadGraph(dan_TONOJI_SL.c_str());
-
+	std::string dungeon[7];
+	dungeon[0] = "image/dan_go.png";			// 直進
+	dungeon[1] = "image/dan_right.png";			// 右折のみ
+	dungeon[2] = "image/dan_left.png";			// 左折のみ
+	dungeon[3] = "image/dan_stop.png";			// 行き止まり
+	dungeon[4] = "image/dan_T.png";				// T字路
+	dungeon[5] = "image/dan_TONOJI_SR.png";		// トの字型(直線と右への道)
+	dungeon[6] = "image/dan_TONOJI_SL.png";		// トの字型(直線と左への道)
+	for (int i = 0; i < 7; i++)
+	{
+		_roadPNG[i] = LoadGraph(dungeon[i].c_str());
+	}
 	for (int i = 7; i < 13; i++)
 	{
-		_roadPNG[i] = LoadGraph(dan_stop.c_str());
+		_roadPNG[i] = LoadGraph(dungeon[3].c_str());
 	}
-	_roadPNG[13] = LoadGraph(dan_go.c_str());
-	_roadPNG[14] = LoadGraph(room_0.c_str());
+	_roadPNG[13] = LoadGraph(dungeon[0].c_str());
+	_roadPNG[14] = LoadGraph(room[0].c_str());
 
 	// 現在地用▲マーク
 	std::string direct = "image/direct.png";
@@ -292,11 +280,11 @@ void GameScene::pngInit(void)
 	_bossEmergencyPNG = LoadGraph(emergency.c_str());
 
 	// 霧
-	std::string kiri = "image/kiri.png";
-	_dungeonFogPNG[0] = LoadGraph(kiri.c_str());
+	std::string fog = "image/kiri.png";
+	_dungeonFogPNG[0] = LoadGraph(fog.c_str());
 
-	std::string kiri2 = "image/kiri2.png";
-	_dungeonFogPNG[1] = LoadGraph(kiri2.c_str());
+	std::string fog2 = "image/kiri2.png";
+	_dungeonFogPNG[1] = LoadGraph(fog2.c_str());
 
 	// レベルアップの時の枠
 	std::string square = "image/square.png";
@@ -345,43 +333,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 			// レベルをそのままにはじめからやり直す
 			if (cursorPos.x >= 50 && cursorPos.x <= 50 + 400 && cursorPos.y >= 225 && cursorPos.y <= 225 + 130)
 			{
-				_monster[0]->SetAnimCnt(0);
-				_onceFlg = false;
-				_turnEndOnceFlg = false;
-				// 場所をスタート地点に戻す
-				plPosX = 0;
-				plPosY = 0;
-				_plNowPoint = _dungeonMap[plPosY][plPosX].second;
-				_directRota = 0.0f;
-				_plDirect = PL_DIRECTION::UP;
-				_plDirectOld = PL_DIRECTION::UP;
-				_leftFlg = false;
-				_rightFlg = false;
-
-				_cards->SetTurn(3);
-				shakeFlg = false;
-
-				// イベント状態の初期化
-				_event->SetEventMonsEncountFlg(false);
-				_event->SetEventMonsFlg(false);
-				eventState = EVENT_STATE::NON;
-				_monster[0]->SetEnemyState(ENEMY_STATE::NON);
-				_event->SetEvent(EVENT_STATE::NON);
-				_event->SetFateNum(-1);
-
-				// 宝箱の状態をリセットする
-				_event->SetReset();
-
-				// HPは最大まで回復してあげる
-				_player->SetHP(_player->GetMaxHP());
-				// 毒状態で死亡したときなどは元に戻す
-				_player->SetCondition(CONDITION::FINE);
-				_player->SetConditionTurn(0);
-
-				_plDeadChangeWinColor = 255;
-				// 音量の設定(最大に戻す)
-				ChangeVolumeSoundMem(255, _gameBGM);
-				ChangeVolumeSoundMem(255, _battleBGM);
+				GameReset();
 			}
 
 			// あきらめてゲームオーバー画面へ
@@ -414,7 +366,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 		return std::make_unique<TitleScene>();
 	}
 
-	// 歩行回数がゴールに到達したらクリア画面へ移行
+	// ゴールに到達したらクリア画面へ移行
 	if (_changeToClear)
 	{
 		return std::make_unique<GameClearScene>();
@@ -442,7 +394,6 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 		}
 	}
 
-
 	// アイテム画面の時にはカードを動かせなくする
 	if (_monster[0]->GetEnemyState() == ENEMY_STATE::EXIST && _menu->GetMenu() != MENU::ITEM)
 	{
@@ -455,46 +406,8 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 		}
 	}
 
-	// 霧処理
-	if (_kiri[0] < 900.0f)
-	{
-		_kiri[0] += 0.5f;
-	}
-	else
-	{
-		_kiri[0] = -900.0f;
-	}
-
-	if (_kiri[1] < 900.0f)
-	{
-		_kiri[1] += 0.5f;
-	}
-	else
-	{
-		_kiri[1] = -900.0f;
-	}
-
-	if (_event->GetCautionFlg())
-	{
-		if (_kyouseiButtlePngMoveCnt <= 250)
-		{
-			_kyouseiButtlePngMoveCnt += 20;
-		}
-		else if (_kyouseiButtlePngMoveCnt > 250 && _kyouseiButtlePngMoveCnt <= 300)
-		{
-			_kyouseiButtlePngMoveCnt++;
-		}
-		else if (_kyouseiButtlePngMoveCnt > 300 && _kyouseiButtlePngMoveCnt <= 900)
-		{
-			_kyouseiButtlePngMoveCnt += 20;
-		}
-		else
-		{
-			_kyouseiButtlePngMoveCnt = 0;
-			_event->SetCautionFlg(false);
-		}
-	}
-
+	DungeonFog();
+	ButtleCaution();
 
 	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_F2]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_F2]))
 	{
@@ -505,7 +418,6 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 	Draw();
 	mouseOld = mouse;
 	cardEffect();
-
 	_player->UpDate();
 
 	// 5ターン分経過
@@ -642,9 +554,9 @@ void GameScene::Draw(void)
 	}
 
 	// 霧表現
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
-	DrawGraph(0 + _kiri[0], 0, _dungeonFogPNG[0], true);
-	DrawGraph(0 + _kiri[1], 0, _dungeonFogPNG[1], true);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 180);
+	DrawGraph(0 + _dunFog[0], 0, _dungeonFogPNG[0], true);
+	DrawGraph(0 + _dunFog[1], 0, _dungeonFogPNG[1], true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	// マップ描画(敵出現時は描画しない)
@@ -714,34 +626,7 @@ void GameScene::Draw(void)
 		_monster[0]->EffectDraw();
 	}
 
-	// プレイヤー
-	// HPバー関連画像サイズ
-	int posx = 750;
-	int posy = 450;
-	int plHPBar;
-	if (_player->GetCondition() == CONDITION::POISON)
-	{
-		// 毒状態の時はHPバーの色をこっちにする
-		plHPBar = _hpBarPlPoison;
-	}
-	else
-	{
-		// 通常状態の時のHPバーの色
-		plHPBar = _hpBarPl;
-	}
-	DrawExtendGraph(posx, posy, posx + 130, posy + 33, _hpBarBack, true);
-	DrawExtendGraph(posx+3, posy+4, posx+3 + 125 * _player->GetHPBar(), posy+4 + 25, plHPBar, true);
-
-	// 右下案内表示
-	DrawFormatString(750, 425, 0xffffff, "体力:%d / %d", _player->GetHP(), _player->GetMaxHP());
-	if (_player->GetConditionTurn() != 0)
-	{
-		DrawFormatString(750, 480, 0xffffff, "毒回復まで:%d", _player->GetConditionTurn());
-	}
-	if (_menu->GetPowUp() != 0)
-	{
-		DrawFormatString(750, 505, 0xffffff, "攻撃強化:+%d", _menu->GetPowUp());
-	}
+	_player->Draw(_menu);
 
 	if (plPosX == _bossPos.x - 1 && plPosY == _bossPos.y)
 	{
@@ -765,7 +650,7 @@ void GameScene::Draw(void)
 
 		// 戦闘中以外は邪魔なので非表示で
 		_cards->Draw(_player,_menu);
-		_player->Draw(_menu);
+		_player->BattleDraw(_menu);
 	}
 
 	_menu->Draw(_player,_item,_monster[0]);
@@ -846,7 +731,6 @@ void GameScene::Draw(void)
 
 void GameScene::MouseClick_Go(const GameCtl& ctl)
 {
-	// 進むボタン(X:750,Y:345)
 	// メニュー画面表示中は進むボタンを押せないようにする
 	if (!_menu->GetMenuFlg() && _menu->GetMenu() == MENU::NON && eventState == EVENT_STATE::NON)
 	{
@@ -865,7 +749,7 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 			}
 		}
 
-		// 移動操作(画像拡大最中は処理しない)
+		// 移動操作(画像拡大最中は入力を受け付けない)
 		if (!_keyFlg)
 		{
 			// 関数オブジェクト
@@ -1068,32 +952,34 @@ void GameScene::pl_TurnEndAfter(void)
 
 			_turnEndOnceFlg = true;
 			/*防御の仕組み*/
-			float a = (float)_cards->GetGuard() * 10.0f;	//30%
-			float b = (100.0f - a) / 100.0f;	//100%-30%=70%/100% = 0.7
-			float c = (float)_monster[0]->GetAttack() * b;	//敵の与えてくるDamage量*0.7=7	
-			int d = _menu->GetEquipGuard() + _player->GetDifense() - (int)c;
+			//float a = (float)_cards->GetGuard() * 10.0f;	//30%
+			//float b = (100.0f - a) / 100.0f;	//100%-30%=70%/100% = 0.7
+			//float c = (float)_monster[0]->GetAttack() * b;	//敵の与えてくるDamage量*0.7=7	
+			//int d = _menu->GetEquipGuard() + _player->GetDifense() - (int)c;
+
+			int damage = _menu->GetEquipGuard() + _player->GetDifense() - (int)((float)_monster[0]->GetAttack() * ((100.0f - (float)_cards->GetGuard() * 10.0f) / 100.0f));
 
 			// +になったらプレイヤーのHPが回復しちゃう事件
-			if (d >= 0)
+			if (damage >= 0)
 			{
-				d = 0;
+				damage = 0;
 			}
 
 			// ノーダメージ
 			if (_menu->GetNonDamageFlg())
 			{
-				d = 0;
+				damage = 0;
 			}
 
 			// バリア値
 			if (_player->GetBarrierNum() > 0)
 			{
-				_player->SetBarrierNum(_player->GetBarrierNum() + d);
+				_player->SetBarrierNum(_player->GetBarrierNum() + damage);
 			}
 			else
 			{
 				// dには0またはマイナス値が入っているので加算処理でok
-				_player->SetHP(_player->GetHP() + d);
+				_player->SetHP(_player->GetHP() + damage);
 			}
 
 			_menu->SetNonDamageFlg(false);
@@ -1101,13 +987,6 @@ void GameScene::pl_TurnEndAfter(void)
 			// 表示ターン数を0にして、画面揺らしに移行する
 			shakeFlg = true;
 		}
-		//if (!shakeFlg)
-		//{
-			// 攻撃を受けた後はターンを復活させる(敵によって増減)
-			//_cards->SetTurn(_monster[0]->GetMaxTurn());
-			//_cards->SetGuard(0);
-			//_onceFlg = false;
-		//}
 	}
 }
 
@@ -1134,9 +1013,9 @@ void GameScene::pl_Heal(void)
 	/*回復の仕組み*/
 	// 回復したら回復量を0に戻す
 	// 最大HPを超えないように気を付ける
-	float one = (float)_cards->GetHeal() / 10.0f; //0.2
-	float two = _player->GetMaxHP() * one;        //最大HP * 0.2 = 最大HPの2割
-	_player->SetHP(_player->GetHP() + (int)two);  //2割を足す
+	//float one = (float)_cards->GetHeal() / 10.0f; //0.2
+	//float two = _player->GetMaxHP() * one;        //最大HP * 0.2 = 最大HPの2割
+	_player->SetHP(_player->GetHP() + (int)(_player->GetMaxHP() * ((float)_cards->GetHeal() / 10.0f)));
 	_cards->SetHeal(0);
 }
 
@@ -1220,39 +1099,24 @@ void GameScene::shakeDraw(void)
 
 void GameScene::doorWalk(void)
 {
-	// 歩行音からドア音までのつなぎ用
-	// 1:再生中 0:再生していない
-	//if (CheckSoundMem(_soundSE[1]) == 1 && _soundWalk)
-	//{
-	//	_soundWalk = true;
-	//	_seCnt = 20;
-	//}
-	//else if (CheckSoundMem(_soundSE[1]) == 0 && _soundWalk)
-	//{
-	//	if (_seCnt >= 0)
-	//	{
-	//		_seCnt--;
-	//	}
-	//	else
-	//	{
-	//		// ドア音
-	//		PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
-	//		_soundWalk = false;
-	//	}
-	//}
+	if (_keyFlg && _walkCnt > 0.0f)
+	{
+		_walkCnt -= 0.1f;
+	}
 
 	// 1:再生中 0:再生していない
 	if (_soundWalk)
 	{
 		PlaySoundMem(_soundSE[1], DX_PLAYTYPE_BACK, true);
 		_soundWalk = false;
+		_walkCnt = 12.0f;
 	}
 
 	if (CheckSoundMem(_soundSE[1]) == 1)
 	{
 		_keyFlg = true;
 	}
-	else
+	else if(_keyFlg && _walkCnt <= 0.0f)
 	{
 		_keyFlg = false;
 	}
@@ -2077,4 +1941,93 @@ void GameScene::Key(void)
 	{
 		moveFlg = false;
 	}
+}
+
+void GameScene::DungeonFog(void)
+{
+	// 霧処理
+	if (_dunFog[0] < 900.0f)
+	{
+		_dunFog[0] += 0.5f;
+	}
+	else
+	{
+		_dunFog[0] = -900.0f;
+	}
+
+	if (_dunFog[1] < 900.0f)
+	{
+		_dunFog[1] += 0.5f;
+	}
+	else
+	{
+		_dunFog[1] = -900.0f;
+	}
+}
+
+void GameScene::ButtleCaution(void)
+{
+	if (_event->GetCautionFlg())
+	{
+		if (_kyouseiButtlePngMoveCnt <= 250)
+		{
+			_kyouseiButtlePngMoveCnt += 20;
+		}
+		else if (_kyouseiButtlePngMoveCnt > 250 && _kyouseiButtlePngMoveCnt <= 300)
+		{
+			_kyouseiButtlePngMoveCnt++;
+		}
+		else if (_kyouseiButtlePngMoveCnt > 300 && _kyouseiButtlePngMoveCnt <= 900)
+		{
+			_kyouseiButtlePngMoveCnt += 20;
+		}
+		else
+		{
+			_kyouseiButtlePngMoveCnt = 0;
+			_event->SetCautionFlg(false);
+		}
+	}
+}
+
+void GameScene::GameReset(void)
+{
+	_monster[0]->SetAnimCnt(0);
+	_onceFlg = false;
+	_turnEndOnceFlg = false;
+	_walkCnt = 12.0f;
+
+	// 場所をスタート地点に戻す
+	plPosX = 0;
+	plPosY = 0;
+	_plNowPoint = _dungeonMap[plPosY][plPosX].second;
+	_directRota = 0.0f;
+	_plDirect = PL_DIRECTION::UP;
+	_plDirectOld = PL_DIRECTION::UP;
+	_leftFlg = false;
+	_rightFlg = false;
+
+	_cards->SetTurn(3);
+	shakeFlg = false;
+
+	// イベント状態の初期化
+	_event->SetEventMonsEncountFlg(false);
+	_event->SetEventMonsFlg(false);
+	eventState = EVENT_STATE::NON;
+	_monster[0]->SetEnemyState(ENEMY_STATE::NON);
+	_event->SetEvent(EVENT_STATE::NON);
+	_event->SetFateNum(-1);
+
+	// 宝箱の状態をリセットする
+	_event->SetReset();
+
+	// HPは最大まで回復してあげる
+	_player->SetHP(_player->GetMaxHP());
+	// 毒状態で死亡したときなどは元に戻す
+	_player->SetCondition(CONDITION::FINE);
+	_player->SetConditionTurn(0);
+
+	_plDeadChangeWinColor = 255;
+	// 音量の設定(最大に戻す)
+	ChangeVolumeSoundMem(255, _gameBGM);
+	ChangeVolumeSoundMem(255, _battleBGM);
 }
