@@ -42,23 +42,6 @@ Player::~Player()
 
 void Player::Init(void)
 {
-	//ファイルを読み込む
-//auto FileHandle = FileRead_open("csv/playerData.csv");
-//if (FileHandle == NULL)
-//{
-//	return; //エラー時の処理
-//}
-//
-//for (int i = 0; i <= 1; i++)
-//{
-//	FileRead_scanf(FileHandle, "%d,%d,%d,%d", &player_status[i].now_level, &player_status[i].maxHP, &player_status[i].attackDamage, &player_status[i].next_level);
-//}
-//
-////ファイルを閉じる
-//FileRead_close(FileHandle);
-//
-//_nowNum = 0;
-
 	if (!loadFlg)
 	{
 		player_status.now_level = 1;
@@ -107,7 +90,6 @@ void Player::Init(void)
 	_soundSE[3] = LoadSoundMem("sound/se/skill_sword_short.mp3");
 	_soundSE[4] = LoadSoundMem("sound/se/skill_barrier.mp3");
 	_soundSE[5] = LoadSoundMem("sound/se/skill_heal.mp3");
-
 
 	// 音量を下げる
 	ChangeVolumeSoundMem(128, _soundSE[1]);
@@ -189,13 +171,24 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* c
 		{
 			GetMousePoint(&x, &y);	 // マウスの座標取得
 
+			//// 782,564(アイコン描画位置)
+			//float a = x - 782;
+			//float b = y - 564;
+			//float c = sqrt(a * a + b * b);
+			//
+			//// 当たり判定(当たっているとき)
+			//if (c <= 34)
+			//{
+			//	PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
+			//	// スキルはターン消費なしで行える動作
+			//	_skillBackFlg = true;
+			//}
+
 			// 782,564(アイコン描画位置)
 			float a = x - 782;
 			float b = y - 564;
-			float c = sqrt(a * a + b * b);
-
 			// 当たり判定(当たっているとき)
-			if (c <= 34)
+			if (sqrt(a * a + b * b) <= 34)
 			{
 				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 				// スキルはターン消費なしで行える動作

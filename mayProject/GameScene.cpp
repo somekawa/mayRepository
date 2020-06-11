@@ -749,8 +749,8 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 			}
 		}
 
-		// 移動操作(画像拡大最中は入力を受け付けない)
-		if (!_keyFlg)
+		// 移動操作(画像拡大最中は入力を受け付けない)(死亡していないとき)
+		if (!_keyFlg && _player->GetHP() > 0)
 		{
 			// 関数オブジェクト
 			auto obj = MoveObj();

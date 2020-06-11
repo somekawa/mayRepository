@@ -164,14 +164,18 @@ void Event::pngInit(void)
 
 void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Monster* monster,Cards* cards)
 {
+	auto lambda = [&]() {
+		monster->SetEnemyNum(6, 0);
+		cards->SetTurn(3);
+		_onceFlg = true;
+		_kyouseiButtleFlg = true;
+	};
+
 	if (_event == EVENT_STATE::YADO)
 	{
 		if (_eventMonsFlg && !_onceFlg)
 		{
-			monster->SetEnemyNum(6, 0);
-			cards->SetTurn(3);
-			_onceFlg = true;
-			_kyouseiButtleFlg = true;
+			lambda();
 		}
 		else
 		{
@@ -183,10 +187,7 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 	{
 		if (_eventMonsFlg && !_onceFlg)
 		{
-			monster->SetEnemyNum(6, 0);
-			cards->SetTurn(3);
-			_onceFlg = true;
-			_kyouseiButtleFlg = true;
+			lambda();
 		}
 		else
 		{
@@ -198,10 +199,7 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 	{
 		if (_eventMonsFlg && !_onceFlg)
 		{
-			monster->SetEnemyNum(6, 0);
-			cards->SetTurn(3);
-			_onceFlg = true;
-			_kyouseiButtleFlg = true;
+			lambda();
 		}
 		else
 		{
@@ -213,10 +211,7 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 	{
 		if (_eventMonsFlg && !_onceFlg)
 		{
-			monster->SetEnemyNum(6, 0);
-			cards->SetTurn(3);
-			_onceFlg = true;
-			_kyouseiButtleFlg = true;
+			lambda();
 		}
 		else
 		{
@@ -228,10 +223,7 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 	{
 		if (_eventMonsFlg && !_onceFlg)
 		{
-			monster->SetEnemyNum(6, 0);
-			cards->SetTurn(3);
-			_onceFlg = true;
-			_kyouseiButtleFlg = true;
+			lambda();
 		}
 		else
 		{
@@ -262,7 +254,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 	{
 		// 人画像
 		DrawGraph(0, 0, _healHumanPNG, true);
-		// 進む
+		// 去る
 		DrawGraph(600, 345, _sentakusiPNG[10], true);
 		// メッセージボックス
 		DrawGraph(420, 50, _messagePNG, true);
@@ -334,7 +326,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 			DrawGraph(490,300, _yajirusiPNG, true);
 		}
 
-		// 進む
+		// 去る
 		DrawGraph(600, 345, _sentakusiPNG[10], true);
 
 		if (!_buyFlg || _chooseFlg)
@@ -475,7 +467,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 				DrawGraph(350, 150, _karaPNG, true);
 			}
 		
-			// 進む(宝箱無視)
+			// 去る(宝箱無視)
 			DrawGraph(600, 345, _sentakusiPNG[10], true);
 		}
 	}
@@ -523,7 +515,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 	{
 		// メッセージボックス
 		DrawGraph(420, 50, _messagePNG, true);
-		// 進む
+		// 去る
 		DrawGraph(600, 345, _sentakusiPNG[10], true);
 		// 調べる
 		DrawGraph(600, 200, _sentakusiPNG[9], true);
@@ -564,7 +556,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 			DrawGraph(600, 345, _sentakusiPNG[10], true);
 			// 調べる
 			DrawGraph(600, 200, _sentakusiPNG[11], true);
-			DrawFormatString(450, 70, 0x000000, "強そうな敵がいる");
+			DrawFormatString(450, 70, 0x000000, "敵が道をふさいでいる");
 		}
 	}
 
@@ -692,9 +684,9 @@ void Event::Yado(GameScene* game, Player* player)
 				// クリック音
 				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 
-				// お金が減るがHP満タン!
+				// お金が減るがHP全回復
 				// 減るお金はその時の自分のレベルによって異なる
-				player->SetMoney(player->GetMoney() - player->GetNowLevel() * 100);
+				player->SetMoney(player->GetMoney() - player->GetNowLevel() * 50);
 				player->SetHP(player->GetMaxHP());
 				_healYadoFlg = true;
 			}

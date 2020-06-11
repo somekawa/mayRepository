@@ -76,11 +76,6 @@ void Menu::Init(void)
 	_escapeFlg = false;
 	_meganeFlg = false;
 
-	// テスト(ロード時にアイテム画像を描画する)
-	//std::string potion = "image/potion.png";
-	//std::pair<const char*, ITEM> pair;
-	//pair.first = potion.c_str();
-	//pair.second = ITEM::POTION;
 	std::string itemName[static_cast<int>(ITEM::MAX)-1];
 	std::pair<std::string, ITEM> pair[static_cast<int>(ITEM::MAX) - 1];
 
@@ -97,11 +92,8 @@ void Menu::Init(void)
 	for (int i = 0; i <= static_cast<int>(ITEM::MAX) - 2; i++)
 	{
 		char name[256];
-		// 画像名 説明 費用
-		//FileRead_scanf(FileHandle_item, "%[^,],%[^,],%d", _itemStruct[i].name, _itemStruct[i].setumei, &_itemStruct[i].itemCostMoney);
-		//auto d = a + _itemStruct[i].name + b;
-		//_itemStruct[i].png = LoadGraph(d.c_str());
-		FileRead_scanf(FileHandle_item, "%[^,]",name);
+		FileRead_scanf(FileHandle_item, "%s",name);
+		name[255] = '\0';
 		pair[i].first  = a + name + b;
 		pair[i].second = static_cast<ITEM>(i+1);
 	}
@@ -119,10 +111,10 @@ void Menu::Init(void)
 		else
 		{
 			// ロード時のアイテム処理
-			if (itemBox[i]._item == pair[i].second)
+			if (static_cast<int>(itemBox[i]._item) > 0)
 			{
-				itemBox[i]._item = pair[i].second;
-				itemBox[i].png = LoadGraph(pair[i].first.c_str());
+				//itemBox[i]._item = pair[i].second;
+				itemBox[i].png = LoadGraph(pair[static_cast<int>(itemBox[i]._item)-1].first.c_str());
 			}
 			else
 			{
@@ -221,25 +213,6 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 						_useOrThrowAway = true;
 						_nonNeedFlg = false;
 					}
-
-					//if (itemBox[i]._item == ITEM::POTION)
-					//{
-					//	// プレイヤーのHPを回復する
-					//	_itemAction = ITEM::POTION;
-					//	// 画像を消す(回復薬を消す)
-					//	itemBox[i]._item = ITEM::NON;
-					//	itemBox[i].png = -1;
-					//}
-					//
-					//if (itemBox[i]._item == ITEM::SWORD)
-					//{
-					//	_itemAction = ITEM::SWORD;
-					//}
-					//
-					//if (itemBox[i]._item == ITEM::SHIELD)
-					//{
-					//	_itemAction = ITEM::SHIELD;
-					//}
 				}
 			}
 
@@ -374,71 +347,6 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 						}
 					}
 
-					//if (itemBox[_chooseNum]._item == ITEM::POTION)
-					//{	
-					//	if(!_nonNeedFlg)
-					//	{
-					//		// プレイヤーのHPを回復する
-					//		_itemAction = ITEM::POTION;
-					//		lambdaPNGSakujyo();
-					//	}
-					//	else
-					//	{
-					//		_useOrThrowAway = false;
-					//		_nonNeedFlg = false;
-					//	}
-					//	
-					//	// 画像を消す(回復薬を消す)
-					//	//_itemSetumei = ITEM::NON;
-					//	//itemBox[_chooseNum]._item = ITEM::NON;
-					//	//itemBox[_chooseNum].png = -1;
-					//	//_chooseNum = -1;
-					//	//_useOrThrowAway = false;
-					//	//_choicePos = { -100,-100 };
-					//}
-					//if (itemBox[_chooseNum]._item == ITEM::DETOX)
-					//{
-					//	if (!_nonNeedFlg)
-					//	{
-					//		// プレイヤーの毒を回復する
-					//		_itemAction = ITEM::DETOX;
-					//		lambdaPNGSakujyo();
-					//	}
-					//	else
-					//	{
-					//		_useOrThrowAway = false;
-					//		_nonNeedFlg = false;
-					//	}
-					//	// 画像を消す(毒を治す)
-					//	//_itemSetumei = ITEM::NON;
-					//	//itemBox[_chooseNum]._item = ITEM::NON;
-					//	//itemBox[_chooseNum].png = -1;
-					//	//_chooseNum = -1;
-					//	//_useOrThrowAway = false;
-					//	//_choicePos = { -100,-100 };
-					//}
-					//if (itemBox[_chooseNum]._item == ITEM::KYOUKA_POW)
-					//{
-					//	if (!_nonNeedFlg)
-					//	{
-					//		// 一時的に攻撃力アップ(5ターンぐらい)
-					//		_itemAction = ITEM::KYOUKA_POW;
-					//		lambdaPNGSakujyo();
-					//	}
-					//	else
-					//	{
-					//		_useOrThrowAway = false;
-					//		_nonNeedFlg = false;
-					//	}
-					//	// 画像を消す
-					//	//_itemSetumei = ITEM::NON;
-					//	//itemBox[_chooseNum]._item = ITEM::NON;
-					//	//itemBox[_chooseNum].png = -1;
-					//	//_chooseNum = -1;
-					//	//_useOrThrowAway = false;
-					//	//_choicePos = { -100,-100 };
-					//}
-
 					// 剣に関して
 					for (auto item : ITEM())
 					{
@@ -463,39 +371,6 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 						}
 					}
 
-					//if (itemBox[_chooseNum]._item == ITEM::SWORD)
-					//{
-					//	lambdaSword(ITEM::SWORD);
-					//  _itemAction = ITEM::SWORD;
-					//  _equipSwordPos = itemBox[_chooseNum].pos;
-					//  _chooseNum = -1;
-					//  _useOrThrowAway = false;
-					//  _choicePos = { -100,-100 };
-					//}
-					//if (itemBox[_chooseNum]._item == ITEM::SWORD_LV2)
-					//{
-					//	lambdaSword(ITEM::SWORD_LV2);
-					//	//_itemAction = ITEM::SWORD_LV2;
-					//	//_equipSwordPos = itemBox[_chooseNum].pos;
-					//	//_chooseNum = -1;
-					//	//_useOrThrowAway = false;
-					//	//_choicePos = { -100,-100 };
-					//}
-
-					//if (itemBox[_chooseNum]._item == ITEM::SHIELD)
-					//{
-					//	lambdaShield(ITEM::SHIELD);
-					//	//_itemAction = ITEM::SHIELD;
-					//	//_equipShieldPos = itemBox[_chooseNum].pos;
-					//	//_chooseNum = -1;
-					//	//_useOrThrowAway = false;
-					//	//_choicePos = { -100,-100 };
-					//}
-					//if (itemBox[_chooseNum]._item == ITEM::SHIELD_LV2)
-					//{
-					//	lambdaShield(ITEM::SHIELD_LV2);
-					//}
-
 					// ドロップアイテムに関して
 					for (auto item : ITEM())
 					{
@@ -516,63 +391,6 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 							}
 						}
 					}
-
-					//if (itemBox[_chooseNum]._item == ITEM::ENEMY_1)
-					//{
-					//	if (!_nonNeedFlg)
-					//	{
-					//		// 敵に固定ダメージ20
-					//		_itemAction = ITEM::ENEMY_1;
-					//		lambdaPNGSakujyo();
-					//	}
-					//	else
-					//	{
-					//		_useOrThrowAway = false;
-					//		_nonNeedFlg = false;
-					//	}
-					//	// 画像を消す
-					//	//_itemSetumei = ITEM::NON;
-					//	//itemBox[_chooseNum]._item = ITEM::NON;
-					//	//itemBox[_chooseNum].png = -1;
-					//	//_chooseNum = -1;
-					//	//_useOrThrowAway = false;
-					//	//_choicePos = { -100,-100 };
-					//}
-					//if (itemBox[_chooseNum]._item == ITEM::ENEMY_2)
-					//{
-					//	if (!_nonNeedFlg)
-					//	{
-					//		// 次のターンは敵の攻撃無効化
-					//		_itemAction = ITEM::ENEMY_2;
-					//		lambdaPNGSakujyo();
-					//	}
-					//	else
-					//	{
-					//		_useOrThrowAway = false;
-					//		_nonNeedFlg = false;
-					//	}
-					//}
-					//if (itemBox[_chooseNum]._item == ITEM::POTION_BIG)
-					//{
-					//	if (!_nonNeedFlg)
-					//	{
-					//		// プレイヤーのHPを大回復する
-					//		_itemAction = ITEM::POTION_BIG;
-					//		lambdaPNGSakujyo();
-					//	}
-					//	else
-					//	{
-					//		_useOrThrowAway = false;
-					//		_nonNeedFlg = false;
-					//	}
-					//	// 画像を消す
-					//	//_itemSetumei = ITEM::NON;
-					//	//itemBox[_chooseNum]._item = ITEM::NON;
-					//	//itemBox[_chooseNum].png = -1;
-					//	//_chooseNum = -1;
-					//	//_useOrThrowAway = false;
-					//	//_choicePos = { -100,-100 };
-					//}
 				}
 
 				// 捨てる
@@ -607,35 +425,7 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 						}
 					}
 
-					//if (itemBox[_chooseNum]._item == ITEM::SHIELD)
-					//{
-					//	_equipShieldPos = { -100,-1 };
-					//	_equipGuard = 0;
-					//}
-					//if (itemBox[_chooseNum]._item == ITEM::SWORD)
-					//{
-					//	_equipSwordPos = { -100,-1 };
-					//	_equipDamage = 0;
-					//}
-					//if (itemBox[_chooseNum]._item == ITEM::SWORD_LV2)
-					//{
-					//	_equipSwordPos = { -100,-1 };
-					//	_equipDamage = 0;
-					//}
-					//if (itemBox[_chooseNum]._item == ITEM::SHIELD_LV2)
-					//{
-					//	_equipShieldPos = { -100,-1 };
-					//	_equipGuard = 0;
-					//}
-
 					lambdaPNGSakujyo();
-					// 画像を消す
-					//_itemSetumei = ITEM::NON;
-					//itemBox[_chooseNum]._item = ITEM::NON;
-					//itemBox[_chooseNum].png = -1;
-					//_chooseNum = -1;
-					//_useOrThrowAway = false;
-					//_choicePos = { -100,-100 };
 				}
 			}
 		}
@@ -739,7 +529,7 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 		{
 			if (itemBox[_chooseNum]._item == item)
 			{
-				_equipDamage = (static_cast<int>(item) - 6) * 5;
+				_equipDamage = (static_cast<int>(item) - (static_cast<int>(ITEM::SWORD)-1)) * 5;
 				_itemAction = ITEM::NON;
 				if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
 				{
@@ -756,7 +546,7 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 		{
 			if (itemBox[_chooseNum]._item == item)
 			{
-				_equipGuard = (static_cast<int>(item) - 9) * 4;
+				_equipGuard = (static_cast<int>(item) - (static_cast<int>(ITEM::SHIELD) - 1)) * 4;
 				_itemAction = ITEM::NON;
 				if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
 				{
@@ -766,47 +556,6 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 		}
 	}
 
-	// 剣
-	//if (_itemAction == ITEM::SWORD)
-	//{
-	//	_equipDamage = 2;
-	//	_itemAction = ITEM::NON;
-	//	if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
-	//	{
-	//		lambdaBattle();
-	//	}
-	//}
-	//// 剣2
-	//if (_itemAction == ITEM::SWORD_LV2)
-	//{
-	//	_equipDamage = 10;
-	//	_itemAction = ITEM::NON;
-	//	if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
-	//	{
-	//		lambdaBattle();
-	//	}
-	//}
-	//// 盾
-	//if (_itemAction == ITEM::SHIELD)
-	//{
-	//	_equipGuard = 3;
-	//	_itemAction = ITEM::NON;
-	//	if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
-	//	{
-	//		lambdaBattle();
-	//	}
-	//}
-	//// 盾2
-	//if (_itemAction == ITEM::SHIELD_LV2)
-	//{
-	//	_equipGuard = 10;
-	//	_itemAction = ITEM::NON;
-	//	if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
-	//	{
-	//		lambdaBattle();
-	//	}
-	//}
-
 	// 敵魂攻撃アイテム
 	if (_itemAction == ITEM::ENEMY_1)
 	{
@@ -815,11 +564,6 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 		monster->Damage(20,cards);
 		_itemAction = ITEM::NON;
 
-		//// メニュー画面を消す
-		//_menuBackPngFlg = false;
-		//_menuSelPngFlg = false;			// 文字消す
-		//_menu = MENU::NON;			// 状態を戻す
-		//_useOrThrowAway = false;	// 使うと捨てるの文字描画消す
 		if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
 		{
 			lambdaBattle();
@@ -871,12 +615,6 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 		PlaySoundMem(_soundSE[3], DX_PLAYTYPE_BACK, true);
 		_powUpNum = 5;
 		_itemAction = ITEM::NON;
-
-		//// メニュー画面を消す
-		//_menuBackPngFlg = false;
-		//_menuSelPngFlg = false;			// 文字消す
-		//_menu = MENU::NON;			// 状態を戻す
-		//_useOrThrowAway = false;	// 使うと捨てるの文字描画消す
 		if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
 		{
 			lambdaBattle();
@@ -886,8 +624,6 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 
 void Menu::Draw(Player* player, Item* item, Monster* monster)
 {
-	//DrawGraph(0, 0, _menuPNG, true);
-
 	if (monster->GetEnemyState() != ENEMY_STATE::EXIST)
 	{
 		DrawGraph(0, 0, _menuPNG, true);
@@ -981,9 +717,7 @@ void Menu::Draw(Player* player, Item* item, Monster* monster)
 			// メニューのアイテムで選択したアイテムの説明を出す
 			if (_itemSetumei != ITEM::NON)
 			{
-				//_chooseNum = _menu->GetNumNum();
 				DrawFormatString(25, 340, 0x000000, "%s\n", item->GetSetumei(static_cast<int>(_itemSetumei) - 1));
-				//DrawFormatString(700, 450, 0xFFFFFF, "%s\n", item[static_cast<int>(_menu->Getitemsetumei()) -1].setumei);
 			}
 		}
 	}
