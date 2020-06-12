@@ -547,17 +547,17 @@ void GameScene::Draw(void)
 		DrawRotaGraph(450, 300, 1.0f, 0, _roadPNG[_plNowPoint], false);
 	}
 
-	// 何もなしと敵以外の処理
-	if (eventState != EVENT_STATE::ENEMY)
-	{
-		_event->Draw(this, _player, _menu, _item);
-	}
-
 	// 霧表現
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 180);
 	DrawGraph(0 + _dunFog[0], 0, _dungeonFogPNG[0], true);
 	DrawGraph(0 + _dunFog[1], 0, _dungeonFogPNG[1], true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+	// 何もなしと敵以外の処理
+	if (eventState != EVENT_STATE::ENEMY)
+	{
+		_event->Draw(this, _player, _menu, _item);
+	}
 
 	// マップ描画(敵出現時は描画しない)
 	if (_allMapFlg && eventState != EVENT_STATE::ENEMY)

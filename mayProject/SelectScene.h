@@ -1,11 +1,19 @@
 #pragma once
 #include "BaseScene.h"
+#include "VECTOR2.h"
 
  //難易度選択(数字はイベント総数。csvの数字量(-1まで含めた)と一致させる)
 enum class MODE {
 	NON ,
 	NORMAL,
 	HARD,
+};
+
+enum class ASIDIR {
+	UP,
+	DOWN,
+	RIGHT,
+	LEFT
 };
 
 class SelectScene :
@@ -35,4 +43,17 @@ private:
 	bool _toGameFlg;					// GameSceneへの移行用フラグ
 	bool _toTitleFlg;					// TitleSceneへの移行用フラグ
 	int _seClick;						// クリック音
+
+	// 足跡
+	int _asiato[2];						// 画像
+	VECTOR2 _startPos;					// 進行方向に対するスタート地点座標
+	VECTOR2 _goalPos;					// 進行方向に対するゴール地点座標
+	VECTOR2 _drawAsiVec;				// 画像描画座標
+	bool _asiatoFlg;					// 2秒ごとに左右の足跡で切り替える
+	bool _asiatoReverseX;				// 画像X軸反転用
+	bool _asiatoReverseY;				// 画像Y軸反転用
+	bool _dirFlg;						// ゴール地点についたときに次の方向を決める
+	float _asiatoRota;					// 画像回転
+	ASIDIR _dir;						// 現在の進行方向
+	ASIDIR _olddir;						// 1つ前の進行方向
 };
