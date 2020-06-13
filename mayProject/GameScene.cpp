@@ -435,6 +435,8 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 	{
 		_monster[0]->SetEnemyState(ENEMY_STATE::NON);
 		_menu->SetEscapeFlg(false);
+		eventState = EVENT_STATE::NON;
+		_keyFlg = false;
 	}
 
 	return std::move(own);
@@ -882,14 +884,17 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 		// バック処理
 		if (eventState == EVENT_STATE::NON)
 		{
-			// 現在地がスタート地点でなければバック処理できる
-			if (plPosX > 0 || plPosY > 0 && !_keyFlg)
+			if (_player->GetHP() > 0)
 			{
-				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_S]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_S]))
+				// 現在地がスタート地点でなければバック処理できる
+				if (plPosX > 0 || plPosY > 0 && !_keyFlg)
 				{
-					_keyFlg = true;
-					backFlg = true;
-					Key();
+					if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_S]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_S]))
+					{
+						_keyFlg = true;
+						backFlg = true;
+						Key();
+					}
 				}
 			}
 		}

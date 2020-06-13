@@ -1047,7 +1047,8 @@ void Event::Drink(GameScene* game, Player* player)
 				// ƒNƒŠƒbƒN‰¹
 				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 				_pushFlg = true;
-				_fateNum = GetRand(2);	// 0 ~ 2
+				//_fateNum = GetRand(2);	// 0 ~ 2
+				_fateNum = 1;
 			}
 		}
 	}
