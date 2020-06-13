@@ -94,10 +94,10 @@ void Player::Init(void)
 	// 音量を下げる
 	ChangeVolumeSoundMem(128, _soundSE[1]);
 
-	pngInit();
+	PngInit();
 }
 
-void Player::pngInit(void)
+void Player::PngInit(void)
 {
 	// スキルアイコン
 	std::string skillicon = "image/skillicon.png";
@@ -419,7 +419,7 @@ void Player::SkillDraw(void)
 
 }
 
-void Player::SetHP(int hpNum)
+void Player::SetHP(const int& hpNum)
 {
 	player_status.plHP = hpNum;
 	// 最大HPを超えないように気を付ける
@@ -435,42 +435,42 @@ void Player::SetHP(int hpNum)
 	}
 }
 
-int Player::GetHP(void)
+int Player::GetHP(void)const
 {
 	return player_status.plHP;
 }
 
-void Player::SetMaxHP(int hpNum)
+void Player::SetMaxHP(const int& hpNum)
 {
 	player_status.maxHP = hpNum;
 }
 
-int Player::GetMaxHP(void)
+int Player::GetMaxHP(void)const
 {
 	return player_status.maxHP;
 }
 
-float Player::GetHPBar(void)
+float Player::GetHPBar(void)const
 {
 	return (float)player_status.plHP / (float)player_status.maxHP;
 }
 
-int Player::GetAttackDamage(void)
+int Player::GetAttackDamage(void)const
 {
 	return player_status.attackDamage;
 }
 
-void Player::SetDifense(int num)
+void Player::SetDifense(const int& num)
 {
 	player_status.defense = num;
 }
 
-int Player::GetDifense(void)
+int Player::GetDifense(void)const
 {
 	return player_status.defense;
 }
 
-void Player::SetNextLevel(int num)
+void Player::SetNextLevel(const int& num)
 {
 	player_status.next_level = num;
 	bool seFlg = false;
@@ -494,27 +494,27 @@ void Player::SetNextLevel(int num)
 	}
 }
 
-int Player::GetNextLevel(void)
+int Player::GetNextLevel(void)const
 {
 	return player_status.next_level;
 }
 
-int Player::GetNowLevel(void)
+int Player::GetNowLevel(void)const
 {
 	return player_status.now_level;
 }
 
-void Player::SetMoney(int num)
+void Player::SetMoney(const int& num)
 {
 	player_status.money = num;
 }
 
-int Player::GetMoney(void)
+int Player::GetMoney(void)const
 {
 	return player_status.money;
 }
 
-void Player::SetCondition(CONDITION con)
+void Player::SetCondition(const CONDITION& con)
 {
 	player_status.condition = con;
 	if (player_status.condition == CONDITION::POISON)
@@ -523,52 +523,52 @@ void Player::SetCondition(CONDITION con)
 	}
 }
 
-CONDITION Player::GetCondition(void)
+CONDITION Player::GetCondition(void)const
 {
 	return player_status.condition;
 }
 
-void Player::SetConditionTurn(int num)
+void Player::SetConditionTurn(const int& num)
 {
 	player_status.conditionTurnNum = num;
 }
 
-int Player::GetConditionTurn(void)
+int Player::GetConditionTurn(void)const
 {
 	return player_status.conditionTurnNum;
 }
 
-void Player::SetSkillCharge(int num)
+void Player::SetSkillCharge(const int& num)
 {
 	_skillCharge = num;
 }
 
-int Player::GetSkillCharge(void)
+int Player::GetSkillCharge(void)const
 {
 	return _skillCharge;
 }
 
-bool Player::GetSkillBackFlg(void)
+bool Player::GetSkillBackFlg(void)const
 {
 	return _skillBackFlg;
 }
 
-void Player::SetBarrierNum(int num)
+void Player::SetBarrierNum(const int& num)
 {
 	_barrierNum = num;
 }
 
-int Player::GetBarrierNum(void)
+int Player::GetBarrierNum(void)const
 {
 	return _barrierNum;
 }
 
-void Player::SetLevelUpAnounceFlg(bool flag)
+void Player::SetLevelUpAnounceFlg(const bool& flag)
 {
 	_levelUpAnounceFlg = flag;
 }
 
-bool Player::GetLevelUpAnounceFlg(void)
+bool Player::GetLevelUpAnounceFlg(void)const
 {
 	return _levelUpAnounceFlg;
 }

@@ -60,17 +60,17 @@ void Item::Init(void)
 	item_pair[16].second = ITEM::POTION_BIG;
 }
 
-char* Item::GetSetumei(int num)
+char* Item::GetSetumei(const int& num)
 {
 	return _itemStruct[num].setumei;
 }
 
-int Item::GetCostMoney(int num)
+int Item::GetCostMoney(const int& num)
 {
 	return _itemStruct[num].itemCostMoney;
 }
 
-std::pair<int, ITEM> Item::GetPair(int num)
+std::pair<int, ITEM> Item::GetPair(const int& num)
 {
 	return item_pair[num];
 }
@@ -109,12 +109,12 @@ std::pair<int, ITEM> Item::GetPair(int num)
 //	item_pair[num].second = ITEM::NON;
 //}
 
-VECTOR2 Item::GetPos(int num)
+VECTOR2 Item::GetPos(const int& num)
 {
 	return _itemPos[num];
 }
 
-void Item::SetPos(int num)
+void Item::SetPos(const int& num)
 {
 	_itemPos[num] = { (((num % 3) + 2) * 100) + 90,((num / 3) + 1) * 100 };
 }

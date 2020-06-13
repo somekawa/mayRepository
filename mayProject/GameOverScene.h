@@ -11,7 +11,7 @@ public:
 private:
 	bool Init(void);		// 初期化
 	void Draw(void);		// 描画
-	void pngInit(void);		// 画像用初期化
+	void PngInit(void);		// 画像用初期化
 
 	int _gameOverPNG;		//「Game Over」の文字画像
 	int _titleBackPNG;		//「タイトルへ」の文字画像

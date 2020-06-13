@@ -88,7 +88,7 @@ bool GameScene::Init(void)
 	ChangeFontType(DX_FONTTYPE_ANTIALIASING_8X8);//アンチエイリアス
 
 	// 画像登録
-	pngInit();
+	PngInit();
 
 	// 扉関係
 	moveFlg = false;
@@ -189,7 +189,7 @@ bool GameScene::Init(void)
 	return true;
 }
 
-void GameScene::pngInit(void)
+void GameScene::PngInit(void)
 {
 	// ターンの数字
 	std::string one = "image/one.png";
@@ -373,11 +373,11 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 	}
 
 	Walk();
-	changeBGM();
-	plDead();
+	ChangeBGM();
+	Pl_Dead();
 	_menu->Update(this, _player, _monster[0], _cards);
 	_event->UpDate(this, _player, _menu, _item, _monster[0], _cards);
-	enemyItemDrop();
+	EnemyItemDrop();
 	_monster[0]->update();
 
 	//	時間経過でレベルアップしていたときに立ててたフラグをfalseに戻す
@@ -417,7 +417,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 
 	Draw();
 	mouseOld = mouse;
-	cardEffect();
+	CardEffect();
 	_player->UpDate();
 
 	// 5ターン分経過
@@ -427,7 +427,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 		_player->SetConditionTurn(0);
 	}
 
-	pl_TurnEndAfter();
+	Pl_TurnEndAfter();
 	EventUpdate();
 
 	// 逃走アイテムが使用されたら敵を消す
@@ -462,7 +462,7 @@ void GameScene::Draw(void)
 	if (shakeFlg)
 	{
 		// 画面を揺らす
-		shakeDraw();
+		ShakeDraw();
 	}
 	else
 	{
@@ -563,12 +563,12 @@ void GameScene::Draw(void)
 	if (_allMapFlg && eventState != EVENT_STATE::ENEMY)
 	{
 		// 全体マップの表示
-		allMapDraw();
+		AllMapDraw();
 	}
 	else if (!_allMapFlg && eventState != EVENT_STATE::ENEMY)
 	{
 		// 部分マップの表示
-		smallMapDraw();
+		SmallMapDraw();
 	}
 
 	// 敵に攻撃したら敵が点滅する
@@ -727,6 +727,151 @@ void GameScene::Draw(void)
 	}
 
 	ScreenFlip();
+}
+
+void GameScene::AllMapDraw(void)
+{
+	VECTOR2 mapOffset = { 200,0 };
+	// Sのマーク
+	DrawGraph(0 * 50 + mapOffset.x, 550 - (0 * 50) + mapOffset.y, _startChipPNG, true);
+	for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
+	{
+		DrawRotaGraph(std::get<0>(*v).x + 25 + mapOffset.x, std::get<0>(*v).y + 25 + mapOffset.y, 1.0, std::get<2>(*v), _chipPNG[std::get<1>(*v)], true);
+	}
+	DrawRotaGraph(plPosX * 50 + 25 + mapOffset.x, 550 - (plPosY * 50) + 25 + mapOffset.y, 1.0f, _directRota, _directPNG, true);
+}
+
+void GameScene::SmallMapDraw(void)
+{
+	if (_plNowMark.x == 0 && _plNowMark.y <= 2)
+	{
+		// Sのマーク
+		DrawGraph(0 * 50, 550 - (0 * 50), _startChipPNG, true);
+	}
+	// 現在地を保存していく
+	for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
+	{
+		if (plPosY <= 2)
+		{
+			_mapChipDrawOffset.y = 0;
+		}
+		else
+		{
+			_mapChipDrawOffset.y = 50 * (plPosY - 2);
+		}
+
+		if (plPosX <= 2)
+		{
+			_mapChipDrawOffset.x = 0;
+		}
+		else
+		{
+			_mapChipDrawOffset.x = 50 * (plPosX - 2);
+		}
+
+		if (std::get<0>(*v).y + 25 + _mapChipDrawOffset.y >= 450 && std::get<0>(*v).x + 25 - _mapChipDrawOffset.x <= 150)
+		{
+			DrawRotaGraph(std::get<0>(*v).x + 25 - _mapChipDrawOffset.x, std::get<0>(*v).y + 25 + _mapChipDrawOffset.y, 1.0, std::get<2>(*v), _chipPNG[std::get<1>(*v)], true);
+		}
+	}
+
+	// 現在地
+	if (plPosY <= 2)
+	{
+		_plNowMark.y = plPosY;
+	}
+	else
+	{
+		_plNowMark.y = 2;
+	}
+	if (plPosX <= 2)
+	{
+		_plNowMark.x = plPosX;
+	}
+	else
+	{
+		_plNowMark.x = 2;
+	}
+
+	DrawRotaGraph(_plNowMark.x * 50 + 25, 550 - (_plNowMark.y * 50) + 25, 1.0f, _directRota, _directPNG, true);
+}
+
+void GameScene::ShakeDraw(void)
+{
+	// バトル中ならば0
+	if (eventState == EVENT_STATE::ENEMY)
+	{
+		_cards->SetTurn(0);
+	}
+
+	// 画面を揺らす
+	_shakeTime += 0.5f;
+	if (!_shakeChangeFlg)
+	{
+		if (_shackPos.x >= 0 && _shackPos.x <= 20)
+		{
+			_shackPos.x += 5;
+
+			if (_shackPos.x > 20)
+			{
+				_shakeChangeFlg = true;
+			}
+		}
+	}
+
+	if (_shakeChangeFlg)
+	{
+		if (_shackPos.x > 0)
+		{
+			_shackPos.x -= 5;
+		}
+		else
+		{
+			_shakeChangeFlg = false;
+		}
+	}
+
+	DrawRotaGraph(450 + _shackPos.x, 300 + _shackPos.y, 1.0f, 0, _roadPNG[_plNowPoint], false);
+
+	_blinkCnt++;
+	// 画面全体を点滅
+	if (_blinkCnt % 10 == 0)
+	{
+		if (eventState == EVENT_STATE::ENEMY || eventState == EVENT_STATE::CHEST)
+		{
+			// 描画輝度を赤のみにセット
+			SetDrawBright(255, 0, 0);
+		}
+
+		if (eventState == EVENT_STATE::BUTTON)
+		{
+			// 描画輝度を黄のみにセット
+			SetDrawBright(255, 255, 0);
+		}
+
+		if (_player->GetCondition() == CONDITION::POISON && eventState != EVENT_STATE::BUTTON)
+		{
+			// 描画輝度を紫のみにセット
+			SetDrawBright(255, 0, 255);
+		}
+		DrawGraph(0, 0, _whitePNG, true);
+	}
+
+	if (_shakeTime >= 15.0f)
+	{
+		if (eventState == EVENT_STATE::ENEMY)
+		{
+			// 攻撃を受けた後はターンを復活させる
+			_cards->SetTurn(_monster[0]->GetMaxTurn());
+			_cards->SetGuard(0);
+			_monster[0]->SetAnimCnt(0);
+			_turnEndOnceFlg = false;
+		}
+		shakeFlg = false;
+		_blinkCnt = 0;
+		// 描画輝度を戻す
+		SetDrawBright(255, 255, 255);
+	}
 }
 
 void GameScene::MouseClick_Go(const GameCtl& ctl)
@@ -920,7 +1065,7 @@ void GameScene::EventUpdate(void)
 	}
 }
 
-void GameScene::pl_TurnEndAfter(void)
+void GameScene::Pl_TurnEndAfter(void)
 {
 	// プレイヤーのターンが終了
 	if (_cards->GetTurn() <= 0 && !shakeFlg)
@@ -984,7 +1129,7 @@ void GameScene::pl_TurnEndAfter(void)
 	}
 }
 
-void GameScene::pl_Attack(void)
+void GameScene::Pl_Attack(void)
 {
 	// 敵にダメージを与えたら、ダメージ量を0に戻す
 	// ダメージ計算(カード威力+基本攻撃力+装備による攻撃力プラス値+パワーアップ効果(ないときは0))
@@ -1002,7 +1147,7 @@ void GameScene::pl_Attack(void)
 	}
 }
 
-void GameScene::pl_Heal(void)
+void GameScene::Pl_Heal(void)
 {
 	/*回復の仕組み*/
 	// 回復したら回復量を0に戻す
@@ -1013,81 +1158,28 @@ void GameScene::pl_Heal(void)
 	_cards->SetHeal(0);
 }
 
-void GameScene::shakeDraw(void)
+void GameScene::Pl_Dead(void)
 {
-	// バトル中ならば0
-	if (eventState == EVENT_STATE::ENEMY)
+	// プレイヤーが死亡したときに画面の色を徐々に反転させる
+	if (_player->GetHP() <= 0)
 	{
-		_cards->SetTurn(0);
-	}
-
-	// 画面を揺らす
-	_shakeTime += 0.5f;
-	if (!_shakeChangeFlg)
-	{
-		if (_shackPos.x >= 0 && _shackPos.x <= 20)
+		if (_plDeadChangeWinColor >= 30)
 		{
-			_shackPos.x += 5;
-
-			if (_shackPos.x > 20)
+			_plDeadChangeWinColor--;
+			// ゲームBGMなら
+			if (CheckSoundMem(_battleBGM) == 1)
 			{
-				_shakeChangeFlg = true;
+				// 音量の設定(だんだん小さく)
+				ChangeVolumeSoundMem(_plDeadChangeWinColor, _battleBGM);
+			}
+
+			// ゲームBGMなら(だんだん小さく)
+			if (CheckSoundMem(_gameBGM) == 1)
+			{
+				// 音量の設定
+				ChangeVolumeSoundMem(_plDeadChangeWinColor, _gameBGM);
 			}
 		}
-	}
-
-	if (_shakeChangeFlg)
-	{
-		if (_shackPos.x > 0)
-		{
-			_shackPos.x -= 5;
-		}
-		else
-		{
-			_shakeChangeFlg = false;
-		}
-	}
-
-	DrawRotaGraph(450 + _shackPos.x, 300 + _shackPos.y, 1.0f, 0, _roadPNG[_plNowPoint], false);
-
-	_blinkCnt++;
-	// 画面全体を点滅
-	if (_blinkCnt % 10 == 0)
-	{
-		if (eventState == EVENT_STATE::ENEMY || eventState == EVENT_STATE::CHEST)
-		{
-			// 描画輝度を赤のみにセット
-			SetDrawBright(255, 0, 0);
-		}
-
-		if (eventState == EVENT_STATE::BUTTON)
-		{
-			// 描画輝度を黄のみにセット
-			SetDrawBright(255, 255, 0);
-		}
-
-		if (_player->GetCondition() == CONDITION::POISON && eventState != EVENT_STATE::BUTTON)
-		{
-			// 描画輝度を紫のみにセット
-			SetDrawBright(255, 0, 255);
-		}
-		DrawGraph(0, 0, _whitePNG, true);
-	}
-
-	if (_shakeTime >= 15.0f)
-	{
-		if (eventState == EVENT_STATE::ENEMY)
-		{
-			// 攻撃を受けた後はターンを復活させる
-			_cards->SetTurn(_monster[0]->GetMaxTurn());
-			_cards->SetGuard(0);
-			_monster[0]->SetAnimCnt(0);
-			_turnEndOnceFlg = false;
-		}
-		shakeFlg = false;
-		_blinkCnt = 0;
-		// 描画輝度を戻す
-		SetDrawBright(255, 255, 255);
 	}
 }
 
@@ -1116,7 +1208,7 @@ void GameScene::Walk(void)
 	}
 }
 
-void GameScene::changeBGM(void)
+void GameScene::ChangeBGM(void)
 {
 	// 戦闘BGMへの切替
 	if (_monster[0]->GetEnemyState() == ENEMY_STATE::EXIST)
@@ -1138,32 +1230,7 @@ void GameScene::changeBGM(void)
 	}
 }
 
-void GameScene::plDead(void)
-{
-	// プレイヤーが死亡したときに画面の色を徐々に反転させる
-	if (_player->GetHP() <= 0)
-	{
-		if (_plDeadChangeWinColor >= 30)
-		{
-			_plDeadChangeWinColor--;
-			// ゲームBGMなら
-			if (CheckSoundMem(_battleBGM) == 1)
-			{
-				// 音量の設定(だんだん小さく)
-				ChangeVolumeSoundMem(_plDeadChangeWinColor, _battleBGM);
-			}
-
-			// ゲームBGMなら(だんだん小さく)
-			if (CheckSoundMem(_gameBGM) == 1)
-			{
-				// 音量の設定
-				ChangeVolumeSoundMem(_plDeadChangeWinColor, _gameBGM);
-			}
-		}
-	}
-}
-
-void GameScene::enemyItemDrop(void)
+void GameScene::EnemyItemDrop(void)
 {
 	// 敵がアイテムを落としたときの処理
 	if (_monster[0]->GetDropFlg())
@@ -1202,7 +1269,7 @@ void GameScene::enemyItemDrop(void)
 	}
 }
 
-void GameScene::cardEffect(void)
+void GameScene::CardEffect(void)
 {
 	auto lambdaEffect = [&](int seNum) {
 		// カードごとの音
@@ -1242,7 +1309,7 @@ void GameScene::cardEffect(void)
 		{
 			lambdaPoison();
 		}
-		pl_Attack();
+		Pl_Attack();
 		lambdaEffect(3);
 		blinkFlg = true;
 	}
@@ -1264,7 +1331,7 @@ void GameScene::cardEffect(void)
 			lambdaPoison();
 		}
 		lambdaEffect(5);
-		pl_Heal();
+		Pl_Heal();
 	}
 
 	if (_cards->GetCardsSyurui() == CARDS_SYURUI::GUARD)
@@ -1285,73 +1352,6 @@ void GameScene::cardEffect(void)
 		}
 		lambdaEffect(4);
 	}
-}
-
-void GameScene::allMapDraw(void)
-{
-	VECTOR2 mapOffset = { 200,0 };
-	// Sのマーク
-	DrawGraph(0 * 50 + mapOffset.x, 550 - (0 * 50) + mapOffset.y, _startChipPNG, true);
-	for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
-	{
-		DrawRotaGraph(std::get<0>(*v).x + 25 + mapOffset.x, std::get<0>(*v).y + 25 + mapOffset.y, 1.0, std::get<2>(*v), _chipPNG[std::get<1>(*v)], true);
-	}
-	DrawRotaGraph(plPosX * 50 + 25 + mapOffset.x, 550 - (plPosY * 50) + 25 + mapOffset.y, 1.0f, _directRota, _directPNG, true);
-}
-
-void GameScene::smallMapDraw(void)
-{
-	if (_plNowMark.x == 0 && _plNowMark.y <= 2)
-	{
-		// Sのマーク
-		DrawGraph(0 * 50, 550 - (0 * 50), _startChipPNG, true);
-	}
-	// 現在地を保存していく
-	for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
-	{
-		if (plPosY <= 2)
-		{
-			_mapChipDrawOffset.y = 0;
-		}
-		else
-		{
-			_mapChipDrawOffset.y = 50 * (plPosY - 2);
-		}
-
-		if (plPosX <= 2)
-		{
-			_mapChipDrawOffset.x = 0;
-		}
-		else
-		{
-			_mapChipDrawOffset.x = 50 * (plPosX - 2);
-		}
-
-		if (std::get<0>(*v).y + 25 + _mapChipDrawOffset.y >= 450 && std::get<0>(*v).x + 25 - _mapChipDrawOffset.x <= 150)
-		{
-			DrawRotaGraph(std::get<0>(*v).x + 25 - _mapChipDrawOffset.x, std::get<0>(*v).y + 25 + _mapChipDrawOffset.y, 1.0, std::get<2>(*v), _chipPNG[std::get<1>(*v)], true);
-		}
-	}
-
-	// 現在地
-	if (plPosY <= 2)
-	{
-		_plNowMark.y = plPosY;
-	}
-	else
-	{
-		_plNowMark.y = 2;
-	}
-	if (plPosX <= 2)
-	{
-		_plNowMark.x = plPosX;
-	}
-	else
-	{
-		_plNowMark.x = 2;
-	}
-
-	DrawRotaGraph(_plNowMark.x * 50 + 25, 550 - (_plNowMark.y * 50) + 25, 1.0f, _directRota, _directPNG, true);
 }
 
 void GameScene::Direct(void)

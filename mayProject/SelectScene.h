@@ -2,13 +2,14 @@
 #include "BaseScene.h"
 #include "VECTOR2.h"
 
- //難易度選択(数字はイベント総数。csvの数字量(-1まで含めた)と一致させる)
+ //難易度選択
 enum class MODE {
 	NON ,
 	NORMAL,
 	HARD,
 };
 
+// 足跡の進行方向
 enum class ASIDIR {
 	UP,
 	DOWN,

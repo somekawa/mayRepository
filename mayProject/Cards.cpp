@@ -64,53 +64,53 @@ void Cards::Update(void)
 	}
 }
 
-void Cards::SetTurn(int turn)
+void Cards::SetTurn(const int& turn)
 {
 	_turnNum = turn;
 }
 
-int Cards::GetTurn(void)
+int Cards::GetTurn(void)const
 {
 	return _turnNum;
 }
 
-void Cards::SetDamage(int damage)
+void Cards::SetDamage(const int& damage)
 {
 	_damageNum = damage;
 }
 
-int Cards::GetDamage(void)
+int Cards::GetDamage(void)const
 {
 	return _damageNum;
 }
 
-void Cards::SetGuard(int guard)
+void Cards::SetGuard(const int& guard)
 {
 	_gaurdNum = guard;
 	_sumGaurdNum = guard;
 }
 
-int Cards::GetGuard(void)
+int Cards::GetGuard(void)const
 {
 	return _sumGaurdNum;
 }
 
-void Cards::SetHeal(int heal)
+void Cards::SetHeal(const int& heal)
 {
 	_healNum = heal;
 }
 
-int Cards::GetHeal(void)
+int Cards::GetHeal(void) const
 {
 	return _healNum;
 }
 
-CARDS_SYURUI Cards::GetCardsSyurui(void)
+CARDS_SYURUI Cards::GetCardsSyurui(void)const
 {
 	return _cardsSyurui;
 }
 
-void Cards::SetCardsSyurui(CARDS_SYURUI cards)
+void Cards::SetCardsSyurui(const CARDS_SYURUI& cards)
 {
 	_cardsSyurui = cards;
 }

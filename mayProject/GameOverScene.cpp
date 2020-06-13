@@ -14,7 +14,7 @@ GameOverScene::~GameOverScene()
 
 bool GameOverScene::Init(void)
 {
-	pngInit();
+	PngInit();
 
 	_pngBlend = 0;
 
@@ -26,7 +26,7 @@ bool GameOverScene::Init(void)
 	return true;
 }
 
-void GameOverScene::pngInit(void)
+void GameOverScene::PngInit(void)
 {
 	std::string blood = "image/blood.png";
 	_bloodPNG = LoadGraph(blood.c_str());
@@ -43,13 +43,6 @@ void GameOverScene::pngInit(void)
 
 unique_Base GameOverScene::Update(unique_Base own, const GameCtl& ctl)
 {
-	// 再生中でなければ再生を行う(0:再生していない)
-	// 現在はInitでループ設定している。
-	//if (CheckSoundMem(_overBGM) == 0)
-	//{
-	//	PlaySoundMem(_overBGM, DX_PLAYTYPE_LOOP, true);
-	//}
-
 	int x = 0;
 	int y = 0;
 	auto Mouse = GetMouseInput();                //マウスの入力状態取得
@@ -58,14 +51,12 @@ unique_Base GameOverScene::Update(unique_Base own, const GameCtl& ctl)
 		// 当たり判定
 		if (x >= 650 && x <= 650 + 200 && y >= 450 && y <= 450 + 100)
 		{
-			//PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
 			DeleteSoundMem(_overBGM);
 			if (CheckSoundMem(_seClick) == 0)
 			{
 				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
 				_seFlg = true;
 			}
-			//return std::make_unique<TitleScene>();
 		}
 	}
 

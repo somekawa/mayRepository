@@ -32,16 +32,16 @@ public:
 	~Event();
 	void UpDate(GameScene* game,Player* player, Menu* menu,Item* item, Monster* monster,Cards* cards);
 	void Draw(GameScene* game,Player* player, Menu* menu, Item* item);
-	void SetEvent(EVENT_STATE state);		// ゲームシーンからイベントを設定する
-	void SetFateNum(int num);				// はじめからやり直すのに必要
+	void SetEvent(const EVENT_STATE& state);// ゲームシーンからイベントを設定する
+	void SetFateNum(const int& num);		// はじめからやり直すのに必要
 	void SetReset(void);					// はじめからやり直すときにイベントの状態をリセットする
-	bool GetEventMonsFlg(void);				// 特定敵イベントで戦うを選択したか取得する関数
-	void SetEventMonsFlg(bool flag);		// はじめからやり直すのに必要
-	bool GetEventMonsEndFlg(void);			// 特定敵イベントが終了したかを取得する関数
-	void SetEventMonsEncountFlg(bool flag);	// 特定敵イベントの遭遇状態を設定する関数
-	bool GetEventMonsEncountFlg(void);		// 特定敵イベントに遭遇したかを取得する関数
-	void SetCautionFlg(bool flag);
-	bool GetCautionFlg(void);
+	bool GetEventMonsFlg(void)const;		// 特定敵イベントで戦うを選択したか取得する関数
+	void SetEventMonsFlg(const bool& flag);	// はじめからやり直すのに必要
+	bool GetEventMonsEndFlg(void)const;		// 特定敵イベントが終了したかを取得する関数
+	void SetEventMonsEncountFlg(const bool& flag);	// 特定敵イベントの遭遇状態を設定する関数
+	bool GetEventMonsEncountFlg(void)const;	// 特定敵イベントに遭遇したかを取得する関数
+	void SetCautionFlg(const bool& flag);	// 強制戦闘の案内を設定する関数
+	bool GetCautionFlg(void)const;			// 強制戦闘の案内を取得する関数
 private:
 	void Init(void);						// 初期化
 	void pngInit(void);						// 画像関係初期化

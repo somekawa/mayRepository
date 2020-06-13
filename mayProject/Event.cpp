@@ -570,12 +570,12 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 	}
 }
 
-void Event::SetEvent(EVENT_STATE state)
+void Event::SetEvent(const EVENT_STATE& state)
 {
 	_event = state;
 }
 
-void Event::SetFateNum(int num)
+void Event::SetFateNum(const int& num)
 {
 	_fateNum = num;
 }
@@ -606,37 +606,37 @@ void Event::SetReset(void)
 	_trapFlg = false;
 }
 
-bool Event::GetEventMonsFlg(void)
+bool Event::GetEventMonsFlg(void)const
 {
 	return _eventMonsFlg;
 }
 
-void Event::SetEventMonsFlg(bool flag)
+void Event::SetEventMonsFlg(const bool& flag)
 {
 	_eventMonsFlg = flag;
 }
 
-bool Event::GetEventMonsEndFlg(void)
+bool Event::GetEventMonsEndFlg(void)const
 {
 	return _eventMonsEndFlg;
 }
 
-void Event::SetEventMonsEncountFlg(bool flag)
+void Event::SetEventMonsEncountFlg(const bool& flag)
 {
 	_eventMonsEncountFlg = flag;
 }
 
-bool Event::GetEventMonsEncountFlg(void)
+bool Event::GetEventMonsEncountFlg(void)const
 {
 	return _eventMonsEncountFlg;
 }
 
-void Event::SetCautionFlg(bool flag)
+void Event::SetCautionFlg(const bool& flag)
 {
 	_kyouseiButtleFlg = flag;
 }
 
-bool Event::GetCautionFlg(void)
+bool Event::GetCautionFlg(void)const
 {
 	return _kyouseiButtleFlg;
 }

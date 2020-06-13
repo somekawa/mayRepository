@@ -13,16 +13,16 @@ public:
 	~Cards();
 	void Update(void);						// アップデート関数
 	void Draw(Player* player,Menu* menu);	// 描画
-	void SetTurn(int turn);					// 敵の攻撃までに動かしていい回数の設定
-	int GetTurn(void);						// 残り移動回数の取得
-	void SetDamage(int damage);				// プレイヤーの攻撃後、0に戻すのに必要
-	int GetDamage(void);					// プレイヤーの攻撃力に+するカードの威力取得用関数
-	void SetGuard(int guard);				// プレイヤーの防御後、0に戻すのに必要
-	int GetGuard(void);						// プレイヤーの防御力に+するカードの威力取得用関数
-	void SetHeal(int heal);					// プレイヤーの回復後、0に戻すのに必要
-	int GetHeal(void);						// プレイヤーの最大HPに対して何割回復するかの数値を取得する関数
-	CARDS_SYURUI GetCardsSyurui(void);		// 使用したカードの種類を取得する
-	void SetCardsSyurui(CARDS_SYURUI cards);// 使用後にNONに戻すときに使う
+	void SetTurn(const int& turn);			// 敵の攻撃までに動かしていい回数の設定
+	int  GetTurn(void)const;				// 残り移動回数の取得
+	void SetDamage(const int& damage);		// プレイヤーの攻撃後、0に戻すのに必要
+	int  GetDamage(void)const;				// プレイヤーの攻撃力に+するカードの威力取得用関数
+	void SetGuard(const int& guard);		// プレイヤーの防御後、0に戻すのに必要
+	int  GetGuard(void) const;				// プレイヤーの防御力に+するカードの威力取得用関数
+	void SetHeal(const int& heal);			// プレイヤーの回復後、0に戻すのに必要
+	int  GetHeal(void)  const;				// プレイヤーの最大HPに対して何割回復するかの数値を取得する関数
+	CARDS_SYURUI GetCardsSyurui(void)const;	// 使用したカードの種類を取得する
+	void SetCardsSyurui(const CARDS_SYURUI& cards);// 使用後にNONに戻すときに使う
 private:
 	bool Init(void);						// 初期化
 	void Move(int id);						// カードの動き(手元で組み合わせる)

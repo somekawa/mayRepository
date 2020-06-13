@@ -8,7 +8,7 @@ ITEM begin(ITEM)
 
 ITEM end(ITEM)
 {
-	return ITEM::MAX;		// endÇÕé¿ç€ÇÃóvëf+1ÇµÇ»Ç¢Ç∆Ç¢ÇØÇ»Ç¢ÇÃÇ≈DOWNÇ∂Ç·Ç»Ç¢
+	return ITEM::MAX;		
 }
 
 ITEM operator++(ITEM& item)

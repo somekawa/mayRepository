@@ -26,7 +26,7 @@ GameClearScene::~GameClearScene()
 
 bool GameClearScene::Init(void)
 {
-	pngInit();
+	PngInit();
 
 	float expand = 0.0f;
 	for (int i = 0; i < PARTICLE_NUM; i++)
@@ -48,7 +48,7 @@ bool GameClearScene::Init(void)
 	return true;
 }
 
-void GameClearScene::pngInit(void)
+void GameClearScene::PngInit(void)
 {
 	std::string particle = "image/particle.png";
 	_particlePNG = LoadGraph(particle.c_str());
@@ -68,22 +68,14 @@ void GameClearScene::pngInit(void)
 
 unique_Base GameClearScene::Update(unique_Base own, const GameCtl& ctl)
 {
-	// 再生中でなければ再生を行う(0:再生していない)
-	// 現在はInitでループ設定している。
-	//if (CheckSoundMem(clearBGM) == 0)
-	//{
-	//	PlaySoundMem(clearBGM, DX_PLAYTYPE_LOOP, true);
-	//}
-
 	int x = 0;
 	int y = 0;
-	auto Mouse = GetMouseInput();                //マウスの入力状態取得
-	GetMousePoint(&x, &y);					     //マウスの座標取得
-	if (Mouse & MOUSE_INPUT_LEFT/* && !(oldMouse & MOUSE_INPUT_LEFT)*/) {	 //マウスの左ボタンが押されていたら
+	auto Mouse = GetMouseInput();                // マウスの入力状態取得
+	GetMousePoint(&x, &y);					     // マウスの座標取得
+	if (Mouse & MOUSE_INPUT_LEFT) {				 // マウスの左ボタンが押されていたら
 		// 当たり判定
 		if (x >= 650 && x <= 650 + 200 && y >= 500 && y <= 500 + 100)
 		{
-			//PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
 			DeleteSoundMem(_clearBGM);
 			if (CheckSoundMem(_seClick) == 0)
 			{
@@ -91,7 +83,6 @@ unique_Base GameClearScene::Update(unique_Base own, const GameCtl& ctl)
 				_seFlg = true;
 			}
 		}
-		//return std::make_unique<TitleScene>();
 	}
 
 	if (_seFlg && CheckSoundMem(_seClick) == 0)
@@ -99,8 +90,6 @@ unique_Base GameClearScene::Update(unique_Base own, const GameCtl& ctl)
 		DeleteSoundMem(_seClick);
 		return std::make_unique<TitleScene>();
 	}
-
-	//oldMouse = mouse;
 
 	// だんだん暗くする
 	if (_pngBlend >= 0)

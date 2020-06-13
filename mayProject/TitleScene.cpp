@@ -19,7 +19,7 @@ TitleScene::~TitleScene()
 
 bool TitleScene::Init(void)
 {
-	pngInit();
+	PngInit();
 	_pngLight = 128;
 	_lightFlg = false;
 	_seFlg = false;
@@ -29,7 +29,7 @@ bool TitleScene::Init(void)
 	return true;
 }
 
-void TitleScene::pngInit(void)
+void TitleScene::PngInit(void)
 {
 	std::string title = "image/title.png";
 	_titlePNG = LoadGraph(title.c_str());

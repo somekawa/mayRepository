@@ -26,7 +26,3 @@ CARD_MEMBER begin(CARD_MEMBER);
 CARD_MEMBER end(CARD_MEMBER);
 CARD_MEMBER operator++(CARD_MEMBER& mode);
 CARD_MEMBER operator* (CARD_MEMBER& mode);
-
-// enum class FIRE_DIR:int {		
-// :ÅZÅZÅZÇ≈å^ÇïœÇ¶ÇÁÇÍÇ‹Ç∑
-// èëÇ©Ç»Ç©Ç¡ÇΩÇÁintÇ…Ç»ÇËÇ‹Ç∑

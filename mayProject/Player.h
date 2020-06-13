@@ -24,40 +24,40 @@ public:
 	Player();
 	~Player();
 	void ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* cards);	// クリック時のみのアップデート関数
-	void UpDate(void);					// 通常アップデート関数
-	void Draw(Menu* menu);				// 描画
-	void BattleDraw(Menu* menu);		// 戦闘中のみ必要な画像の描画
-	void SkillDraw(void);				// スキル描画
-	void SetHP(int hpNum);				// 現在の体力を設定する
-	int GetHP(void);					// 現在の体力を取得する
-	void SetMaxHP(int hpNum);			// 最大体力を設定する(体力増加剤で必要)
-	int GetMaxHP(void);					// 最大体力を取得する
-	float GetHPBar(void);				// 体力バー用の値計算
-	int GetAttackDamage(void);			// 攻撃力を取得する
-	void SetDifense(int num);			// 防御力を設定する(イベントで必要)
-	int GetDifense(void);				// 防御力を取得する
-	void SetNextLevel(int num);			// 次のレベルまでに必要な経験値を設定する
-	int GetNextLevel(void);				// 次のレベルまでに必要な経験値を取得する
-	int GetNowLevel(void);				// 現在のレベルを取得する
-	void SetMoney(int num);				// 所持金を設定する
-	int GetMoney(void);					// 現在の所持金を取得する
-	void SetCondition(CONDITION con);	// 現在の状態を設定する
-	CONDITION GetCondition(void);		// 現在の状態を取得する
-	void SetConditionTurn(int num);		// 状態異常からの復帰時間を設定する
-	int GetConditionTurn(void);			// 状態異常からの復帰時間を取得する
-	void SetSkillCharge(int num);		// スキルチャージ時間を減らす
-	int GetSkillCharge(void);			// スキルチャージ時間を取得
-	bool GetSkillBackFlg(void);			// スキル選択画面が表示されているかを取得する
-	void SetBarrierNum(int num);		// スキルのバリア値を設定
-	int GetBarrierNum(void);			// スキルのバリア値を取得
-	void SetLevelUpAnounceFlg(bool flag);// レベルが上がったことを通知するフラグを設定する
-	bool GetLevelUpAnounceFlg(void);	 // レベルが上がったことを通知するフラグを取得する
+	void UpDate(void);						// 通常アップデート関数
+	void Draw(Menu* menu);					// 描画
+	void BattleDraw(Menu* menu);			// 戦闘中のみ必要な画像の描画
+	void SkillDraw(void);					// スキル描画
+	void SetHP(const int& hpNum);			// 現在の体力を設定する
+	int GetHP(void)const;					// 現在の体力を取得する
+	void SetMaxHP(const int& hpNum);		// 最大体力を設定する(体力増加剤で必要)
+	int GetMaxHP(void)const;				// 最大体力を取得する
+	float GetHPBar(void)const;				// 体力バー用の値計算
+	int GetAttackDamage(void)const;			// 攻撃力を取得する
+	void SetDifense(const int& num);		// 防御力を設定する(イベントで必要)
+	int GetDifense(void)const;				// 防御力を取得する
+	void SetNextLevel(const int& num);		// 次のレベルまでに必要な経験値を設定する
+	int GetNextLevel(void)const;			// 次のレベルまでに必要な経験値を取得する
+	int GetNowLevel(void)const;				// 現在のレベルを取得する
+	void SetMoney(const int& num);			// 所持金を設定する
+	int GetMoney(void)const;				// 現在の所持金を取得する
+	void SetCondition(const CONDITION& con);// 現在の状態を設定する
+	CONDITION GetCondition(void)const;		// 現在の状態を取得する
+	void SetConditionTurn(const int& num);	// 状態異常からの復帰時間を設定する
+	int GetConditionTurn(void)const;		// 状態異常からの復帰時間を取得する
+	void SetSkillCharge(const int& num);	// スキルチャージ時間を減らす
+	int GetSkillCharge(void)const;			// スキルチャージ時間を取得
+	bool GetSkillBackFlg(void)const;		// スキル選択画面が表示されているかを取得する
+	void SetBarrierNum(const int& num);		// スキルのバリア値を設定
+	int GetBarrierNum(void)const;			// スキルのバリア値を取得
+	void SetLevelUpAnounceFlg(const bool& flag);// レベルが上がったことを通知するフラグを設定する
+	bool GetLevelUpAnounceFlg(void)const;	 // レベルが上がったことを通知するフラグを取得する
 
 	static int saveData[9];				// ロードで始めるときに読み込んだデータを保存する配列
 	static bool loadFlg;				// ロードで始めるときにinitでステータスを読み込まないようにするとき必要
 private:
 	void Init(void);					// 初期化
-	void pngInit(void);					// 画像初期化
+	void PngInit(void);					// 画像初期化
 
 	bool _levelUpAnounceFlg;			// レベルが上がったときにtrueになる
 

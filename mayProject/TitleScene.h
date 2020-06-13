@@ -13,7 +13,7 @@ public:
 	static int _titleBGM;				// BGM
 private:
 	bool Init(void);					// 初期化
-	void pngInit(void);					// 画像用初期化
+	void PngInit(void);					// 画像用初期化
 	void Draw(void);					// 描画
 
 	int _titlePNG;						// タイトル画像

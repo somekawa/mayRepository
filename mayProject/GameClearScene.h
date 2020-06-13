@@ -1,5 +1,4 @@
 #pragma once
-#include "VECTOR2.h"
 #include "BaseScene.h"
 
 class GameClearScene :
@@ -12,7 +11,7 @@ public:
 	unique_Base Update(unique_Base own, const GameCtl& ctl);
 private:
 	bool Init(void);					// 初期化
-	void pngInit(void);					// 画像用初期化
+	void PngInit(void);					// 画像用初期化
 	void Draw(void);					// 描画
 	void Particle(void);				// パーティクル用関数
 
@@ -27,7 +26,4 @@ private:
 	int _seClick;						// クリック音
 	int _clearBGM;						// BGM
 	bool _seFlg;						// SE用フラグ
-
-	//int _pngLight = 50;
-	//int oldMouse;
 };

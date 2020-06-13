@@ -64,21 +64,21 @@ public:
 	static bool bossClearFlg;			// ボス撃破でtrueにする
 private:
 	bool Init(void);					// 初期化
-	void pngInit(void);					// 画像用初期化
+	void PngInit(void);					// 画像用初期化
 	void Draw(void);					// 描画
+	void AllMapDraw(void);				// 全体マップの描画
+	void SmallMapDraw(void);			// 部分マップの描画
+	void ShakeDraw(void);				// 画面を少し揺らす
 	void MouseClick_Go(const GameCtl& ctl);		// 左クリックして「進む」を押したときの処理
 	void EventUpdate(void);				// イベントのアップデート関数
-	void pl_TurnEndAfter(void);			// プレイヤーのターンが終わった後の処理
-	void pl_Attack(void);				// プレイヤーの攻撃
-	void pl_Heal(void);					// プレイヤーの回復
-	void shakeDraw(void);				// 画面を少し揺らす
+	void Pl_TurnEndAfter(void);			// プレイヤーのターンが終わった後の処理
+	void Pl_Attack(void);				// プレイヤーの攻撃
+	void Pl_Heal(void);					// プレイヤーの回復
+	void Pl_Dead(void);					// プレイヤー死亡時
 	void Walk(void);					// 足音とキー入力の受付処理をする
-	void changeBGM(void);				// 通常BGMと戦闘BGMの切替
-	void plDead(void);					// プレイヤー死亡時
-	void enemyItemDrop(void);			// 敵からのアイテムドロップ処理
-	void cardEffect(void);				// カードの効果
-	void allMapDraw(void);				// 全体マップの描画
-	void smallMapDraw(void);			// 部分マップの描画
+	void ChangeBGM(void);				// 通常BGMと戦闘BGMの切替
+	void EnemyItemDrop(void);			// 敵からのアイテムドロップ処理
+	void CardEffect(void);				// カードの効果
 	void DungeonFog(void);				// 霧の効果
 	void ButtleCaution(void);			// 強制戦闘の案内を出す
 	void GameReset(void);				// ゲームオーバー時にやりなおすを選択したときに再設定するものを集めた関数
@@ -147,8 +147,6 @@ private:
 	int _hpBarBack;
 	// 部屋(扉開閉込み)の画像
 	int _room[3];
-	//「進む」の文字画像
-	//int _walkPNG;	
 	// 点滅用白画像
 	int _whitePNG;
 	// 敵情報画像

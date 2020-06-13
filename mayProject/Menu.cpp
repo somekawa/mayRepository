@@ -123,7 +123,7 @@ void Menu::Init(void)
 		}
 	}
 
-	pngInit();
+	PngInit();
 
 	// SE
 	_soundSE[0] = LoadSoundMem("sound/se/click.mp3");
@@ -133,7 +133,7 @@ void Menu::Init(void)
 	_soundSE[4] = LoadSoundMem("sound/se/dropItem.mp3");
 }
 
-void Menu::pngInit(void)
+void Menu::PngInit(void)
 {
 	// メニューのボタン3つ
 	std::string menuButton = "image/menu/menuSel.png";
@@ -809,9 +809,9 @@ void Menu::MenuButton_Enemy(void)
 	}
 }
 
-void Menu::Setitem(ITEM item, int png)
+void Menu::Setitem(const ITEM& item, const int& png)
 {
-	//元は12
+	// 12
 	for (int i = 0; i < 12; i++)
 	{
 		// 入れられる場所を探して入れる
@@ -822,20 +822,19 @@ void Menu::Setitem(ITEM item, int png)
 			return;						// 入れたらfor文を抜けるようにする
 		}
 	}
-	//itemBox[0]._item = item;
 }
 
-bool Menu::GetMenuFlg(void)
+bool Menu::GetMenuFlg(void)const
 {
 	return _menuSelPngFlg;
 }
 
-MENU Menu::GetMenu(void)
+MENU Menu::GetMenu(void)const
 {
 	return _menu;
 }
 
-int Menu::GetCanHaveItem(void)
+int Menu::GetCanHaveItem(void)const
 {
 	int canHave = 0;
 	//元は12
@@ -852,58 +851,58 @@ int Menu::GetCanHaveItem(void)
 	return canHave;
 }
 
-int Menu::GetEquipDamage(void)
+int Menu::GetEquipDamage(void)const
 {
 	return _equipDamage;
 }
 
-int Menu::GetEquipGuard(void)
+int Menu::GetEquipGuard(void)const
 {
 	return _equipGuard;
 }
 
-int Menu::GetPowUp(void)
+int Menu::GetPowUp(void)const
 {
 	return _powUpNum;
 }
 
-void Menu::SetPowUp(int num)
+void Menu::SetPowUp(const int& num)
 {
 	// 攻撃するごとに-1されていく
 	_powUpNum = num;
 }
 
-bool Menu::GetNonDamageFlg(void)
+bool Menu::GetNonDamageFlg(void)const
 {
 	return _nonDamageFlg;
 }
 
-void Menu::SetNonDamageFlg(bool flag)
+void Menu::SetNonDamageFlg(const bool& flag)
 {
 	_nonDamageFlg = flag;
 }
 
-bool Menu::GetMenuBackPngFlg(void)
+bool Menu::GetMenuBackPngFlg(void)const
 {
 	return _menuBackPngFlg;
 }
 
-bool Menu::GetEscapeFlg(void)
+bool Menu::GetEscapeFlg(void)const
 {
 	return _escapeFlg;
 }
 
-void Menu::SetEscapeFlg(bool flag)
+void Menu::SetEscapeFlg(const bool& flag)
 {
 	_escapeFlg = flag;
 }
 
-bool Menu::GetMeganeFlg(void)
+bool Menu::GetMeganeFlg(void)const
 {
 	return _meganeFlg;
 }
 
-void Menu::SetMeganeFlg(bool flag)
+void Menu::SetMeganeFlg(const bool& flag)
 {
 	_meganeFlg = flag;
 }
@@ -920,6 +919,10 @@ void Menu::Save(Player* player)
 		// セーブをする
 		FILE* file;
 		fopen_s(&file, "data/save1.csv", "wb");
+		if (file == NULL)
+		{
+			return; //エラー時の処理
+		}
 		fprintf(file, "%d,%d,%d,%d,%d,%d,%d,%d,%d\n", player->GetNowLevel(), player->GetMaxHP(), player->GetHP(), player->GetAttackDamage(), player->GetDifense(), player->GetNextLevel(), player->GetMoney(), player->GetConditionTurn(), player->GetCondition());
 		fprintf(file, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", itemBox[0]._item, itemBox[1]._item, itemBox[2]._item, itemBox[3]._item, itemBox[4]._item, itemBox[5]._item, itemBox[6]._item, itemBox[7]._item, itemBox[8]._item, itemBox[9]._item, itemBox[10]._item, itemBox[11]._item);
 		fclose(file);

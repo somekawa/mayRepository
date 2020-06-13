@@ -27,43 +27,42 @@ public:
 
 	void Update(GameScene* game,Player* player, Monster* monster, Cards* cards);	// アップデート関数
 	void Draw(Player* player, Item* item, Monster* monster);		// 描画
-	void MenuButton_NonEnemy(void);		// メニューボタン処理(非戦闘時)
-	void MenuButton_Enemy(void);		// メニューボタン処理(戦闘時)
+	void MenuButton_NonEnemy(void);			// メニューボタン処理(非戦闘時)
+	void MenuButton_Enemy(void);			// メニューボタン処理(戦闘時)
 
-	void Setitem(ITEM item, int png);	// 取得したアイテムを格納する
-	bool GetMenuFlg(void);				// メニュー画面が表示状態か取得する
-	MENU GetMenu(void);					// 現在のメニュー項目を取得する
-	int GetCanHaveItem(void);			// 後何個アイテムが持てるか調べる
+	void Setitem(const ITEM& item, const int& png);	// 取得したアイテムを格納する
+	bool GetMenuFlg(void)const;				// メニュー画面が表示状態か取得する
+	MENU GetMenu(void)const;				// 現在のメニュー項目を取得する
+	int GetCanHaveItem(void)const;			// 後何個アイテムが持てるか調べる
 
-	int GetEquipDamage(void);			// 装備武器によるダメージの増加量を取得する
-	int GetEquipGuard(void);			// 装備防具によるダメージの軽減量を取得する
+	int GetEquipDamage(void)const;			// 装備武器によるダメージの増加量を取得する
+	int GetEquipGuard(void)const;			// 装備防具によるダメージの軽減量を取得する
 
-	int GetPowUp(void);					// パワーアップアイテムの効果を取得する
-	void SetPowUp(int num);				// 攻撃すると-1ずつ減少していくときに使う
+	int GetPowUp(void)const;				// パワーアップアイテムの効果を取得する
+	void SetPowUp(const int& num);			// 攻撃すると-1ずつ減少していくときに使う
 
-	bool GetNonDamageFlg(void);			// 無敵効果のアイテムを使用状態を取得する
-	void SetNonDamageFlg(bool flag);	// 敵からの攻撃を受けた後に無敵効果の状態を消すときに使う
+	bool GetNonDamageFlg(void)const;		// 無敵効果のアイテムを使用状態を取得する
+	void SetNonDamageFlg(const bool& flag);	// 敵からの攻撃を受けた後に無敵効果の状態を消すときに使う
 
-	bool GetMenuBackPngFlg(void);		// アイテム背景が描画されているか取得する
+	bool GetMenuBackPngFlg(void)const;		// アイテム背景が描画されているか取得する
 
-	bool GetEscapeFlg(void);			// 戦闘から逃げるアイテムの情報を取得する		
-	void SetEscapeFlg(bool flag);		// 戦闘から逃げるアイテムの情報を設定する
+	bool GetEscapeFlg(void)const;			// 戦闘から逃げるアイテムの情報を取得する		
+	void SetEscapeFlg(const bool& flag);	// 戦闘から逃げるアイテムの情報を設定する
 
-	bool GetMeganeFlg(void);			// 宝箱の中身を鑑定するアイテムの情報を取得する
-	void SetMeganeFlg(bool flag);		// 宝箱の中身を鑑定するアイテムの情報を設定する
+	bool GetMeganeFlg(void)const;			// 宝箱の中身を鑑定するアイテムの情報を取得する
+	void SetMeganeFlg(const bool& flag);	// 宝箱の中身を鑑定するアイテムの情報を設定する
 
 	void Save(Player* player);			// セーブ
 	static void Load(void);				// ロード
 private:
 	void Init(void);					// 初期化
-	void pngInit(void);					// 画像関係初期化
+	void PngInit(void);					// 画像関係初期化
 
 	/*マウス関係*/
 	VECTOR2 _cursorPos;					// マウスカーソルの座標保存用変数
 	int _mouse;							// マウスの入力状態取得
 
 	MENU _menu;							// メニュー項目の保存用変数
-	//ITEM chooseItem;					
 	ITEM _itemAction;					// アイテム使用時の効果を分けるときに使う
 	ITEM _itemSetumei;					// メニューで説明を出すときに使う
 	VECTOR2 _equipSwordPos;				// 装備武器に"E"を付けるときに使う
