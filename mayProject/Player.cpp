@@ -48,7 +48,6 @@ void Player::Init(void)
 		player_status.maxHP = 35;
 		player_status.plHP = player_status.maxHP;
 		player_status.attackDamage = 3;
-		//player_status.attackDamage = 999;
 		player_status.defense = 0;
 		player_status.next_level = 10;
 		player_status.money = 1000;
@@ -165,7 +164,7 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* c
 	auto Mouse = GetMouseInput();     // マウスの入力状態取得
 	// スキル使用可能時のマウスクリック位置とアイコン(円)との当たり判定
 	// アイテム画面中はスキルチャージアイコンを押せない
-	if (!menu->GetMenuBackPngFlg())
+	if (!menu->GetMenuBackPngFlg() && player_status.plHP > 0)
 	{
 		if (_skillFlg)
 		{
@@ -324,11 +323,11 @@ void Player::Draw(Menu* menu)
 	DrawFormatString(750, 425, 0xffffff, "体力:%d / %d", player_status.plHP, player_status.maxHP);
 	if (player_status.conditionTurnNum != 0)
 	{
-		DrawFormatString(750, 480, 0xffffff, "毒回復まで:%d", player_status.conditionTurnNum);
+		DrawFormatString(750, 483, 0xffffff, "毒回復まで:%d", player_status.conditionTurnNum);
 	}
 	if (menu->GetPowUp() != 0)
 	{
-		DrawFormatString(750, 505, 0xffffff, "攻撃強化:+%d", menu->GetPowUp());
+		DrawFormatString(750, 507, 0xffffff, "攻撃強化:+%d", menu->GetPowUp());
 	}
 }
 

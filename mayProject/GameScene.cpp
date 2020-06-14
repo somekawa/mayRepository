@@ -1080,7 +1080,7 @@ void GameScene::Pl_TurnEndAfter(void)
 		if (!_turnEndOnceFlg)
 		{
 			// 敵の種類によっては毒にかかる
-			if (_monster[0]->GetEnemyNum() == 0)
+			if (_monster[0]->GetEnemyNum() == 0 && _player->GetBarrierNum() <= 0)
 			{
 				int poison = GetRand(1);	// 0か1
 				if (poison == 0)			// 0なら毒にかかる
@@ -1292,24 +1292,14 @@ void GameScene::CardEffect(void)
 		// 毒音
 		PlaySoundMem(_soundSE[7], DX_PLAYTYPE_BACK, true);
 
-		// 体力の1/5ぐらい削ろうかな
-		_player->SetHP(_player->GetHP() - (float)_player->GetMaxHP() * (1.0f / 5.0f));
+		// 体力の1/6ぐらい削ろうかな
+		_player->SetHP(_player->GetHP() - (float)_player->GetMaxHP() * (1.0f / 6.0f));
 		// 1ターンマイナス
 		_player->SetConditionTurn(_player->GetConditionTurn() - 1);
 	};
 
 	if (_cards->GetCardsSyurui() == CARDS_SYURUI::ATTACK)
 	{
-		// 攻撃カード音
-		//PlaySoundMem(_soundSE[3], DX_PLAYTYPE_BACK, true);
-		//
-		// スキルチャージが0より大きいときは減らしていく
-		//if (_player->GetSkillCharge() > 0)
-		//{
-		//	_player->SetSkillCharge(_player->GetSkillCharge() - 1);
-		//}
-		//_cards->SetCardsSyurui(CARDS_SYURUI::NON);
-
 		if (_player->GetCondition() == CONDITION::POISON)
 		{
 			lambdaPoison();
@@ -1321,16 +1311,6 @@ void GameScene::CardEffect(void)
 
 	if (_cards->GetCardsSyurui() == CARDS_SYURUI::HEAL)
 	{
-		// 回復カード音
-		//PlaySoundMem(_soundSE[5], DX_PLAYTYPE_BACK, true);
-		//
-		// スキルチャージが0より大きいときは減らしていく
-		//if (_player->GetSkillCharge() > 0)
-		//{
-		//	_player->SetSkillCharge(_player->GetSkillCharge() - 1);
-		//}
-		//_cards->SetCardsSyurui(CARDS_SYURUI::NON);
-
 		if (_player->GetCondition() == CONDITION::POISON)
 		{
 			lambdaPoison();
@@ -1341,16 +1321,6 @@ void GameScene::CardEffect(void)
 
 	if (_cards->GetCardsSyurui() == CARDS_SYURUI::GUARD)
 	{
-		// 防御カード音
-		//PlaySoundMem(_soundSE[4], DX_PLAYTYPE_BACK, true);
-		//
-		// スキルチャージが0より大きいときは減らしていく
-		//if (_player->GetSkillCharge() > 0)
-		//{
-		//	_player->SetSkillCharge(_player->GetSkillCharge() - 1);
-		//}
-		//_cards->SetCardsSyurui(CARDS_SYURUI::NON);
-
 		if (_player->GetCondition() == CONDITION::POISON)
 		{
 			lambdaPoison();
@@ -1761,22 +1731,23 @@ void GameScene::Key(void)
 
 	_walkDirect = 0;
 	moveFlg = true;
-	// プレイヤーが状態異常のとき
-	if (_player->GetCondition() == CONDITION::POISON)
-	{
-		// ダメージ音
-		PlaySoundMem(_soundSE[7], DX_PLAYTYPE_BACK, true);
-
-		// 体力の1/5ぐらい削ろうかな
-		_player->SetHP(_player->GetHP() - (float)_player->GetMaxHP() * (1.0f / 5.0f));
-		// 1ターンマイナス
-		_player->SetConditionTurn(_player->GetConditionTurn() - 1);
-
-		shakeFlg = true;
-	}
 
 	if (openDoor)
 	{
+		// プレイヤーが状態異常のとき
+		if (_player->GetCondition() == CONDITION::POISON)
+		{
+			// ダメージ音
+			PlaySoundMem(_soundSE[7], DX_PLAYTYPE_BACK, true);
+
+			// 体力の1/6ぐらい削ろうかな
+			_player->SetHP(_player->GetHP() - (float)_player->GetMaxHP() * (1.0f / 6.0f));
+			// 1ターンマイナス
+			_player->SetConditionTurn(_player->GetConditionTurn() - 1);
+
+			shakeFlg = true;
+		}
+
 		Direct();
 		_plNowPoint = _dungeonMap[plPosY][plPosX].second;
 		if (!_dungeonMap[plPosY][plPosX].first)
