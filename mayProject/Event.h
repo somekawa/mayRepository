@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <utility>
+#include <map>
 #include <string>
 #include "Menu.h"
 
@@ -84,13 +85,11 @@ private:
 	VECTOR2 _buttonDrink[4];			// ボタンとドリンクの座標
 	int _buttonNum;						// 現在地とイベント場所が一致したときにその値を保存する変数
 	bool _buttonPush[2];				// 押したかどうか
-	//VECTOR2 _buttonPos[2];			// ボタンの位置
 	bool _buttonEventFlg;				// ボタン押下時にtrueにする
 
 	// 飲み物
 	int _drinkNum;						// 現在地とイベント場所が一致したときにその値を保存する変数
 	bool _drinking[2];					// 飲んだかどうか
-	//VECTOR2 _drinkPos[2];				// 飲み物の位置
 	bool _drinkEventFlg;				// 飲むことにしたときにtrueにする
 
 	// 即死トラップ
@@ -102,10 +101,8 @@ private:
 	bool _eventMonsEncountFlg;			// 遭遇時にtrue
 	bool _eventMonsEndFlg;				// 即死トラップ使用して倒した際にtrue
 
-	// 宿屋の画像
-	int _healHumanPNG;
-	// 商人の画像
-	int _syouninPNG;
+	// イベント画像
+	std::map<std::string, int> eventImages;
 	// メッセージ用枠画像
 	int _messagePNG;
 	// 商人の持ち物の後ろ枠
@@ -114,25 +111,12 @@ private:
 	int _itemBoxPNG;
 	// 商人の選択中のアイテムがわかりやすくなる画像
 	int _itemChoicePNG;
-	//「Sold Out」の文字画像
-	int _soldOutPNG;
-	// 宝箱の画像
+	// [0]:開いてない宝箱,[1]:宝箱から敵出現
 	int _chestPNG[2];
-	// 宝箱から取得できるアイテム画像
-	int _chsetItemPNG;
-	// 謎の瓶の画像
-	int _drinkPNG;
 	// 選択肢の文字画像
 	int _sentakusiPNG[12];
 	// 商品ページを移動するための矢印の画像
 	int _yajirusiPNG;
-	// 空の宝箱
-	int _karaPNG;
-	// 即死トラップの像
-	int _zouPNG;
-	// 特定敵画像
-	int _eventMonsPNG;
-
 	// SE
 	int _soundSE[4];
 };

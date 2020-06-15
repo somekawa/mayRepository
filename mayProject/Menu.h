@@ -1,4 +1,6 @@
 #pragma once
+#include <map>
+#include <string>
 #include "VECTOR2.h"
 #include "ITEMCLASS.h"
 
@@ -88,30 +90,10 @@ private:
 	bool _meganeFlg;					// 宝箱の中身を鑑定するアイテム用フラグ
 
 	/*画像関係*/
-	// メニュー項目画像
+	// メニュー画像
 	int _menuSelPNG[3];
-	// タイトルへ戻るの文字画像
-	int _menuTitleBackPNG;
-	// セーブの文字画像
-	int _menuSavePNG;
-	// メニューボタン画像
-	int _menuPNG;
-	// メニュー画面背景画像
-	int _menuBackPNG;
-	//「使用」の文字画像
-	int _usePNG;
-	//「捨てる」の文字画像
-	int _suteruPNG;
-	//「戻る」の文字画像
-	int _backPNG;
-	// 説明文のバック画像
-	int _setumeiPNG;
-	// アイテムボックス画像
-	int _itemBoxPNG;
-	// 選択アイテムを見やすくする画像
-	int _itemChoicePNG;
+	std::map<std::string, int> menuImages;
 
 	int _soundSE[5];
-
 	static bool loadFlg;
 };

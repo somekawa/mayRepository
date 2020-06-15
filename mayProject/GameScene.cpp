@@ -164,7 +164,7 @@ bool GameScene::Init(void)
 	_onceFlg = false;
 	_anounceFlg = false;
 	_dunFog[0] = 0.0f;
-	_dunFog[1] = -900.0f;
+	_dunFog[1] = -900.5f;
 	_keyFlg = false;
 	_levelUpAnounceTime = 180;
 	_kyouseiButtlePngMoveCnt = 0;
@@ -1889,7 +1889,7 @@ void GameScene::Key(void)
 void GameScene::DungeonFog(void)
 {
 	// 霧処理
-	if (_dunFog[0] < 900.0f)
+	if (_dunFog[0] <= 900.0f)
 	{
 		_dunFog[0] += 0.5f;
 	}
@@ -1898,7 +1898,7 @@ void GameScene::DungeonFog(void)
 		_dunFog[0] = -900.0f;
 	}
 
-	if (_dunFog[1] < 900.0f)
+	if (_dunFog[1] <= 900.0f)
 	{
 		_dunFog[1] += 0.5f;
 	}

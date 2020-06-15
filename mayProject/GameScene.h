@@ -135,10 +135,6 @@ private:
 	bool _turnEndOnceFlg;				// プレイヤーターン終了時にtrueにする
 	VECTOR2 _bossemErgencyPos;			// ボス前の警告画像を出す座標
 
-	//std::map<bool, std::pair<int, int>> mapTest;
-	//std::map<int, int> mapTest;
-	//VECTOR2 movePos[4];		// マップ移動軌跡
-
 	/*画像関係*/
 	// 敵ターンまでのカウント用画像
 	int _turnPNG[6];

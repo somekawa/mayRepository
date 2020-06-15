@@ -1,4 +1,3 @@
-#include <string>
 #include <math.h>
 #include "Dxlib.h"
 #include "Enemy_weak.h"
@@ -98,37 +97,14 @@ void Player::Init(void)
 
 void Player::PngInit(void)
 {
-	// スキルアイコン
-	std::string skillicon = "image/skillicon.png";
-	_skillIconPNG = LoadGraph(skillicon.c_str());
-
-	// スキル使えるというアナウンス
-	std::string chargeAnnounce = "image/chargeAnnounce.png";
-	_skillAnnouncePNG = LoadGraph(chargeAnnounce.c_str());
-
-	// スキル背景
-	std::string skillBack = "image/skillBack.png";
-	_skillBackPNG = LoadGraph(skillBack.c_str());
-
-	// 攻撃系スキルアイコン
-	std::string skill_attack = "image/skill_attack.png";
-	_skillAttackIconPNG = LoadGraph(skill_attack.c_str());
-
-	// 防御系スキルアイコン
-	std::string skill_barrier = "image/skill_barrier.png";
-	_skillBarrierIconPNG = LoadGraph(skill_barrier.c_str());
-
-	// 回復系スキルアイコン
-	std::string skill_heal = "image/skill_heal.png";
-	_skillHealIconPNG = LoadGraph(skill_heal.c_str());
-
-	// やめるの文字画像
-	std::string cancel = "image/cancel.png";
-	_skillCancelPNG = LoadGraph(cancel.c_str());
-
-	// 力こぶのアイコン画像
-	std::string muscle = "image/muscle.png";
-	_skillMuscleIconPNG = LoadGraph(muscle.c_str());
+	skillImages.try_emplace("skillIcon", LoadGraph("image/skillicon.png"));		// スキルアイコン
+	skillImages.try_emplace("announce" , LoadGraph("image/chargeAnnounce.png"));	// スキル使えるというアナウンス
+	skillImages.try_emplace("skillBack", LoadGraph("image/skillBack.png"));		// スキル背景
+	skillImages.try_emplace("attack"   , LoadGraph("image/skill_attack.png"));	// 攻撃系スキルアイコン
+	skillImages.try_emplace("barrier"  , LoadGraph("image/skill_barrier.png"));	// 防御系スキルアイコン
+	skillImages.try_emplace("heal"     , LoadGraph("image/skill_heal.png"));		// 回復系スキルアイコン
+	skillImages.try_emplace("cancel"   , LoadGraph("image/cancel.png"));			// やめるの文字画像
+	skillImages.try_emplace("muscle"   , LoadGraph("image/muscle.png"));			// 力こぶのアイコン画像
 
 	// バリアバーの背景画像
 	std::string barrier_back = "image/barrier_back.png";
@@ -343,25 +319,25 @@ void Player::BattleDraw(Menu* menu)
 		// 描画ブレンドモードを加算合成にする
 		SetDrawBlendMode(DX_BLENDMODE_ADD, _pngLight);
 		// 782,564
-		DrawRotaGraph(750 + 32, 530 + 32, 1.0f, 0, _skillIconPNG, true);
+		DrawRotaGraph(750 + 32, 530 + 32, 1.0f, 0, skillImages["skillIcon"], true);
 		// 描画ブレンドモードをノーブレンドにする
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-		DrawRotaGraph(750 + 32, 530 + 32, 1.0f, 0, _skillMuscleIconPNG, true);
-		DrawGraph(820, 530, _skillAnnouncePNG, true);
+		DrawRotaGraph(750 + 32, 530 + 32, 1.0f, 0, skillImages["muscle"], true);
+		DrawGraph(820, 530, skillImages["announce"], true);
 	}
 
 	// スキルアイコンを押されたら背景を描画する
 	if (_skillBackFlg)
 	{
 		int iconIntervalX = 120;	// アイコンの描画間隔
-		DrawGraph(250, 90, _skillBackPNG, true);
-		DrawGraph(290, 150, _skillAttackIconPNG, true);
-		DrawGraph(290 + iconIntervalX, 150, _skillBarrierIconPNG, true);
-		DrawGraph(290 + iconIntervalX * 2, 150, _skillHealIconPNG, true);
+		DrawGraph(250, 90, skillImages["skillBack"], true);
+		DrawGraph(290, 150, skillImages["attack"], true);
+		DrawGraph(290 + iconIntervalX, 150, skillImages["barrier"], true);
+		DrawGraph(290 + iconIntervalX * 2, 150, skillImages["heal"], true);
 		DrawFormatString(280,250, 0x000000, "攻撃スキル:\n%dダメージ", player_status.attackDamage * 5 + menu->GetEquipDamage());
 		DrawFormatString(410,250, 0x000000, "防御スキル:\n耐久%dの\nバリア展開", 20 + 3 * player_status.now_level);
 		DrawFormatString(530, 250, 0x000000, "回復スキル:\n体力+状態異常\n全回復");
-		DrawGraph(385, 320, _skillCancelPNG, true);
+		DrawGraph(385, 320, skillImages["cancel"], true);
 	}
 
 	// バリアバーの表示

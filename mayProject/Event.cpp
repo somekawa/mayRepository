@@ -81,16 +81,12 @@ void Event::Init(void)
 
 	// ボタン
 	_buttonNum = -1;
-	//_buttonPos[0] = { 9,1 };
-	//_buttonPos[1] = { 7,7 };
 	_buttonPush[0] = false;
 	_buttonPush[1] = false;
 	_buttonEventFlg = false;
 
 	// 飲み物
 	_drinkNum = -1;
-	//_drinkPos[0] = { 6,3 };
-	//_drinkPos[1] = { 0,9 };
 	_drinking[0] = false;
 	_drinking[1] = false;
 	_drinkEventFlg = false;
@@ -115,12 +111,14 @@ void Event::Init(void)
 
 void Event::pngInit(void)
 {
-	// 宿屋
-	std::string heal_human = "image/heal_human.png";
-	_healHumanPNG = LoadGraph(heal_human.c_str());
-	// 商人
-	std::string syounin = "image/syounin.png";
-	_syouninPNG = LoadGraph(syounin.c_str());
+	eventImages.try_emplace("heal_human", LoadGraph("image/heal_human.png"));		// 宿屋
+	eventImages.try_emplace("syounin", LoadGraph("image/syounin.png"));				// 商人
+	eventImages.try_emplace("bin", LoadGraph("image/nazo_bin.png"));				// 飲み物
+	eventImages.try_emplace("chestInItem", LoadGraph("image/tresure_1.png"));		// 宝箱(アイテムが入っている)
+	eventImages.try_emplace("chestKara", LoadGraph("image/chest_kara.png"));		// 空宝箱
+	eventImages.try_emplace("zou", LoadGraph("image/daiza.png"));					// 即死トラップ
+	eventImages.try_emplace("mons", LoadGraph("image/monster/event_monster.png"));	// 特定敵
+
 	// メッセージ
 	std::string message = "image/message.png";
 	_messagePNG = LoadGraph(message.c_str());
@@ -134,32 +132,17 @@ void Event::pngInit(void)
 	std::string itemChoice = "image/itemChoice.png";
 	_itemChoicePNG = LoadGraph(itemChoice.c_str());
 	// 売り切れの文字
-	std::string soldout = "image/soldout.png";
-	_soldOutPNG = LoadGraph(soldout.c_str());
+	//std::string soldout = "image/soldout.png";
+	//_soldOutPNG = LoadGraph(soldout.c_str());
 	// 宝箱
 	std::string trasure_0 = "image/trasure_0.png";
 	LoadDivGraph(trasure_0.c_str(), 2, 2, 1, 390 / 2, 431, _chestPNG);
-	// 宝箱(アイテム時)
-	std::string tresure_1 = "image/tresure_1.png";
-	_chsetItemPNG = LoadGraph(tresure_1.c_str());
-	// 謎の瓶
-	std::string nazo_bin = "image/nazo_bin.png";
-	_drinkPNG = LoadGraph(nazo_bin.c_str());
 	// 文字画像の分割読み込み
 	std::string sentakusi = "image/sentakusi/sentakusi.png";
 	LoadDivGraph(sentakusi.c_str(),12, 12, 1, 150, 75, _sentakusiPNG);
 	// 商品ページを移動するための矢印の画像
 	std::string yajirusi = "image/yajirusi.png";
 	_yajirusiPNG = LoadGraph(yajirusi.c_str());
-	// 空の宝箱
-	std::string chest_kara = "image/chest_kara.png";
-	_karaPNG = LoadGraph(chest_kara.c_str());
-	// 即死トラップの像
-	std::string zou = "image/daiza.png";
-	_zouPNG = LoadGraph(zou.c_str());
-	// イベント敵
-	std::string eveMons = "image/monster/event_monster.png";
-	_eventMonsPNG = LoadGraph(eveMons.c_str());
 }
 
 void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Monster* monster,Cards* cards)
@@ -253,7 +236,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 	if (_event == EVENT_STATE::YADO && !_eventMonsFlg)
 	{
 		// 人画像
-		DrawGraph(0, 0, _healHumanPNG, true);
+		DrawGraph(0, 0, eventImages["heal_human"], true);
 		// 去る
 		DrawGraph(600, 345, _sentakusiPNG[10], true);
 		// メッセージボックス
@@ -283,7 +266,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 	if (_event == EVENT_STATE::SYOUNIN && !_eventMonsFlg)
 	{
 		// 人画像
-		DrawGraph(100, 0, _syouninPNG, true);
+		DrawGraph(100, 0, eventImages["syounin"], true);
 		// メッセージボックス
 		DrawGraph(420, 50, _messagePNG, true);
 		DrawFormatString(450, 70, 0x000000, "商人:\n何か買うか?");
@@ -452,7 +435,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 		
 			if (_fateNum == 1)
 			{
-				DrawGraph(350, 150, _chsetItemPNG, true);
+				DrawGraph(350, 150, eventImages["chestInItem"], true);
 				DrawFormatString(450, 70, 0x000000, "アイテムが入っていた!");
 			}
 			else if (_fateNum == 0)
@@ -464,7 +447,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 			{
 				// 宝箱をすでに開けている
 				DrawFormatString(450, 70, 0x000000, "宝箱は開いている");
-				DrawGraph(350, 150, _karaPNG, true);
+				DrawGraph(350, 150, eventImages["chestKara"], true);
 			}
 		
 			// 去る(宝箱無視)
@@ -488,7 +471,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 			// メッセージボックス
 			DrawGraph(420, 50, _messagePNG, true);
 			// 瓶画像
-			DrawGraph(350, 250, _drinkPNG, true);
+			DrawGraph(350, 250, eventImages["bin"], true);
 			if (_fateNum == -1)
 			{
 				// 飲む
@@ -519,7 +502,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 		DrawGraph(600, 345, _sentakusiPNG[10], true);
 		// 調べる
 		DrawGraph(600, 200, _sentakusiPNG[9], true);
-		DrawGraph(200, 75,_zouPNG, true);
+		DrawGraph(200, 75,eventImages["zou"], true);
 
 		if (_nowTrapFlg)
 		{
@@ -545,7 +528,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 	// イベント敵と遭遇中
 	if (_event == EVENT_STATE::EVE_MONS || _event != EVENT_STATE::NON && _eventMonsFlg)
 	{
-		DrawGraph(100, 75, _eventMonsPNG, true);
+		DrawGraph(100, 75, eventImages["mons"], true);
 
 		// 戦闘に入る前
 		if (!_eventMonsFlg)
@@ -563,7 +546,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 	// イベントがNONでもeventmonFlg立ってたら描画してみる(画面に張り付き)
 	if (_event == EVENT_STATE::NON && _eventMonsEncountFlg)
 	{
-		DrawGraph(100, 75, _eventMonsPNG, true);
+		DrawGraph(100, 75, eventImages["mons"], true);
 		// メッセージボックス
 		DrawGraph(420, 50, _messagePNG, true);
 		DrawFormatString(450, 70, 0x000000, "なんと敵が追いかけてきた!");

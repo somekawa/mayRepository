@@ -1,4 +1,6 @@
 #pragma once
+#include <map>
+#include <string>
 
 // プレイヤーの状態
 enum class CONDITION {
@@ -73,17 +75,12 @@ private:
 	int _barrierMaxNum;					// バリアの最大値
 	int _barrierNum;					// バリアの値(特定値*プレイヤーレベル)
 
-	// 画像関係
-	int _skillIconPNG;					// スキルアイコン
-	int _skillAnnouncePNG;				// スキル使用可能案内
-	int _skillBackPNG;					// スキル用背景画像
-	int _skillAttackIconPNG;			// 攻撃系スキル選択用アイコン
-	int _skillBarrierIconPNG;			// 防御系スキル選択用アイコン
-	int _skillHealIconPNG;				// 回復系スキル選択用アイコン
-	int _skillCancelPNG;				//「やめる」の文字画像
-	int _skillMuscleIconPNG;			// 力こぶのアイコン画像
-	int _barrierBarBackPNG;				// バリアバーの背景画像
-	int _barrierBarPNG;					// バリアバー画像
+	// スキル画像関係
+	std::map<std::string, int> skillImages;
+
+	// バリアバー画像
+	int _barrierBarBackPNG;					// バリアバーの背景画像
+	int _barrierBarPNG;					
 	// HPバー画像
 	int _hpBarPl;
 	int _hpBarPlPoison;

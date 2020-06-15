@@ -139,44 +139,16 @@ void Menu::PngInit(void)
 	std::string menuButton = "image/menu/menuSel.png";
 	LoadDivGraph(menuButton.c_str(), 3, 3, 1, 200, 100, _menuSelPNG);
 
-	// タイトルへ戻るボタン
-	std::string titleBackButton = "image/menuTitleBackButton.png";
-	_menuTitleBackPNG = LoadGraph(titleBackButton.c_str());
-
-	// セーブボタン
-	std::string menuSave = "image/menuSave.png";
-	_menuSavePNG = LoadGraph(menuSave.c_str());
-
-	std::string menuback = "image/menu_window.png";
-	_menuBackPNG = LoadGraph(menuback.c_str());
-
-	// アイテムボックス背景
-	std::string itembox = "image/itembox.png";
-	_itemBoxPNG = LoadGraph(itembox.c_str());
-
-	// 選択中のアイテム
-	std::string itemChoice = "image/itemChoice.png";
-	_itemChoicePNG = LoadGraph(itemChoice.c_str());
-
-	// 使用の文字
-	std::string use = "image/use.png";
-	_usePNG = LoadGraph(use.c_str());
-
-	// 捨てるの文字
-	std::string suteru = "image/suteru.png";
-	_suteruPNG = LoadGraph(suteru.c_str());
-
-	// 戻るの文字
-	std::string back = "image/back.png";
-	_backPNG = LoadGraph(back.c_str());
-
-	// 説明の後ろ画像
-	std::string setumei = "image/setumei.png";
-	_setumeiPNG = LoadGraph(setumei.c_str());
-
-	// メニューボタン
-	std::string menu = "image/menuButton.png";
-	_menuPNG = LoadGraph(menu.c_str());
+	menuImages.try_emplace("titleBack", LoadGraph("image/menuTitleBackButton.png"));	// タイトルへ戻るボタン
+	menuImages.try_emplace("Save", LoadGraph("image/menuSave.png"));					// セーブボタン
+	menuImages.try_emplace("menuButton", LoadGraph("image/menuButton.png"));			// メニュー画面背景
+	menuImages.try_emplace("menuWindow", LoadGraph("image/menu_window.png"));			// アイテムボックス背景
+	menuImages.try_emplace("use", LoadGraph("image/use.png"));							// 選択中のアイテム
+	menuImages.try_emplace("suteru", LoadGraph("image/suteru.png"));					// 使用の文字
+	menuImages.try_emplace("back", LoadGraph("image/back.png"));						// 捨てるの文字
+	menuImages.try_emplace("setumei", LoadGraph("image/setumei.png"));					// 戻るの文字
+	menuImages.try_emplace("itembox", LoadGraph("image/itembox.png"));					// 説明の後ろ画像
+	menuImages.try_emplace("itemChoice", LoadGraph("image/itemChoice.png"));			// メニューボタン
 }
 
 void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards)
@@ -626,7 +598,7 @@ void Menu::Draw(Player* player, Item* item, Monster* monster)
 {
 	if (monster->GetEnemyState() != ENEMY_STATE::EXIST)
 	{
-		DrawGraph(0, 0, _menuPNG, true);
+		DrawGraph(0, 0, menuImages["menuButton"], true);
 	}
 	else
 	{
@@ -637,7 +609,7 @@ void Menu::Draw(Player* player, Item* item, Monster* monster)
 	// メニュー画面の表示
 	if (_menuBackPngFlg)
 	{
-		DrawGraph(200, 0, _menuBackPNG, true);
+		DrawGraph(200, 0, menuImages["menuWindow"], true);
 	}
 
 	// メニュー項目
@@ -648,8 +620,8 @@ void Menu::Draw(Player* player, Item* item, Monster* monster)
 			DrawGraph(menu_pair[i].first.x, menu_pair[i].first.y, _menuSelPNG[i], true);
 		}
 
-		DrawGraph(menu_pair[3].first.x, menu_pair[3].first.y, _menuTitleBackPNG, true);	
-		DrawGraph(menu_pair[4].first.x, menu_pair[4].first.y, _menuSavePNG, true);
+		DrawGraph(menu_pair[3].first.x, menu_pair[3].first.y, menuImages["titleBack"], true);	
+		DrawGraph(menu_pair[4].first.x, menu_pair[4].first.y, menuImages["Save"], true);
 	}
 
 	// アイテム
@@ -658,12 +630,12 @@ void Menu::Draw(Player* player, Item* item, Monster* monster)
 		// 枠と入手アイテムの描画
 		for (int i = 0; i <= 11; i++)
 		{
-			DrawGraph(itemBox[i].pos.x, itemBox[i].pos.y, _itemBoxPNG, true);
+			DrawGraph(itemBox[i].pos.x, itemBox[i].pos.y, menuImages["itembox"], true);
 			// 入手しているアイテムの描画(していなかったら何も描画されないようにする)
 			DrawGraph(itemBox[i].pos.x, itemBox[i].pos.y, itemBox[i].png, true);
 		}
 
-		DrawGraph(_choicePos.x, _choicePos.y, _itemChoicePNG, true);
+		DrawGraph(_choicePos.x, _choicePos.y, menuImages["itemChoice"], true);
 
 		// 装備されたらそこにEの文字を出す
 		DrawFormatString(_equipSwordPos.x + 10, _equipSwordPos.y + 10, GetColor(255, 0, 0), "E");
@@ -673,31 +645,33 @@ void Menu::Draw(Player* player, Item* item, Monster* monster)
 	// ステータス画面
 	if (_menu == MENU::STATUS)
 	{
-		DrawFormatString(350, 100, 0x000000, "レベル:%d", player->GetNowLevel());
-		DrawFormatString(350, 130, 0x000000, "体力:%d / %d", player->GetHP(), player->GetMaxHP());
-		DrawFormatString(350, 160, 0x000000, "攻撃力:%d(+ %d) = %d", player->GetAttackDamage(), _equipDamage, player->GetAttackDamage() + _equipDamage);
-		DrawFormatString(350, 190, 0x000000, "防御力:%d(+ %d) = %d", player->GetDifense(), _equipGuard, player->GetDifense() + _equipGuard);
-		DrawFormatString(350, 220, 0x000000, "次のレベルまで:残り%d", player->GetNextLevel());
-		DrawFormatString(350, 250, 0x000000, "所持金:%d円", player->GetMoney());
-		DrawFormatString(350, 280, 0x000000, "スキルチャージ完了まで:%d回", player->GetSkillCharge());
+		int x = 350;
+		int y = 100;
+		DrawFormatString(x, y	 , 0x000000, "レベル:%d"                  , player->GetNowLevel());
+		DrawFormatString(x, y+30 , 0x000000, "体力:%d / %d"               , player->GetHP(), player->GetMaxHP());
+		DrawFormatString(x, y+60 , 0x000000, "攻撃力:%d(+ %d) = %d"       , player->GetAttackDamage(), _equipDamage, player->GetAttackDamage() + _equipDamage);
+		DrawFormatString(x, y+90 , 0x000000, "防御力:%d(+ %d) = %d"       , player->GetDifense(), _equipGuard, player->GetDifense() + _equipGuard);
+		DrawFormatString(x, y+120, 0x000000, "次のレベルまで:残り%d"      , player->GetNextLevel());
+		DrawFormatString(x, y+150, 0x000000, "所持金:%d円"                , player->GetMoney());
+		DrawFormatString(x, y+180, 0x000000, "スキルチャージ完了まで:%d回", player->GetSkillCharge());
 	}
 
 	// メニューのステータス画面とアイテム画面の描画
 	if (_menu == MENU::ITEM || _menu == MENU::STATUS)
 	{
 		// 戻る
-		DrawGraph(375, 470, _backPNG, true);
+		DrawGraph(375, 470, menuImages["back"], true);
 
 		if (_useOrThrowAway)
 		{
 			// 説明の後ろ画像
-			DrawGraph(0, 320, _setumeiPNG, true);
+			DrawGraph(0, 320, menuImages["setumei"], true);
 
 			// アイテムを使うことに効果があるとき
 			if (!_nonNeedFlg)
 			{
 				// 使う
-				DrawGraph(50, 400, _usePNG, true);
+				DrawGraph(50, 400, menuImages["use"], true);
 			}
 			else
 			{
@@ -706,14 +680,14 @@ void Menu::Draw(Player* player, Item* item, Monster* monster)
 				// 描画ブレンドモード変更
 				SetDrawBlendMode(DX_BLENDMODE_ADD, 100);
 				// 使う
-				DrawGraph(50, 400, _usePNG, true);
+				DrawGraph(50, 400, menuImages["use"], true);
 
 				// 描画ブレンドモードをノーブレンドにする
 				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 				DrawFormatString(20, 300, 0xffffff, "今使っても効果がない");
 			}
 			// 捨てる
-			DrawGraph(50, 500, _suteruPNG, true);
+			DrawGraph(50, 500, menuImages["suteru"], true);
 			// メニューのアイテムで選択したアイテムの説明を出す
 			if (_itemSetumei != ITEM::NON)
 			{
