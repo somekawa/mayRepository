@@ -7,6 +7,7 @@
 #include "Item.h"
 #include "Monster.h"
 #include "Cards.h"
+#include "MouseCtl.h"
 
 // static変数の実体<型>クラス名::変数名 = 初期化;
 bool Menu::loadFlg = false;
@@ -151,7 +152,7 @@ void Menu::PngInit(void)
 	menuImages.try_emplace("itemChoice", LoadGraph("image/itemChoice.png"));			// メニューボタン
 }
 
-void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards)
+void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards, MouseCtl* mouse)
 {
 	if (_menu == MENU::SAVE)
 	{
@@ -171,10 +172,11 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 	// アイテム画面処理
 	if (_menu == MENU::ITEM)
 	{
-		if (_mouse & MOUSE_INPUT_LEFT) {		 // マウスの左ボタンが押されていたら
+		if (mouse->GetClickTrg())
+		{		
 			for (int i = 0; i <= 11; i++)
 			{
-				if (_cursorPos.x >= itemBox[i].pos.x && _cursorPos.x <= itemBox[i].pos.x + 100 && _cursorPos.y >= itemBox[i].pos.y && _cursorPos.y <= itemBox[i].pos.y + 100)
+				if (mouse->GetPos().x >= itemBox[i].pos.x && mouse->GetPos().x <= itemBox[i].pos.x + 100 && mouse->GetPos().y >= itemBox[i].pos.y && mouse->GetPos().y <= itemBox[i].pos.y + 100)
 				{
 					if (itemBox[i]._item != ITEM::NON)
 					{
@@ -275,7 +277,7 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 				}
 
 				// 使うor装備
-				if (_cursorPos.x >= 50 && _cursorPos.x <= 50 + 150 && _cursorPos.y >= 400 && _cursorPos.y <= 400 + 75)
+				if (mouse->GetPos().x >= 50 && mouse->GetPos().x <= 50 + 150 && mouse->GetPos().y >= 400 && mouse->GetPos().y <= 400 + 75)
 				{
 					// クリック音
 					PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -366,7 +368,7 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 				}
 
 				// 捨てる
-				if (_cursorPos.x >= 50 && _cursorPos.x <= 50 + 150 && _cursorPos.y >= 500 && _cursorPos.y <= 500 + 75)
+				if (mouse->GetPos().x >= 50 && mouse->GetPos().x <= 50 + 150 && mouse->GetPos().y >= 500 && mouse->GetPos().y <= 500 + 75)
 				{
 					// クリック音
 					PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -697,17 +699,15 @@ void Menu::Draw(Player* player, Item* item, Monster* monster)
 	}
 }
 
-void Menu::MenuButton_NonEnemy(void)
+void Menu::MenuButton_NonEnemy(MouseCtl* mouse)
 {
-	_mouse = GetMouseInput();					 //マウスの入力状態取得
-	GetMousePoint(&_cursorPos.x, &_cursorPos.y);	 //マウスの座標取得
-
-	if (_mouse & MOUSE_INPUT_LEFT) {				 //マウスの左ボタンが押されていたら
+	if (mouse->GetClickTrg()) 
+	{				 
 		//X:0,Y:0
 		// 文字表示中に上から項目が表示されないようにする
 		if (!_menuBackPngFlg)
 		{
-			if (_cursorPos.x >= 0 && _cursorPos.x <= 0 + 150 && _cursorPos.y >= 0 && _cursorPos.y <= 0 + 75)
+			if (mouse->GetPos().x >= 0 && mouse->GetPos().x <= 0 + 150 && mouse->GetPos().y >= 0 && mouse->GetPos().y <= 0 + 75)
 			{
 				// クリック音
 				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -722,7 +722,7 @@ void Menu::MenuButton_NonEnemy(void)
 			// メニュー項目ボタンとの当たり判定
 			for (int i = 0; i <= 4; i++)
 			{
-				if (_cursorPos.x >= menu_pair[i].first.x && _cursorPos.x <= menu_pair[i].first.x + buttonSize[i].x && _cursorPos.y >= menu_pair[i].first.y && _cursorPos.y <= menu_pair[i].first.y + buttonSize[i].y)
+				if (mouse->GetPos().x >= menu_pair[i].first.x && mouse->GetPos().x <= menu_pair[i].first.x + buttonSize[i].x && mouse->GetPos().y >= menu_pair[i].first.y && mouse->GetPos().y <= menu_pair[i].first.y + buttonSize[i].y)
 				{
 					// クリック音
 					PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -736,7 +736,7 @@ void Menu::MenuButton_NonEnemy(void)
 		// 戻るボタンを押したらゲーム再開
 		if (_menu == MENU::ITEM || _menu == MENU::STATUS)
 		{
-			if (_cursorPos.x >= 375 && _cursorPos.x <= 375 + 150 && _cursorPos.y >= 470 && _cursorPos.y <= 470 + 60)
+			if (mouse->GetPos().x >= 375 && mouse->GetPos().x <= 375 + 150 && mouse->GetPos().y >= 470 && mouse->GetPos().y <= 470 + 60)
 			{
 				// クリック音
 				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -750,14 +750,11 @@ void Menu::MenuButton_NonEnemy(void)
 	}
 }
 
-void Menu::MenuButton_Enemy(void)
+void Menu::MenuButton_Enemy(MouseCtl* mouse)
 {
-	// アイテムボタンのみ表示
-	_mouse = GetMouseInput();					 //マウスの入力状態取得
-	GetMousePoint(&_cursorPos.x, &_cursorPos.y); //マウスの座標取得
-
-	if (_mouse & MOUSE_INPUT_LEFT) {				 //マウスの左ボタンが押されていたら
-		if (_cursorPos.x >= 0 && _cursorPos.x <= 0 + 200 && _cursorPos.y >= 0 && _cursorPos.y <= 0 + 100)
+	if (mouse->GetClickTrg())
+	{			
+		if (mouse->GetPos().x >= 0 && mouse->GetPos().x <= 0 + 200 && mouse->GetPos().y >= 0 && mouse->GetPos().y <= 0 + 100)
 		{
 			// クリック音
 			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -769,7 +766,7 @@ void Menu::MenuButton_Enemy(void)
 		// 戻るボタンを押したらゲーム再開
 		if (_menu == MENU::ITEM || _menu == MENU::STATUS)
 		{
-			if (_cursorPos.x >= 375 && _cursorPos.x <= 375 + 150 && _cursorPos.y >= 470 && _cursorPos.y <= 470 + 60)
+			if (mouse->GetPos().x >= 375 && mouse->GetPos().x <= 375 + 150 && mouse->GetPos().y >= 470 && mouse->GetPos().y <= 470 + 60)
 			{
 				// クリック音
 				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -811,7 +808,7 @@ MENU Menu::GetMenu(void)const
 int Menu::GetCanHaveItem(void)const
 {
 	int canHave = 0;
-	//元は12
+	//12
 	for (int i = 0; i < 12; i++)
 	{
 		// 入れられる場所を探して入れる

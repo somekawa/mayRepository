@@ -4,6 +4,7 @@
 #include "Menu.h"
 #include "GameScene.h"
 #include "Player.h"
+#include "MouseCtl.h"
 
 // static変数の実体<型>クラス名::変数名 = 初期化;
 bool Player::loadFlg = false;
@@ -37,6 +38,7 @@ Player::~Player()
 	{
 		DeleteSoundMem(_soundSE[i]);
 	}
+	delete mouse;
 }
 
 void Player::Init(void)
@@ -65,6 +67,8 @@ void Player::Init(void)
 		player_status.conditionTurnNum = saveData[7];
 		player_status.condition = static_cast<CONDITION>(saveData[8]);
 	}
+
+	mouse = new MouseCtl();
 
 	// スキル関係
 	_skillCharge = SKILL_CHARGE;
@@ -135,17 +139,13 @@ void Player::PngInit(void)
 
 void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* cards)
 {
-	int x = 0;
-	int y = 0;
-	auto Mouse = GetMouseInput();     // マウスの入力状態取得
+	mouse->UpDate();
 	// スキル使用可能時のマウスクリック位置とアイコン(円)との当たり判定
 	// アイテム画面中はスキルチャージアイコンを押せない
 	if (!menu->GetMenuBackPngFlg() && player_status.plHP > 0)
 	{
 		if (_skillFlg)
 		{
-			GetMousePoint(&x, &y);	 // マウスの座標取得
-
 			//// 782,564(アイコン描画位置)
 			//float a = x - 782;
 			//float b = y - 564;
@@ -160,8 +160,8 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* c
 			//}
 
 			// 782,564(アイコン描画位置)
-			float a = x - 782;
-			float b = y - 564;
+			float a = mouse->GetPos().x - 782;
+			float b = mouse->GetPos().y - 564;
 			// 当たり判定(当たっているとき)
 			if (sqrt(a * a + b * b) <= 34)
 			{
@@ -175,7 +175,7 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* c
 	if (_skillBackFlg)
 	{
 		// やめるボタンとの当たり判定
-		if (x >= 385 && x <= 385 + 150 && y >= 320 && y <= 320 + 65)
+		if (mouse->GetPos().x >= 385 && mouse->GetPos().x <= 385 + 150 && mouse->GetPos().y >= 320 && mouse->GetPos().y <= 320 + 65)
 		{
 			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 			_skillBackFlg = false;
@@ -191,7 +191,7 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* c
 		};
 
 		// 攻撃アイコンとの当たり判定
-		if (x >= 290 && x <= 290 + 100 && y >= 150 && y <= 150 + 100)
+		if (mouse->GetPos().x >= 290 && mouse->GetPos().x <= 290 + 100 && mouse->GetPos().y >= 150 && mouse->GetPos().y <= 150 + 100)
 		{
 			PlaySoundMem(_soundSE[3], DX_PLAYTYPE_BACK, true);
 			_skill = SKILL::SWORD;
@@ -202,7 +202,7 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* c
 		}
 
 		// 防御アイコンとの当たり判定
-		if (x >= 410 && x <= 410 + 100 && y >= 150 && y <= 150 + 100)
+		if (mouse->GetPos().x >= 410 && mouse->GetPos().x <= 410 + 100 && mouse->GetPos().y >= 150 && mouse->GetPos().y <= 150 + 100)
 		{
 			PlaySoundMem(_soundSE[4], DX_PLAYTYPE_BACK, true);
 			_skill = SKILL::GUARD;
@@ -213,7 +213,7 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* c
 		}
 
 		// 回復アイコンとの当たり判定
-		if (x >= 530 && x <= 530 + 100 && y >= 150 && y <= 150 + 100)
+		if (mouse->GetPos().x >= 530 && mouse->GetPos().x <= 530 + 100 && mouse->GetPos().y >= 150 && mouse->GetPos().y <= 150 + 100)
 		{
 			PlaySoundMem(_soundSE[5], DX_PLAYTYPE_BACK, true);
 			_skill = SKILL::HEAL;

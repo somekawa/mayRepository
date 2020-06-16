@@ -318,7 +318,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 			// 敵がいないときだけ押せる
 			if (eventState != EVENT_STATE::ENEMY && eventState != EVENT_STATE::EVE_MONS && !_event->GetEventMonsFlg())
 			{
-				_menu->MenuButton_NonEnemy();
+				_menu->MenuButton_NonEnemy(mouse);
 			}
 			else
 			{
@@ -326,7 +326,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 				if (!_player->GetSkillBackFlg())
 				{
 					// スキル選択画面が押されていないときだけ
-					_menu->MenuButton_Enemy();
+					_menu->MenuButton_Enemy(mouse);
 				}
 			}
 		}
@@ -377,7 +377,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 	Walk();
 	ChangeBGM();
 	Pl_Dead();
-	_menu->Update(this, _player, _monster[0], _cards);
+	_menu->Update(this, _player, _monster[0], _cards,mouse);
 	_event->UpDate(this, _player, _menu, _item, _monster[0], _cards,mouse);
 	EnemyItemDrop();
 	_monster[0]->update();

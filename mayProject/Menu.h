@@ -4,6 +4,8 @@
 #include "VECTOR2.h"
 #include "ITEMCLASS.h"
 
+class MouseCtl;
+
 // メニュー画面の項目
 enum class MENU {
 	NON,
@@ -20,6 +22,7 @@ class Player;
 class Item;
 class Monster;
 class Cards;
+class MouseCtl;
 
 class Menu
 {
@@ -27,10 +30,10 @@ public:
 	Menu();
 	~Menu();
 
-	void Update(GameScene* game,Player* player, Monster* monster, Cards* cards);	// アップデート関数
+	void Update(GameScene* game,Player* player, Monster* monster, Cards* cards,MouseCtl* mouse);	// アップデート関数
 	void Draw(Player* player, Item* item, Monster* monster);		// 描画
-	void MenuButton_NonEnemy(void);			// メニューボタン処理(非戦闘時)
-	void MenuButton_Enemy(void);			// メニューボタン処理(戦闘時)
+	void MenuButton_NonEnemy(MouseCtl* mouse);			// メニューボタン処理(非戦闘時)
+	void MenuButton_Enemy(MouseCtl* mouse);			// メニューボタン処理(戦闘時)
 
 	void Setitem(const ITEM& item, const int& png);	// 取得したアイテムを格納する
 	bool GetMenuFlg(void)const;				// メニュー画面が表示状態か取得する
@@ -59,10 +62,6 @@ public:
 private:
 	void Init(void);					// 初期化
 	void PngInit(void);					// 画像関係初期化
-
-	/*マウス関係*/
-	VECTOR2 _cursorPos;					// マウスカーソルの座標保存用変数
-	int _mouse;							// マウスの入力状態取得
 
 	MENU _menu;							// メニュー項目の保存用変数
 	ITEM _itemAction;					// アイテム使用時の効果を分けるときに使う

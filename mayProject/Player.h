@@ -19,6 +19,7 @@ class Monster;
 class Menu;
 class GameScene;
 class Cards;
+class MouseCtl;
 
 class Player
 {
@@ -95,4 +96,6 @@ private:
 	int _animUpDateSpeedCnt;			// アニメーション更新速度調整カウンタ
 
 	int _soundSE[6];					// SE
+
+	MouseCtl* mouse;
 };
