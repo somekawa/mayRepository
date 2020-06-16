@@ -2,6 +2,7 @@
 #include <string>
 #include "GameOverScene.h"
 #include "TitleScene.h"
+#include "MouseCtl.h"
 
 GameOverScene::GameOverScene()
 {
@@ -10,10 +11,13 @@ GameOverScene::GameOverScene()
 
 GameOverScene::~GameOverScene()
 {
+	delete mouse;
 }
 
 bool GameOverScene::Init(void)
 {
+	mouse = new MouseCtl();
+
 	PngInit();
 
 	_pngBlend = 0;
@@ -43,13 +47,10 @@ void GameOverScene::PngInit(void)
 
 unique_Base GameOverScene::Update(unique_Base own, const GameCtl& ctl)
 {
-	int x = 0;
-	int y = 0;
-	auto Mouse = GetMouseInput();                //マウスの入力状態取得
-	GetMousePoint(&x, &y);					     //マウスの座標取得
-	if (Mouse & MOUSE_INPUT_LEFT) {	 //マウスの左ボタンが押されていたら
-		// 当たり判定
-		if (x >= 650 && x <= 650 + 200 && y >= 450 && y <= 450 + 100)
+	mouse->UpDate();
+	if (mouse->GetClickTrg())
+	{
+		if (mouse->GetPos().x >= 650 && mouse->GetPos().x <= 650 + 200 && mouse->GetPos().y >= 450 && mouse->GetPos().y <= 450 + 100)
 		{
 			DeleteSoundMem(_overBGM);
 			if (CheckSoundMem(_seClick) == 0)

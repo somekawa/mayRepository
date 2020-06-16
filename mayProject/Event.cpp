@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "Cards.h"
 #include "SelectScene.h"
+#include "MouseCtl.h"
 
 Event::Event()
 {
@@ -145,7 +146,7 @@ void Event::pngInit(void)
 	_yajirusiPNG = LoadGraph(yajirusi.c_str());
 }
 
-void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Monster* monster,Cards* cards)
+void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Monster* monster,Cards* cards, MouseCtl* mouse)
 {
 	auto lambda = [&]() {
 		monster->SetEnemyNum(6, 0);
@@ -162,7 +163,7 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 		}
 		else
 		{
-			Yado(game, player);
+			Yado(game, player,mouse);
 		}
 	}
 
@@ -174,7 +175,7 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 		}
 		else
 		{
-			Syounin(game, player, menu, item);
+			Syounin(game, player, menu, item,mouse);
 		}
 	}
 
@@ -186,7 +187,7 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 		}
 		else
 		{
-			Button(game, player);
+			Button(game, player,mouse);
 		}
 	}
 
@@ -198,7 +199,7 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 		}
 		else
 		{
-			Chest(game, player, menu, item);
+			Chest(game, player, menu, item,mouse);
 		}
 	}
 
@@ -210,13 +211,13 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 		}
 		else
 		{
-			Drink(game, player);
+			Drink(game, player,mouse);
 		}
 	}
 
 	if (_event == EVENT_STATE::TRAP)
 	{
-		Trap(game,player);
+		Trap(game,player,mouse);
 	}
 
 	if (_event == EVENT_STATE::ENEMY)
@@ -226,7 +227,7 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 
 	if (_event == EVENT_STATE::EVE_MONS)
 	{
-		eventMons(game, monster,cards);
+		eventMons(game, monster,cards,mouse);
 	}
 }
 
@@ -637,10 +638,11 @@ void Event::Enemy(GameScene* game, Player* player, Monster* monster)
 	player->SetMoney(player->GetMoney() + monster->GetMoney());
 }
 
-void Event::Yado(GameScene* game, Player* player)
+void Event::Yado(GameScene* game, Player* player, MouseCtl* mouse)
 {
-	if (game->mouse & MOUSE_INPUT_LEFT) {			 //マウスの左ボタンが押されていたら
-		if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 345 && game->cursorPos.y <= 345 + 75)
+	if (mouse->GetClickTrg()) 
+	{			
+		if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 345 && mouse->GetPos().y <= 345 + 75)
 		{
 			// クリック音
 			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -662,7 +664,7 @@ void Event::Yado(GameScene* game, Player* player)
 				_nonMoneyFlg = true;
 			}
 
-			if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 200 && game->cursorPos.y <= 200 + 75)
+			if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
 			{
 				// クリック音
 				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -677,10 +679,11 @@ void Event::Yado(GameScene* game, Player* player)
 	}
 }
 
-void Event::Syounin(GameScene* game, Player* player, Menu* menu, Item* item)
+void Event::Syounin(GameScene* game, Player* player, Menu* menu, Item* item, MouseCtl* mouse)
 {
-	if (game->mouse & MOUSE_INPUT_LEFT) {			 //マウスの左ボタンが押されていたら
-		if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 345 && game->cursorPos.y <= 345 + 75)
+	if (mouse->GetClickTrg())
+	{			
+		if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 345 && mouse->GetPos().y <= 345 + 75)
 		{
 			// クリック音
 			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -712,7 +715,7 @@ void Event::Syounin(GameScene* game, Player* player, Menu* menu, Item* item)
 			//}
 		}
 
-		if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 200 && game->cursorPos.y <= 200 + 75)
+		if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
 		{
 			if (!_buyFlg)
 			{
@@ -728,16 +731,17 @@ void Event::Syounin(GameScene* game, Player* player, Menu* menu, Item* item)
 	// 商人の持ち物との当たり判定
 	if (_buyFlg)
 	{
-		if (game->mouse & MOUSE_INPUT_LEFT && !(game->mouseOld & MOUSE_INPUT_LEFT)) {			 //マウスの左ボタンが押されていたら
+		if (mouse->GetClickTrg()) 
+		{			
 			// 次のページへが押された時
-			if (game->cursorPos.x >= 490 && game->cursorPos.x <= 490 + 100 && game->cursorPos.y >= 300 && game->cursorPos.y <= 300 + 100)
+			if (mouse->GetPos().x >= 490 && mouse->GetPos().x <= 490 + 100 && mouse->GetPos().y >= 300 && mouse->GetPos().y <= 300 + 100)
 			{
 				_itemNextPage = !_itemNextPage;
 			}
 
 			for (int i = 0; i <= 7; i++)
 			{
-				if (game->cursorPos.x >= item->GetPos(i).x && game->cursorPos.x <= item->GetPos(i).x + 100 && game->cursorPos.y >= item->GetPos(i).y && game->cursorPos.y <= item->GetPos(i).y + 100)
+				if (mouse->GetPos().x >= item->GetPos(i).x && mouse->GetPos().x <= item->GetPos(i).x + 100 && mouse->GetPos().y >= item->GetPos(i).y && mouse->GetPos().y <= item->GetPos(i).y + 100)
 				{
 					if (item->GetPair(i).second != ITEM::NON)
 					{
@@ -770,8 +774,9 @@ void Event::Syounin(GameScene* game, Player* player, Menu* menu, Item* item)
 			_nonMoneyFlg = false;
 		}
 
-		if (game->mouse & MOUSE_INPUT_LEFT) {			 //マウスの左ボタンが押されていたら
-			if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 200 && game->cursorPos.y <= 200 + 75)
+		if (mouse->GetClickTrg()) 
+		{	
+			if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
 			{
 				// クリック音
 				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -814,10 +819,11 @@ void Event::Syounin(GameScene* game, Player* player, Menu* menu, Item* item)
 	}
 }
 
-void Event::Button(GameScene* game, Player* player)
+void Event::Button(GameScene* game, Player* player, MouseCtl* mouse)
 {
-	if (game->mouse & MOUSE_INPUT_LEFT) {			 //マウスの左ボタンが押されていたら
-		if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 345 && game->cursorPos.y <= 345 + 75)
+	if (mouse->GetClickTrg()) 
+	{		
+		if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 345 && mouse->GetPos().y <= 345 + 75)
 		{
 			// クリック音
 			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -845,7 +851,7 @@ void Event::Button(GameScene* game, Player* player)
 
 		if (_fateNum == -1 && !_buttonPush[_buttonNum])
 		{
-			if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 200 && game->cursorPos.y <= 200 + 75)
+			if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
 			{
 				// クリック音
 				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -878,10 +884,11 @@ void Event::Button(GameScene* game, Player* player)
 	}
 }
 
-void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
+void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item, MouseCtl* mouse)
 {
-	if (game->mouse & MOUSE_INPUT_LEFT) {			 //マウスの左ボタンが押されていたら
-		if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 345 && game->cursorPos.y <= 345 + 75)
+	if (mouse->GetClickTrg())
+	{			
+		if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 345 && mouse->GetPos().y <= 345 + 75)
 		{
 			// クリック音
 			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -911,7 +918,7 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
 		// 開ける
 		if (_fateNum == -1 && _chestOpen[a] == 0)
 		{
-			if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 200 && game->cursorPos.y <= 200 + 75)
+			if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
 			{
 				_pushFlg = true;
 				_chestOpen[a] = 1;
@@ -955,8 +962,9 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
 			_anounceFlg = true;
 		}
 
-		if (game->mouse & MOUSE_INPUT_LEFT) {			 //マウスの左ボタンが押されていたら
-			if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 200 && game->cursorPos.y <= 200 + 75)
+		if (mouse->GetClickTrg()) 
+		{			
+			if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
 			{
 				if (menu->GetCanHaveItem() != 0)
 				{
@@ -993,10 +1001,11 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item)
 	}
 }
 
-void Event::Drink(GameScene* game, Player* player)
+void Event::Drink(GameScene* game, Player* player, MouseCtl* mouse)
 {
-	if (game->mouse & MOUSE_INPUT_LEFT) {			 //マウスの左ボタンが押されていたら
-		if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 345 && game->cursorPos.y <= 345 + 75)
+	if (mouse->GetClickTrg())
+	{		
+		if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 345 && mouse->GetPos().y <= 345 + 75)
 		{
 			// クリック音
 			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -1025,7 +1034,7 @@ void Event::Drink(GameScene* game, Player* player)
 		// 飲む
 		if (_fateNum == -1 && !_drinking[_drinkNum])
 		{
-			if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 200 && game->cursorPos.y <= 200 + 75)
+			if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
 			{
 				// クリック音
 				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -1059,10 +1068,11 @@ void Event::Drink(GameScene* game, Player* player)
 	}
 }
 
-void Event::Trap(GameScene* game, Player* player)
+void Event::Trap(GameScene* game, Player* player, MouseCtl* mouse)
 {
-	if (game->mouse & MOUSE_INPUT_LEFT) {			 //マウスの左ボタンが押されていたら
-		if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 345 && game->cursorPos.y <= 345 + 75)
+	if (mouse->GetClickTrg())
+	{			
+		if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 345 && mouse->GetPos().y <= 345 + 75)
 		{
 			// クリック音
 			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -1075,7 +1085,7 @@ void Event::Trap(GameScene* game, Player* player)
 		// 調べる
 		if (!_trapFlg)
 		{
-			if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 200 && game->cursorPos.y <= 200 + 75)
+			if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
 			{
 				// クリック音
 				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -1099,11 +1109,12 @@ void Event::Trap(GameScene* game, Player* player)
 	}
 }
 
-void Event::eventMons(GameScene* game, Monster* monster, Cards* cards)
+void Event::eventMons(GameScene* game, Monster* monster, Cards* cards, MouseCtl* mouse)
 {
 	_eventMonsEncountFlg = true;
-	if (game->mouse & MOUSE_INPUT_LEFT) {			 //マウスの左ボタンが押されていたら
-		if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 345 && game->cursorPos.y <= 345 + 75)
+	if (mouse->GetClickTrg()) 
+	{			 
+		if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 345 && mouse->GetPos().y <= 345 + 75)
 		{
 			// クリック音
 			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -1117,7 +1128,7 @@ void Event::eventMons(GameScene* game, Monster* monster, Cards* cards)
 		// 戦う
 		if (!_eventMonsFlg)
 		{
-			if (game->cursorPos.x >= 600 && game->cursorPos.x <= 600 + 150 && game->cursorPos.y >= 200 && game->cursorPos.y <= 200 + 75)
+			if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
 			{
 				// クリック音
 				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);

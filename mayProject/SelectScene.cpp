@@ -4,6 +4,7 @@
 #include "TitleScene.h"
 #include "Menu.h"
 #include "SelectScene.h"
+#include "MouseCtl.h"
 
 // static変数の実体<型>クラス名::変数名 = 初期化;
 MODE SelectScene::modeTest = MODE::NON;
@@ -18,10 +19,13 @@ SelectScene::SelectScene()
 
 SelectScene::~SelectScene()
 {
+	delete mouse;
 }
 
 bool SelectScene::Init(void)
 {
+	mouse = new MouseCtl();
+
 	pngInit();
 	_pngLight = 128;
 	_lightFlg = false;
@@ -64,16 +68,13 @@ void SelectScene::pngInit(void)
 
 unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 {
-	int x = 0;
-	int y = 0;
-	auto Mouse = GetMouseInput();                //マウスの入力状態取得
-	GetMousePoint(&x, &y);					     //マウスの座標取得
-
+	mouse->UpDate();
 	if (!pushFlg)
 	{
-		if (Mouse & MOUSE_INPUT_LEFT && !(_oldMouse & MOUSE_INPUT_LEFT)) {	 //マウスの左ボタンが押されていたら
+		if (mouse->GetClickTrg())
+		{	 
 			// 当たり判定(NORMAL選択時)
-			if (x >= 250 && x <= 250 + 400 && y >= 100 && y <= 100 + 150)
+			if (mouse->GetPos().x >= 250 && mouse->GetPos().x <= 250 + 400 && mouse->GetPos().y >= 100 && mouse->GetPos().y <= 100 + 150)
 			{
 				DeleteSoundMem(TitleScene::_titleBGM);
 				if (CheckSoundMem(_seClick) == 0)
@@ -83,10 +84,9 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 				}
 				modeTest = MODE::NORMAL;
 				Menu::Load();
-				//return std::make_unique<GameScene>();
 			}
 			// 当たり判定(HARD選択時)
-			if (x >= 250 && x <= 250 + 400 && y >= 300 && y <= 300 + 150)
+			if (mouse->GetPos().x >= 250 && mouse->GetPos().x <= 250 + 400 && mouse->GetPos().y >= 300 && mouse->GetPos().y <= 300 + 150)
 			{
 				DeleteSoundMem(TitleScene::_titleBGM);
 				if (CheckSoundMem(_seClick) == 0)
@@ -96,23 +96,19 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 				}
 				modeTest = MODE::HARD;
 				Menu::Load();
-				//return std::make_unique<GameScene>();
 			}
 
 			// 当たり判定(タイトルへ戻る)
-			if (x >= 650 && x <= 650 + 200 && y >= 450 && y <= 450 + 100)
+			if (mouse->GetPos().x >= 650 && mouse->GetPos().x <= 650 + 200 && mouse->GetPos().y >= 450 && mouse->GetPos().y <= 450 + 100)
 			{
 				if (CheckSoundMem(_seClick) == 0)
 				{
 					PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
 					_toTitleFlg = true;
 				}
-				//return std::make_unique<TitleScene>();
 			}
 		}
 	}
-
-	_oldMouse = Mouse;
 
 	if (pushFlg && _toGameFlg && CheckSoundMem(_seClick) == 0)
 	{

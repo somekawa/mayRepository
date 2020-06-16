@@ -10,6 +10,7 @@
 #include "Enemy_weak.h"
 #include "SelectScene.h"
 #include "MoveObj.h"
+#include "MouseCtl.h"
 
 // static変数の実体<型>クラス名::変数名 = 初期化;
 int GameScene::plPosX = 0;
@@ -28,6 +29,7 @@ GameScene::GameScene()
 	_menu = new Menu();
 	_item = new Item();
 	_event = new Event();
+	mouse = new MouseCtl();
 }
 
 GameScene::~GameScene()
@@ -62,6 +64,8 @@ GameScene::~GameScene()
 		delete _event;
 		_event = nullptr;
 	}
+
+	delete mouse;
 
 	// 音関係
 	DeleteSoundMem(_gameBGM);
@@ -169,6 +173,9 @@ bool GameScene::Init(void)
 	_levelUpAnounceTime = 180;
 	_kyouseiButtlePngMoveCnt = 0;
 	_turnEndOnceFlg = false;
+
+	// あらかじめメモリ領域を確保しておく
+	_mapVec.reserve(100);
 
 	// SE
 	_soundSE[0] = LoadSoundMem("sound/se/click.mp3");			// クリック音
@@ -301,15 +308,10 @@ void GameScene::PngInit(void)
 
 unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 {
-	//if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_F2]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_F2]))
-	//{
-	//	return std::make_unique<TitleScene>();
-	//}
-
-	mouse = GetMouseInput();					 //マウスの入力状態取得
-	GetMousePoint(&cursorPos.x, &cursorPos.y);	 //マウスの座標取得
-	if (mouse & MOUSE_INPUT_LEFT && !(mouseOld & MOUSE_INPUT_LEFT)) {	 //マウスの左ボタンが押されていたら
-
+	mouse->UpDate();
+	//マウスの左ボタンが押されていたら
+	if (mouse->GetClickTrg())
+	{	
 		// プレイヤーが死亡していないとき
 		if (_player->GetHP() > 0)
 		{
@@ -331,13 +333,13 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 		else
 		{
 			// レベルをそのままにはじめからやり直す
-			if (cursorPos.x >= 50 && cursorPos.x <= 50 + 400 && cursorPos.y >= 225 && cursorPos.y <= 225 + 130)
+			if (mouse->GetPos().x >= 50 && mouse->GetPos().x <= 50 + 400 && mouse->GetPos().y >= 225 && mouse->GetPos().y <= 225 + 130)
 			{
 				GameReset();
 			}
 
 			// あきらめてゲームオーバー画面へ
-			if (cursorPos.x >= 450 && cursorPos.x <= 450 + 400 && cursorPos.y >= 225 && cursorPos.y <= 225 + 130)
+			if (mouse->GetPos().x >= 450 && mouse->GetPos().x <= 450 + 400 && mouse->GetPos().y >= 225 && mouse->GetPos().y <= 225 + 130)
 			{
 				DeleteSoundMem(_gameBGM);
 				DeleteSoundMem(_battleBGM);
@@ -376,7 +378,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 	ChangeBGM();
 	Pl_Dead();
 	_menu->Update(this, _player, _monster[0], _cards);
-	_event->UpDate(this, _player, _menu, _item, _monster[0], _cards);
+	_event->UpDate(this, _player, _menu, _item, _monster[0], _cards,mouse);
 	EnemyItemDrop();
 	_monster[0]->update();
 
@@ -416,7 +418,6 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 	}
 
 	Draw();
-	mouseOld = mouse;
 	CardEffect();
 	_player->UpDate();
 
@@ -1241,8 +1242,9 @@ void GameScene::EnemyItemDrop(void)
 	if (_monster[0]->GetDropFlg())
 	{
 		// 持ち物いっぱいだったけど使ったり捨てたりして持てるようになった時
-		if (mouse & MOUSE_INPUT_LEFT && !(mouseOld & MOUSE_INPUT_LEFT)) {			 //マウスの左ボタンが押されていたら
-			if (cursorPos.x >= 600 && cursorPos.x <= 600 + 150 && cursorPos.y >= 200 && cursorPos.y <= 200 + 75)
+		if (mouse->GetClickTrg()) 
+		{	
+			if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
 			{
 				if (_anounceFlg && _menu->GetCanHaveItem() != 0)
 				{

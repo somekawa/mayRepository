@@ -2,6 +2,8 @@
 #include "BaseScene.h"
 #include "VECTOR2.h"
 
+class MouseCtl;
+
 class TitleScene :
 	public BaseScene
 {
@@ -22,9 +24,8 @@ private:
 	int _pngLight;						// 画像の明るさ調整用変数	
 	bool _lightFlg;						// 画像の明るさ調整用フラグ
 
-	// ゲームシーンからタイトルへ戻ってきたときにボタンの位置が同じせいで、またゲームシーンに入るのを防ぐ
-	int _oldMouse;						// 1フレーム前のクリック情報保存用
-
 	int _seClick;						// クリック音
 	bool _seFlg;						// SE用フラグ
+
+	MouseCtl* mouse;
 };

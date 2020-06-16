@@ -1,9 +1,9 @@
 #include "DxLib.h"
 #include "SceneMng.h"
 #include "GameCtl.h"
-#include "GameClearScene.h"
 #include "SelectScene.h"
 #include "TitleScene.h"
+#include "MouseCtl.h"
 
 // static変数の実体<型>クラス名::変数名 = 初期化;
 int TitleScene::_titleBGM = 0;
@@ -15,10 +15,12 @@ TitleScene::TitleScene()
 
 TitleScene::~TitleScene()
 {
+	delete mouse;
 }
 
 bool TitleScene::Init(void)
 {
+	mouse = new MouseCtl();
 	PngInit();
 	_pngLight = 128;
 	_lightFlg = false;
@@ -40,38 +42,19 @@ void TitleScene::PngInit(void)
 
 unique_Base TitleScene::Update(unique_Base own, const GameCtl& ctl)
 {
-	//if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_F1]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_F1]))
-	//{
-	//	return std::make_unique<GameScene>();
-	//}
-	//
-	// 再生中でなければ再生を行う(0:再生していない)
-	// 現在はInitでループ設定している。
-	//if (CheckSoundMem(_titleBGM) == 0)
-	//{
-	//	PlaySoundMem(_titleBGM, DX_PLAYTYPE_LOOP, true);
-	//}
-
-	int x = 0;
-	int y = 0;
-	auto Mouse = GetMouseInput();                //マウスの入力状態取得
-	GetMousePoint(&x, &y);					     //マウスの座標取得
-	if (Mouse & MOUSE_INPUT_LEFT && !(_oldMouse & MOUSE_INPUT_LEFT)) {	 //マウスの左ボタンが押されていたら
+	mouse->UpDate();
+	if (mouse->GetClickTrg()) {	 //マウスの左ボタンが押されていたら
 		// 当たり判定
-		if (x >= 250 && x <= 250 + 400 && y >= 400 && y <= 400+150)
+		if (mouse->GetPos().x >= 250 && mouse->GetPos().x <= 250 + 400 && mouse->GetPos().y >= 400 && mouse->GetPos().y <= 400+150)
 		{
-			//PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
-			//DeleteSoundMem(_titleBGM);
 			if (CheckSoundMem(_seClick) == 0)
 			{
 				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
 				_seFlg = true;
 			}
-			//return std::make_unique<SelectScene>();
 		}
 	}
 
-	_oldMouse = Mouse;
 	Draw();
 
 	if (_seFlg && CheckSoundMem(_seClick) == 0)

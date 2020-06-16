@@ -163,6 +163,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Monster.cpp" />
+    <ClCompile Include="MouseCtl.cpp" />
     <ClCompile Include="MoveObj.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="SceneMng.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="ITEMCLASS.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="Monster.h" />
+    <ClInclude Include="MouseCtl.h" />
     <ClInclude Include="MoveObj.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="SceneMng.h" />

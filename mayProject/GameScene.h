@@ -10,6 +10,8 @@
 #include "Item.h"
 #include "Event.h"
 
+class MouseCtl;
+
 // 道画像
 enum class MAP {
 	STRAIGHT,		// 直進
@@ -48,9 +50,7 @@ public:
 	unique_Base Update(unique_Base own, const GameCtl& ctl);
 
 	// マウス関係
-	VECTOR2 cursorPos;					// マウスカーソルの座標保存用変数
-	int mouse;							// マウスの状態
-	int mouseOld;						// 1フレーム前のマウス状態
+	MouseCtl* mouse;
 
 	EVENT_STATE eventState;				// イベントの状態管理用
 	bool moveFlg;						// 歩きモーション管理用フラグ

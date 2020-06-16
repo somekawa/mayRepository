@@ -26,4 +26,7 @@ private:
 	std::unique_ptr<GameCtl> gameCtl;	// GameCtlのユニークポインタ
 	unique_Base activeScene;			// activeのsceneを保持する
 	bool SysInit(void);					// システムの初期化
+
+	const int screen_sizeX;				// 画面解像度 横
+	const int screen_sizeY;				// 画面解像度 縦
 };

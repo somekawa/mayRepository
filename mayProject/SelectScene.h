@@ -2,6 +2,8 @@
 #include "BaseScene.h"
 #include "VECTOR2.h"
 
+class MouseCtl;
+
  //難易度選択
 enum class MODE {
 	NON ,
@@ -32,8 +34,6 @@ private:
 	void pngInit(void);					// 画像用初期化
 	void Draw(void);					// 描画
 
-	int _oldMouse;						// 1フレーム前のクリック情報保存用
-
 	int _titleBackPNG;					//「タイトルへ」の文字画像
 	int _backPNG;						// 背景画像
 	int _normalPNG;						//「NORMAL」の文字画像
@@ -57,4 +57,6 @@ private:
 	float _asiatoRota;					// 画像回転
 	ASIDIR _dir;						// 現在の進行方向
 	ASIDIR _olddir;						// 1つ前の進行方向
+
+	MouseCtl* mouse;
 };

@@ -3,10 +3,7 @@
 #include "SceneMng.h"
 #include "GameCtl.h"
 
-#define SCREEN_SIZE_X 900					// 画面解像度 横
-#define SCREEN_SIZE_Y 600					// 画面解像度 縦
-
-SceneMng::SceneMng()
+SceneMng::SceneMng() :screen_sizeX(900), screen_sizeY(600)
 {
 	SysInit();
 }
@@ -18,7 +15,7 @@ SceneMng::~SceneMng()
 bool SceneMng::SysInit(void)
 {
 	// ｼｽﾃﾑ処理
-	SetGraphMode(SCREEN_SIZE_X, SCREEN_SIZE_Y, 16);		// 65536色ﾓｰﾄﾞに設定
+	SetGraphMode(screen_sizeX, screen_sizeY, 16);		// 65536色ﾓｰﾄﾞに設定
 	ChangeWindowMode(true);								// true:window　false:ﾌﾙｽｸﾘｰﾝ
 	SetWindowText("1816044_染川翼");					// 学籍番号と名前を入れておく
 	if (DxLib_Init() == -1) return false;				// DXﾗｲﾌﾞﾗﾘ初期化処理	

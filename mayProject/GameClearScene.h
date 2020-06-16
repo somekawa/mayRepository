@@ -1,6 +1,8 @@
 #pragma once
 #include "BaseScene.h"
 
+class MouseCtl;
+
 class GameClearScene :
 	public BaseScene
 {
@@ -26,4 +28,6 @@ private:
 	int _seClick;						// クリック音
 	int _clearBGM;						// BGM
 	bool _seFlg;						// SE用フラグ
+
+	MouseCtl* mouse;
 };

@@ -1,5 +1,8 @@
 #pragma once
 #include "BaseScene.h"
+
+class MouseCtl;
+
 class GameOverScene :
 	public BaseScene
 {
@@ -23,4 +26,6 @@ private:
 	int _seClick;			// クリック音
 	bool _seFlg;			// SE用フラグ
 	int _overBGM;			// BGM
+
+	MouseCtl* mouse;
 };

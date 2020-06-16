@@ -6,6 +6,7 @@
 #include "Menu.h"
 
 class GameScene;
+class MouseCtl;
 class Player;
 class Menu;
 class Item;
@@ -31,7 +32,7 @@ class Event
 public:
 	Event();
 	~Event();
-	void UpDate(GameScene* game,Player* player, Menu* menu,Item* item, Monster* monster,Cards* cards);
+	void UpDate(GameScene* game,Player* player, Menu* menu,Item* item, Monster* monster,Cards* cards, MouseCtl* mouse);
 	void Draw(GameScene* game,Player* player, Menu* menu, Item* item);
 	void SetEvent(const EVENT_STATE& state);// ゲームシーンからイベントを設定する
 	void SetFateNum(const int& num);		// はじめからやり直すのに必要
@@ -47,13 +48,13 @@ private:
 	void Init(void);						// 初期化
 	void pngInit(void);						// 画像関係初期化
 	void Enemy(GameScene* game, Player* player, Monster* monster);
-	void Yado(GameScene* game, Player* player);
-	void Syounin(GameScene* game, Player* player, Menu* menu,Item* item);
-	void Button(GameScene* game, Player* player);
-	void Chest(GameScene* game, Player* player, Menu* menu, Item* item);
-	void Drink(GameScene* game, Player* player);
-	void Trap(GameScene* game, Player* player);
-	void eventMons(GameScene* game, Monster* monster, Cards* cards);
+	void Yado(GameScene* game, Player* player,MouseCtl* mouse);
+	void Syounin(GameScene* game, Player* player, Menu* menu,Item* item, MouseCtl* mouse);
+	void Button(GameScene* game, Player* player, MouseCtl* mouse);
+	void Chest(GameScene* game, Player* player, Menu* menu, Item* item, MouseCtl* mouse);
+	void Drink(GameScene* game, Player* player, MouseCtl* mouse);
+	void Trap(GameScene* game, Player* player, MouseCtl* mouse);
+	void eventMons(GameScene* game, Monster* monster, Cards* cards, MouseCtl* mouse);
 
 	EVENT_STATE _event;					// イベント情報用変数
 

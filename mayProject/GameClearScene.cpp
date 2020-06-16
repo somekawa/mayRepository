@@ -2,6 +2,7 @@
 #include <string>
 #include "TitleScene.h"
 #include "GameClearScene.h"
+#include "MouseCtl.h"
 
 #define PARTICLE_NUM 3
 
@@ -22,10 +23,13 @@ GameClearScene::GameClearScene()
 
 GameClearScene::~GameClearScene()
 {
+	delete mouse;
 }
 
 bool GameClearScene::Init(void)
 {
+	mouse = new MouseCtl();
+
 	PngInit();
 
 	float expand = 0.0f;
@@ -68,13 +72,10 @@ void GameClearScene::PngInit(void)
 
 unique_Base GameClearScene::Update(unique_Base own, const GameCtl& ctl)
 {
-	int x = 0;
-	int y = 0;
-	auto Mouse = GetMouseInput();                // マウスの入力状態取得
-	GetMousePoint(&x, &y);					     // マウスの座標取得
-	if (Mouse & MOUSE_INPUT_LEFT) {				 // マウスの左ボタンが押されていたら
-		// 当たり判定
-		if (x >= 650 && x <= 650 + 200 && y >= 500 && y <= 500 + 100)
+	mouse->UpDate();
+	if (mouse->GetClickTrg()) 
+	{			
+		if (mouse->GetPos().x >= 650 && mouse->GetPos().x <= 650 + 200 && mouse->GetPos().y >= 500 && mouse->GetPos().y <= 500 + 100)
 		{
 			DeleteSoundMem(_clearBGM);
 			if (CheckSoundMem(_seClick) == 0)
