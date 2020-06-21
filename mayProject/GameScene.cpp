@@ -135,6 +135,11 @@ bool GameScene::Init(void)
 		_bossPos = { 5,9 };
 		_bossemErgencyPos = { 5,8 };
 	}
+	else
+	{
+		// ここにきたらエラー
+		return false;
+	}
 
 	for (int i = 0; i < 10; i++)
 	{
@@ -486,8 +491,8 @@ void GameScene::Draw(void)
 
 			// 歩いてるときに揺れてる感じが出したい
 			_degree += 1.0f * 7.0f;
-			auto radian = _degree * PI / 180.0;
-			auto sin = sinf(radian);
+			auto radian = _degree * PI / 180.0f;
+			auto sin = sinf(static_cast<float>(radian));
 			auto move = 0.0f;
 
 			// だんだん扉が近づく
@@ -518,7 +523,7 @@ void GameScene::Draw(void)
 					_doorOpenTiming--;
 				}
 			}
-			DrawRotaGraph(450 - _walkDirect, move + 300, _doorExpand, 0, _roadPNG[_plNowPoint], false);
+			DrawRotaGraphF(450.0f - _walkDirect, move + 300.0f, _doorExpand, 0, _roadPNG[_plNowPoint], false);
 		}
 
 		if (openDoor)
@@ -552,8 +557,8 @@ void GameScene::Draw(void)
 
 	// 霧表現
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 180);
-	DrawGraph(0 + _dunFog[0], 0, _dungeonFogPNG[0], true);
-	DrawGraph(0 + _dunFog[1], 0, _dungeonFogPNG[1], true);
+	DrawGraphF(0.0f + _dunFog[0], 0.0f, _dungeonFogPNG[0], true);
+	DrawGraphF(0.0f + _dunFog[1], 0.0f, _dungeonFogPNG[1], true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	// 何もなしと敵以外の処理
@@ -649,7 +654,7 @@ void GameScene::Draw(void)
 
 		// 敵(HPバー関連)
 		DrawExtendGraph(posx, posy, posx + 110, posy + 33, _hpBarBack, true);
-		DrawExtendGraph(posx+3, posy+4, posx+3 + 105 * _monster[0]->GetHPBar(), posy+4 + 25, _hpBarEn, true);
+		DrawExtendGraph(posx + 3, posy + 4, posx + 3 + static_cast<int>((105.0f * _monster[0]->GetHPBar())), posy + 4 + 25, _hpBarEn, true);
 
 		// 戦闘中以外は邪魔なので非表示で
 		_cards->Draw(_player,_menu);
@@ -1295,7 +1300,7 @@ void GameScene::CardEffect(void)
 		PlaySoundMem(_soundSE[7], DX_PLAYTYPE_BACK, true);
 
 		// 体力の1/6ぐらい削ろうかな
-		_player->SetHP(_player->GetHP() - (float)_player->GetMaxHP() * (1.0f / 6.0f));
+		_player->SetHP(_player->GetHP() - static_cast<int>(static_cast<float>(_player->GetMaxHP()) * (1.0f / 6.0f)));
 		// 1ターンマイナス
 		_player->SetConditionTurn(_player->GetConditionTurn() - 1);
 	};
@@ -1352,7 +1357,7 @@ void GameScene::Direct(void)
 			}
 			else if (_plDirect == PL_DIRECTION::DOWN)
 			{
-				_plDirect == PL_DIRECTION::UP;
+				_plDirect = PL_DIRECTION::UP;
 			}
 		}
 		_rightFlg = false;
@@ -1563,7 +1568,7 @@ void GameScene::Direct(void)
 		////------------------------------------------
 	}
 
-	auto lambda = [&](PL_DIRECTION dir,float rota) {
+	auto lambda = [&](PL_DIRECTION dir,double rota) {
 		_plDirectOld = _plDirect;
 		_plOldPoint = _plNowPoint;
 		_plDirect = dir;
@@ -1742,8 +1747,8 @@ void GameScene::Key(void)
 			// ダメージ音
 			PlaySoundMem(_soundSE[7], DX_PLAYTYPE_BACK, true);
 
-			// 体力の1/6ぐらい削ろうかな
-			_player->SetHP(_player->GetHP() - (float)_player->GetMaxHP() * (1.0f / 6.0f));
+			// 体力の1/6削る
+			_player->SetHP(_player->GetHP() - static_cast<int>(static_cast<float>(_player->GetMaxHP()) * (1.0f / 6.0f)));
 			// 1ターンマイナス
 			_player->SetConditionTurn(_player->GetConditionTurn() - 1);
 

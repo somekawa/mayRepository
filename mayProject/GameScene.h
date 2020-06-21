@@ -112,7 +112,7 @@ private:
 	int _plOldPoint;			// プレイヤーの前回いた位置
 	bool _leftFlg;				// 左折したらtrue
 	bool _rightFlg;				// 右折したらtrue
-	float _directRota;			// 自分アイコンの向き調整用
+	double _directRota;			// 自分アイコンの向き調整用
 	PL_DIRECTION _plDirect;		// プレイヤーの向いている方向
 	PL_DIRECTION _plDirectOld;	// プレイヤーの前回向いていた方向
 	VECTOR2 _mapChipDrawOffset;	// マップチップの描画位置オフセット

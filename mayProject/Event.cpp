@@ -64,6 +64,11 @@ void Event::Init(void)
 			return; //エラー時の処理
 		}
 	}
+	else
+	{
+		// ここにきたらエラー
+		return;
+	}
 
 	for (int i = 0; i < 4; i++)
 	{
@@ -876,7 +881,7 @@ void Event::Button(GameScene* game, Player* player, MouseCtl* mouse)
 			// 電流音
 			PlaySoundMem(_soundSE[1], DX_PLAYTYPE_BACK, true);
 			// 体力の1/4削る
-			player->SetHP(player->GetHP() - (float)player->GetMaxHP() * (1.0f / 4.0f));
+			player->SetHP(player->GetHP() - static_cast<int>(static_cast<float>(player->GetMaxHP()) * (1.0f / 4.0f)));
 			//_pushFlg = false;
 			game->shakeFlg = true;
 			_buttonEventFlg = true;
@@ -944,7 +949,7 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item, Mouse
 			// ダメージ音
 			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
 			// 体力の1/4削る
-			player->SetHP(player->GetHP() - (float)player->GetMaxHP() * (1.0f / 4.0f));
+			player->SetHP(player->GetHP() - static_cast<int>(static_cast<float>(player->GetMaxHP()) * (1.0f / 4.0f)));
 			_pushFlg = false;
 			game->shakeFlg = true;
 		}
