@@ -179,6 +179,15 @@ bool GameScene::Init(void)
 	_kyouseiButtlePngMoveCnt = 0;
 	_turnEndOnceFlg = false;
 
+	//13以外 (7~12と14)
+	_eventStateMap.try_emplace(7, EVENT_STATE::YADO);
+	_eventStateMap.try_emplace(8, EVENT_STATE::SYOUNIN);
+	_eventStateMap.try_emplace(9, EVENT_STATE::BUTTON);
+	_eventStateMap.try_emplace(10, EVENT_STATE::CHEST);
+	_eventStateMap.try_emplace(11, EVENT_STATE::DRINK);
+	_eventStateMap.try_emplace(12, EVENT_STATE::TRAP);
+	_eventStateMap.try_emplace(14, EVENT_STATE::GOAL);
+
 	// あらかじめメモリ領域を確保しておく
 	_mapVec.reserve(100);
 
@@ -1820,27 +1829,50 @@ void GameScene::Key(void)
 		}
 		else
 		{
-			switch (num)	// 0~5
+			/*switchだった頃*/
+			//switch (num)
+			//{
+			//case 7:
+			//	eventState = EVENT_STATE::YADO;
+			//	break;
+			//case 8:
+			//	eventState = EVENT_STATE::SYOUNIN;
+			//	break;
+			//case 9:
+			//	eventState = EVENT_STATE::BUTTON;
+			//	break;
+			//case 10:
+			//	eventState = EVENT_STATE::CHEST;
+			//	break;
+			//case 11:
+			//	eventState = EVENT_STATE::DRINK;
+			//	break;
+			//case 12:
+			//	eventState = EVENT_STATE::TRAP;
+			//	break;
+			//case 13:
+			//	if (!_event->GetEventMonsEndFlg())
+			//	{
+			//		eventState = EVENT_STATE::EVE_MONS;
+			//	}
+			//	else
+			//	{
+			//		_event->SetEventMonsEncountFlg(false);
+			//		eventState = EVENT_STATE::NON;
+			//		_plNowPoint = 0;
+			//	}
+			//	break;
+			//case 14:
+			//	eventState = EVENT_STATE::GOAL;
+			//	break;
+			//default:
+			//	eventState = EVENT_STATE::NON;
+			//	break;
+			//}
+
+			eventState = _eventStateMap[num];
+			if (num == 13)
 			{
-			case 7:
-				eventState = EVENT_STATE::YADO;
-				break;
-			case 8:
-				eventState = EVENT_STATE::SYOUNIN;
-				break;
-			case 9:
-				eventState = EVENT_STATE::BUTTON;
-				break;
-			case 10:
-				eventState = EVENT_STATE::CHEST;
-				break;
-			case 11:
-				eventState = EVENT_STATE::DRINK;
-				break;
-			case 12:
-				eventState = EVENT_STATE::TRAP;
-				break;
-			case 13:
 				if (!_event->GetEventMonsEndFlg())
 				{
 					eventState = EVENT_STATE::EVE_MONS;
@@ -1851,13 +1883,6 @@ void GameScene::Key(void)
 					eventState = EVENT_STATE::NON;
 					_plNowPoint = 0;
 				}
-				break;
-			case 14:
-				eventState = EVENT_STATE::GOAL;
-				break;
-			default:
-				eventState = EVENT_STATE::NON;
-				break;
 			}
 		}
 	}

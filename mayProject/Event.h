@@ -102,6 +102,8 @@ private:
 	bool _eventMonsEncountFlg;			// 遭遇時にtrue
 	bool _eventMonsEndFlg;				// 即死トラップ使用して倒した際にtrue
 
+	std::map<int, ITEM> _chestItemMap;
+
 	// イベント画像
 	std::map<std::string, int> eventImages;
 	// メッセージ用枠画像

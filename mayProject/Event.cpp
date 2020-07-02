@@ -41,6 +41,11 @@ void Event::Init(void)
 	_onceFlg = false;
 	_kyouseiButtleFlg = false;
 
+	_chestItemMap.try_emplace(0, ITEM::POTION_BIG);
+	_chestItemMap.try_emplace(1, ITEM::DETOX);
+	_chestItemMap.try_emplace(2, ITEM::KYOUKA_POW);
+	_chestItemMap.try_emplace(3, ITEM::HEART);
+
 	// 宝箱設定
 	int chestHandle;
 	// ボタンと飲み物の座標設定
@@ -976,28 +981,32 @@ void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item, Mouse
 					// クリック音
 					PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 					int randNum = GetRand(4);
-					switch (randNum)	// 0~3
-					{
-					case 0:
-						// 持ち物が満タンじゃなければ持てる
-						menu->Setitem(item->GetPair(static_cast<int>(ITEM::POTION_BIG) - 1).second, item->GetPair(static_cast<int>(ITEM::POTION_BIG) - 1).first);
-						break;
-					case 1:
-						// 持ち物が満タンじゃなければ持てる
-						menu->Setitem(item->GetPair(static_cast<int>(ITEM::DETOX) - 1).second, item->GetPair(static_cast<int>(ITEM::DETOX) - 1).first);
-						break;
-					case 2:
-						// 持ち物が満タンじゃなければ持てる
-						menu->Setitem(item->GetPair(static_cast<int>(ITEM::KYOUKA_POW) - 1).second, item->GetPair(static_cast<int>(ITEM::KYOUKA_POW) - 1).first);
-						break;
-					case 3:
-						// 持ち物が満タンじゃなければ持てる
-						menu->Setitem(item->GetPair(static_cast<int>(ITEM::HEART) - 1).second, item->GetPair(static_cast<int>(ITEM::HEART) - 1).first);
-						break;
-					default:
-						// 持ち物が満タンじゃなければ持てる
-						menu->Setitem(item->GetPair(static_cast<int>(ITEM::POTION_BIG) - 1).second, item->GetPair(static_cast<int>(ITEM::POTION_BIG) - 1).first);
-					}
+					/*switchだった頃*/
+					//switch (randNum)	// 0~3
+					//{
+					//case 0:
+					//	// 持ち物が満タンじゃなければ持てる
+					//	menu->Setitem(item->GetPair(static_cast<int>(ITEM::POTION_BIG) - 1).second, item->GetPair(static_cast<int>(ITEM::POTION_BIG) - 1).first);
+					//	break;
+					//case 1:
+					//	// 持ち物が満タンじゃなければ持てる
+					//	menu->Setitem(item->GetPair(static_cast<int>(ITEM::DETOX) - 1).second, item->GetPair(static_cast<int>(ITEM::DETOX) - 1).first);
+					//	break;
+					//case 2:
+					//	// 持ち物が満タンじゃなければ持てる
+					//	menu->Setitem(item->GetPair(static_cast<int>(ITEM::KYOUKA_POW) - 1).second, item->GetPair(static_cast<int>(ITEM::KYOUKA_POW) - 1).first);
+					//	break;
+					//case 3:
+					//	// 持ち物が満タンじゃなければ持てる
+					//	menu->Setitem(item->GetPair(static_cast<int>(ITEM::HEART) - 1).second, item->GetPair(static_cast<int>(ITEM::HEART) - 1).first);
+					//	break;
+					//default:
+					//	// 持ち物が満タンじゃなければ持てる
+					//	menu->Setitem(item->GetPair(static_cast<int>(ITEM::POTION_BIG) - 1).second, item->GetPair(static_cast<int>(ITEM::POTION_BIG) - 1).first);
+					//}
+
+					// 持ち物が満タンじゃなければ持てる
+					menu->Setitem(item->GetPair(static_cast<int>(_chestItemMap[randNum]) - 1).second, item->GetPair(static_cast<int>(_chestItemMap[randNum]) - 1).first);
 					_getFlg = false;
 					_anounceFlg = false;
 				}

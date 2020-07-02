@@ -1,4 +1,6 @@
 #pragma once
+#include <DxLib.h>
+#include <map>
 #include <vector>
 #include <tuple>
 #include "BaseScene.h"
@@ -134,6 +136,8 @@ private:
 	int _kyouseiButtlePngMoveCnt;		// 「強制戦闘」の文字画像の移動処理用
 	bool _turnEndOnceFlg;				// プレイヤーターン終了時にtrueにする
 	VECTOR2 _bossemErgencyPos;			// ボス前の警告画像を出す座標
+
+	std::map<int, EVENT_STATE> _eventStateMap;
 
 	/*画像関係*/
 	// 敵ターンまでのカウント用画像
