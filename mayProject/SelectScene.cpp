@@ -214,7 +214,7 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 		}
 		else if (_dir == ASIDIR::DOWN)
 		{
-			_asiatoRota = PI;
+			_asiatoRota = static_cast<float>(PI);
 			_asiatoReverseX = true;
 			_asiatoReverseY = false;
 			_drawAsiVec = { 750,0 };
@@ -223,7 +223,7 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 		}
 		else if (_dir == ASIDIR::RIGHT)
 		{
-			_asiatoRota = PI/2;
+			_asiatoRota = static_cast<float>(PI)/2.0f;
 			_asiatoReverseX = true;
 			_asiatoReverseY = false;
 			_startPos.x = 0;
@@ -232,7 +232,7 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 		}
 		else if (_dir == ASIDIR::LEFT)
 		{
-			_asiatoRota = PI + PI / 2;
+			_asiatoRota = static_cast<float>(PI) + static_cast<float>(PI) / 2.0f;
 			_asiatoReverseX = false;
 			_asiatoReverseY = false;
 			_startPos.x = -900;

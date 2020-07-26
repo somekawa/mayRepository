@@ -118,6 +118,12 @@ void Event::Init(void)
 	_soundSE[1] = LoadSoundMem("sound/se/biribiri.mp3");
 	_soundSE[2] = LoadSoundMem("sound/se/damage.mp3");
 	_soundSE[3] = LoadSoundMem("sound/se/poison.mp3");
+
+	yadoSt = std::make_unique<YadoSt>();
+	syouninSt = std::make_unique<SyouninSt>();
+	buttonSt = std::make_unique<ButtonSt>();
+	chestSt = std::make_unique<ChestSt>();
+	drinkSt = std::unique_ptr<DrinkSt>();
 }
 
 void Event::pngInit(void)
@@ -173,7 +179,9 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 		}
 		else
 		{
-			Yado(game, player,mouse);
+			yadoSt->Update(*this, *game, *player, *mouse);
+
+			//Yado(game, player,mouse);
 		}
 	}
 
@@ -185,7 +193,8 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 		}
 		else
 		{
-			Syounin(game, player, menu, item,mouse);
+			syouninSt->Update(*this, *game, *player, *mouse, *item, *menu);
+			//Syounin(game, player, menu, item,mouse);
 		}
 	}
 
@@ -197,7 +206,8 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 		}
 		else
 		{
-			Button(game, player,mouse);
+			buttonSt->Update(*this, *game, *player, *mouse);
+			//Button(game, player,mouse);
 		}
 	}
 
@@ -209,7 +219,8 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 		}
 		else
 		{
-			Chest(game, player, menu, item,mouse);
+			chestSt->Update(*this, *game, *player, *menu, *item, *mouse);
+			//Chest(game, player, menu, item,mouse);
 		}
 	}
 
@@ -221,7 +232,8 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 		}
 		else
 		{
-			Drink(game, player,mouse);
+			drinkSt->Update(*this, *game, *player, *mouse);
+			//Drink(game, player,mouse);
 		}
 	}
 
@@ -246,262 +258,252 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 	// 宿屋
 	if (_event == EVENT_STATE::YADO && !_eventMonsFlg)
 	{
-		// 人画像
-		DrawGraph(0, 0, eventImages["heal_human"], true);
-		// 去る
-		DrawGraph(600, 345, _sentakusiPNG[10], true);
-		// メッセージボックス
-		DrawGraph(420, 50, _messagePNG, true);
+		//// 人画像
+		//DrawGraph(0, 0, eventImages["heal_human"], true);
+		//// 去る
+		//DrawGraph(600, 345, _sentakusiPNG[10], true);
+		//// メッセージボックス
+		//DrawGraph(420, 50, _messagePNG, true);
+		//if (_nonMoneyFlg)
+		//{
+		//	DrawFormatString(450, 70, 0x000000, "怪しい老婆:\n%金が足らんようじゃの。\n去るがよい");
+		//}
+		//if (!_healYadoFlg)
+		//{
+		//	// 頼む
+		//	DrawGraph(600, 200, _sentakusiPNG[2], true);
+		//	DrawFormatString(450, 70, 0x000000, "怪しい老婆:\n%d円で回復してやろうか? \n(所持金:%d円)", player->GetNowLevel() * 100,player->GetMoney());
+		//}
+		//else
+		//{
+		//	if (!_nonMoneyFlg)
+		//	{
+		//		DrawFormatString(450, 70, 0x000000, "怪しい老婆:\nﾋｯﾋｯﾋｯﾋｯ...");
+		//	}
+		//}
 
-		if (_nonMoneyFlg)
-		{
-			DrawFormatString(450, 70, 0x000000, "怪しい老婆:\n%金が足らんようじゃの。\n去るがよい");
-		}
-
-		if (!_healYadoFlg)
-		{
-			// 頼む
-			DrawGraph(600, 200, _sentakusiPNG[2], true);
-			DrawFormatString(450, 70, 0x000000, "怪しい老婆:\n%d円で回復してやろうか? \n(所持金:%d円)", player->GetNowLevel() * 100,player->GetMoney());
-		}
-		else
-		{
-			if (!_nonMoneyFlg)
-			{
-				DrawFormatString(450, 70, 0x000000, "怪しい老婆:\nﾋｯﾋｯﾋｯﾋｯ...");
-			}
-		}
+		yadoSt->Draw(*this, *player);
 	}
 
 	// 商人
 	if (_event == EVENT_STATE::SYOUNIN && !_eventMonsFlg)
 	{
-		// 人画像
-		DrawGraph(100, 0, eventImages["syounin"], true);
-		// メッセージボックス
-		DrawGraph(420, 50, _messagePNG, true);
-		DrawFormatString(450, 70, 0x000000, "商人:\n何か買うか?");
+		//// 人画像
+		//DrawGraph(100, 0, eventImages["syounin"], true);
+		//// メッセージボックス
+		//DrawGraph(420, 50, _messagePNG, true);
+		//DrawFormatString(450, 70, 0x000000, "商人:\n何か買うか?");
+		//if (_buyFlg)
+		//{
+		//	DrawGraph(200, 0, _syouninWakuPNG, true);
+		//	// 1ページ目
+		//	if (!_itemNextPage)
+		//	{
+		//		// アイテム表示
+		//		for (int i = 0; i <= 7; i++)
+		//		{
+		//			DrawGraph(item->GetPos(i).x, item->GetPos(i).y, _itemBoxPNG, true);
+		//			DrawGraph(item->GetPos(i).x, item->GetPos(i).y, item->GetPair(i).first, true);
+		//		}
+		//	}
+		//	else
+		//	{
+		//		// 2ページ目
+		//		// アイテム表示
+		//		for (int i = 0; i <= 7; i++)
+		//		{
+		//			DrawGraph(item->GetPos(i).x, item->GetPos(i).y, _itemBoxPNG, true);
+		//			DrawGraph(item->GetPos(i).x, item->GetPos(i).y, item->GetPair(i+8).first, true);
+		//		}
+		//	}
+		//	// 選択中のアイテムの枠
+		//	if (_chooseNum >= 0)
+		//	{
+		//		DrawGraph(item->GetPos(_chooseNum).x, item->GetPos(_chooseNum).y, _itemChoicePNG, true);
+		//	}
+		//	// 現在の所持金の表示
+		//	DrawFormatString(470, 485, 0x000000, "所持金:%d円", player->GetMoney());
+		//	// 商品の次のページへの矢印
+		//	DrawGraph(490,300, _yajirusiPNG, true);
+		//}
+		//// 去る
+		//DrawGraph(600, 345, _sentakusiPNG[10], true);
+		//if (!_buyFlg || _chooseFlg)
+		//{
+		//	// 購入
+		//	DrawGraph(600, 200, _sentakusiPNG[0], true);
+		//	if (menu->GetCanHaveItem() == 0)
+		//	{
+		//		// 持ち物満タンだからもてないよ
+		//		DrawFormatString(600, 160, 0xffffff, "所持品がいっぱいだ");
+		//	}
+		//}
+		//if (_buyFlg && _chooseFlg)
+		//{
+		//	if (_nonMoneyFlg)
+		//	{
+		//		// 所持金が足りないよ
+		//		DrawFormatString(600, 180, 0xffffff, "所持金が足りない");
+		//	}
+		//}
+		//// 文字表示(商品選択中のみ)
+		//if (_chooseNum != -1)
+		//{
+		//	DrawFormatString(300, 450, 0x000000, "%s\n", item->GetSetumei(static_cast<int>(_itemInfo)-1));
+		//	DrawFormatString(300, 470, 0x000000, "%d円\n", item->GetCostMoney(static_cast<int>(_itemInfo) - 1));
+		//}
 
-		if (_buyFlg)
-		{
-			DrawGraph(200, 0, _syouninWakuPNG, true);
-
-			// 1ページ目
-			if (!_itemNextPage)
-			{
-				// アイテム表示
-				for (int i = 0; i <= 7; i++)
-				{
-					DrawGraph(item->GetPos(i).x, item->GetPos(i).y, _itemBoxPNG, true);
-					DrawGraph(item->GetPos(i).x, item->GetPos(i).y, item->GetPair(i).first, true);
-				}
-			}
-			else
-			{
-				// 2ページ目
-				// アイテム表示
-				for (int i = 0; i <= 7; i++)
-				{
-					DrawGraph(item->GetPos(i).x, item->GetPos(i).y, _itemBoxPNG, true);
-					DrawGraph(item->GetPos(i).x, item->GetPos(i).y, item->GetPair(i+8).first, true);
-				}
-			}
-
-			// 選択中のアイテムの枠
-			if (_chooseNum >= 0)
-			{
-				DrawGraph(item->GetPos(_chooseNum).x, item->GetPos(_chooseNum).y, _itemChoicePNG, true);
-			}
-
-			// 現在の所持金の表示
-			DrawFormatString(470, 485, 0x000000, "所持金:%d円", player->GetMoney());
-
-			// 商品の次のページへの矢印
-			DrawGraph(490,300, _yajirusiPNG, true);
-		}
-
-		// 去る
-		DrawGraph(600, 345, _sentakusiPNG[10], true);
-
-		if (!_buyFlg || _chooseFlg)
-		{
-			// 購入
-			DrawGraph(600, 200, _sentakusiPNG[0], true);
-			if (menu->GetCanHaveItem() == 0)
-			{
-				// 持ち物満タンだからもてないよ
-				DrawFormatString(600, 160, 0xffffff, "所持品がいっぱいだ");
-			}
-		}
-
-		if (_buyFlg && _chooseFlg)
-		{
-			if (_nonMoneyFlg)
-			{
-				// 所持金が足りないよ
-				DrawFormatString(600, 180, 0xffffff, "所持金が足りない");
-			}
-		}
-
-		// 文字表示(商品選択中のみ)
-		if (_chooseNum != -1)
-		{
-			DrawFormatString(300, 450, 0x000000, "%s\n", item->GetSetumei(static_cast<int>(_itemInfo)-1));
-			DrawFormatString(300, 470, 0x000000, "%d円\n", item->GetCostMoney(static_cast<int>(_itemInfo) - 1));
-		}
+		syouninSt->Draw(*this, *player, *item, *menu);
 	}
 
 	// ボタン出現中
 	if (_event == EVENT_STATE::BUTTON && !_eventMonsFlg)
 	{
-		for (int i = 0; i < 4; i++)
-		{
-			if (_buttonDrink[i].x == game->plPosX && _buttonDrink[i].y == game->plPosY)
-			{
-				_buttonNum = i;
-			}
-		}
+		//for (int i = 0; i < 4; i++)
+		//{
+		//	if (_buttonDrink[i].x == game->plPosX && _buttonDrink[i].y == game->plPosY)
+		//	{
+		//		_buttonNum = i;
+		//	}
+		//}
+		//if (!_buttonPush[_buttonNum])
+		//{
+		//	// メッセージボックス
+		//	DrawGraph(420, 50, _messagePNG, true);
+		//	if (_fateNum == -1)
+		//	{
+		//		// 押す
+		//		DrawGraph(600, 200, _sentakusiPNG[4], true);
+		//		DrawFormatString(450, 70, 0x000000, "壁にボタンがついている...\n");
+		//	}
+		//	if (_fateNum == 0)
+		//	{
+		//		DrawFormatString(450, 70, 0x000000, "なんと1000円がでてきた!\n");
+		//	}
+		//	if (_fateNum > 0)
+		//	{
+		//		DrawFormatString(450, 70, 0x000000, "体中に電流が流れた!!");
+		//	}
+		//}
+		//// 去る
+		//DrawGraph(600, 345, _sentakusiPNG[10], true);
 
-		if (!_buttonPush[_buttonNum])
-		{
-			// メッセージボックス
-			DrawGraph(420, 50, _messagePNG, true);
-
-			if (_fateNum == -1)
-			{
-				// 押す
-				DrawGraph(600, 200, _sentakusiPNG[4], true);
-				DrawFormatString(450, 70, 0x000000, "壁にボタンがついている...\n");
-			}
-
-			if (_fateNum == 0)
-			{
-				DrawFormatString(450, 70, 0x000000, "なんと1000円がでてきた!\n");
-			}
-
-			if (_fateNum > 0)
-			{
-				DrawFormatString(450, 70, 0x000000, "体中に電流が流れた!!");
-			}
-		}
-
-		// 去る
-		DrawGraph(600, 345, _sentakusiPNG[10], true);
+		buttonSt->Draw(*this, *game);
 	}
 
 	// 宝箱出現中
 	if (_event == EVENT_STATE::CHEST && !_eventMonsFlg)
 	{
-		// メッセージボックス
-		DrawGraph(420, 50, _messagePNG, true);
+		//// メッセージボックス
+		//DrawGraph(420, 50, _messagePNG, true);
+		//// 宝箱チェック
+		//int a = 0;
+		//for (int i = 0; i < 4; i++)
+		//{
+		//	if (_chestPos[i].x == GameScene::plPosX && _chestPos[i].y == GameScene::plPosY)
+		//	{
+		//		a = i;
+		//	}
+		//}
+		//if (_chestOpen[a] == 0)
+		//{		
+		//	// 進む(宝箱無視)
+		//	DrawGraph(600, 345, _sentakusiPNG[10], true);
+		//
+		//	if (_fateNum == -1)
+		//	{
+		//		// 開ける
+		//		DrawGraph(600, 200, _sentakusiPNG[3], true);
+		//		DrawGraph(350, 150, _chestPNG[0], true);
+		//		DrawFormatString(450, 70, 0x000000, "宝箱が置いてある");
+		//	}
+		//		
+		//	// 鑑定アイテムを使ったときの描画
+		//	if (menu->GetMeganeFlg())
+		//	{
+		//		if (_chestBingo[a] == 1)
+		//		{
+		//			DrawFormatString(450, 70, 0xff0000, "\n\n特におかしいところはない");
+		//		}
+		//		if (_chestBingo[a] == 0)
+		//		{
+		//			DrawFormatString(450, 70, 0xff0000, "\n\nゴーストが取り憑いている");
+		//		}
+		//	}
+		//}
+		//else
+		//{
+		//	if (_getFlg)
+		//	{
+		//		// 取る
+		//		DrawGraph(600, 200, _sentakusiPNG[8], true);
+		//	}
+		//
+		//	if (_anounceFlg)
+		//	{
+		//		// 持ち物満タンだからもてない
+		//		DrawFormatString(600, 180, 0xffffff, "所持品がいっぱいだ");
+		//	}
+		//
+		//	if (_fateNum == 1)
+		//	{
+		//		DrawGraph(350, 150, eventImages["chestInItem"], true);
+		//		DrawFormatString(450, 70, 0x000000, "アイテムが入っていた!");
+		//	}
+		//	else if (_fateNum == 0)
+		//	{
+		//		DrawGraph(350, 150, _chestPNG[1], true);
+		//		DrawFormatString(450, 70, 0x000000, "ゴーストが現れ攻撃してきた!");
+		//	}
+		//	else
+		//	{
+		//		// 宝箱をすでに開けている
+		//		DrawFormatString(450, 70, 0x000000, "宝箱は開いている");
+		//		DrawGraph(350, 150, eventImages["chestKara"], true);
+		//	}
+		//
+		//	// 去る(宝箱無視)
+		//	DrawGraph(600, 345, _sentakusiPNG[10], true);
+		//}
 
-		// 宝箱チェック
-		int a = 0;
-		for (int i = 0; i < 4; i++)
-		{
-			if (_chestPos[i].x == GameScene::plPosX && _chestPos[i].y == GameScene::plPosY)
-			{
-				a = i;
-			}
-		}
-		if (_chestOpen[a] == 0)
-		{		
-			// 進む(宝箱無視)
-			DrawGraph(600, 345, _sentakusiPNG[10], true);
-		
-			if (_fateNum == -1)
-			{
-				// 開ける
-				DrawGraph(600, 200, _sentakusiPNG[3], true);
-				DrawGraph(350, 150, _chestPNG[0], true);
-				DrawFormatString(450, 70, 0x000000, "宝箱が置いてある");
-			}
-				
-			// 鑑定アイテムを使ったときの描画
-			if (menu->GetMeganeFlg())
-			{
-				if (_chestBingo[a] == 1)
-				{
-					DrawFormatString(450, 70, 0xff0000, "\n\n特におかしいところはない");
-				}
-				if (_chestBingo[a] == 0)
-				{
-					DrawFormatString(450, 70, 0xff0000, "\n\nゴーストが取り憑いている");
-				}
-			}
-		}
-		else
-		{
-			if (_getFlg)
-			{
-				// 取る
-				DrawGraph(600, 200, _sentakusiPNG[8], true);
-			}
-		
-			if (_anounceFlg)
-			{
-				// 持ち物満タンだからもてない
-				DrawFormatString(600, 180, 0xffffff, "所持品がいっぱいだ");
-			}
-		
-			if (_fateNum == 1)
-			{
-				DrawGraph(350, 150, eventImages["chestInItem"], true);
-				DrawFormatString(450, 70, 0x000000, "アイテムが入っていた!");
-			}
-			else if (_fateNum == 0)
-			{
-				DrawGraph(350, 150, _chestPNG[1], true);
-				DrawFormatString(450, 70, 0x000000, "ゴーストが現れ攻撃してきた!");
-			}
-			else
-			{
-				// 宝箱をすでに開けている
-				DrawFormatString(450, 70, 0x000000, "宝箱は開いている");
-				DrawGraph(350, 150, eventImages["chestKara"], true);
-			}
-		
-			// 去る(宝箱無視)
-			DrawGraph(600, 345, _sentakusiPNG[10], true);
-		}
+		chestSt->Draw(*this, *menu);
 	}
 
 	// 瓶出現中
 	if (_event == EVENT_STATE::DRINK && !_eventMonsFlg)
 	{
-		for (int i = 0; i < 4; i++)
-		{
-			if (_buttonDrink[i].x == game->plPosX && _buttonDrink[i].y == game->plPosY)
-			{
-				_drinkNum = i;
-			}
-		}
+		//for (int i = 0; i < 4; i++)
+		//{
+		//	if (_buttonDrink[i].x == game->plPosX && _buttonDrink[i].y == game->plPosY)
+		//	{
+		//		_drinkNum = i;
+		//	}
+		//}
+		//if (!_drinking[_drinkNum])
+		//{
+		//	// メッセージボックス
+		//	DrawGraph(420, 50, _messagePNG, true);
+		//	// 瓶画像
+		//	DrawGraph(350, 250, eventImages["bin"], true);
+		//	if (_fateNum == -1)
+		//	{
+		//		// 飲む
+		//		DrawGraph(600, 200, _sentakusiPNG[1], true);
+		//		DrawFormatString(450, 70, 0x000000, "[Drink Me]\nとかかれた瓶がある...");
+		//	}
+		//	if (_fateNum == 0)
+		//	{
+		//		DrawFormatString(450, 70, 0x000000, "体が頑丈になった!\n防御力が上がった");
+		//	}
+		//	if (_fateNum > 0)
+		//	{
+		//		DrawFormatString(450, 70, 0x000000, "毒にかかってしまった...");
+		//	}
+		//}
+		//// 去る
+		//DrawGraph(600, 345, _sentakusiPNG[10], true);
 
-		if (!_drinking[_drinkNum])
-		{
-			// メッセージボックス
-			DrawGraph(420, 50, _messagePNG, true);
-			// 瓶画像
-			DrawGraph(350, 250, eventImages["bin"], true);
-			if (_fateNum == -1)
-			{
-				// 飲む
-				DrawGraph(600, 200, _sentakusiPNG[1], true);
-				DrawFormatString(450, 70, 0x000000, "[Drink Me]\nとかかれた瓶がある...");
-			}
-
-			if (_fateNum == 0)
-			{
-				DrawFormatString(450, 70, 0x000000, "体が頑丈になった!\n防御力が上がった");
-			}
-
-			if (_fateNum > 0)
-			{
-				DrawFormatString(450, 70, 0x000000, "毒にかかってしまった...");
-			}
-		}
-		// 去る
-		DrawGraph(600, 345, _sentakusiPNG[10], true);
+		drinkSt->Draw(*this, *game);
 	}
 
 	// 即死トラップ出現中
@@ -646,440 +648,6 @@ void Event::Enemy(GameScene* game, Player* player, Monster* monster)
 
 	// 所持金を増やす
 	player->SetMoney(player->GetMoney() + monster->GetMoney());
-}
-
-void Event::Yado(GameScene* game, Player* player, MouseCtl* mouse)
-{
-	if (mouse->GetClickTrg()) 
-	{			
-		if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 345 && mouse->GetPos().y <= 345 + 75)
-		{
-			// クリック音
-			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-			// 去る
-			game->backFlg = true;
-			game->eventState = EVENT_STATE::NON;
-			_event = EVENT_STATE::NON;
-			_healYadoFlg = false;
-			_nonMoneyFlg = false;
-		}
-
-		// 回復を頼む
-		if (!_healYadoFlg)
-		{
-			if (player->GetMoney() < player->GetNowLevel() * 100)
-			{
-				// 所持金が足りなくて回復できない
-				_healYadoFlg = true;
-				_nonMoneyFlg = true;
-			}
-
-			if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
-			{
-				// クリック音
-				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-
-				// お金が減るがHP全回復
-				// 減るお金はその時の自分のレベルによって異なる
-				player->SetMoney(player->GetMoney() - player->GetNowLevel() * 50);
-				player->SetHP(player->GetMaxHP());
-				_healYadoFlg = true;
-			}
-		}
-	}
-}
-
-void Event::Syounin(GameScene* game, Player* player, Menu* menu, Item* item, MouseCtl* mouse)
-{
-	if (mouse->GetClickTrg())
-	{			
-		if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 345 && mouse->GetPos().y <= 345 + 75)
-		{
-			// クリック音
-			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-			// 去る
-			game->backFlg = true;
-			_chooseNum = -1;
-			game->eventState = EVENT_STATE::NON;
-			_event = EVENT_STATE::NON;
-			_buyFlg = false;
-			_chooseFlg = false;
-			_nonMoneyFlg = false;
-			// アイテムの補充処理
-			//for (int i = 0; i <= 10; i++)
-			//{
-				//if (item_pair[i].first == _soldOutPNG)
-				//{
-				//	item_pair[i].first = item[i].png;
-				//	item_pair[i].second = static_cast<ITEM>(static_cast<int>(ITEM::POTION) + i);
-				//	_itemPos[i] = { (((i % 3) + 2) * 100) + 90,((i / 3) + 1) * 100 };
-				//}
-				//
-				// アイテム補充で3以上進んでたら販売装備を一部変更させている
-				// soldoutの画像をそれぞれで用意しちゃってるのでアドレスが違うから=にならない
-				//if (item->GetPair(i).second == ITEM::NON)
-				//{
-					//item->SetHojuPair(i,_nowEvent);
-					//item->SetPos(i);
-				//}
-			//}
-		}
-
-		if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
-		{
-			if (!_buyFlg)
-			{
-				// クリック音
-				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-				// 購入する
-				// 購入したらプレイヤーの持ち物の中に追加する
-				_buyFlg = true;
-			}
-		}
-	}
-
-	// 商人の持ち物との当たり判定
-	if (_buyFlg)
-	{
-		if (mouse->GetClickTrg()) 
-		{			
-			// 次のページへが押された時
-			if (mouse->GetPos().x >= 490 && mouse->GetPos().x <= 490 + 100 && mouse->GetPos().y >= 300 && mouse->GetPos().y <= 300 + 100)
-			{
-				_itemNextPage = !_itemNextPage;
-			}
-
-			for (int i = 0; i <= 7; i++)
-			{
-				if (mouse->GetPos().x >= item->GetPos(i).x && mouse->GetPos().x <= item->GetPos(i).x + 100 && mouse->GetPos().y >= item->GetPos(i).y && mouse->GetPos().y <= item->GetPos(i).y + 100)
-				{
-					if (item->GetPair(i).second != ITEM::NON)
-					{
-						// 購入するかのボタンを表示する
-						_chooseFlg = true;
-						_chooseNum = i;
-						if (!_itemNextPage)
-						{
-							_itemInfo = item->GetPair(i).second;
-						}
-						else
-						{
-							_itemInfo = static_cast<ITEM>(static_cast<int>(item->GetPair(i).second) + 8);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	if (_chooseFlg)
-	{
-		// 所持金が足りない
-		if (player->GetMoney() < item->GetCostMoney(static_cast<int>(_itemInfo) - 1))
-		{
-			_nonMoneyFlg = true;
-		}
-		else
-		{
-			_nonMoneyFlg = false;
-		}
-
-		if (mouse->GetClickTrg()) 
-		{	
-			if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
-			{
-				// クリック音
-				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-
-				if (item->GetPair(_chooseNum).second != ITEM::NON)
-				{
-					// choosenum→static_cast<int>(_itemInfo) - 1に変更
-					if (player->GetMoney() < item->GetCostMoney(static_cast<int>(_itemInfo) - 1))
-					{
-						_chooseFlg = false;
-					}
-					else
-					{
-						// 所持品がいっぱいで入れられない
-						if (menu->GetCanHaveItem() == 0)
-						{
-							_chooseFlg = false;
-						}
-						else
-						{
-							// プレイヤーのお金が減る
-							// _chooseNumだと、装備に対応できない
-							player->SetMoney(player->GetMoney() - item->GetCostMoney(static_cast<int>(_itemInfo) - 1));
-							if (!_itemNextPage)
-							{
-								menu->Setitem(item->GetPair(_chooseNum).second, item->GetPair(_chooseNum).first);
-								//item->SetSoldOutPair(_chooseNum);
-							}
-							else
-							{
-								menu->Setitem(item->GetPair(_chooseNum+8).second, item->GetPair(_chooseNum+8).first);
-								//item->SetSoldOutPair(_chooseNum+8);
-							}
-							_chooseFlg = false;
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-void Event::Button(GameScene* game, Player* player, MouseCtl* mouse)
-{
-	if (mouse->GetClickTrg()) 
-	{		
-		if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 345 && mouse->GetPos().y <= 345 + 75)
-		{
-			// クリック音
-			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-			// 去る
-			game->backFlg = true;
-			game->eventState = EVENT_STATE::NON;
-			_event = EVENT_STATE::NON;
-			_fateNum = -1;
-			_buttonEventFlg = false;
-			if (_pushFlg)
-			{
-				_buttonPush[_buttonNum] = true;
-				_pushFlg = false;
-			}
-		}
-
-		// 押す
-		for (int i = 0; i < 4; i++)
-		{
-			if (_buttonDrink[i].x == game->plPosX && _buttonDrink[i].y == game->plPosY)
-			{
-				_buttonNum = i;
-			}
-		}
-
-		if (_fateNum == -1 && !_buttonPush[_buttonNum])
-		{
-			if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
-			{
-				// クリック音
-				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-				_pushFlg = true;
-				_fateNum = GetRand(2);	// 0 ~ 2
-			}
-		}
-	}
-
-	// ボタンを押すことにしたとき
-	if (_pushFlg && !_buttonEventFlg)
-	{
-		if (_fateNum == 0)
-		{
-			// お金もらえる
-			player->SetMoney(player->GetMoney() + 1000);
-			//_pushFlg = false;
-			_buttonEventFlg = true;
-		}
-		else
-		{
-			// 電流音
-			PlaySoundMem(_soundSE[1], DX_PLAYTYPE_BACK, true);
-			// 体力の1/4削る
-			player->SetHP(player->GetHP() - static_cast<int>(static_cast<float>(player->GetMaxHP()) * (1.0f / 4.0f)));
-			//_pushFlg = false;
-			game->shakeFlg = true;
-			_buttonEventFlg = true;
-		}
-	}
-}
-
-void Event::Chest(GameScene* game, Player* player, Menu* menu, Item* item, MouseCtl* mouse)
-{
-	if (mouse->GetClickTrg())
-	{			
-		if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 345 && mouse->GetPos().y <= 345 + 75)
-		{
-			// クリック音
-			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-			// 去る
-			game->backFlg = true;
-			game->eventState = EVENT_STATE::NON;
-			_event = EVENT_STATE::NON;
-			_pushFlg = false;
-			_fateNum = -1;
-			_anounceFlg = false;
-			_getFlg = false;
-			if (menu->GetMeganeFlg())
-			{
-				menu->SetMeganeFlg(false);
-			}
-		}
-
-		// 宝箱チェック
-		int a = 0;
-		for (int i = 0; i < 4; i++)
-		{
-			if (_chestPos[i].x == GameScene::plPosX && _chestPos[i].y == GameScene::plPosY)
-			{
-				a = i;
-			}
-		}
-		// 開ける
-		if (_fateNum == -1 && _chestOpen[a] == 0)
-		{
-			if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
-			{
-				_pushFlg = true;
-				_chestOpen[a] = 1;
-				_fateNum = _chestBingo[a];
-				if (menu->GetMeganeFlg())
-				{
-					menu->SetMeganeFlg(false);
-				}
-			}
-		}
-	}
-
-	// 宝箱を開けることにしたとき
-	if (_pushFlg)
-	{
-		if (_fateNum == 1)
-		{
-			_pushFlg = false;
-			_getFlg = true;
-		}
-		else if(_fateNum == 0)
-		{
-			// ダメージ音
-			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
-			// 体力の1/4削る
-			player->SetHP(player->GetHP() - static_cast<int>(static_cast<float>(player->GetMaxHP()) * (1.0f / 4.0f)));
-			_pushFlg = false;
-			game->shakeFlg = true;
-		}
-	}
-
-	if (_getFlg)
-	{
-		// 持ち物が満タンかどうか調べる
-		if (menu->GetCanHaveItem() != 0)
-		{
-			_anounceFlg = false;
-		}
-		else
-		{
-			_anounceFlg = true;
-		}
-
-		if (mouse->GetClickTrg()) 
-		{			
-			if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
-			{
-				if (menu->GetCanHaveItem() != 0)
-				{
-					// クリック音
-					PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-					int randNum = GetRand(4);
-					/*switchだった頃*/
-					//switch (randNum)	// 0~3
-					//{
-					//case 0:
-					//	// 持ち物が満タンじゃなければ持てる
-					//	menu->Setitem(item->GetPair(static_cast<int>(ITEM::POTION_BIG) - 1).second, item->GetPair(static_cast<int>(ITEM::POTION_BIG) - 1).first);
-					//	break;
-					//case 1:
-					//	// 持ち物が満タンじゃなければ持てる
-					//	menu->Setitem(item->GetPair(static_cast<int>(ITEM::DETOX) - 1).second, item->GetPair(static_cast<int>(ITEM::DETOX) - 1).first);
-					//	break;
-					//case 2:
-					//	// 持ち物が満タンじゃなければ持てる
-					//	menu->Setitem(item->GetPair(static_cast<int>(ITEM::KYOUKA_POW) - 1).second, item->GetPair(static_cast<int>(ITEM::KYOUKA_POW) - 1).first);
-					//	break;
-					//case 3:
-					//	// 持ち物が満タンじゃなければ持てる
-					//	menu->Setitem(item->GetPair(static_cast<int>(ITEM::HEART) - 1).second, item->GetPair(static_cast<int>(ITEM::HEART) - 1).first);
-					//	break;
-					//default:
-					//	// 持ち物が満タンじゃなければ持てる
-					//	menu->Setitem(item->GetPair(static_cast<int>(ITEM::POTION_BIG) - 1).second, item->GetPair(static_cast<int>(ITEM::POTION_BIG) - 1).first);
-					//}
-
-					// 持ち物が満タンじゃなければ持てる
-					menu->Setitem(item->GetPair(static_cast<int>(_chestItemMap[randNum]) - 1).second, item->GetPair(static_cast<int>(_chestItemMap[randNum]) - 1).first);
-					_getFlg = false;
-					_anounceFlg = false;
-				}
-			}
-		}
-	}
-}
-
-void Event::Drink(GameScene* game, Player* player, MouseCtl* mouse)
-{
-	if (mouse->GetClickTrg())
-	{		
-		if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 345 && mouse->GetPos().y <= 345 + 75)
-		{
-			// クリック音
-			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-			// 去る
-			game->backFlg = true;
-			game->eventState = EVENT_STATE::NON;
-			_event = EVENT_STATE::NON;
-			_fateNum = -1;
-
-			_drinkEventFlg = false;
-			if (_pushFlg)
-			{
-				_drinking[_drinkNum] = true;
-				_pushFlg = false;
-			}
-		}
-
-		for (int i = 0; i < 4; i++)
-		{
-			if (_buttonDrink[i].x == game->plPosX && _buttonDrink[i].y == game->plPosY)
-			{
-				_drinkNum = i;
-			}
-		}
-
-		// 飲む
-		if (_fateNum == -1 && !_drinking[_drinkNum])
-		{
-			if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
-			{
-				// クリック音
-				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-				_pushFlg = true;
-				//_fateNum = GetRand(2);	// 0 ~ 2
-				_fateNum = 1;
-			}
-		}
-	}
-
-	// 飲むことにしたとき
-	if (_pushFlg && !_drinkEventFlg)
-	{
-		if (_fateNum == 0)
-		{
-			// ラッキー!基礎防御力が上がる
-			player->SetDifense(player->GetDifense() + 2);
-			//_pushFlg = false;
-			_drinkEventFlg = true;
-		}
-		else
-		{
-			// 毒音
-			PlaySoundMem(_soundSE[3], DX_PLAYTYPE_BACK, true);
-			// 毒にかかる
-			player->SetCondition(CONDITION::POISON);
-			//_pushFlg = false;
-			game->shakeFlg = true;
-			_drinkEventFlg = true;
-		}
-	}
 }
 
 void Event::Trap(GameScene* game, Player* player, MouseCtl* mouse)

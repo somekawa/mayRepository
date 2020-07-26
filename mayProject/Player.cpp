@@ -160,8 +160,8 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* c
 			//}
 
 			// 782,564(アイコン描画位置)
-			float a = mouse->GetPos().x - 782;
-			float b = mouse->GetPos().y - 564;
+			float a = mouse->GetPos().x - 782.0f;
+			float b = mouse->GetPos().y - 564.0f;
 			// 当たり判定(当たっているとき)
 			if (sqrt(a * a + b * b) <= 34)
 			{

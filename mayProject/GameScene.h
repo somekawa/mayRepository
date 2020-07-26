@@ -3,6 +3,7 @@
 #include <map>
 #include <vector>
 #include <tuple>
+#include <utility>
 #include "BaseScene.h"
 #include "VECTOR2.h"
 #include "Cards.h"
@@ -91,6 +92,12 @@ private:
 	Menu* _menu;
 	Item* _item;
 	Event* _event;
+	//std::unique_ptr<Monster*> _monster;
+	//std::unique_ptr<Cards*> _cards;
+	//std::unique_ptr<Player*> _player;
+	//std::unique_ptr<Menu*> _menu;
+	//std::unique_ptr<Item*> _item;
+	//std::unique_ptr<Event*> _event;
 
 	// ”àŠÖŒW
 	float _doorExpand;					// ”à‚ÌŠg‘å—p•Ï”

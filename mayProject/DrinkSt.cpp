@@ -1,0 +1,117 @@
+#include <DxLib.h>
+#include "Event.h"
+#include "DrinkSt.h"
+#include "GameScene.h"
+#include "MouseCtl.h"
+#include "Player.h"
+
+DrinkSt::DrinkSt()
+{
+}
+
+DrinkSt::~DrinkSt()
+{
+}
+
+void DrinkSt::Update(Event& eve, GameScene& game, Player& player, MouseCtl& mouse)
+{
+	if (mouse.GetClickTrg())
+	{
+		if (mouse.GetPos().x >= 600 && mouse.GetPos().x <= 600 + 150 && mouse.GetPos().y >= 345 && mouse.GetPos().y <= 345 + 75)
+		{
+			// クリック音
+			PlaySoundMem(eve._soundSE[0], DX_PLAYTYPE_BACK, true);
+			// 去る
+			game.backFlg = true;
+			game.eventState = EVENT_STATE::NON;
+			eve._event = EVENT_STATE::NON;
+			eve._fateNum = -1;
+
+			eve._drinkEventFlg = false;
+			if (eve._pushFlg)
+			{
+				eve._drinking[eve._drinkNum] = true;
+				eve._pushFlg = false;
+			}
+		}
+
+		for (int i = 0; i < 4; i++)
+		{
+			if (eve._buttonDrink[i].x == game.plPosX && eve._buttonDrink[i].y == game.plPosY)
+			{
+				eve._drinkNum = i;
+			}
+		}
+
+		// 飲む
+		if (eve._fateNum == -1 && !eve._drinking[eve._drinkNum])
+		{
+			if (mouse.GetPos().x >= 600 && mouse.GetPos().x <= 600 + 150 && mouse.GetPos().y >= 200 && mouse.GetPos().y <= 200 + 75)
+			{
+				// クリック音
+				PlaySoundMem(eve._soundSE[0], DX_PLAYTYPE_BACK, true);
+				eve._pushFlg = true;
+				eve._fateNum = GetRand(2);	// 0 ~ 2
+			}
+		}
+	}
+
+	// 飲むことにしたとき
+	if (eve._pushFlg && !eve._drinkEventFlg)
+	{
+		if (eve._fateNum == 0)
+		{
+			// ラッキー!基礎防御力が上がる
+			player.SetDifense(player.GetDifense() + 2);
+			//_pushFlg = false;
+			eve._drinkEventFlg = true;
+		}
+		else
+		{
+			// 毒音
+			PlaySoundMem(eve._soundSE[3], DX_PLAYTYPE_BACK, true);
+			// 毒にかかる
+			player.SetCondition(CONDITION::POISON);
+			//_pushFlg = false;
+			game.shakeFlg = true;
+			eve._drinkEventFlg = true;
+		}
+	}
+}
+
+void DrinkSt::Draw(Event& eve,GameScene& game)
+{
+	for (int i = 0; i < 4; i++)
+	{
+		if (eve._buttonDrink[i].x == game.plPosX && eve._buttonDrink[i].y == game.plPosY)
+		{
+			eve._drinkNum = i;
+		}
+	}
+
+	if (!eve._drinking[eve._drinkNum])
+	{
+		// メッセージボックス
+		DrawGraph(420, 50, eve._messagePNG, true);
+		// 瓶画像
+		DrawGraph(350, 250, eve.eventImages["bin"], true);
+		if (eve._fateNum == -1)
+		{
+			// 飲む
+			DrawGraph(600, 200, eve._sentakusiPNG[1], true);
+			DrawFormatString(450, 70, 0x000000, "[Drink Me]\nとかかれた瓶がある...");
+		}
+
+		if (eve._fateNum == 0)
+		{
+			DrawFormatString(450, 70, 0x000000, "体が頑丈になった!\n防御力が上がった");
+		}
+
+		if (eve._fateNum > 0)
+		{
+			DrawFormatString(450, 70, 0x000000, "毒にかかってしまった...");
+		}
+	}
+	// 去る
+	DrawGraph(600, 345, eve._sentakusiPNG[10], true);
+}

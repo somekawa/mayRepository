@@ -3,7 +3,13 @@
 #include <utility>
 #include <map>
 #include <string>
+#include <vector>
 #include "Menu.h"
+#include "YadoSt.h"
+#include "SyouninSt.h"
+#include "ButtonSt.h"
+#include "ChestSt.h"
+#include "DrinkSt.h"
 
 class GameScene;
 class MouseCtl;
@@ -48,11 +54,6 @@ private:
 	void Init(void);						// ‰Šú‰»
 	void pngInit(void);						// ‰æ‘œŠÖŒW‰Šú‰»
 	void Enemy(GameScene* game, Player* player, Monster* monster);
-	void Yado(GameScene* game, Player* player,MouseCtl* mouse);
-	void Syounin(GameScene* game, Player* player, Menu* menu,Item* item, MouseCtl* mouse);
-	void Button(GameScene* game, Player* player, MouseCtl* mouse);
-	void Chest(GameScene* game, Player* player, Menu* menu, Item* item, MouseCtl* mouse);
-	void Drink(GameScene* game, Player* player, MouseCtl* mouse);
 	void Trap(GameScene* game, Player* player, MouseCtl* mouse);
 	void eventMons(GameScene* game, Monster* monster, Cards* cards, MouseCtl* mouse);
 
@@ -122,4 +123,15 @@ private:
 	int _yajirusiPNG;
 	// SE
 	int _soundSE[4];
+
+	friend struct YadoSt;
+	friend struct SyouninSt;
+	friend struct ButtonSt;
+	friend struct ChestSt;
+	friend struct DrinkSt;
+	std::unique_ptr<YadoSt> yadoSt;
+	std::unique_ptr<SyouninSt> syouninSt;
+	std::unique_ptr<ButtonSt> buttonSt;
+	std::unique_ptr<ChestSt> chestSt;
+	std::unique_ptr<DrinkSt> drinkSt;
 };

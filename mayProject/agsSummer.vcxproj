@@ -150,8 +150,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BaseScene.cpp" />
+    <ClCompile Include="ButtonSt.cpp" />
     <ClCompile Include="CARD_MEMBER.cpp" />
     <ClCompile Include="Cards.cpp" />
+    <ClCompile Include="ChestSt.cpp" />
+    <ClCompile Include="DrinkSt.cpp" />
     <ClCompile Include="Enemy_weak.cpp" />
     <ClCompile Include="Event.cpp" />
     <ClCompile Include="GameClearScene.cpp" />
@@ -168,13 +171,18 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="SceneMng.cpp" />
     <ClCompile Include="SelectScene.cpp" />
+    <ClCompile Include="SyouninSt.cpp" />
     <ClCompile Include="TitleScene.cpp" />
     <ClCompile Include="VECTOR2.cpp" />
+    <ClCompile Include="YadoSt.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseScene.h" />
+    <ClInclude Include="ButtonSt.h" />
     <ClInclude Include="CARD_MEMBER.h" />
     <ClInclude Include="Cards.h" />
+    <ClInclude Include="ChestSt.h" />
+    <ClInclude Include="DrinkSt.h" />
     <ClInclude Include="Enemy_weak.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="GameClearScene.h" />
@@ -190,8 +198,10 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="SceneMng.h" />
     <ClInclude Include="SelectScene.h" />
+    <ClInclude Include="SyouninSt.h" />
     <ClInclude Include="TitleScene.h" />
     <ClInclude Include="VECTOR2.h" />
+    <ClInclude Include="YadoSt.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
