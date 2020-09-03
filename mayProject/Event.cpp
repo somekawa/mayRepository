@@ -552,7 +552,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 			DrawGraph(600, 345, _sentakusiPNG[10], true);
 			// ’²‚×‚é
 			DrawGraph(600, 200, _sentakusiPNG[11], true);
-			DrawFormatString(450, 70, 0x000000, "“G‚ª“¹‚ð‚Ó‚³‚¢‚Å‚¢‚é");
+			DrawFormatString(450, 70, 0x000000, "“G‚ª“¹‚ð‚Ó‚³‚¢‚Å‚¢‚é\n‰½‚©—Ç‚¢•û–@‚Í‚È‚¢‚¾‚ë‚¤‚©..");
 		}
 	}
 
