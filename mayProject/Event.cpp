@@ -136,30 +136,33 @@ void Event::pngInit(void)
 	eventImages.try_emplace("zou", LoadGraph("image/daiza.png"));					// 即死トラップ
 	eventImages.try_emplace("mons", LoadGraph("image/monster/event_monster.png"));	// 特定敵
 
-	// メッセージ
-	std::string message = "image/message.png";
-	_messagePNG = LoadGraph(message.c_str());
-	// 商人の持ち物の後ろ枠
-	std::string frame = "image/frame.png";
-	_syouninWakuPNG = LoadGraph(frame.c_str());
-	// アイテムボックス背景
-	std::string itembox = "image/itembox.png";
-	_itemBoxPNG = LoadGraph(itembox.c_str());
-	// 選択中のアイテム
-	std::string itemChoice = "image/itemChoice.png";
-	_itemChoicePNG = LoadGraph(itemChoice.c_str());
-	// 売り切れの文字
-	//std::string soldout = "image/soldout.png";
-	//_soldOutPNG = LoadGraph(soldout.c_str());
+	_drawHandle.try_emplace("message", LoadGraph("image/message.png"));
+	_drawHandle.try_emplace("frame", LoadGraph("image/frame.png"));
+	_drawHandle.try_emplace("itembox", LoadGraph("image/itembox.png"));
+	_drawHandle.try_emplace("itemChoice", LoadGraph("image/itemChoice.png"));
+	_drawHandle.try_emplace("yajirusi", LoadGraph("image/yajirusi.png"));
+
+	//// メッセージ
+	//std::string message = "image/message.png";
+	//_messagePNG = LoadGraph(message.c_str());
+	//// 商人の持ち物の後ろ枠
+	//std::string frame = "image/frame.png";
+	//_syouninWakuPNG = LoadGraph(frame.c_str());
+	//// アイテムボックス背景
+	//std::string itembox = "image/itembox.png";
+	//_itemBoxPNG = LoadGraph(itembox.c_str());
+	//// 選択中のアイテム
+	//std::string itemChoice = "image/itemChoice.png";
+	//_itemChoicePNG = LoadGraph(itemChoice.c_str());
 	// 宝箱
 	std::string trasure_0 = "image/trasure_0.png";
 	LoadDivGraph(trasure_0.c_str(), 2, 2, 1, 390 / 2, 431, _chestPNG);
 	// 文字画像の分割読み込み
 	std::string sentakusi = "image/sentakusi/sentakusi.png";
 	LoadDivGraph(sentakusi.c_str(),12, 12, 1, 150, 75, _sentakusiPNG);
-	// 商品ページを移動するための矢印の画像
-	std::string yajirusi = "image/yajirusi.png";
-	_yajirusiPNG = LoadGraph(yajirusi.c_str());
+	//// 商品ページを移動するための矢印の画像
+	//std::string yajirusi = "image/yajirusi.png";
+	//_yajirusiPNG = LoadGraph(yajirusi.c_str());
 }
 
 void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Monster* monster,Cards* cards, MouseCtl* mouse)
@@ -510,7 +513,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 	if (_event == EVENT_STATE::TRAP)
 	{
 		// メッセージボックス
-		DrawGraph(420, 50, _messagePNG, true);
+		DrawGraph(420, 50, _drawHandle["message"], true);
 		// 去る
 		DrawGraph(600, 345, _sentakusiPNG[10], true);
 		// 調べる
@@ -547,7 +550,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 		if (!_eventMonsFlg)
 		{
 			// メッセージボックス
-			DrawGraph(420, 50, _messagePNG, true);
+			DrawGraph(420, 50, _drawHandle["message"], true);
 			// 去る
 			DrawGraph(600, 345, _sentakusiPNG[10], true);
 			// 調べる
@@ -561,7 +564,7 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 	{
 		DrawGraph(100, 75, eventImages["mons"], true);
 		// メッセージボックス
-		DrawGraph(420, 50, _messagePNG, true);
+		DrawGraph(420, 50, _drawHandle["message"], true);
 		DrawFormatString(450, 70, 0x000000, "なんと敵が追いかけてきた!");
 	}
 }

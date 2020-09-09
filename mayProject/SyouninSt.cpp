@@ -140,12 +140,12 @@ void SyouninSt::Draw(Event& eve, Player& player,Item& item, Menu& menu)
 	// 人画像
 	DrawGraph(100, 0, eve.eventImages["syounin"], true);
 	// メッセージボックス
-	DrawGraph(420, 50, eve._messagePNG, true);
+	DrawGraph(420, 50, eve._drawHandle["message"], true);
 	DrawFormatString(450, 70, 0x000000, "商人:\n何か買うか?");
 
 	if (eve._buyFlg)
 	{
-		DrawGraph(200, 0, eve._syouninWakuPNG, true);
+		DrawGraph(200, 0, eve._drawHandle["frame"], true);
 
 		// 1ページ目
 		if (!eve._itemNextPage)
@@ -153,7 +153,7 @@ void SyouninSt::Draw(Event& eve, Player& player,Item& item, Menu& menu)
 			// アイテム表示
 			for (int i = 0; i <= 7; i++)
 			{
-				DrawGraph(item.GetPos(i).x, item.GetPos(i).y, eve._itemBoxPNG, true);
+				DrawGraph(item.GetPos(i).x, item.GetPos(i).y, eve._drawHandle["itembox"], true);
 				DrawGraph(item.GetPos(i).x, item.GetPos(i).y, item.GetPair(i).first, true);
 			}
 		}
@@ -163,7 +163,7 @@ void SyouninSt::Draw(Event& eve, Player& player,Item& item, Menu& menu)
 			// アイテム表示
 			for (int i = 0; i <= 7; i++)
 			{
-				DrawGraph(item.GetPos(i).x, item.GetPos(i).y, eve._itemBoxPNG, true);
+				DrawGraph(item.GetPos(i).x, item.GetPos(i).y, eve._drawHandle["itembox"], true);
 				DrawGraph(item.GetPos(i).x, item.GetPos(i).y, item.GetPair(i + 8).first, true);
 			}
 		}
@@ -171,14 +171,14 @@ void SyouninSt::Draw(Event& eve, Player& player,Item& item, Menu& menu)
 		// 選択中のアイテムの枠
 		if (eve._chooseNum >= 0)
 		{
-			DrawGraph(item.GetPos(eve._chooseNum).x, item.GetPos(eve._chooseNum).y, eve._itemChoicePNG, true);
+			DrawGraph(item.GetPos(eve._chooseNum).x, item.GetPos(eve._chooseNum).y, eve._drawHandle["itemChoice"], true);
 		}
 
 		// 現在の所持金の表示
 		DrawFormatString(470, 485, 0x000000, "所持金:%d円", player.GetMoney());
 
 		// 商品の次のページへの矢印
-		DrawGraph(490, 300, eve._yajirusiPNG, true);
+		DrawGraph(490, 300, eve._drawHandle["yajirusi"], true);
 	}
 
 	// 去る

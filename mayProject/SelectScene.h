@@ -1,4 +1,6 @@
 #pragma once
+#include <map>
+#include <string>
 #include "BaseScene.h"
 #include "VECTOR2.h"
 
@@ -34,10 +36,7 @@ private:
 	void pngInit(void);					// 画像用初期化
 	void Draw(void);					// 描画
 
-	int _titleBackPNG;					//「タイトルへ」の文字画像
-	int _backPNG;						// 背景画像
-	int _normalPNG;						//「NORMAL」の文字画像
-	int _hardPNG;						//「HARD」の文字画像
+	std::map<std::string, int> _drawHandle;	// 描画画像
 
 	int _pngLight;						// 画像の明るさ調整用変数	
 	bool _lightFlg;						// 画像の明るさ調整用フラグ

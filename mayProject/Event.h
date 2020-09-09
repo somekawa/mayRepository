@@ -107,20 +107,13 @@ private:
 
 	// イベント画像
 	std::map<std::string, int> eventImages;
-	// メッセージ用枠画像
-	int _messagePNG;
-	// 商人の持ち物の後ろ枠
-	int _syouninWakuPNG;
-	// アイテムボックスの黒枠
-	int _itemBoxPNG;
-	// 商人の選択中のアイテムがわかりやすくなる画像
-	int _itemChoicePNG;
+	std::map<std::string, int> _drawHandle;		// 描画画像
+
 	// [0]:開いてない宝箱,[1]:宝箱から敵出現
 	int _chestPNG[2];
 	// 選択肢の文字画像
 	int _sentakusiPNG[12];
-	// 商品ページを移動するための矢印の画像
-	int _yajirusiPNG;
+
 	// SE
 	int _soundSE[4];
 

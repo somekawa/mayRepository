@@ -86,6 +86,7 @@ private:
 	int _hpBarPl;
 	int _hpBarPlPoison;
 	int _hpBarBack;
+	int _hpBarWaku;
 
 	// アニメーション関係
 	SKILL _skill = SKILL::NON;

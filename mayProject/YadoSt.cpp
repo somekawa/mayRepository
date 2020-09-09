@@ -61,7 +61,7 @@ void YadoSt::Draw(Event& eve, Player& player)
 	// 去る
 	DrawGraph(600, 345, eve._sentakusiPNG[10], true);
 	// メッセージボックス
-	DrawGraph(420, 50, eve._messagePNG, true);
+	DrawGraph(420, 50, eve._drawHandle["message"], true);
 
 	if (eve._nonMoneyFlg)
 	{

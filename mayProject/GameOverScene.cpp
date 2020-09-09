@@ -32,17 +32,10 @@ bool GameOverScene::Init(void)
 
 void GameOverScene::PngInit(void)
 {
-	std::string blood = "image/blood.png";
-	_bloodPNG = LoadGraph(blood.c_str());
-
-	std::string renga = "image/renga.png";
-	_backPNG = LoadGraph(renga.c_str());
-
-	std::string over = "image/over.png";
-	_gameOverPNG = LoadGraph(over.c_str());
-
-	std::string titleBackButton = "image/titleBackButton.png";
-	_titleBackPNG = LoadGraph(titleBackButton.c_str());
+	_drawHandle.try_emplace("blood", LoadGraph("image/blood.png"));
+	_drawHandle.try_emplace("renga", LoadGraph("image/renga.png"));
+	_drawHandle.try_emplace("over", LoadGraph("image/over.png"));
+	_drawHandle.try_emplace("titleBackButton", LoadGraph("image/titleBackButton.png"));
 }
 
 unique_Base GameOverScene::Update(unique_Base own, const GameCtl& ctl)
@@ -84,14 +77,14 @@ void GameOverScene::Draw(void)
 	ClsDrawScreen();
 	// αブレンド
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 100);
-	DrawGraph(0, 0, _backPNG, true);
+	DrawGraph(0, 0, _drawHandle["renga"], true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	// αブレンド
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, _pngBlend);
-	DrawGraph(0, 0, _bloodPNG, true);
-	DrawGraph(200, 250, _gameOverPNG, true);
-	DrawGraph(650, 450, _titleBackPNG, true);
+	DrawGraph(0, 0, _drawHandle["blood"], true);
+	DrawGraph(200, 250, _drawHandle["over"], true);
+	DrawGraph(650, 450, _drawHandle["titleBackButton"], true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	ScreenFlip();

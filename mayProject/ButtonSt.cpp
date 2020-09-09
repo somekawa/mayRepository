@@ -90,7 +90,7 @@ void ButtonSt::Draw(Event& eve, GameScene& game)
 	if (!eve._buttonPush[eve._buttonNum])
 	{
 		// メッセージボックス
-		DrawGraph(420, 50, eve._messagePNG, true);
+		DrawGraph(420, 50, eve._drawHandle["message"], true);
 
 		if (eve._fateNum == -1)
 		{

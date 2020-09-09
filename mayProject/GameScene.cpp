@@ -212,20 +212,9 @@ bool GameScene::Init(void)
 
 void GameScene::PngInit(void)
 {
-	// ターンの数字
-	std::string one = "image/one.png";
-	std::string two = "image/two.png";
-	std::string three = "image/three.png";
-
 	// ターン画像のメモリへの読みこみ
 	std::string number = "image/number/number.png";
 	LoadDivGraph(number.c_str(), 6, 6, 1, 40, 50, _turnPNG);
-
-	// HPバー
-	std::string hpbar_en = "image/hpbar_en.png";
-	std::string hpbar_back = "image/hpbar_back.png";
-	_hpBarEn = LoadGraph(hpbar_en.c_str());
-	_hpBarBack = LoadGraph(hpbar_back.c_str());
 
 	// 扉
 	std::string room[3];
@@ -257,48 +246,30 @@ void GameScene::PngInit(void)
 	_roadPNG[13] = LoadGraph(dungeon[0].c_str());
 	_roadPNG[14] = LoadGraph(room[0].c_str());
 
-	// 現在地用▲マーク
-	std::string direct = "image/direct.png";
-	_directPNG = LoadGraph(direct.c_str());
+	_drawHandle.try_emplace("hpbar_en", LoadGraph("image/hpbar_en.png"));
+	_drawHandle.try_emplace("hpbar_back", LoadGraph("image/hpbar_back.png"));
+	_drawHandle.try_emplace("hpbar_waku", LoadGraph("image/hpbar_waku.png"));
+
+	_drawHandle.try_emplace("direct", LoadGraph("image/direct.png"));
+	_drawHandle.try_emplace("start_chip", LoadGraph("image/mapchip/start_chip.png"));
+	_drawHandle.try_emplace("white", LoadGraph("image/white.png"));
+	_drawHandle.try_emplace("monster_info", LoadGraph("image/monster_info.png"));
+	_drawHandle.try_emplace("getItem", LoadGraph("image/getItem.png"));
+	_drawHandle.try_emplace("try", LoadGraph("image/try.png"));
+	_drawHandle.try_emplace("dead", LoadGraph("image/dead.png"));
+	_drawHandle.try_emplace("message_death", LoadGraph("image/message_death.png"));
+	_drawHandle.try_emplace("message_death2", LoadGraph("image/message_death2.png"));
+	_drawHandle.try_emplace("emergency", LoadGraph("image/emergency.png"));
+	_drawHandle.try_emplace("square", LoadGraph("image/square.png"));
+	_drawHandle.try_emplace("kyousei", LoadGraph("image/kyousei.png"));
+	_drawHandle.try_emplace("red_caution", LoadGraph("image/red_caution.png"));
 	
 	// マップチップ
 	std::string mapchip = "image/mapchip/mapchip.png";
-	std::string mapchip_start = "image/mapchip/start_chip.png";
+	//std::string mapchip_start = "image/mapchip/start_chip.png";
 
 	LoadDivGraph(mapchip.c_str(), 15, 15, 1, 50, 50, _chipPNG);
-	_startChipPNG = LoadGraph(mapchip_start.c_str());
-
-	// 白
-	std::string white = "image/white.png";
-	_whitePNG = LoadGraph(white.c_str());
-
-	// 敵出現時
-	std::string info = "image/monster_info.png";
-	_enemyInfoPNG = LoadGraph(info.c_str());
-
-	// 取るの文字
-	std::string getitem = "image/getItem.png";
-	_getItemPNG = LoadGraph(getitem.c_str());
-
-	// やりなおすの文字
-	std::string trypng = "image/try.png";
-	_retryPNG = LoadGraph(trypng.c_str());
-
-	// あきらめるの文字
-	std::string dead = "image/dead.png";
-	_deadPNG = LoadGraph(dead.c_str());
-
-	// 即死トラップで死亡時(敵遭遇前)の画像
-	std::string messageDeath = "image/message_death.png";
-	_messageDeathPNG = LoadGraph(messageDeath.c_str());
-
-	// 即死トラップで死亡時(敵遭遇後)の画像
-	std::string messageDeath2 = "image/message_death2.png";
-	_messageDeathPNG2 = LoadGraph(messageDeath2.c_str());
-
-	// ボス手前警告画像
-	std::string emergency = "image/emergency.png";
-	_bossEmergencyPNG = LoadGraph(emergency.c_str());
+	//_startChipPNG = LoadGraph(mapchip_start.c_str());
 
 	// 霧
 	std::string fog = "image/kiri.png";
@@ -306,18 +277,6 @@ void GameScene::PngInit(void)
 
 	std::string fog2 = "image/kiri2.png";
 	_dungeonFogPNG[1] = LoadGraph(fog2.c_str());
-
-	// レベルアップの時の枠
-	std::string square = "image/square.png";
-	_levelUpFramePNG = LoadGraph(square.c_str());
-
-	// 強制戦闘の文字画像
-	std::string kyousei = "image/kyousei.png";
-	_kyouseiPNG = LoadGraph(kyousei.c_str());
-
-	// 赤画像
-	std::string caution = "image/red_caution.png";
-	_redCautionPNG = LoadGraph(caution.c_str());
 }
 
 unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
@@ -553,7 +512,7 @@ void GameScene::Draw(void)
 				}
 				// だんだん画面全体を明るく
 				SetDrawBlendMode(DX_BLENDMODE_ADD, 128 + _lastmoveTime);
-				DrawGraph(0, 0, _whitePNG, true);
+				DrawGraph(0, 0, _drawHandle["white"], true);
 				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 			}
 		}
@@ -648,7 +607,7 @@ void GameScene::Draw(void)
 	if (plPosX == _bossemErgencyPos.x && plPosY == _bossemErgencyPos.y)
 	{
 		// ボスの警告用画像
-		DrawGraph(250, 100, _bossEmergencyPNG, true);
+		DrawGraph(250, 100, _drawHandle["emergency"], true);
 	}
 
 	if (_monster[0]->GetEnemyState() == ENEMY_STATE::EXIST)
@@ -656,14 +615,15 @@ void GameScene::Draw(void)
 		int posx = 600;
 		int posy = 80;
 
-		DrawGraph(550, 0, _enemyInfoPNG, true);
+		DrawGraph(550, 0, _drawHandle["monster_info"], true);
 
 		// 敵がいるときのみ描画
 		DrawGraph(650, 150, _turnPNG[_cards->GetTurn()], true);
 
 		// 敵(HPバー関連)
-		DrawExtendGraph(posx, posy, posx + 110, posy + 33, _hpBarBack, true);
-		DrawExtendGraph(posx + 3, posy + 4, posx + 3 + static_cast<int>((105.0f * _monster[0]->GetHPBar())), posy + 4 + 25, _hpBarEn, true);
+		DrawExtendGraph(posx, posy, posx + 110, posy + 33, _drawHandle["hpbar_back"], true);
+		DrawExtendGraph(posx + 3, posy + 4, posx + 3 + static_cast<int>((105.0f * _monster[0]->GetHPBar())), posy + 4 + 25, _drawHandle["hpbar_en"], true);
+		DrawExtendGraph(posx, posy, posx + 110, posy + 33, _drawHandle["hpbar_waku"], true);
 
 		// 戦闘中以外は邪魔なので非表示で
 		_cards->Draw(_player,_menu);
@@ -675,7 +635,7 @@ void GameScene::Draw(void)
 	// 敵からのドロップアイテム
 	if (_anounceFlg)
 	{
-		DrawGraph(600, 200, _getItemPNG, true);
+		DrawGraph(600, 200, _drawHandle["getItem"], true);
 
 		if (_menu->GetCanHaveItem() == 0)
 		{
@@ -687,7 +647,7 @@ void GameScene::Draw(void)
 	// レベル上がったよ
 	if (_player->GetLevelUpAnounceFlg())
 	{	
-		DrawGraph(0, 300, _levelUpFramePNG, true);
+		DrawGraph(0, 300, _drawHandle["square"], true);
 		// 指定秒数の間、描画する
 		DrawFormatString(30, 320, 0x000000, "レベルが%dになった", _player->GetNowLevel());
 		DrawFormatString(30, 340, 0x000000, "HPの最大が%dになった",_player->GetMaxHP());
@@ -717,20 +677,20 @@ void GameScene::Draw(void)
 	if (_player->GetHP() <= 0)
 	{
 		// レベルを引継ぎ、はじめからやり直す
-		DrawGraph(50, 225, _retryPNG, true);
+		DrawGraph(50, 225, _drawHandle["try"], true);
 
 		// あきらめる
-		DrawGraph(450, 225, _deadPNG, true);
+		DrawGraph(450, 225, _drawHandle["dead"], true);
 
 		// 特定敵に出会う前に即死トラップで死んだとき
 		if (!_event->GetEventMonsEncountFlg() && !_event->GetEventMonsEndFlg() && eventState == EVENT_STATE::TRAP)
 		{
-			DrawGraph(300, 0, _messageDeathPNG, true);
+			DrawGraph(300, 0, _drawHandle["message_death"], true);
 		}
 		else if (_event->GetEventMonsEndFlg() && !monsterFlg)
 		{
 			// 敵もろとも即死トラップで死んだとき
-			DrawGraph(300, 0, _messageDeathPNG2, true);
+			DrawGraph(300, 0, _drawHandle["message_death2"], true);
 		}
 	}
 
@@ -739,8 +699,8 @@ void GameScene::Draw(void)
 	if (_event->GetCautionFlg())
 	{
 		// 強制戦闘の案内時に描画する
-		DrawGraph(0, 0, _redCautionPNG, true);
-		DrawGraph(_kyouseiButtlePngMoveCnt, 250, _kyouseiPNG, true);
+		DrawGraph(0, 0, _drawHandle["red_caution"], true);
+		DrawGraph(_kyouseiButtlePngMoveCnt, 250, _drawHandle["kyousei"], true);
 	}
 
 	ScreenFlip();
@@ -750,12 +710,12 @@ void GameScene::AllMapDraw(void)
 {
 	VECTOR2 mapOffset = { 200,0 };
 	// Sのマーク
-	DrawGraph(0 * 50 + mapOffset.x, 550 - (0 * 50) + mapOffset.y, _startChipPNG, true);
+	DrawGraph(0 * 50 + mapOffset.x, 550 - (0 * 50) + mapOffset.y, _drawHandle["start_chip"], true);
 	for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
 	{
 		DrawRotaGraph(std::get<0>(*v).x + 25 + mapOffset.x, std::get<0>(*v).y + 25 + mapOffset.y, 1.0, std::get<2>(*v), _chipPNG[std::get<1>(*v)], true);
 	}
-	DrawRotaGraph(plPosX * 50 + 25 + mapOffset.x, 550 - (plPosY * 50) + 25 + mapOffset.y, 1.0f, _directRota, _directPNG, true);
+	DrawRotaGraph(plPosX * 50 + 25 + mapOffset.x, 550 - (plPosY * 50) + 25 + mapOffset.y, 1.0f, _directRota, _drawHandle["direct"], true);
 }
 
 void GameScene::SmallMapDraw(void)
@@ -763,7 +723,7 @@ void GameScene::SmallMapDraw(void)
 	if (_plNowMark.x == 0 && _plNowMark.y <= 2)
 	{
 		// Sのマーク
-		DrawGraph(0 * 50, 550 - (0 * 50), _startChipPNG, true);
+		DrawGraph(0 * 50, 550 - (0 * 50), _drawHandle["start_chip"], true);
 	}
 	// 現在地を保存していく
 	for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
@@ -810,7 +770,7 @@ void GameScene::SmallMapDraw(void)
 		_plNowMark.x = 2;
 	}
 
-	DrawRotaGraph(_plNowMark.x * 50 + 25, 550 - (_plNowMark.y * 50) + 25, 1.0f, _directRota, _directPNG, true);
+	DrawRotaGraph(_plNowMark.x * 50 + 25, 550 - (_plNowMark.y * 50) + 25, 1.0f, _directRota, _drawHandle["direct"], true);
 }
 
 void GameScene::ShakeDraw(void)
@@ -871,7 +831,7 @@ void GameScene::ShakeDraw(void)
 			// 描画輝度を紫のみにセット
 			SetDrawBright(255, 0, 255);
 		}
-		DrawGraph(0, 0, _whitePNG, true);
+		DrawGraph(0, 0, _drawHandle["white"], true);
 	}
 
 	if (_shakeTime >= 15.0f)

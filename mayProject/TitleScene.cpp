@@ -33,11 +33,8 @@ bool TitleScene::Init(void)
 
 void TitleScene::PngInit(void)
 {
-	std::string title = "image/title.png";
-	_titlePNG = LoadGraph(title.c_str());
-
-	std::string start = "image/start.png";
-	_startPNG = LoadGraph(start.c_str());
+	_drawHandle.try_emplace("title", LoadGraph("image/title.png"));
+	_drawHandle.try_emplace("start", LoadGraph("image/start.png"));
 }
 
 unique_Base TitleScene::Update(unique_Base own, const GameCtl& ctl)
@@ -94,8 +91,8 @@ void TitleScene::Draw(void)
 	ClsDrawScreen();
 	//ƒ¿ƒuƒŒƒ“ƒh
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, _pngLight);
-	DrawGraph(0, 0,_titlePNG, true);
-	DrawGraph(250, 400, _startPNG, true);
+	DrawGraph(0, 0,_drawHandle["title"], true);
+	DrawGraph(250, 400, _drawHandle["start"], true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	ScreenFlip();
 }

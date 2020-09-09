@@ -10,7 +10,7 @@
 MODE SelectScene::modeTest = MODE::NON;
 bool SelectScene::pushFlg = false;
 
-#define PI 3.141592653589793
+#define PI 3.141592653589793f
 
 SelectScene::SelectScene()
 {
@@ -50,17 +50,10 @@ bool SelectScene::Init(void)
 
 void SelectScene::pngInit(void)
 {
-	std::string normal = "image/normal.png";
-	_normalPNG = LoadGraph(normal.c_str());
-
-	std::string hard = "image/hard.png";
-	_hardPNG = LoadGraph(hard.c_str());
-
-	std::string renga = "image/renga.png";
-	_backPNG = LoadGraph(renga.c_str());
-
-	std::string titleBackButton = "image/titleBackButton.png";
-	_titleBackPNG = LoadGraph(titleBackButton.c_str());
+	_drawHandle.try_emplace("normal", LoadGraph("image/normal.png"));
+	_drawHandle.try_emplace("hard", LoadGraph("image/hard.png"));
+	_drawHandle.try_emplace("renga", LoadGraph("image/renga.png"));
+	_drawHandle.try_emplace("titleBackButton", LoadGraph("image/titleBackButton.png"));
 
 	std::string asiato = "image/asiato.png";
 	LoadDivGraph(asiato.c_str(), 2, 1, 2, 69, 190, _asiato);
@@ -250,9 +243,9 @@ void SelectScene::Draw(void)
 	ClsDrawScreen();
 	//ÉøÉuÉåÉìÉh
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, _pngLight);
-	DrawGraph(0, 0, _backPNG, true);
-	DrawGraph(250, 100, _normalPNG, true);
-	DrawGraph(250, 300, _hardPNG, true);
+	DrawGraph(0, 0, _drawHandle["renga"], true);
+	DrawGraph(250, 100, _drawHandle["normal"], true);
+	DrawGraph(250, 300, _drawHandle["hard"], true);
 	// ë´ê’
 	if (_asiatoFlg)
 	{
@@ -263,6 +256,6 @@ void SelectScene::Draw(void)
 		DrawRotaGraph(_drawAsiVec.x, _drawAsiVec.y, 0.5f, _asiatoRota, _asiato[1], true, _asiatoReverseX, _asiatoReverseY);
 	}
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-	DrawGraph(650, 450, _titleBackPNG, true);
+	DrawGraph(650, 450, _drawHandle["titleBackButton"], true);
 	ScreenFlip();
 }

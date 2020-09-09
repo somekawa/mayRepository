@@ -54,20 +54,11 @@ bool GameClearScene::Init(void)
 
 void GameClearScene::PngInit(void)
 {
-	std::string particle = "image/particle.png";
-	_particlePNG = LoadGraph(particle.c_str());
-
-	std::string white = "image/white.png";
-	_whitePNG = LoadGraph(white.c_str());
-
-	std::string gameclear = "image/gameclear.png";
-	_gameClearPNG = LoadGraph(gameclear.c_str());
-
-	std::string clear = "image/night_forest.png";
-	_backPNG = LoadGraph(clear.c_str());
-
-	std::string titleBackButton = "image/titleBackButton.png";
-	_backTitleButtonPNG = LoadGraph(titleBackButton.c_str());
+	_drawHandle.try_emplace("particle", LoadGraph("image/particle.png"));
+	_drawHandle.try_emplace("white", LoadGraph("image/white.png"));
+	_drawHandle.try_emplace("gameclear", LoadGraph("image/gameclear.png"));
+	_drawHandle.try_emplace("night_forest", LoadGraph("image/night_forest.png"));
+	_drawHandle.try_emplace("titleBackButton", LoadGraph("image/titleBackButton.png"));
 }
 
 unique_Base GameClearScene::Update(unique_Base own, const GameCtl& ctl)
@@ -107,18 +98,18 @@ unique_Base GameClearScene::Update(unique_Base own, const GameCtl& ctl)
 void GameClearScene::Draw(void)
 {
 	ClsDrawScreen();
-	DrawGraph(0, 0, _backPNG, true);
-	DrawGraph(0, -256 + (256 - _pngBlend), _gameClearPNG, true);
-	DrawGraph(650, 500, _backTitleButtonPNG, true);
+	DrawGraph(0, 0, _drawHandle["night_forest"], true);
+	DrawGraph(0, -256 + (256 - _pngBlend), _drawHandle["gameclear"], true);
+	DrawGraph(650, 500, _drawHandle["titleBackButton"], true);
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, _pngBlend);
-	DrawGraph(0, 0, _whitePNG, true);
+	DrawGraph(0, 0, _drawHandle["white"], true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	// 描画ブレンドモードを加算合成にする
 	for (int i = 0; i < PARTICLE_NUM; i++)
 	{
 		SetDrawBlendMode(DX_BLENDMODE_ADD, particle_status[i].light);
-		DrawRotaGraph(particle_status[i].parPos.x + 25, particle_status[i].parPos.y + 25, particle_status[i].parEx, 0, _particlePNG, true);
+		DrawRotaGraph(particle_status[i].parPos.x + 25, particle_status[i].parPos.y + 25, particle_status[i].parEx, 0, _drawHandle["particle"], true);
 	}
 	// 描画ブレンドモードをノーブレンドにする
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);

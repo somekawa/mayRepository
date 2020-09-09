@@ -1,4 +1,6 @@
 #pragma once
+#include <map>
+#include <string>
 #include "BaseScene.h"
 
 class MouseCtl;
@@ -17,11 +19,7 @@ private:
 	void Draw(void);					// 描画
 	void Particle(void);				// パーティクル用関数
 
-	int _gameClearPNG;					//「Game Clear」の文字画像
-	int _backTitleButtonPNG;			//「タイトルへ」の文字画像
-	int _backPNG;						// 背景画像
-	int _whitePNG;						// 白画像
-	int _particlePNG;					// パーティクル画像
+	std::map<std::string, int> _drawHandle;	// 描画画像
 
 	int _pngBlend;						// 加算ブレンドで使用
 

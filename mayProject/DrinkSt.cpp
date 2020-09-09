@@ -92,7 +92,7 @@ void DrinkSt::Draw(Event& eve,GameScene& game)
 	if (!eve._drinking[eve._drinkNum])
 	{
 		// メッセージボックス
-		DrawGraph(420, 50, eve._messagePNG, true);
+		DrawGraph(420, 50, eve._drawHandle["message"], true);
 		// 瓶画像
 		DrawGraph(350, 250, eve.eventImages["bin"], true);
 		if (eve._fateNum == -1)

@@ -1,4 +1,6 @@
 #pragma once
+#include <map>
+#include <string>
 #include "BaseScene.h"
 
 class MouseCtl;
@@ -16,10 +18,7 @@ private:
 	void Draw(void);		// 描画
 	void PngInit(void);		// 画像用初期化
 
-	int _gameOverPNG;		//「Game Over」の文字画像
-	int _titleBackPNG;		//「タイトルへ」の文字画像
-	int _bloodPNG;			// 血痕画像
-	int _backPNG;			// 背景画像
+	std::map<std::string, int> _drawHandle;	// 描画画像
 
 	int _pngBlend;			// αブレンドで使用
 	

@@ -115,7 +115,7 @@ void ChestSt::Update(Event& eve,GameScene& game, Player& player, Menu& menu, Ite
 void ChestSt::Draw(Event& eve, Menu& menu)
 {
 	// メッセージボックス
-	DrawGraph(420, 50, eve._messagePNG, true);
+	DrawGraph(420, 50, eve._drawHandle["message"], true);
 
 	// 宝箱チェック
 	int a = 0;

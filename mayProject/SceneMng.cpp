@@ -17,7 +17,7 @@ bool SceneMng::SysInit(void)
 	// ｼｽﾃﾑ処理
 	SetGraphMode(screen_sizeX, screen_sizeY, 16);		// 65536色ﾓｰﾄﾞに設定
 	ChangeWindowMode(true);								// true:window　false:ﾌﾙｽｸﾘｰﾝ
-	SetWindowText("1816044_染川翼");					// 学籍番号と名前を入れておく
+	SetWindowText("CARDS MAZE");						// ゲームタイトル
 	if (DxLib_Init() == -1) return false;				// DXﾗｲﾌﾞﾗﾘ初期化処理	
 	SetDrawScreen(DX_SCREEN_BACK);						// ひとまずﾊﾞｯｸﾊﾞｯﾌｧに描画
 	gameCtl = std::make_unique<GameCtl>();				// GameCtlのインスタンス

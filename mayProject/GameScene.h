@@ -1,6 +1,7 @@
 #pragma once
 #include <DxLib.h>
 #include <map>
+#include <string>
 #include <vector>
 #include <tuple>
 #include <utility>
@@ -147,43 +148,17 @@ private:
 	std::map<int, EVENT_STATE> _eventStateMap;
 
 	/*画像関係*/
+	std::map<std::string, int> _drawHandle;
+
 	// 敵ターンまでのカウント用画像
 	int _turnPNG[6];
-	// HPバー画像
-	int _hpBarEn;
-	int _hpBarBack;
 	// 部屋(扉開閉込み)の画像
 	int _room[3];
-	// 点滅用白画像
-	int _whitePNG;
-	// 敵情報画像
-	int _enemyInfoPNG;
-	//「取る」の文字画像
-	int _getItemPNG;
-	// 死亡時のやりなおすの画像
-	int _retryPNG;
-	// 死亡時のあきらめるの画像
-	int _deadPNG;
-	// 即死トラップで死亡時(敵遭遇前)の画像
-	int _messageDeathPNG;
-	// 即死トラップで死亡時(敵遭遇後)の画像
-	int _messageDeathPNG2;
-	// ボス手前警告画像
-	int _bossEmergencyPNG;
-	// 自分アイコン画像(▲のやつ)
-	int _directPNG;				
 	// ダンジョン関連
 	int _roadPNG[static_cast<int>(MAP::MAX)];
 	int _chipPNG[static_cast<int>(MAP::MAX)];
-	int _startChipPNG;
 	// 霧
 	int _dungeonFogPNG[2];
-	// レベルアップの時の枠
-	int _levelUpFramePNG;
-	// 強制戦闘文字画像
-	int _kyouseiPNG;
-	// 赤画像
-	int _redCautionPNG;
 
 	/*音関係*/
 	// SE関連

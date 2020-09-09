@@ -122,9 +122,11 @@ void Player::PngInit(void)
 	std::string hpbar_pl = "image/hpbar_pl.png";
 	std::string hpbar_plPoison = "image/hpbar_plPoison.png";
 	std::string hpbar_back = "image/hpbar_back.png";
+	std::string hpbar_waku = "image/hpbar_waku.png";
 	_hpBarPl = LoadGraph(hpbar_pl.c_str());
 	_hpBarPlPoison = LoadGraph(hpbar_plPoison.c_str());
 	_hpBarBack = LoadGraph(hpbar_back.c_str());
+	_hpBarWaku = LoadGraph(hpbar_waku.c_str());
 
 	// スキルアニメーション(剣)
 	std::string swordAnim = "image/anim/swordAnim.png";
@@ -294,6 +296,7 @@ void Player::Draw(Menu* menu)
 	}
 	DrawExtendGraph(posx, posy, posx + 130, posy + 33, _hpBarBack, true);
 	DrawExtendGraph(posx + 3, posy + 4, posx + 3 + 125 * ((float)player_status.plHP / (float)player_status.maxHP), posy + 4 + 25, plHPBar, true);
+	DrawExtendGraph(posx, posy, posx + 130, posy + 33, _hpBarWaku, true);
 
 	// 右下案内表示
 	DrawFormatString(750, 425, 0xffffff, "体力:%d / %d", player_status.plHP, player_status.maxHP);
