@@ -836,6 +836,7 @@ void GameScene::ShakeDraw(void)
 
 	if (_shakeTime >= 15.0f)
 	{
+		// 通常戦闘時
 		if (eventState == EVENT_STATE::ENEMY)
 		{
 			// 攻撃を受けた後はターンを復活させる
@@ -844,6 +845,16 @@ void GameScene::ShakeDraw(void)
 			_monster[0]->SetAnimCnt(0);
 			_turnEndOnceFlg = false;
 		}
+
+		// イベント戦闘時
+		if (eventState == EVENT_STATE::EVE_MONS)
+		{
+			_cards->SetTurn(3);
+			_cards->SetGuard(0);
+			_monster[0]->SetAnimCnt(0);
+			_turnEndOnceFlg = false;
+		}
+
 		shakeFlg = false;
 		_blinkCnt = 0;
 		// 描画輝度を戻す
@@ -1312,22 +1323,23 @@ void GameScene::Direct(void)
 	{
 		if (_plDirectOld == PL_DIRECTION::DOWN && (_plNowPoint == 4 || _plNowPoint == 7 || _plNowPoint == 8 || _plNowPoint == 0))
 		{
-			if (_plDirect == PL_DIRECTION::RIGHT)
-			{
-				_plDirect = PL_DIRECTION::LEFT;
-			}
-			else if (_plDirect == PL_DIRECTION::LEFT)
-			{
-				_plDirect = PL_DIRECTION::RIGHT;
-			}
-			else if (_plDirect == PL_DIRECTION::UP)
-			{
-				_plDirect = PL_DIRECTION::DOWN;
-			}
-			else if (_plDirect == PL_DIRECTION::DOWN)
-			{
-				_plDirect = PL_DIRECTION::UP;
-			}
+			// おそらくここがバグの原因
+			//if (_plDirect == PL_DIRECTION::RIGHT)
+			//{
+				//_plDirect = PL_DIRECTION::LEFT;
+			//}
+			//else if (_plDirect == PL_DIRECTION::LEFT)
+			//{
+				//_plDirect = PL_DIRECTION::RIGHT;
+			//}
+			//else if (_plDirect == PL_DIRECTION::UP)
+			//{
+			//	_plDirect = PL_DIRECTION::DOWN;
+			//}
+			//else if (_plDirect == PL_DIRECTION::DOWN)
+			//{
+			//	_plDirect = PL_DIRECTION::UP;
+			//}
 		}
 		_rightFlg = false;
 		_leftFlg = false;
@@ -1345,7 +1357,14 @@ void GameScene::Direct(void)
 		}
 		else if (_plDirect == PL_DIRECTION::LEFT)
 		{
-			plPosX++;
+			if (_event->GetEventMonsFlg())
+			{
+				plPosX--;
+			}
+			else
+			{
+				plPosX++;
+			}
 		}
 
 		_plNowPoint = _dungeonMap[plPosY][plPosX].second;

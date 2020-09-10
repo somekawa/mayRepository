@@ -261,251 +261,30 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 	// 宿屋
 	if (_event == EVENT_STATE::YADO && !_eventMonsFlg)
 	{
-		//// 人画像
-		//DrawGraph(0, 0, eventImages["heal_human"], true);
-		//// 去る
-		//DrawGraph(600, 345, _sentakusiPNG[10], true);
-		//// メッセージボックス
-		//DrawGraph(420, 50, _messagePNG, true);
-		//if (_nonMoneyFlg)
-		//{
-		//	DrawFormatString(450, 70, 0x000000, "怪しい老婆:\n%金が足らんようじゃの。\n去るがよい");
-		//}
-		//if (!_healYadoFlg)
-		//{
-		//	// 頼む
-		//	DrawGraph(600, 200, _sentakusiPNG[2], true);
-		//	DrawFormatString(450, 70, 0x000000, "怪しい老婆:\n%d円で回復してやろうか? \n(所持金:%d円)", player->GetNowLevel() * 100,player->GetMoney());
-		//}
-		//else
-		//{
-		//	if (!_nonMoneyFlg)
-		//	{
-		//		DrawFormatString(450, 70, 0x000000, "怪しい老婆:\nﾋｯﾋｯﾋｯﾋｯ...");
-		//	}
-		//}
-
 		yadoSt->Draw(*this, *player);
 	}
 
 	// 商人
 	if (_event == EVENT_STATE::SYOUNIN && !_eventMonsFlg)
 	{
-		//// 人画像
-		//DrawGraph(100, 0, eventImages["syounin"], true);
-		//// メッセージボックス
-		//DrawGraph(420, 50, _messagePNG, true);
-		//DrawFormatString(450, 70, 0x000000, "商人:\n何か買うか?");
-		//if (_buyFlg)
-		//{
-		//	DrawGraph(200, 0, _syouninWakuPNG, true);
-		//	// 1ページ目
-		//	if (!_itemNextPage)
-		//	{
-		//		// アイテム表示
-		//		for (int i = 0; i <= 7; i++)
-		//		{
-		//			DrawGraph(item->GetPos(i).x, item->GetPos(i).y, _itemBoxPNG, true);
-		//			DrawGraph(item->GetPos(i).x, item->GetPos(i).y, item->GetPair(i).first, true);
-		//		}
-		//	}
-		//	else
-		//	{
-		//		// 2ページ目
-		//		// アイテム表示
-		//		for (int i = 0; i <= 7; i++)
-		//		{
-		//			DrawGraph(item->GetPos(i).x, item->GetPos(i).y, _itemBoxPNG, true);
-		//			DrawGraph(item->GetPos(i).x, item->GetPos(i).y, item->GetPair(i+8).first, true);
-		//		}
-		//	}
-		//	// 選択中のアイテムの枠
-		//	if (_chooseNum >= 0)
-		//	{
-		//		DrawGraph(item->GetPos(_chooseNum).x, item->GetPos(_chooseNum).y, _itemChoicePNG, true);
-		//	}
-		//	// 現在の所持金の表示
-		//	DrawFormatString(470, 485, 0x000000, "所持金:%d円", player->GetMoney());
-		//	// 商品の次のページへの矢印
-		//	DrawGraph(490,300, _yajirusiPNG, true);
-		//}
-		//// 去る
-		//DrawGraph(600, 345, _sentakusiPNG[10], true);
-		//if (!_buyFlg || _chooseFlg)
-		//{
-		//	// 購入
-		//	DrawGraph(600, 200, _sentakusiPNG[0], true);
-		//	if (menu->GetCanHaveItem() == 0)
-		//	{
-		//		// 持ち物満タンだからもてないよ
-		//		DrawFormatString(600, 160, 0xffffff, "所持品がいっぱいだ");
-		//	}
-		//}
-		//if (_buyFlg && _chooseFlg)
-		//{
-		//	if (_nonMoneyFlg)
-		//	{
-		//		// 所持金が足りないよ
-		//		DrawFormatString(600, 180, 0xffffff, "所持金が足りない");
-		//	}
-		//}
-		//// 文字表示(商品選択中のみ)
-		//if (_chooseNum != -1)
-		//{
-		//	DrawFormatString(300, 450, 0x000000, "%s\n", item->GetSetumei(static_cast<int>(_itemInfo)-1));
-		//	DrawFormatString(300, 470, 0x000000, "%d円\n", item->GetCostMoney(static_cast<int>(_itemInfo) - 1));
-		//}
-
 		syouninSt->Draw(*this, *player, *item, *menu);
 	}
 
 	// ボタン出現中
 	if (_event == EVENT_STATE::BUTTON && !_eventMonsFlg)
 	{
-		//for (int i = 0; i < 4; i++)
-		//{
-		//	if (_buttonDrink[i].x == game->plPosX && _buttonDrink[i].y == game->plPosY)
-		//	{
-		//		_buttonNum = i;
-		//	}
-		//}
-		//if (!_buttonPush[_buttonNum])
-		//{
-		//	// メッセージボックス
-		//	DrawGraph(420, 50, _messagePNG, true);
-		//	if (_fateNum == -1)
-		//	{
-		//		// 押す
-		//		DrawGraph(600, 200, _sentakusiPNG[4], true);
-		//		DrawFormatString(450, 70, 0x000000, "壁にボタンがついている...\n");
-		//	}
-		//	if (_fateNum == 0)
-		//	{
-		//		DrawFormatString(450, 70, 0x000000, "なんと1000円がでてきた!\n");
-		//	}
-		//	if (_fateNum > 0)
-		//	{
-		//		DrawFormatString(450, 70, 0x000000, "体中に電流が流れた!!");
-		//	}
-		//}
-		//// 去る
-		//DrawGraph(600, 345, _sentakusiPNG[10], true);
-
 		buttonSt->Draw(*this, *game);
 	}
 
 	// 宝箱出現中
 	if (_event == EVENT_STATE::CHEST && !_eventMonsFlg)
 	{
-		//// メッセージボックス
-		//DrawGraph(420, 50, _messagePNG, true);
-		//// 宝箱チェック
-		//int a = 0;
-		//for (int i = 0; i < 4; i++)
-		//{
-		//	if (_chestPos[i].x == GameScene::plPosX && _chestPos[i].y == GameScene::plPosY)
-		//	{
-		//		a = i;
-		//	}
-		//}
-		//if (_chestOpen[a] == 0)
-		//{		
-		//	// 進む(宝箱無視)
-		//	DrawGraph(600, 345, _sentakusiPNG[10], true);
-		//
-		//	if (_fateNum == -1)
-		//	{
-		//		// 開ける
-		//		DrawGraph(600, 200, _sentakusiPNG[3], true);
-		//		DrawGraph(350, 150, _chestPNG[0], true);
-		//		DrawFormatString(450, 70, 0x000000, "宝箱が置いてある");
-		//	}
-		//		
-		//	// 鑑定アイテムを使ったときの描画
-		//	if (menu->GetMeganeFlg())
-		//	{
-		//		if (_chestBingo[a] == 1)
-		//		{
-		//			DrawFormatString(450, 70, 0xff0000, "\n\n特におかしいところはない");
-		//		}
-		//		if (_chestBingo[a] == 0)
-		//		{
-		//			DrawFormatString(450, 70, 0xff0000, "\n\nゴーストが取り憑いている");
-		//		}
-		//	}
-		//}
-		//else
-		//{
-		//	if (_getFlg)
-		//	{
-		//		// 取る
-		//		DrawGraph(600, 200, _sentakusiPNG[8], true);
-		//	}
-		//
-		//	if (_anounceFlg)
-		//	{
-		//		// 持ち物満タンだからもてない
-		//		DrawFormatString(600, 180, 0xffffff, "所持品がいっぱいだ");
-		//	}
-		//
-		//	if (_fateNum == 1)
-		//	{
-		//		DrawGraph(350, 150, eventImages["chestInItem"], true);
-		//		DrawFormatString(450, 70, 0x000000, "アイテムが入っていた!");
-		//	}
-		//	else if (_fateNum == 0)
-		//	{
-		//		DrawGraph(350, 150, _chestPNG[1], true);
-		//		DrawFormatString(450, 70, 0x000000, "ゴーストが現れ攻撃してきた!");
-		//	}
-		//	else
-		//	{
-		//		// 宝箱をすでに開けている
-		//		DrawFormatString(450, 70, 0x000000, "宝箱は開いている");
-		//		DrawGraph(350, 150, eventImages["chestKara"], true);
-		//	}
-		//
-		//	// 去る(宝箱無視)
-		//	DrawGraph(600, 345, _sentakusiPNG[10], true);
-		//}
-
 		chestSt->Draw(*this, *menu);
 	}
 
 	// 瓶出現中
 	if (_event == EVENT_STATE::DRINK && !_eventMonsFlg)
 	{
-		//for (int i = 0; i < 4; i++)
-		//{
-		//	if (_buttonDrink[i].x == game->plPosX && _buttonDrink[i].y == game->plPosY)
-		//	{
-		//		_drinkNum = i;
-		//	}
-		//}
-		//if (!_drinking[_drinkNum])
-		//{
-		//	// メッセージボックス
-		//	DrawGraph(420, 50, _messagePNG, true);
-		//	// 瓶画像
-		//	DrawGraph(350, 250, eventImages["bin"], true);
-		//	if (_fateNum == -1)
-		//	{
-		//		// 飲む
-		//		DrawGraph(600, 200, _sentakusiPNG[1], true);
-		//		DrawFormatString(450, 70, 0x000000, "[Drink Me]\nとかかれた瓶がある...");
-		//	}
-		//	if (_fateNum == 0)
-		//	{
-		//		DrawFormatString(450, 70, 0x000000, "体が頑丈になった!\n防御力が上がった");
-		//	}
-		//	if (_fateNum > 0)
-		//	{
-		//		DrawFormatString(450, 70, 0x000000, "毒にかかってしまった...");
-		//	}
-		//}
-		//// 去る
-		//DrawGraph(600, 345, _sentakusiPNG[10], true);
-
 		drinkSt->Draw(*this, *game);
 	}
 
@@ -720,6 +499,7 @@ void Event::eventMons(GameScene* game, Monster* monster, Cards* cards, MouseCtl*
 				_eventMonsFlg = true;
 				monster->SetEnemyNum(6, 0);
 				cards->SetTurn(3);
+
 			}
 		}
 	}
