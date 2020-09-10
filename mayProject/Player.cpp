@@ -110,23 +110,14 @@ void Player::PngInit(void)
 	skillImages.try_emplace("cancel"   , LoadGraph("image/cancel.png"));			// やめるの文字画像
 	skillImages.try_emplace("muscle"   , LoadGraph("image/muscle.png"));			// 力こぶのアイコン画像
 
-	// バリアバーの背景画像
-	std::string barrier_back = "image/barrier_back.png";
-	_barrierBarBackPNG = LoadGraph(barrier_back.c_str());
+	_drawHandle.try_emplace("barrier_back", LoadGraph("image/barrier_back.png"));
+	_drawHandle.try_emplace("barrier_bar", LoadGraph("image/barrier_bar.png"));
+	_drawHandle.try_emplace("barrier_waku", LoadGraph("image/barrier_waku.png"));
 
-	// バリアバー画像
-	std::string barrier_bar = "image/barrier_bar.png";
-	_barrierBarPNG = LoadGraph(barrier_bar.c_str());
-
-	// プレイヤーのHPバー
-	std::string hpbar_pl = "image/hpbar_pl.png";
-	std::string hpbar_plPoison = "image/hpbar_plPoison.png";
-	std::string hpbar_back = "image/hpbar_back.png";
-	std::string hpbar_waku = "image/hpbar_waku.png";
-	_hpBarPl = LoadGraph(hpbar_pl.c_str());
-	_hpBarPlPoison = LoadGraph(hpbar_plPoison.c_str());
-	_hpBarBack = LoadGraph(hpbar_back.c_str());
-	_hpBarWaku = LoadGraph(hpbar_waku.c_str());
+	_drawHandle.try_emplace("hpbar_pl", LoadGraph("image/hpbar_pl.png"));
+	_drawHandle.try_emplace("hpbar_plPoison", LoadGraph("image/hpbar_plPoison.png"));
+	_drawHandle.try_emplace("hpbar_back", LoadGraph("image/hpbar_back.png"));
+	_drawHandle.try_emplace("hpbar_waku", LoadGraph("image/hpbar_waku.png"));
 
 	// スキルアニメーション(剣)
 	std::string swordAnim = "image/anim/swordAnim.png";
@@ -287,16 +278,16 @@ void Player::Draw(Menu* menu)
 	if (player_status.condition == CONDITION::POISON)
 	{
 		// 毒状態の時はHPバーの色をこっちにする
-		plHPBar = _hpBarPlPoison;
+		plHPBar = _drawHandle["hpbar_plPoison"];
 	}
 	else
 	{
 		// 通常状態の時のHPバーの色
-		plHPBar = _hpBarPl;
+		plHPBar = _drawHandle["hpbar_pl"];
 	}
-	DrawExtendGraph(posx, posy, posx + 130, posy + 33, _hpBarBack, true);
+	DrawExtendGraph(posx, posy, posx + 130, posy + 33, _drawHandle["hpbar_back"], true);
 	DrawExtendGraph(posx + 3, posy + 4, posx + 3 + 125 * ((float)player_status.plHP / (float)player_status.maxHP), posy + 4 + 25, plHPBar, true);
-	DrawExtendGraph(posx, posy, posx + 130, posy + 33, _hpBarWaku, true);
+	DrawExtendGraph(posx, posy, posx + 130, posy + 33, _drawHandle["hpbar_waku"], true);
 
 	// 右下案内表示
 	DrawFormatString(750, 425, 0xffffff, "体力:%d / %d", player_status.plHP, player_status.maxHP);
@@ -349,8 +340,9 @@ void Player::BattleDraw(Menu* menu)
 		int posx = 600;
 		int posy = 350;
 		DrawFormatString(600, 325, 0xffffff, "バリア耐久:%d/%d", _barrierNum, _barrierMaxNum);
-		DrawExtendGraph(posx, posy, posx + 150, posy + 33, _barrierBarBackPNG, true);
-		DrawExtendGraph(posx+3, posy+4, posx+3 + 145 * ((float)_barrierNum / (float)_barrierMaxNum), posy+4 + 25, _barrierBarPNG, true);
+		DrawExtendGraph(posx, posy, posx + 150, posy + 33, _drawHandle["barrier_back"], true);
+		DrawExtendGraph(posx+3, posy+4, posx+3 + 145 * ((float)_barrierNum / (float)_barrierMaxNum), posy+4 + 25, _drawHandle["barrier_bar"], true);
+		DrawExtendGraph(posx, posy, posx + 150, posy + 33, _drawHandle["barrier_waku"], true);
 	}
 }
 

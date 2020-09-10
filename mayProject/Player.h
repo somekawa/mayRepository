@@ -78,15 +78,7 @@ private:
 
 	// スキル画像関係
 	std::map<std::string, int> skillImages;
-
-	// バリアバー画像
-	int _barrierBarBackPNG;					// バリアバーの背景画像
-	int _barrierBarPNG;					
-	// HPバー画像
-	int _hpBarPl;
-	int _hpBarPlPoison;
-	int _hpBarBack;
-	int _hpBarWaku;
+	std::map<std::string, int> _drawHandle;
 
 	// アニメーション関係
 	SKILL _skill = SKILL::NON;
