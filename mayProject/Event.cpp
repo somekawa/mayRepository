@@ -6,6 +6,8 @@
 #include "SelectScene.h"
 #include "MouseCtl.h"
 
+#define PI 3.141592653589793f
+
 Event::Event()
 {
 	Init();
@@ -123,7 +125,9 @@ void Event::Init(void)
 	syouninSt = std::make_unique<SyouninSt>();
 	buttonSt = std::make_unique<ButtonSt>();
 	chestSt = std::make_unique<ChestSt>();
-	drinkSt = std::unique_ptr<DrinkSt>();
+	drinkSt = std::make_unique<DrinkSt>();
+
+	exr = 0.0f;
 }
 
 void Event::pngInit(void)
@@ -294,9 +298,11 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 		// メッセージボックス
 		DrawGraph(420, 50, _drawHandle["message"], true);
 		// 去る
-		DrawGraph(600, 345, _sentakusiPNG[10], true);
+		//DrawGraph(600, 345, _sentakusiPNG[10], true);
+		DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, _sentakusiPNG[10], true);
 		// 調べる
-		DrawGraph(600, 200, _sentakusiPNG[9], true);
+		//DrawGraph(600, 200, _sentakusiPNG[9], true);
+		DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, _sentakusiPNG[9], true);
 		DrawGraph(200, 75,eventImages["zou"], true);
 
 		if (_nowTrapFlg)
@@ -331,9 +337,11 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 			// メッセージボックス
 			DrawGraph(420, 50, _drawHandle["message"], true);
 			// 去る
-			DrawGraph(600, 345, _sentakusiPNG[10], true);
+			//DrawGraph(600, 345, _sentakusiPNG[10], true);
+			DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, _sentakusiPNG[10], true);
 			// 調べる
-			DrawGraph(600, 200, _sentakusiPNG[11], true);
+			//DrawGraph(600, 200, _sentakusiPNG[11], true);
+			DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, _sentakusiPNG[11], true);
 			DrawFormatString(450, 70, 0x000000, "敵が道をふさいでいる\n何か良い方法はないだろうか..");
 		}
 	}
@@ -434,10 +442,12 @@ void Event::Enemy(GameScene* game, Player* player, Monster* monster)
 
 void Event::Trap(GameScene* game, Player* player, MouseCtl* mouse)
 {
+	exr++;
 	if (mouse->GetClickTrg())
 	{			
 		if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 345 && mouse->GetPos().y <= 345 + 75)
 		{
+			exr = 0.0f;
 			// クリック音
 			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 			game->backFlg = true;
@@ -461,6 +471,7 @@ void Event::Trap(GameScene* game, Player* player, MouseCtl* mouse)
 	// 調べることにしたとき
 	if (_trapFlg)
 	{
+		exr = 0.0f;
 		// 即死トラップの発動
 		player->SetHP(player->GetHP() - player->GetMaxHP());
 
@@ -475,11 +486,13 @@ void Event::Trap(GameScene* game, Player* player, MouseCtl* mouse)
 
 void Event::eventMons(GameScene* game, Monster* monster, Cards* cards, MouseCtl* mouse)
 {
+	exr++;
 	_eventMonsEncountFlg = true;
 	if (mouse->GetClickTrg()) 
 	{			 
 		if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 345 && mouse->GetPos().y <= 345 + 75)
 		{
+			exr = 0.0f;
 			// クリック音
 			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 			// 去る
@@ -494,12 +507,12 @@ void Event::eventMons(GameScene* game, Monster* monster, Cards* cards, MouseCtl*
 		{
 			if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
 			{
+				exr = 0.0f;
 				// クリック音
 				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 				_eventMonsFlg = true;
 				monster->SetEnemyNum(6, 0);
 				cards->SetTurn(3);
-
 			}
 		}
 	}

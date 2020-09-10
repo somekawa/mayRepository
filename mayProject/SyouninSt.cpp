@@ -7,8 +7,11 @@
 #include "Item.h"
 #include "Menu.h"
 
+#define PI 3.141592653589793f
+
 SyouninSt::SyouninSt()
 {
+	exr = 0.0f;
 }
 
 SyouninSt::~SyouninSt()
@@ -17,6 +20,7 @@ SyouninSt::~SyouninSt()
 
 void SyouninSt::Update(Event& eve, GameScene& game, Player& player, MouseCtl& mouse, Item& item, Menu& menu)
 {
+	exr++;
 	if (mouse.GetClickTrg())
 	{
 		if (mouse.GetPos().x >= 600 && mouse.GetPos().x <= 600 + 150 && mouse.GetPos().y >= 345 && mouse.GetPos().y <= 345 + 75)
@@ -24,6 +28,7 @@ void SyouninSt::Update(Event& eve, GameScene& game, Player& player, MouseCtl& mo
 			// クリック音
 			PlaySoundMem(eve._soundSE[0], DX_PLAYTYPE_BACK, true);
 			// 去る
+			exr = 0.0f;
 			game.backFlg = true;
 			eve._chooseNum = -1;
 			game.eventState = EVENT_STATE::NON;
@@ -178,16 +183,19 @@ void SyouninSt::Draw(Event& eve, Player& player,Item& item, Menu& menu)
 		DrawFormatString(470, 485, 0x000000, "所持金:%d円", player.GetMoney());
 
 		// 商品の次のページへの矢印
-		DrawGraph(490, 300, eve._drawHandle["yajirusi"], true);
+		DrawRotaGraph(490 + 50, 300 + 50, 0.7f + sinf(PI * 2.0f / 200.0f * exr) * 0.1,0.0f,eve._drawHandle["yajirusi"], true);
 	}
 
 	// 去る
-	DrawGraph(600, 345, eve._sentakusiPNG[10], true);
+	//DrawGraph(600, 345, eve._sentakusiPNG[10], true);
+	DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[10], true);
+
 
 	if (!eve._buyFlg || eve._chooseFlg)
 	{
 		// 購入
-		DrawGraph(600, 200, eve._sentakusiPNG[0], true);
+		//DrawGraph(600, 200, eve._sentakusiPNG[0], true);
+		DrawRotaGraph(600 + 150/2, 200 + 75/2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f,eve._sentakusiPNG[0], true);
 		if (menu.GetCanHaveItem() == 0)
 		{
 			// 持ち物満タンだからもてないよ

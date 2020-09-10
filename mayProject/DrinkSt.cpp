@@ -5,8 +5,11 @@
 #include "MouseCtl.h"
 #include "Player.h"
 
+#define PI 3.141592653589793f
+
 DrinkSt::DrinkSt()
 {
+	exr = 0.0f;
 }
 
 DrinkSt::~DrinkSt()
@@ -15,10 +18,12 @@ DrinkSt::~DrinkSt()
 
 void DrinkSt::Update(Event& eve, GameScene& game, Player& player, MouseCtl& mouse)
 {
+	exr++;
 	if (mouse.GetClickTrg())
 	{
 		if (mouse.GetPos().x >= 600 && mouse.GetPos().x <= 600 + 150 && mouse.GetPos().y >= 345 && mouse.GetPos().y <= 345 + 75)
 		{
+			exr = 0.0f;
 			// ƒNƒŠƒbƒN‰¹
 			PlaySoundMem(eve._soundSE[0], DX_PLAYTYPE_BACK, true);
 			// ‹Ž‚é
@@ -98,7 +103,8 @@ void DrinkSt::Draw(Event& eve,GameScene& game)
 		if (eve._fateNum == -1)
 		{
 			// ˆù‚Þ
-			DrawGraph(600, 200, eve._sentakusiPNG[1], true);
+			//DrawGraph(600, 200, eve._sentakusiPNG[1], true);
+			DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[1], true);
 			DrawFormatString(450, 70, 0x000000, "[Drink Me]\n‚Æ‚©‚©‚ê‚½•r‚ª‚ ‚é...");
 		}
 
@@ -113,5 +119,6 @@ void DrinkSt::Draw(Event& eve,GameScene& game)
 		}
 	}
 	// ‹Ž‚é
-	DrawGraph(600, 345, eve._sentakusiPNG[10], true);
+	//DrawGraph(600, 345, eve._sentakusiPNG[10], true);
+	DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[10], true);
 }

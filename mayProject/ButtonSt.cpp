@@ -5,8 +5,11 @@
 #include "MouseCtl.h"
 #include "Player.h"
 
+#define PI 3.141592653589793f
+
 ButtonSt::ButtonSt()
 {
+	exr = 0.0f;
 }
 
 ButtonSt::~ButtonSt()
@@ -15,10 +18,12 @@ ButtonSt::~ButtonSt()
 
 void ButtonSt::Update(Event& eve, GameScene& game, Player& player, MouseCtl& mouse)
 {
+	exr++;
 	if (mouse.GetClickTrg())
 	{
 		if (mouse.GetPos().x >= 600 && mouse.GetPos().x <= 600 + 150 && mouse.GetPos().y >= 345 && mouse.GetPos().y <= 345 + 75)
 		{
+			exr = 0.0f;
 			// クリック音
 			PlaySoundMem(eve._soundSE[0], DX_PLAYTYPE_BACK, true);
 			// 去る
@@ -95,7 +100,8 @@ void ButtonSt::Draw(Event& eve, GameScene& game)
 		if (eve._fateNum == -1)
 		{
 			// 押す
-			DrawGraph(600, 200, eve._sentakusiPNG[4], true);
+			//DrawGraph(600, 200, eve._sentakusiPNG[4], true);
+			DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[4], true);
 			DrawFormatString(450, 70, 0x000000, "壁にボタンがついている...\n");
 		}
 
@@ -111,5 +117,6 @@ void ButtonSt::Draw(Event& eve, GameScene& game)
 	}
 
 	// 去る
-	DrawGraph(600, 345, eve._sentakusiPNG[10], true);
+	//DrawGraph(600, 345, eve._sentakusiPNG[10], true);
+	DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[10], true);
 }

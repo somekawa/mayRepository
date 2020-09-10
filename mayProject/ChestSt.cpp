@@ -7,8 +7,11 @@
 #include "Menu.h"
 #include "Item.h"
 
+#define PI 3.141592653589793f
+
 ChestSt::ChestSt()
 {
+	exr = 0.0f;
 }
 
 ChestSt::~ChestSt()
@@ -17,10 +20,12 @@ ChestSt::~ChestSt()
 
 void ChestSt::Update(Event& eve,GameScene& game, Player& player, Menu& menu, Item& item, MouseCtl& mouse)
 {
+	exr++;
 	if (mouse.GetClickTrg())
 	{
 		if (mouse.GetPos().x >= 600 && mouse.GetPos().x <= 600 + 150 && mouse.GetPos().y >= 345 && mouse.GetPos().y <= 345 + 75)
 		{
+			exr = 0.0f;
 			// クリック音
 			PlaySoundMem(eve._soundSE[0], DX_PLAYTYPE_BACK, true);
 			// 去る
@@ -129,12 +134,14 @@ void ChestSt::Draw(Event& eve, Menu& menu)
 	if (eve._chestOpen[a] == 0)
 	{
 		// 進む(宝箱無視)
-		DrawGraph(600, 345, eve._sentakusiPNG[10], true);
+		//DrawGraph(600, 345, eve._sentakusiPNG[10], true);
+		DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[10], true);
 
 		if (eve._fateNum == -1)
 		{
 			// 開ける
-			DrawGraph(600, 200, eve._sentakusiPNG[3], true);
+			//DrawGraph(600, 200, eve._sentakusiPNG[3], true);
+			DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[3], true);
 			DrawGraph(350, 150, eve._chestPNG[0], true);
 			DrawFormatString(450, 70, 0x000000, "宝箱が置いてある");
 		}
@@ -157,7 +164,8 @@ void ChestSt::Draw(Event& eve, Menu& menu)
 		if (eve._getFlg)
 		{
 			// 取る
-			DrawGraph(600, 200, eve._sentakusiPNG[8], true);
+			DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[8], true);
+			//DrawGraph(600, 200, eve._sentakusiPNG[8], true);
 		}
 
 		if (eve._anounceFlg)
@@ -184,6 +192,7 @@ void ChestSt::Draw(Event& eve, Menu& menu)
 		}
 
 		// 去る(宝箱無視)
-		DrawGraph(600, 345, eve._sentakusiPNG[10], true);
+		//DrawGraph(600, 345, eve._sentakusiPNG[10], true);
+		DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[10], true);
 	}
 }

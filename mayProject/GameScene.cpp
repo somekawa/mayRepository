@@ -18,7 +18,7 @@ int GameScene::plPosY = 0;
 bool GameScene::monsterFlg = false;
 bool GameScene::bossClearFlg = false;
 
-#define PI 3.141592653589793
+#define PI 3.141592653589793f
 
 GameScene::GameScene()
 {
@@ -166,7 +166,7 @@ bool GameScene::Init(void)
 	// その他
 	blinkFlg = false;
 	_blinkCnt = 0;
-	_monsTimeCnt = 5;
+	_monsTimeCnt = 999;
 	_walkDirect = 0;
 	_plDeadChangeWinColor = 255;
 	_poisonCnt = 256;

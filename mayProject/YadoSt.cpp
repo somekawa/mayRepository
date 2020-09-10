@@ -5,8 +5,11 @@
 #include "MouseCtl.h"
 #include "Player.h"
 
+#define PI 3.141592653589793f
+
 YadoSt::YadoSt()
 {
+	exr = 0.0f;
 }
 
 YadoSt::~YadoSt()
@@ -15,10 +18,12 @@ YadoSt::~YadoSt()
 
 void YadoSt::Update(Event& eve, GameScene& game, Player& player, MouseCtl& mouse)
 {
+	exr++;
 	if (mouse.GetClickTrg())
 	{
 		if (mouse.GetPos().x >= 600 && mouse.GetPos().x <= 600 + 150 && mouse.GetPos().y >= 345 && mouse.GetPos().y <= 345 + 75)
 		{
+			exr = 0.0f;
 			// クリック音
 			PlaySoundMem(eve._soundSE[0], DX_PLAYTYPE_BACK, true);
 			// 去る
@@ -59,7 +64,8 @@ void YadoSt::Draw(Event& eve, Player& player)
 	// 人画像
 	DrawGraph(0, 0, eve.eventImages["heal_human"], true);
 	// 去る
-	DrawGraph(600, 345, eve._sentakusiPNG[10], true);
+	//DrawGraph(600, 345, eve._sentakusiPNG[10], true);
+	DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[10], true);
 	// メッセージボックス
 	DrawGraph(420, 50, eve._drawHandle["message"], true);
 
@@ -71,7 +77,8 @@ void YadoSt::Draw(Event& eve, Player& player)
 	if (!eve._healYadoFlg)
 	{
 		// 頼む
-		DrawGraph(600, 200, eve._sentakusiPNG[2], true);
+		//DrawGraph(600, 200, eve._sentakusiPNG[2], true);
+		DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[2], true);
 		DrawFormatString(450, 70, 0x000000, "怪しい老婆:\n%d円で回復してやろうか? \n(所持金:%d円)", player.GetNowLevel() * 50, player.GetMoney());
 	}
 	else

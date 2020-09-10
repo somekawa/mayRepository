@@ -127,4 +127,6 @@ private:
 	std::unique_ptr<ButtonSt> buttonSt;
 	std::unique_ptr<ChestSt> chestSt;
 	std::unique_ptr<DrinkSt> drinkSt;
+
+	float exr;
 };
