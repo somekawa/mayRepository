@@ -6,6 +6,9 @@
 #include "Menu.h"
 #include "VECTOR2.h"
 
+// カードの威力計算式
+#define NUM_CAL(X) 3 * 3 - (static_cast<int>(X) - 1)
+
 class Cards
 {
 public:

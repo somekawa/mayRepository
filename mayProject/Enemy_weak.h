@@ -25,6 +25,8 @@ public:
 	int GetMaxTurn(void);				// 最大待機ターン数の取得用関数
 	void SetEnemyNum(int num, int plLv);// エンカウントしたときに敵の情報を設定する(プレイヤーレベルに合わせて変化)
 	float GetHPBar(void);				// HPバー用の値計算用
+	int GetNowHP(void);
+	int GetMaxHP(void);
 	int GetKeikenti(void);				// 倒されたときに経験値を取得する関数
 	int GetMoney(void);					// 倒されたときにお金を取得する関数
 	bool GetDropFlg(void);				// ドロップアイテムを取得する関数

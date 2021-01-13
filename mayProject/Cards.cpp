@@ -7,10 +7,10 @@
 
 struct cardsPNG
 {
-	VECTOR2 pos;		// 座標
-	CARD_MEMBER syurui;	// 種類
-	int num;			// 番号
-	int pngSel;			// 画像
+	VECTOR2 pos;			// 座標
+	CARD_MEMBER cardMem;	// 種類
+	int num;				// 番号
+	int pngSel;				// 画像
 } card[9];
 
 Cards::Cards()
@@ -154,10 +154,10 @@ bool Cards::Init(void)
 		int rand = GetRand(8);
 		int userand = rand % 3 * 3;
 		card[i].pngSel = _cardPngSel_pair[userand].first;
-		card[i].syurui = _cardPngSel_pair[userand].second;
+		card[i].cardMem = _cardPngSel_pair[userand].second;
 		card[i].num = i;
 		// カードをセットするところに種別情報を入れる
-		_cardMap[_setCardPos[i]] = card[i].syurui;
+		_cardMap[_setCardPos[i]] = card[i].cardMem;
 	}
 
 	_id = -1;
@@ -180,7 +180,7 @@ void Cards::Draw(Player* player, Menu* menu)
 			if (_id != i)
 			{
 				// 所持カードの種類が異なるとき(薄く表示)
-				if (card[i].syurui != card[_id].syurui)
+				if (card[i].cardMem != card[_id].cardMem)
 				{
 					// 描画ブレンドモード変更
 					SetDrawBlendMode(DX_BLENDMODE_ADD, 100);
@@ -219,42 +219,37 @@ void Cards::Draw(Player* player, Menu* menu)
 		DrawRotaGraph(card[_id].pos.x, card[_id].pos.y, 1.0f, 0, card[_id].pngSel, false);
 	}
 
+	VECTOR2 _offset = { -80,90 };
 	// カード情報の表示
 	// GetHealとかの数字はまだusecardの関数に入る前なので使えない
 	if (_id != -1)
 	{
 		if (card[_id].pos.y > 0 && card[_id].pos.y <= 300)
 		{
-			std::string moji;
-			if (static_cast<int>(card[_id].syurui) == 1 || static_cast<int>(card[_id].syurui) == 2 || static_cast<int>(card[_id].syurui) == 3)
+			std::string cardType;
+			int cardMember = static_cast<int>(card[_id].cardMem);	// 操作中のカードの情報を取得
+			// 取得したカードの種類によって計算処理が別れる
+			if (cardMember >= static_cast<int>(CARD_MEMBER::ATTACK_1) && cardMember <= static_cast<int>(CARD_MEMBER::ATTACK_3))
 			{
-				moji = "攻撃";
-				//auto a = (static_cast<int>(_cards->GetCardMem()) + (static_cast<int>(_cards->GetCardMem()) - 1)) * (static_cast<int>(_cards->GetCardMem()) + (static_cast<int>(_cards->GetCardMem()) - 1));
-				DrawFormatString(card[_id].pos.x - 80, card[_id].pos.y + 90, GetColor(255, 255, 255), "%s:敵に%dのダメージ", moji.c_str(), (static_cast<int>(card[_id].syurui) + (static_cast<int>(card[_id].syurui) - 1)) * (static_cast<int>(card[_id].syurui) + (static_cast<int>(card[_id].syurui) - 1)) + player->GetAttackDamage() + menu->GetEquipDamage() + menu->GetPowUp());
+				cardType = "攻撃";
+				DrawFormatString(card[_id].pos.x + _offset.x, card[_id].pos.y + _offset.y, 0xffffff, "%s:敵に%dのダメージ", cardType.c_str(),
+					  (cardMember + (cardMember - 1))
+					* (cardMember + (cardMember - 1)) 
+					+  player->GetAttackDamage() + menu->GetEquipDamage() + menu->GetPowUp());
 			}
-			if (static_cast<int>(card[_id].syurui) == 4 || static_cast<int>(card[_id].syurui) == 5 || static_cast<int>(card[_id].syurui) == 6)
+			if (cardMember >= static_cast<int>(CARD_MEMBER::GUARD_1) && cardMember <= static_cast<int>(CARD_MEMBER::GUARD_3))
 			{
-				// 1 3 5
-				// 1 3 8
-				// 4 5 6
-				// 4 / 3 = 1 * 3 = 3 - 3 = 0
-				// 5 / 3 = 1 * 3 = 3 - 3 = 0
-				// 6 / 3 = 2 * 3 = 6 - 3 = 3
-				//auto tes = ((static_cast<int>(card[_id].syurui) % 4) + 1) + (static_cast<int>(card[_id].syurui) % 4) + (static_cast<int>(card[_id].syurui) / 3 * 3 - 3);
-				moji = "防御";
-				DrawFormatString(card[_id].pos.x - 80, card[_id].pos.y + 90, GetColor(255, 255, 255), "%s:ダメージ%d割の軽減", moji.c_str(), ((static_cast<int>(card[_id].syurui) % 4) + 1) + (static_cast<int>(card[_id].syurui) % 4) + (static_cast<int>(card[_id].syurui) / 3 * 3 - 3));
+				cardType = "防御";
+				DrawFormatString(card[_id].pos.x + _offset.x, card[_id].pos.y + _offset.y, 0xffffff, "%s:ダメージ%d割の軽減", cardType.c_str(),
+					  ((cardMember % static_cast<int>(CARD_MEMBER::GUARD_1)) + 1)
+					+ (cardMember % static_cast<int>(CARD_MEMBER::GUARD_1)) + (cardMember / NUM_CAL(CARD_MEMBER::GUARD_1)));
 			}
-			if (static_cast<int>(card[_id].syurui) == 7 || static_cast<int>(card[_id].syurui) == 8 || static_cast<int>(card[_id].syurui) == 9)
+			if (cardMember >= static_cast<int>(CARD_MEMBER::HEAL_1) &&  cardMember <= static_cast<int>(CARD_MEMBER::HEAL_3))
 			{
-				// 1 3 5
-				// 1 3 8
-				// 7 8 9
-				// 7 / 3 = 2 * 3 = 6 - 6 = 0
-				// 8 / 3 = 2 * 3 = 6 - 6 = 0
-				// 9 / 3 = 3 * 3 = 9 - 6 = 3
-				//auto tes = ((static_cast<int>(card[_id].syurui) % 7) + 1) + (static_cast<int>(card[_id].syurui) % 7) + (static_cast<int>(card[_id].syurui) / 3 * 3 - 6);
-				moji = "回復";
-				DrawFormatString(card[_id].pos.x - 80, card[_id].pos.y + 90, GetColor(255, 255, 255), "%s:体力%d割の回復", moji.c_str(), ((static_cast<int>(card[_id].syurui) % 7) + 1) + (static_cast<int>(card[_id].syurui) % 7) + (static_cast<int>(card[_id].syurui) / 3 * 3 - 6));
+				cardType = "回復";
+				DrawFormatString(card[_id].pos.x + _offset.x, card[_id].pos.y + _offset.y, 0xffffff, "%s:体力%d割の回復", cardType.c_str(),
+					  ((cardMember % static_cast<int>(CARD_MEMBER::HEAL_1)) + 1)
+					+ (cardMember % static_cast<int>(CARD_MEMBER::HEAL_1)) + (cardMember / NUM_CAL(CARD_MEMBER::HEAL_1)));
 			}
 		}
 	}
@@ -308,12 +303,12 @@ void Cards::Move(int id)
 					card[id].num = 0;
 
 					// 新しく移動した場所にカードの種類を登録
-					_cardMap[_setCardPos[0]] = card[id].syurui;
+					_cardMap[_setCardPos[0]] = card[id].cardMem;
 				}
-				else if (_cardMap[_setCardPos[0]] == card[id].syurui && card[id].num != 0)
+				else if (_cardMap[_setCardPos[0]] == card[id].cardMem && card[id].num != 0)
 				{
 					// 3以上のカードが作れないようにする
-					if (card[id].syurui == CARD_MEMBER::ATTACK_3 || card[id].syurui == CARD_MEMBER::GUARD_3 || card[id].syurui == CARD_MEMBER::HEAL_3)
+					if (card[id].cardMem == CARD_MEMBER::ATTACK_3 || card[id].cardMem == CARD_MEMBER::GUARD_3 || card[id].cardMem == CARD_MEMBER::HEAL_3)
 					{
 						// 元の位置に戻す
 						card[id].pos.x = _setCardPos[card[id].num] - 140 / 2;
@@ -327,9 +322,9 @@ void Cards::Move(int id)
 						card[id].pos.x = _setCardPos[card[id].num] - 140 / 2;
 						card[id].pos.y = 500;
 
-						card[0].pngSel = _cardPngSel_pair[static_cast<int>(card[id].syurui)].first;
-						card[0].syurui = _cardPngSel_pair[static_cast<int>(card[id].syurui)].second;
-						_cardMap[_setCardPos[0]] = card[0].syurui;
+						card[0].pngSel = _cardPngSel_pair[static_cast<int>(card[id].cardMem)].first;
+						card[0].cardMem = _cardPngSel_pair[static_cast<int>(card[id].cardMem)].second;
+						_cardMap[_setCardPos[0]] = card[0].cardMem;
 
 						// 動かし元のスペースに新しいカードの生成を行う
 						//card[id] = card[card[id].num];
@@ -338,8 +333,8 @@ void Cards::Move(int id)
 						int rand = GetRand(8);
 						int userand = rand % 3 * 3;
 						card[id].pngSel = _cardPngSel_pair[userand].first;
-						card[id].syurui = _cardPngSel_pair[userand].second;
-						_cardMap[_setCardPos[id]] = card[id].syurui;
+						card[id].cardMem = _cardPngSel_pair[userand].second;
+						_cardMap[_setCardPos[id]] = card[id].cardMem;
 						_turnNum -= 1;
 					}
 				}
@@ -367,12 +362,12 @@ void Cards::Move(int id)
 						card[id].num = i + 1;
 
 						// 新しく移動した場所にカードの種類を登録
-						_cardMap[_setCardPos[i + 1]] = card[id].syurui;
+						_cardMap[_setCardPos[i + 1]] = card[id].cardMem;
 					}
-					else if (_cardMap[_setCardPos[i + 1]] == card[id].syurui && card[id].num != i + 1)
+					else if (_cardMap[_setCardPos[i + 1]] == card[id].cardMem && card[id].num != i + 1)
 					{
 						// 3以上のカードが作れないようにする
-						if (card[id].syurui == CARD_MEMBER::ATTACK_3 || card[id].syurui == CARD_MEMBER::GUARD_3 || card[id].syurui == CARD_MEMBER::HEAL_3)
+						if (card[id].cardMem == CARD_MEMBER::ATTACK_3 || card[id].cardMem == CARD_MEMBER::GUARD_3 || card[id].cardMem == CARD_MEMBER::HEAL_3)
 						{
 							// 元の位置に戻す
 							card[id].pos.x = _setCardPos[card[id].num] - 140 / 2;
@@ -387,9 +382,9 @@ void Cards::Move(int id)
 							card[id].pos.y = 500;
 
 							// _cardPngSel_pairがnonから始まるわけではないので、+1しなくていい
-							card[i + 1].pngSel = _cardPngSel_pair[static_cast<int>(card[id].syurui)].first;
-							card[i + 1].syurui = _cardPngSel_pair[static_cast<int>(card[id].syurui)].second;
-							_cardMap[_setCardPos[i + 1]] = card[i + 1].syurui;
+							card[i + 1].pngSel = _cardPngSel_pair[static_cast<int>(card[id].cardMem)].first;
+							card[i + 1].cardMem = _cardPngSel_pair[static_cast<int>(card[id].cardMem)].second;
+							_cardMap[_setCardPos[i + 1]] = card[i + 1].cardMem;
 
 							// 動かし元のスペースに新しいカードの生成を行う
 							//card[id] = card[card[id].num];
@@ -398,8 +393,8 @@ void Cards::Move(int id)
 							int rand = GetRand(8);
 							int userand = rand % 3 * 3;
 							card[id].pngSel = _cardPngSel_pair[userand].first;
-							card[id].syurui = _cardPngSel_pair[userand].second;
-							_cardMap[_setCardPos[id]] = card[id].syurui;
+							card[id].cardMem = _cardPngSel_pair[userand].second;
+							_cardMap[_setCardPos[id]] = card[id].cardMem;
 							_turnNum -= 1;
 						}
 					}
@@ -419,19 +414,19 @@ void Cards::Move(int id)
 void Cards::UseCard(int id)
 {
 	// 使用したカードがattackのとき
-	if (card[id].syurui == CARD_MEMBER::ATTACK_1 || card[id].syurui == CARD_MEMBER::ATTACK_2 || card[id].syurui == CARD_MEMBER::ATTACK_3)
+	if (card[id].cardMem == CARD_MEMBER::ATTACK_1 || card[id].cardMem == CARD_MEMBER::ATTACK_2 || card[id].cardMem == CARD_MEMBER::ATTACK_3)
 	{
 		_cardsSyurui = CARDS_SYURUI::ATTACK;
 
 		// 敵のHPを減らす処理
 		// ダメージは、カードの大きさ+プレイヤーの基礎攻撃力 +武器の攻撃力に-2～+2の変動値があるといい感じかもしれない
-		//_damageNum = static_cast<int>(card[id].syurui) * 2;
-		if (card[id].syurui == CARD_MEMBER::ATTACK_1)
+		//_damageNum = static_cast<int>(card[id].cardMem) * 2;
+		if (card[id].cardMem == CARD_MEMBER::ATTACK_1)
 		{
 			//1
 			_damageNum = 1*1;
 		}
-		else if (card[id].syurui == CARD_MEMBER::ATTACK_2)
+		else if (card[id].cardMem == CARD_MEMBER::ATTACK_2)
 		{
 			//9
 			_damageNum = 3*3;
@@ -451,13 +446,13 @@ void Cards::UseCard(int id)
 		int rand = GetRand(8);
 		int userand = rand % 3 * 3;
 		card[id].pngSel = _cardPngSel_pair[userand].first;
-		card[id].syurui = _cardPngSel_pair[userand].second;
-		_cardMap[_setCardPos[id]] = card[id].syurui;
+		card[id].cardMem = _cardPngSel_pair[userand].second;
+		_cardMap[_setCardPos[id]] = card[id].cardMem;
 		return;
 	}
 
 	// 使用したカードがguardのとき
-	if (card[id].syurui == CARD_MEMBER::GUARD_1 || card[id].syurui == CARD_MEMBER::GUARD_2 || card[id].syurui == CARD_MEMBER::GUARD_3)
+	if (card[id].cardMem == CARD_MEMBER::GUARD_1 || card[id].cardMem == CARD_MEMBER::GUARD_2 || card[id].cardMem == CARD_MEMBER::GUARD_3)
 	{
 		_cardsSyurui = CARDS_SYURUI::GUARD;
 
@@ -465,11 +460,11 @@ void Cards::UseCard(int id)
 		_turnNum -= 1;
 
 		// 受ける攻撃の1/3とかでカットできるようにする
-		if (card[id].syurui == CARD_MEMBER::GUARD_1)
+		if (card[id].cardMem == CARD_MEMBER::GUARD_1)
 		{
 			_gaurdNum = 1;
 		}
-		else if(card[id].syurui == CARD_MEMBER::GUARD_2)
+		else if(card[id].cardMem == CARD_MEMBER::GUARD_2)
 		{
 			_gaurdNum = 3;
 		}
@@ -489,13 +484,13 @@ void Cards::UseCard(int id)
 		int rand = GetRand(8);
 		int userand = rand % 3 * 3;
 		card[id].pngSel = _cardPngSel_pair[userand].first;
-		card[id].syurui = _cardPngSel_pair[userand].second;
-		_cardMap[_setCardPos[id]] = card[id].syurui;
+		card[id].cardMem = _cardPngSel_pair[userand].second;
+		_cardMap[_setCardPos[id]] = card[id].cardMem;
 		return;
 	}
 
 	// 使用したカードがhealのとき
-	if (card[id].syurui == CARD_MEMBER::HEAL_1 || card[id].syurui == CARD_MEMBER::HEAL_2 || card[id].syurui == CARD_MEMBER::HEAL_3)
+	if (card[id].cardMem == CARD_MEMBER::HEAL_1 || card[id].cardMem == CARD_MEMBER::HEAL_2 || card[id].cardMem == CARD_MEMBER::HEAL_3)
 	{
 		_cardsSyurui = CARDS_SYURUI::HEAL;
 
@@ -503,11 +498,11 @@ void Cards::UseCard(int id)
 		_turnNum -= 1;
 
 		// プレイヤーの最大HPの何割で回復する
-		if (card[id].syurui == CARD_MEMBER::HEAL_1)
+		if (card[id].cardMem == CARD_MEMBER::HEAL_1)
 		{
 			_healNum = 1;
 		}
-		else if(card[id].syurui == CARD_MEMBER::HEAL_2)
+		else if(card[id].cardMem == CARD_MEMBER::HEAL_2)
 		{
 			_healNum = 3;
 		}
@@ -524,8 +519,8 @@ void Cards::UseCard(int id)
 		int rand = GetRand(8);
 		int userand = rand % 3 * 3;
 		card[id].pngSel = _cardPngSel_pair[userand].first;
-		card[id].syurui = _cardPngSel_pair[userand].second;
-		_cardMap[_setCardPos[id]] = card[id].syurui;
+		card[id].cardMem = _cardPngSel_pair[userand].second;
+		_cardMap[_setCardPos[id]] = card[id].cardMem;
 		return;
 	}
 }

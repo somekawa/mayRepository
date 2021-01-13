@@ -241,6 +241,16 @@ float Enemy_weak::GetHPBar(void)
 	return (float)_enemyHP / (float)_enemyMaxHP;
 }
 
+int Enemy_weak::GetNowHP(void)
+{
+	return _enemyHP;
+}
+
+int Enemy_weak::GetMaxHP(void)
+{
+	return _enemyMaxHP;
+}
+
 int Enemy_weak::GetKeikenti(void)
 {
 	return enemy_status[_enemyNum].keikenti;

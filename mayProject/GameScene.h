@@ -144,6 +144,12 @@ private:
 	int _kyouseiButtlePngMoveCnt;		// 「強制戦闘」の文字画像の移動処理用
 	bool _turnEndOnceFlg;				// プレイヤーターン終了時にtrueにする
 	VECTOR2 _bossemErgencyPos;			// ボス前の警告画像を出す座標
+	int mapChipSize_;					// マップチップの1つ当たりのサイズ
+	const int screen_sizeX;				// 画面解像度 横
+	const int screen_sizeY;				// 画面解像度 縦
+	bool _guideFlg;						// 一定時間キー操作が行われなかった場合にtrueになり、操作ガイドが表示されるようにする
+	int _guideVisibleTime;				// キー操作が行われていない時間を計測
+	int _guideMove;						// ガイド描画時に背景の枠を自由変形で動かすときに使う
 
 	std::map<int, EVENT_STATE> _eventStateMap;
 

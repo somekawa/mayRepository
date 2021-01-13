@@ -29,6 +29,8 @@ public:
 	virtual int GetAttack(void) = 0;
 	virtual int GetMaxTurn(void) = 0;
 	virtual float GetHPBar(void) = 0;	
+	virtual int GetNowHP(void) = 0;
+	virtual int GetMaxHP(void) = 0;
 	virtual int GetKeikenti(void) = 0;
 	virtual int GetMoney(void) = 0;
 	virtual bool GetDropFlg(void) = 0;

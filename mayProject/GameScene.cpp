@@ -12,6 +12,8 @@
 #include "MoveObj.h"
 #include "MouseCtl.h"
 
+// 一定時間の操作が無かったらガイドが表示されるようにする
+
 // static変数の実体<型>クラス名::変数名 = 初期化;
 int GameScene::plPosX = 0;
 int GameScene::plPosY = 0;
@@ -20,7 +22,7 @@ bool GameScene::bossClearFlg = false;
 
 #define PI 3.141592653589793f
 
-GameScene::GameScene()
+GameScene::GameScene() :screen_sizeX(900), screen_sizeY(600)
 {
 	Init();
 	_cards = new Cards();
@@ -90,6 +92,8 @@ bool GameScene::Init(void)
 	SetFontThickness(1);                         //太さを1に変更
 	ChangeFont("HGS創英角ﾎﾟｯﾌﾟ体");              //HGS創英角ﾎﾟｯﾌﾟ体に変更
 	ChangeFontType(DX_FONTTYPE_ANTIALIASING_8X8);//アンチエイリアス
+
+	mapChipSize_ = 50;
 
 	// 画像登録
 	PngInit();
@@ -178,6 +182,9 @@ bool GameScene::Init(void)
 	_levelUpAnounceTime = 180;
 	_kyouseiButtlePngMoveCnt = 0;
 	_turnEndOnceFlg = false;
+	_guideFlg = false;
+	_guideVisibleTime = 0;
+	_guideMove = 0;
 
 	//13以外 (7~12と14)
 	_eventStateMap.try_emplace(7, EVENT_STATE::YADO);
@@ -268,7 +275,7 @@ void GameScene::PngInit(void)
 	std::string mapchip = "image/mapchip/mapchip.png";
 	//std::string mapchip_start = "image/mapchip/start_chip.png";
 
-	LoadDivGraph(mapchip.c_str(), 15, 15, 1, 50, 50, _chipPNG);
+	LoadDivGraph(mapchip.c_str(), 15, 15, 1, mapChipSize_, mapChipSize_, _chipPNG);
 	//_startChipPNG = LoadGraph(mapchip_start.c_str());
 
 	// 霧
@@ -388,6 +395,12 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 	{
 		// 全体マップを描画したり消したりする
 		_allMapFlg = !_allMapFlg;
+		if (_guideFlg)
+		{
+			_guideFlg = false;
+			_guideVisibleTime = 0;
+			_guideMove = 0;
+		}
 	}
 
 	Draw();
@@ -615,7 +628,9 @@ void GameScene::Draw(void)
 		int posx = 600;
 		int posy = 80;
 
-		DrawGraph(550, 0, _drawHandle["monster_info"], true);
+		DrawGraph(posx-50, 0, _drawHandle["monster_info"], true);
+		// 敵HPの描画(ただし、イベント敵とボスは???にする予定)
+		DrawFormatString(posx+50, posy-20, 0x000000, "%d/%d", _monster[0]->GetNowHP(), _monster[0]->GetMaxHP());
 
 		// 敵がいるときのみ描画
 		DrawGraph(650, 150, _turnPNG[_cards->GetTurn()], true);
@@ -696,6 +711,18 @@ void GameScene::Draw(void)
 
 	_player->SkillDraw();
 
+	// ガイド表示
+	if (_guideFlg)
+	{
+		_guideMove < 50 ? _guideMove++: _guideMove = 50;
+		// 読みこんだグラフィックを自由変形描画(左上,右上,右下,左下)
+		DrawModiGraph(0, 150-_guideMove, 250, 150-_guideMove, 250, 150+_guideMove, 0, 150+_guideMove, _drawHandle["square"], true);
+		//DrawGraph(0, 100, _drawHandle["square"], true);
+		DrawFormatString(30, 120, 0xffffff, "～キー操作ガイド～");
+		DrawFormatString(30, 140, 0xffffff, "WASD: 移動");
+		DrawFormatString(30, 160, 0xffffff, "F2  : マップ表示切替");
+	}
+
 	if (_event->GetCautionFlg())
 	{
 		// 強制戦闘の案内時に描画する
@@ -710,12 +737,12 @@ void GameScene::AllMapDraw(void)
 {
 	VECTOR2 mapOffset = { 200,0 };
 	// Sのマーク
-	DrawGraph(0 * 50 + mapOffset.x, 550 - (0 * 50) + mapOffset.y, _drawHandle["start_chip"], true);
+	DrawGraph(0 * mapChipSize_ + mapOffset.x, (screen_sizeY - mapChipSize_) - (0 * mapChipSize_) + mapOffset.y, _drawHandle["start_chip"], true);
 	for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
 	{
-		DrawRotaGraph(std::get<0>(*v).x + 25 + mapOffset.x, std::get<0>(*v).y + 25 + mapOffset.y, 1.0, std::get<2>(*v), _chipPNG[std::get<1>(*v)], true);
+		DrawRotaGraph(std::get<0>(*v).x + mapChipSize_/2 + mapOffset.x, std::get<0>(*v).y + mapChipSize_/2 + mapOffset.y, 1.0, std::get<2>(*v), _chipPNG[std::get<1>(*v)], true);
 	}
-	DrawRotaGraph(plPosX * 50 + 25 + mapOffset.x, 550 - (plPosY * 50) + 25 + mapOffset.y, 1.0f, _directRota, _drawHandle["direct"], true);
+	DrawRotaGraph(plPosX * mapChipSize_ + mapChipSize_/2 + mapOffset.x, (screen_sizeY - mapChipSize_) - (plPosY * mapChipSize_) + mapChipSize_/2 + mapOffset.y, 1.0f, _directRota, _drawHandle["direct"], true);
 }
 
 void GameScene::SmallMapDraw(void)
@@ -723,7 +750,7 @@ void GameScene::SmallMapDraw(void)
 	if (_plNowMark.x == 0 && _plNowMark.y <= 2)
 	{
 		// Sのマーク
-		DrawGraph(0 * 50, 550 - (0 * 50), _drawHandle["start_chip"], true);
+		DrawGraph(0 * mapChipSize_, (screen_sizeY - mapChipSize_) - (0 * mapChipSize_), _drawHandle["start_chip"], true);
 	}
 	// 現在地を保存していく
 	for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
@@ -734,7 +761,7 @@ void GameScene::SmallMapDraw(void)
 		}
 		else
 		{
-			_mapChipDrawOffset.y = 50 * (plPosY - 2);
+			_mapChipDrawOffset.y = mapChipSize_ * (plPosY - 2);
 		}
 
 		if (plPosX <= 2)
@@ -743,12 +770,12 @@ void GameScene::SmallMapDraw(void)
 		}
 		else
 		{
-			_mapChipDrawOffset.x = 50 * (plPosX - 2);
+			_mapChipDrawOffset.x = mapChipSize_ * (plPosX - 2);
 		}
 
-		if (std::get<0>(*v).y + 25 + _mapChipDrawOffset.y >= 450 && std::get<0>(*v).x + 25 - _mapChipDrawOffset.x <= 150)
+		if (std::get<0>(*v).y + mapChipSize_/2 + _mapChipDrawOffset.y >= 450 && std::get<0>(*v).x + mapChipSize_/2 - _mapChipDrawOffset.x <= 150)
 		{
-			DrawRotaGraph(std::get<0>(*v).x + 25 - _mapChipDrawOffset.x, std::get<0>(*v).y + 25 + _mapChipDrawOffset.y, 1.0, std::get<2>(*v), _chipPNG[std::get<1>(*v)], true);
+			DrawRotaGraph(std::get<0>(*v).x + mapChipSize_/2 - _mapChipDrawOffset.x, std::get<0>(*v).y + mapChipSize_/2 + _mapChipDrawOffset.y, 1.0, std::get<2>(*v), _chipPNG[std::get<1>(*v)], true);
 		}
 	}
 
@@ -770,7 +797,7 @@ void GameScene::SmallMapDraw(void)
 		_plNowMark.x = 2;
 	}
 
-	DrawRotaGraph(_plNowMark.x * 50 + 25, 550 - (_plNowMark.y * 50) + 25, 1.0f, _directRota, _drawHandle["direct"], true);
+	DrawRotaGraph(_plNowMark.x * mapChipSize_ + mapChipSize_/2, (screen_sizeY - mapChipSize_) - (_plNowMark.y * mapChipSize_) + mapChipSize_/2, 1.0f, _directRota, _drawHandle["direct"], true);
 }
 
 void GameScene::ShakeDraw(void)
@@ -893,7 +920,21 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 			if (obj(ctl, _plNowPoint, _rightFlg, _leftFlg, _plDirect))
 			{
 				_keyFlg = true;
+				_guideFlg = false;
+				_guideVisibleTime = 0;
+				_guideMove = 0;
 				Key();
+			}
+			else
+			{
+				// MoveObjがfalseで一定時間経過した場合、ガイドの表示をする
+				if (eventState == EVENT_STATE::NON)
+				{
+					if (++_guideVisibleTime > 180 && !_guideFlg)
+					{
+						_guideFlg = true;
+					}
+				}
 			}
 		}
 
@@ -1373,7 +1414,7 @@ void GameScene::Direct(void)
 		for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
 		{
 			// 現在地を見て、登録している方向と回転角度を代入する
-			if (plPosX * 50 == std::get<0>(*v).x && 550 - (plPosY * 50) == std::get<0>(*v).y)
+			if (plPosX * mapChipSize_ == std::get<0>(*v).x && (screen_sizeY - mapChipSize_) - (plPosY * mapChipSize_) == std::get<0>(*v).y)
 			{
 				_directRota = std::get<2>(*v);
 				_plDirect = std::get<3>(*v);
@@ -1747,15 +1788,18 @@ void GameScene::Key(void)
 		_plNowPoint = _dungeonMap[plPosY][plPosX].second;
 		if (!_dungeonMap[plPosY][plPosX].first)
 		{
-			if ((_plNowPoint >= 7 && _plNowPoint <= 11) || _plNowPoint == 13 || _plNowPoint == 14)
+			if ((_plNowPoint >= static_cast<int>(MAP::YADO) && _plNowPoint <= static_cast<int>(MAP::DRINK)) 
+				|| _plNowPoint == static_cast<int>(MAP::EVE_MONS) || _plNowPoint == static_cast<int>(MAP::GOAL))
 			{
 				// イベントアイコン(即死トラップ以外)のときはマップチップを回転させずに保存する
-				_mapVec.emplace_back(VECTOR2(plPosX * 50, 550 - (plPosY * 50)), _plNowPoint, 0.0f,_plDirect);
+				_mapVec.emplace_back(VECTOR2(plPosX * mapChipSize_,
+				(screen_sizeY - mapChipSize_) - (plPosY * mapChipSize_)), _plNowPoint, 0.0f,_plDirect);
 			}
 			else
 			{
 				// 通常道と即死トラップの保存
-				_mapVec.emplace_back(VECTOR2(plPosX * 50, 550 - (plPosY * 50)), _plNowPoint, _directRota, _plDirect);
+				_mapVec.emplace_back(VECTOR2(plPosX * mapChipSize_,
+				(screen_sizeY - mapChipSize_) - (plPosY * mapChipSize_)), _plNowPoint, _directRota, _plDirect);
 			}
 			// 通ったことのある道はフラグがtrueになる仕組み
 			_dungeonMap[plPosY][plPosX].first = true;
