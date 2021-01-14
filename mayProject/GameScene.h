@@ -3,7 +3,6 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <tuple>
 #include <utility>
 #include "BaseScene.h"
 #include "VECTOR2.h"
@@ -42,6 +41,14 @@ enum class PL_DIRECTION {
 	DOWN,
 	LEFT,
 	RIGHT,
+};
+
+// マップ移動軌跡
+struct MapMake {
+	VECTOR2 pos;			// 現在座標
+	int num;				// 現在位置番号
+	float rota;				// 画像回転角度
+	PL_DIRECTION dir;		// プレイヤーの向き
 };
 
 class GameScene :
@@ -117,7 +124,7 @@ private:
 	void Direct(void);			// 移動と向きを変える関数
 	void Key(void);				// キー処理関数
 	std::pair<bool, int> _dungeonMap[10][10];				// マップ(通ったことのあるところはtrue)
-	std::vector<std::tuple<VECTOR2, int, float, PL_DIRECTION>> _mapVec;	// マップ移動軌跡 <現在座標,現在位置番号,画像回転角度,プレイヤーの向き>
+	std::vector<MapMake> _mapVec;							// マップ移動軌跡の保存用変数
 	int _plNowPoint;			// プレイヤーの現在地
 	int _plOldPoint;			// プレイヤーの前回いた位置
 	bool _leftFlg;				// 左折したらtrue
@@ -150,6 +157,8 @@ private:
 	bool _guideFlg;						// 一定時間キー操作が行われなかった場合にtrueになり、操作ガイドが表示されるようにする
 	int _guideVisibleTime;				// キー操作が行われていない時間を計測
 	int _guideMove;						// ガイド描画時に背景の枠を自由変形で動かすときに使う
+	float _guideExrMove;				// ガイド描画時の拡大/縮小
+	bool _buttleGuideFlg;				// 戦闘ガイドの表示/非表示切替
 
 	std::map<int, EVENT_STATE> _eventStateMap;
 

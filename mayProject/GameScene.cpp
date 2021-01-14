@@ -12,8 +12,6 @@
 #include "MoveObj.h"
 #include "MouseCtl.h"
 
-// 一定時間の操作が無かったらガイドが表示されるようにする
-
 // static変数の実体<型>クラス名::変数名 = 初期化;
 int GameScene::plPosX = 0;
 int GameScene::plPosY = 0;
@@ -185,6 +183,8 @@ bool GameScene::Init(void)
 	_guideFlg = false;
 	_guideVisibleTime = 0;
 	_guideMove = 0;
+	_guideExrMove = 0.0f;
+	_buttleGuideFlg = false;
 
 	//13以外 (7~12と14)
 	_eventStateMap.try_emplace(7, EVENT_STATE::YADO);
@@ -270,7 +270,7 @@ void GameScene::PngInit(void)
 	_drawHandle.try_emplace("square", LoadGraph("image/square.png"));
 	_drawHandle.try_emplace("kyousei", LoadGraph("image/kyousei.png"));
 	_drawHandle.try_emplace("red_caution", LoadGraph("image/red_caution.png"));
-	
+	_drawHandle.try_emplace("buttleGuide", LoadGraph("image/buttleGuide.png"));
 	// マップチップ
 	std::string mapchip = "image/mapchip/mapchip.png";
 	//std::string mapchip_start = "image/mapchip/start_chip.png";
@@ -401,6 +401,25 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 			_guideVisibleTime = 0;
 			_guideMove = 0;
 		}
+	}
+
+	// 戦闘中、F4キーでガイドの表示が切り替えられる
+	if (_monster[0]->GetEnemyState() == ENEMY_STATE::EXIST)
+	{
+		if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_F4]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_F4]))
+		{
+			_buttleGuideFlg = !_buttleGuideFlg;
+		}
+	}
+
+	// 戦闘ガイドの表示/非表示時のアニメーション
+	if (_buttleGuideFlg)
+	{
+		_guideExrMove < 1.0f ? _guideExrMove += 0.03f : _guideExrMove = 1.0f;
+	}
+	else
+	{
+		_guideExrMove > 0.0f ? _guideExrMove -= 0.03f : _guideExrMove = 0.0f;
 	}
 
 	Draw();
@@ -623,13 +642,14 @@ void GameScene::Draw(void)
 		DrawGraph(250, 100, _drawHandle["emergency"], true);
 	}
 
+	// 敵が存在するとき
 	if (_monster[0]->GetEnemyState() == ENEMY_STATE::EXIST)
 	{
 		int posx = 600;
 		int posy = 80;
 
 		DrawGraph(posx-50, 0, _drawHandle["monster_info"], true);
-		// 敵HPの描画(ただし、イベント敵とボスは???にする予定)
+		// 敵HPの描画
 		DrawFormatString(posx+50, posy-20, 0x000000, "%d/%d", _monster[0]->GetNowHP(), _monster[0]->GetMaxHP());
 
 		// 敵がいるときのみ描画
@@ -643,6 +663,31 @@ void GameScene::Draw(void)
 		// 戦闘中以外は邪魔なので非表示で
 		_cards->Draw(_player,_menu);
 		_player->BattleDraw(_menu);
+
+		// 一定時間操作がないときにはガイドの矢印を描画する
+		if (_buttleGuideFlg)
+		{
+			DrawRotaGraph(50 + 400, posy + 20 + 224, _guideExrMove, 0.0f, _drawHandle["buttleGuide"], true);
+			DrawGraph(200, 0, _drawHandle["square"], true);
+			DrawFormatString(230, 20, 0x000000, "F4キー:\n戦闘ガイドを非表示");
+		}
+		else
+		{
+			if (_guideExrMove > 0.0f)
+			{
+				DrawRotaGraph(50 + 400, posy + 20 + 224, _guideExrMove, 0.0f, _drawHandle["buttleGuide"], true);
+			}
+			DrawGraph(200, 0, _drawHandle["square"], true);
+			DrawFormatString(230, 20, 0x000000, "F4キー:\n戦闘ガイドを表示");
+		}
+
+		// 戦闘中に移動操作ガイドが描画されないように設定する
+		if (_guideFlg)
+		{
+			_guideFlg = false;
+			_guideVisibleTime = 0;
+			_guideMove = 0;
+		}
 	}
 
 	_menu->Draw(_player,_item,_monster[0]);
@@ -718,9 +763,9 @@ void GameScene::Draw(void)
 		// 読みこんだグラフィックを自由変形描画(左上,右上,右下,左下)
 		DrawModiGraph(0, 150-_guideMove, 250, 150-_guideMove, 250, 150+_guideMove, 0, 150+_guideMove, _drawHandle["square"], true);
 		//DrawGraph(0, 100, _drawHandle["square"], true);
-		DrawFormatString(30, 120, 0xffffff, "～キー操作ガイド～");
-		DrawFormatString(30, 140, 0xffffff, "WASD: 移動");
-		DrawFormatString(30, 160, 0xffffff, "F2  : マップ表示切替");
+		DrawFormatString(30, 120, 0x000000, "～キー操作ガイド～");
+		DrawFormatString(30, 140, 0x000000, "WASD: 移動");
+		DrawFormatString(30, 160, 0x000000, "F2  : マップ表示切替");
 	}
 
 	if (_event->GetCautionFlg())
@@ -737,10 +782,10 @@ void GameScene::AllMapDraw(void)
 {
 	VECTOR2 mapOffset = { 200,0 };
 	// Sのマーク
-	DrawGraph(0 * mapChipSize_ + mapOffset.x, (screen_sizeY - mapChipSize_) - (0 * mapChipSize_) + mapOffset.y, _drawHandle["start_chip"], true);
+	DrawGraph(0 * mapChipSize_ + mapOffset.x, (screen_sizeY - mapChipSize_) - (0 * mapChipSize_) + mapOffset.y, _drawHandle["start_chip"], false);
 	for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
 	{
-		DrawRotaGraph(std::get<0>(*v).x + mapChipSize_/2 + mapOffset.x, std::get<0>(*v).y + mapChipSize_/2 + mapOffset.y, 1.0, std::get<2>(*v), _chipPNG[std::get<1>(*v)], true);
+		DrawRotaGraph((*v).pos.x + mapChipSize_/2 + mapOffset.x, (*v).pos.y + mapChipSize_/2 + mapOffset.y, 1.0, (*v).rota, _chipPNG[(*v).num], true);
 	}
 	DrawRotaGraph(plPosX * mapChipSize_ + mapChipSize_/2 + mapOffset.x, (screen_sizeY - mapChipSize_) - (plPosY * mapChipSize_) + mapChipSize_/2 + mapOffset.y, 1.0f, _directRota, _drawHandle["direct"], true);
 }
@@ -773,9 +818,9 @@ void GameScene::SmallMapDraw(void)
 			_mapChipDrawOffset.x = mapChipSize_ * (plPosX - 2);
 		}
 
-		if (std::get<0>(*v).y + mapChipSize_/2 + _mapChipDrawOffset.y >= 450 && std::get<0>(*v).x + mapChipSize_/2 - _mapChipDrawOffset.x <= 150)
+		if ((*v).pos.y + mapChipSize_/2 + _mapChipDrawOffset.y >= 450 && (*v).pos.x + mapChipSize_/2 - _mapChipDrawOffset.x <= 150)
 		{
-			DrawRotaGraph(std::get<0>(*v).x + mapChipSize_/2 - _mapChipDrawOffset.x, std::get<0>(*v).y + mapChipSize_/2 + _mapChipDrawOffset.y, 1.0, std::get<2>(*v), _chipPNG[std::get<1>(*v)], true);
+			DrawRotaGraph((*v).pos.x + mapChipSize_/2 - _mapChipDrawOffset.x, (*v).pos.y + mapChipSize_/2 + _mapChipDrawOffset.y, 1.0, (*v).rota, _chipPNG[(*v).num], true);
 		}
 	}
 
@@ -1109,8 +1154,9 @@ void GameScene::Pl_TurnEndAfter(void)
 			// 敵の種類によっては毒にかかる
 			if (_monster[0]->GetEnemyNum() == 0 && _player->GetBarrierNum() <= 0)
 			{
-				int poison = GetRand(1);	// 0か1
-				if (poison == 0)			// 0なら毒にかかる
+				int poison = GetRand(4);	// 0~4
+				// 0 かつ 状態が毒でないときは、毒にかかる
+				if (poison == 0 && _player->GetCondition() == CONDITION::FINE)			
 				{
 					// 毒音
 					PlaySoundMem(_soundSE[7], DX_PLAYTYPE_BACK, true);
@@ -1414,10 +1460,10 @@ void GameScene::Direct(void)
 		for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
 		{
 			// 現在地を見て、登録している方向と回転角度を代入する
-			if (plPosX * mapChipSize_ == std::get<0>(*v).x && (screen_sizeY - mapChipSize_) - (plPosY * mapChipSize_) == std::get<0>(*v).y)
+			if (plPosX * mapChipSize_ == (*v).pos.x  && (screen_sizeY - mapChipSize_) - (plPosY * mapChipSize_) == (*v).pos.y)
 			{
-				_directRota = std::get<2>(*v);
-				_plDirect = std::get<3>(*v);
+				_directRota = (*v).rota;
+				_plDirect = (*v).dir;
 				backFlg = false;
 				return;
 			}
@@ -1792,14 +1838,16 @@ void GameScene::Key(void)
 				|| _plNowPoint == static_cast<int>(MAP::EVE_MONS) || _plNowPoint == static_cast<int>(MAP::GOAL))
 			{
 				// イベントアイコン(即死トラップ以外)のときはマップチップを回転させずに保存する
-				_mapVec.emplace_back(VECTOR2(plPosX * mapChipSize_,
-				(screen_sizeY - mapChipSize_) - (plPosY * mapChipSize_)), _plNowPoint, 0.0f,_plDirect);
+				_mapVec.emplace_back(MapMake{ VECTOR2(plPosX * mapChipSize_,
+				(screen_sizeY - mapChipSize_) - (plPosY * mapChipSize_)), 
+				_plNowPoint, 0.0f,_plDirect });
 			}
 			else
 			{
 				// 通常道と即死トラップの保存
-				_mapVec.emplace_back(VECTOR2(plPosX * mapChipSize_,
-				(screen_sizeY - mapChipSize_) - (plPosY * mapChipSize_)), _plNowPoint, _directRota, _plDirect);
+				_mapVec.emplace_back(MapMake{ VECTOR2(plPosX * mapChipSize_,
+				(screen_sizeY - mapChipSize_) - (plPosY * mapChipSize_)),
+				_plNowPoint, static_cast<float>(_directRota), _plDirect });
 			}
 			// 通ったことのある道はフラグがtrueになる仕組み
 			_dungeonMap[plPosY][plPosX].first = true;
