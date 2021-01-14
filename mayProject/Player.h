@@ -57,7 +57,7 @@ public:
 	bool GetLevelUpAnounceFlg(void)const;	 // レベルが上がったことを通知するフラグを取得する
 
 	static int saveData[9];				// ロードで始めるときに読み込んだデータを保存する配列
-	static bool loadFlg;				// ロードで始めるときにinitでステータスを読み込まないようにするとき必要
+	static bool _loadFlg;				// ロードで始めるときにinitでステータスを読み込まないようにするとき必要
 private:
 	void Init(void);					// 初期化
 	void PngInit(void);					// 画像初期化

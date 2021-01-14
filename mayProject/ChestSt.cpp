@@ -134,13 +134,11 @@ void ChestSt::Draw(Event& eve, Menu& menu)
 	if (eve._chestOpen[a] == 0)
 	{
 		// i‚Ş(•ó” –³‹)
-		//DrawGraph(600, 345, eve._sentakusiPNG[10], true);
 		DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[10], true);
 
 		if (eve._fateNum == -1)
 		{
 			// ŠJ‚¯‚é
-			//DrawGraph(600, 200, eve._sentakusiPNG[3], true);
 			DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[3], true);
 			DrawGraph(350, 150, eve._chestPNG[0], true);
 			DrawFormatString(450, 70, 0x000000, "•ó” ‚ª’u‚¢‚Ä‚ ‚é");
@@ -165,7 +163,6 @@ void ChestSt::Draw(Event& eve, Menu& menu)
 		{
 			// æ‚é
 			DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[8], true);
-			//DrawGraph(600, 200, eve._sentakusiPNG[8], true);
 		}
 
 		if (eve._anounceFlg)
@@ -192,7 +189,6 @@ void ChestSt::Draw(Event& eve, Menu& menu)
 		}
 
 		// ‹‚é(•ó” –³‹)
-		//DrawGraph(600, 345, eve._sentakusiPNG[10], true);
 		DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[10], true);
 	}
 }

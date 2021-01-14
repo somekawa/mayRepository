@@ -13,5 +13,5 @@ struct ChestSt
 	~ChestSt();
 	void Update(Event& eve,GameScene& game, Player& player, Menu& menu, Item& item, MouseCtl& mouse);
 	void Draw(Event& eve, Menu& menu);
-	float exr;
+	float exr;			// ägëÂ/èkè¨ó¶
 };

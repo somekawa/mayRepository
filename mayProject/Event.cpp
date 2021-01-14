@@ -53,7 +53,7 @@ void Event::Init(void)
 	// ボタンと飲み物の座標設定
 	int posHandle;
 
-	if (SelectScene::modeTest == MODE::NORMAL)
+	if (SelectScene::modeSelect == MODE::NORMAL)
 	{
 		chestHandle = FileRead_open("csv/chest1.csv");
 		posHandle = FileRead_open("csv/buttonDrink1.csv");
@@ -62,7 +62,7 @@ void Event::Init(void)
 			return; //エラー時の処理
 		}
 	}
-	else if (SelectScene::modeTest == MODE::HARD)
+	else if (SelectScene::modeSelect == MODE::HARD)
 	{
 		chestHandle = FileRead_open("csv/chest2.csv");
 		posHandle = FileRead_open("csv/buttonDrink2.csv");
@@ -146,27 +146,12 @@ void Event::pngInit(void)
 	_drawHandle.try_emplace("itemChoice", LoadGraph("image/itemChoice.png"));
 	_drawHandle.try_emplace("yajirusi", LoadGraph("image/yajirusi.png"));
 
-	//// メッセージ
-	//std::string message = "image/message.png";
-	//_messagePNG = LoadGraph(message.c_str());
-	//// 商人の持ち物の後ろ枠
-	//std::string frame = "image/frame.png";
-	//_syouninWakuPNG = LoadGraph(frame.c_str());
-	//// アイテムボックス背景
-	//std::string itembox = "image/itembox.png";
-	//_itemBoxPNG = LoadGraph(itembox.c_str());
-	//// 選択中のアイテム
-	//std::string itemChoice = "image/itemChoice.png";
-	//_itemChoicePNG = LoadGraph(itemChoice.c_str());
 	// 宝箱
 	std::string trasure_0 = "image/trasure_0.png";
 	LoadDivGraph(trasure_0.c_str(), 2, 2, 1, 390 / 2, 431, _chestPNG);
 	// 文字画像の分割読み込み
 	std::string sentakusi = "image/sentakusi/sentakusi.png";
 	LoadDivGraph(sentakusi.c_str(),12, 12, 1, 150, 75, _sentakusiPNG);
-	//// 商品ページを移動するための矢印の画像
-	//std::string yajirusi = "image/yajirusi.png";
-	//_yajirusiPNG = LoadGraph(yajirusi.c_str());
 }
 
 void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Monster* monster,Cards* cards, MouseCtl* mouse)
@@ -187,8 +172,6 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 		else
 		{
 			yadoSt->Update(*this, *game, *player, *mouse);
-
-			//Yado(game, player,mouse);
 		}
 	}
 
@@ -201,7 +184,6 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 		else
 		{
 			syouninSt->Update(*this, *game, *player, *mouse, *item, *menu);
-			//Syounin(game, player, menu, item,mouse);
 		}
 	}
 
@@ -214,7 +196,6 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 		else
 		{
 			buttonSt->Update(*this, *game, *player, *mouse);
-			//Button(game, player,mouse);
 		}
 	}
 
@@ -227,7 +208,6 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 		else
 		{
 			chestSt->Update(*this, *game, *player, *menu, *item, *mouse);
-			//Chest(game, player, menu, item,mouse);
 		}
 	}
 
@@ -240,7 +220,6 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 		else
 		{
 			drinkSt->Update(*this, *game, *player, *mouse);
-			//Drink(game, player,mouse);
 		}
 	}
 
@@ -298,10 +277,8 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 		// メッセージボックス
 		DrawGraph(420, 50, _drawHandle["message"], true);
 		// 去る
-		//DrawGraph(600, 345, _sentakusiPNG[10], true);
 		DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, _sentakusiPNG[10], true);
 		// 調べる
-		//DrawGraph(600, 200, _sentakusiPNG[9], true);
 		DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, _sentakusiPNG[9], true);
 		DrawGraph(200, 75,eventImages["zou"], true);
 
@@ -337,10 +314,8 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 			// メッセージボックス
 			DrawGraph(420, 50, _drawHandle["message"], true);
 			// 去る
-			//DrawGraph(600, 345, _sentakusiPNG[10], true);
 			DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, _sentakusiPNG[10], true);
 			// 調べる
-			//DrawGraph(600, 200, _sentakusiPNG[11], true);
 			DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, _sentakusiPNG[11], true);
 			DrawFormatString(450, 70, 0x000000, "敵が道をふさいでいる\n何か良い方法はないだろうか..");
 		}

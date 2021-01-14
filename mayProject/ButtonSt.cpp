@@ -100,7 +100,6 @@ void ButtonSt::Draw(Event& eve, GameScene& game)
 		if (eve._fateNum == -1)
 		{
 			// ‰Ÿ‚·
-			//DrawGraph(600, 200, eve._sentakusiPNG[4], true);
 			DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[4], true);
 			DrawFormatString(450, 70, 0x000000, "•Ç‚Éƒ{ƒ^ƒ“‚ª‚Â‚¢‚Ä‚¢‚é...\n");
 		}
@@ -117,6 +116,5 @@ void ButtonSt::Draw(Event& eve, GameScene& game)
 	}
 
 	// ‹Ž‚é
-	//DrawGraph(600, 345, eve._sentakusiPNG[10], true);
 	DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[10], true);
 }

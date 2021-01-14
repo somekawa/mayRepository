@@ -117,7 +117,7 @@ bool GameScene::Init(void)
 
 	// マップ読み込み(配列は[y][x]の順になっている)
 	int mapFileHandle;
-	if (SelectScene::modeTest == MODE::NORMAL)
+	if (SelectScene::modeSelect == MODE::NORMAL)
 	{
 		mapFileHandle = FileRead_open("csv/map1.csv");
 		if (mapFileHandle == NULL)
@@ -127,7 +127,7 @@ bool GameScene::Init(void)
 		_bossPos = { 8,5 };			
 		_bossemErgencyPos = { 7,5 };
 	}
-	else if (SelectScene::modeTest == MODE::HARD)
+	else if (SelectScene::modeSelect == MODE::HARD)
 	{
 		mapFileHandle = FileRead_open("csv/map2.csv");
 		if (mapFileHandle == NULL)

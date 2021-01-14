@@ -7,7 +7,7 @@
 #include "MouseCtl.h"
 
 // static変数の実体<型>クラス名::変数名 = 初期化;
-bool Player::loadFlg = false;
+bool Player::_loadFlg = false;
 int Player::saveData[9] = { 0,0,0,0,0,0,0,0,0 };
 
 // スキルチャージ時間の最大値
@@ -43,7 +43,7 @@ Player::~Player()
 
 void Player::Init(void)
 {
-	if (!loadFlg)
+	if (!_loadFlg)
 	{
 		player_status.now_level = 1;
 		player_status.maxHP = 35;

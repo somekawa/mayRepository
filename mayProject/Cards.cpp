@@ -172,7 +172,6 @@ void Cards::Draw(Player* player, Menu* menu)
 	{
 		// ここでカードをすべてDrawしてしまうと、
 		// クリックしたカードが右側のカードよりしたに描画されてしまうのでわける
-		//Draw(card[i].pos, card[i].pngSel);
 		if (_id >= 0)
 		{
 			// 左クリックして所持しているカードがあるとき
@@ -387,9 +386,6 @@ void Cards::Move(int id)
 							_cardMap[_setCardPos[i + 1]] = card[i + 1].cardMem;
 
 							// 動かし元のスペースに新しいカードの生成を行う
-							//card[id] = card[card[id].num];
-							// 次に出るカードはランダムにする
-							//0 3 6のカードのみだしたい
 							int rand = GetRand(8);
 							int userand = rand % 3 * 3;
 							card[id].pngSel = _cardPngSel_pair[userand].first;
@@ -441,8 +437,6 @@ void Cards::UseCard(int id)
 		_turnNum -= 1;
 
 		// 動かし元のスペースに新しいカードの生成を行う
-		// 次に出るカードはランダムにする
-		// 0 3 6のカードのみだしたい
 		int rand = GetRand(8);
 		int userand = rand % 3 * 3;
 		card[id].pngSel = _cardPngSel_pair[userand].first;
@@ -479,8 +473,6 @@ void Cards::UseCard(int id)
 		// 使ったカードの効果を出して、違うカードを使用した場所に出す
 
 		// 動かし元のスペースに新しいカードの生成を行う
-		// 次に出るカードはランダムにする
-		// 0 3 6のカードのみだしたい
 		int rand = GetRand(8);
 		int userand = rand % 3 * 3;
 		card[id].pngSel = _cardPngSel_pair[userand].first;
@@ -511,11 +503,7 @@ void Cards::UseCard(int id)
 			_healNum = 8;
 		}
 
-		// 使ったカードの効果を出して、違うカードを使用した場所に出す
-
 		// 動かし元のスペースに新しいカードの生成を行う
-		// 次に出るカードはランダムにする
-		// 0 3 6のカードのみだしたい
 		int rand = GetRand(8);
 		int userand = rand % 3 * 3;
 		card[id].pngSel = _cardPngSel_pair[userand].first;

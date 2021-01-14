@@ -5,9 +5,6 @@
 Item::Item()
 {
 	Init();
-	// 売り切れの文字
-	//std::string out = "image/soldout.png";
-	//_soldoutPNG = LoadGraph(out.c_str());
 }
 
 Item::~Item()
@@ -74,40 +71,6 @@ std::pair<int, ITEM> Item::GetPair(const int& num)
 {
 	return item_pair[num];
 }
-
-//void Item::SetHojuPair(int num, int noweventnum)
-//{
-//	item_pair[num].first = _itemStruct[num].png;
-//	item_pair[num].second = static_cast<ITEM>(static_cast<int>(ITEM::POTION) + num);
-//
-//	//// SWORDとSHIELDのときに、進行度をみて、補充する強さを変更する?
-//	//if (noweventnum >= 3)
-//	//{
-//	//	if (item_pair[num].second == ITEM::SWORD)
-//	//	{
-//	//		item_pair[num].second = ITEM::SWORD_LV2;
-//	//	}
-//	//	if (item_pair[num].second == ITEM::SHIELD)
-//	//	{
-//	//		item_pair[num].second = ITEM::SHIELD_LV2;
-//	//	}
-//	//}
-//	//else
-//	//{
-//	//	// 到達度以下のときは盾1が入るようにする
-//	//	if (item_pair[num].second == ITEM::SWORD_LV2)
-//	//	{
-//	//		item_pair[num].second = ITEM::SHIELD;
-//	//		item_pair[num].first = _itemStruct[5].png;
-//	//	}
-//	//}
-//}
-//
-//void Item::SetSoldOutPair(int num)
-//{
-//	item_pair[num].first = _soldoutPNG;
-//	item_pair[num].second = ITEM::NON;
-//}
 
 VECTOR2 Item::GetPos(const int& num)
 {

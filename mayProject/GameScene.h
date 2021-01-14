@@ -100,12 +100,6 @@ private:
 	Menu* _menu;
 	Item* _item;
 	Event* _event;
-	//std::unique_ptr<Monster*> _monster;
-	//std::unique_ptr<Cards*> _cards;
-	//std::unique_ptr<Player*> _player;
-	//std::unique_ptr<Menu*> _menu;
-	//std::unique_ptr<Item*> _item;
-	//std::unique_ptr<Event*> _event;
 
 	// 扉関係
 	float _doorExpand;					// 扉の拡大用変数
@@ -121,20 +115,20 @@ private:
 	VECTOR2 _shackPos;					// 揺れ幅
 
 	// ダンジョン関係
-	void Direct(void);			// 移動と向きを変える関数
-	void Key(void);				// キー処理関数
+	void Direct(void);					// 移動と向きを変える関数
+	void Key(void);						// キー処理関数
 	std::pair<bool, int> _dungeonMap[10][10];				// マップ(通ったことのあるところはtrue)
 	std::vector<MapMake> _mapVec;							// マップ移動軌跡の保存用変数
-	int _plNowPoint;			// プレイヤーの現在地
-	int _plOldPoint;			// プレイヤーの前回いた位置
-	bool _leftFlg;				// 左折したらtrue
-	bool _rightFlg;				// 右折したらtrue
-	double _directRota;			// 自分アイコンの向き調整用
-	PL_DIRECTION _plDirect;		// プレイヤーの向いている方向
-	PL_DIRECTION _plDirectOld;	// プレイヤーの前回向いていた方向
-	VECTOR2 _mapChipDrawOffset;	// マップチップの描画位置オフセット
-	VECTOR2 _plNowMark;			// 自分アイコン描画位置調整用
-	bool _allMapFlg;			// 全体マップ表示のときはtrue
+	int _plNowPoint;					// プレイヤーの現在地
+	int _plOldPoint;					// プレイヤーの前回いた位置
+	bool _leftFlg;						// 左折したらtrue
+	bool _rightFlg;						// 右折したらtrue
+	double _directRota;					// 自分アイコンの向き調整用
+	PL_DIRECTION _plDirect;				// プレイヤーの向いている方向
+	PL_DIRECTION _plDirectOld;			// プレイヤーの前回向いていた方向
+	VECTOR2 _mapChipDrawOffset;			// マップチップの描画位置オフセット
+	VECTOR2 _plNowMark;					// 自分アイコン描画位置調整用
+	bool _allMapFlg;					// 全体マップ表示のときはtrue
 
 	// その他
 	int _blinkCnt;						// 攻撃を食らったときに起こる点滅
@@ -160,7 +154,7 @@ private:
 	float _guideExrMove;				// ガイド描画時の拡大/縮小
 	bool _buttleGuideFlg;				// 戦闘ガイドの表示/非表示切替
 
-	std::map<int, EVENT_STATE> _eventStateMap;
+	std::map<int, EVENT_STATE> _eventStateMap;	// イベント番号とenum classを一致させてイベント処理を行いやすくする
 
 	/*画像関係*/
 	std::map<std::string, int> _drawHandle;
@@ -177,11 +171,11 @@ private:
 
 	/*音関係*/
 	// SE関連
-	int _soundSE[8];	// SE
-	int _seCnt;			// 歩き音からドア音までの鳴る間隔
-	bool _soundWalk;	// 歩き音からドア音につなぐときに必要なフラグ
-	float _walkCnt;		// 歩く音とキーの入力受付タイミングの調整
+	int _soundSE[8];					// SE
+	int _seCnt;							// 歩き音からドア音までの鳴る間隔
+	bool _soundWalk;					// 歩き音からドア音につなぐときに必要なフラグ
+	float _walkCnt;						// 歩く音とキーの入力受付タイミングの調整
 	// BGM関連
-	int _gameBGM;		// 通常BGM
-	int _battleBGM;		// 戦闘BGM
+	int _gameBGM;						// 通常BGM
+	int _battleBGM;						// 戦闘BGM
 };

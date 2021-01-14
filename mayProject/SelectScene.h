@@ -29,7 +29,7 @@ public:
 	~SelectScene();
 	// unique_Base own : 自分のSceneポインタ ,  const GameCtl &ctl : GameCtlの読み取り専用
 	unique_Base Update(unique_Base own, const GameCtl& ctl);	
-	static MODE modeTest;
+	static MODE modeSelect;				// 難易度選択
 	static bool pushFlg;				// 難易度選択ボタンを押されたらtrueにする
 private:
 	bool Init(void);					// 初期化

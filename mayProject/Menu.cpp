@@ -10,7 +10,7 @@
 #include "MouseCtl.h"
 
 // static変数の実体<型>クラス名::変数名 = 初期化;
-bool Menu::loadFlg = false;
+bool Menu::_loadFlg = false;
 
 struct item
 {
@@ -105,7 +105,7 @@ void Menu::Init(void)
 	for (int i = 0; i <= 11; i++)
 	{
 		itemBox[i].pos = { (((i % 3) + 3) * 100),((i / 3) + 1) * 100 - 30 };
-		if (!loadFlg)
+		if (!_loadFlg)
 		{
 			itemBox[i]._item = ITEM::NON;
 		}
@@ -140,16 +140,16 @@ void Menu::PngInit(void)
 	std::string menuButton = "image/menu/menuSel.png";
 	LoadDivGraph(menuButton.c_str(), 3, 3, 1, 200, 100, _menuSelPNG);
 
-	menuImages.try_emplace("titleBack", LoadGraph("image/menuTitleBackButton.png"));	// タイトルへ戻るボタン
-	menuImages.try_emplace("Save", LoadGraph("image/menuSave.png"));					// セーブボタン
-	menuImages.try_emplace("menuButton", LoadGraph("image/menuButton.png"));			// メニュー画面背景
-	menuImages.try_emplace("menuWindow", LoadGraph("image/menu_window.png"));			// アイテムボックス背景
-	menuImages.try_emplace("use", LoadGraph("image/use.png"));							// 選択中のアイテム
-	menuImages.try_emplace("suteru", LoadGraph("image/suteru.png"));					// 使用の文字
-	menuImages.try_emplace("back", LoadGraph("image/back.png"));						// 捨てるの文字
-	menuImages.try_emplace("setumei", LoadGraph("image/setumei.png"));					// 戻るの文字
-	menuImages.try_emplace("itembox", LoadGraph("image/itembox.png"));					// 説明の後ろ画像
-	menuImages.try_emplace("itemChoice", LoadGraph("image/itemChoice.png"));			// メニューボタン
+	_menuImages.try_emplace("titleBack", LoadGraph("image/menuTitleBackButton.png"));	// タイトルへ戻るボタン
+	_menuImages.try_emplace("Save", LoadGraph("image/menuSave.png"));					// セーブボタン
+	_menuImages.try_emplace("menuButton", LoadGraph("image/menuButton.png"));			// メニュー画面背景
+	_menuImages.try_emplace("menuWindow", LoadGraph("image/menu_window.png"));			// アイテムボックス背景
+	_menuImages.try_emplace("use", LoadGraph("image/use.png"));							// 選択中のアイテム
+	_menuImages.try_emplace("suteru", LoadGraph("image/suteru.png"));					// 使用の文字
+	_menuImages.try_emplace("back", LoadGraph("image/back.png"));						// 捨てるの文字
+	_menuImages.try_emplace("setumei", LoadGraph("image/setumei.png"));					// 戻るの文字
+	_menuImages.try_emplace("itembox", LoadGraph("image/itembox.png"));					// 説明の後ろ画像
+	_menuImages.try_emplace("itemChoice", LoadGraph("image/itemChoice.png"));			// メニューボタン
 }
 
 void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards, MouseCtl* mouse)
@@ -600,7 +600,7 @@ void Menu::Draw(Player* player, Item* item, Monster* monster)
 {
 	if (monster->GetEnemyState() != ENEMY_STATE::EXIST)
 	{
-		DrawGraph(0, 0, menuImages["menuButton"], true);
+		DrawGraph(0, 0, _menuImages["menuButton"], true);
 	}
 	else
 	{
@@ -611,7 +611,7 @@ void Menu::Draw(Player* player, Item* item, Monster* monster)
 	// メニュー画面の表示
 	if (_menuBackPngFlg)
 	{
-		DrawGraph(200, 0, menuImages["menuWindow"], true);
+		DrawGraph(200, 0, _menuImages["menuWindow"], true);
 	}
 
 	// メニュー項目
@@ -622,8 +622,8 @@ void Menu::Draw(Player* player, Item* item, Monster* monster)
 			DrawGraph(menu_pair[i].first.x, menu_pair[i].first.y, _menuSelPNG[i], true);
 		}
 
-		DrawGraph(menu_pair[3].first.x, menu_pair[3].first.y, menuImages["titleBack"], true);	
-		DrawGraph(menu_pair[4].first.x, menu_pair[4].first.y, menuImages["Save"], true);
+		DrawGraph(menu_pair[3].first.x, menu_pair[3].first.y, _menuImages["titleBack"], true);	
+		DrawGraph(menu_pair[4].first.x, menu_pair[4].first.y, _menuImages["Save"], true);
 	}
 
 	// アイテム
@@ -632,12 +632,12 @@ void Menu::Draw(Player* player, Item* item, Monster* monster)
 		// 枠と入手アイテムの描画
 		for (int i = 0; i <= 11; i++)
 		{
-			DrawGraph(itemBox[i].pos.x, itemBox[i].pos.y, menuImages["itembox"], true);
+			DrawGraph(itemBox[i].pos.x, itemBox[i].pos.y, _menuImages["itembox"], true);
 			// 入手しているアイテムの描画(していなかったら何も描画されないようにする)
 			DrawGraph(itemBox[i].pos.x, itemBox[i].pos.y, itemBox[i].png, true);
 		}
 
-		DrawGraph(_choicePos.x, _choicePos.y, menuImages["itemChoice"], true);
+		DrawGraph(_choicePos.x, _choicePos.y, _menuImages["itemChoice"], true);
 
 		// 装備されたらそこにEの文字を出す
 		DrawFormatString(_equipSwordPos.x + 10, _equipSwordPos.y + 10, GetColor(255, 0, 0), "E");
@@ -662,18 +662,18 @@ void Menu::Draw(Player* player, Item* item, Monster* monster)
 	if (_menu == MENU::ITEM || _menu == MENU::STATUS)
 	{
 		// 戻る
-		DrawGraph(375, 470, menuImages["back"], true);
+		DrawGraph(375, 470, _menuImages["back"], true);
 
 		if (_useOrThrowAway)
 		{
 			// 説明の後ろ画像
-			DrawGraph(0, 320, menuImages["setumei"], true);
+			DrawGraph(0, 320, _menuImages["setumei"], true);
 
 			// アイテムを使うことに効果があるとき
 			if (!_nonNeedFlg)
 			{
 				// 使う
-				DrawGraph(50, 400, menuImages["use"], true);
+				DrawGraph(50, 400, _menuImages["use"], true);
 			}
 			else
 			{
@@ -682,14 +682,14 @@ void Menu::Draw(Player* player, Item* item, Monster* monster)
 				// 描画ブレンドモード変更
 				SetDrawBlendMode(DX_BLENDMODE_ADD, 100);
 				// 使う
-				DrawGraph(50, 400, menuImages["use"], true);
+				DrawGraph(50, 400, _menuImages["use"], true);
 
 				// 描画ブレンドモードをノーブレンドにする
 				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 				DrawFormatString(20, 300, 0xffffff, "今使っても効果がない");
 			}
 			// 捨てる
-			DrawGraph(50, 500, menuImages["suteru"], true);
+			DrawGraph(50, 500, _menuImages["suteru"], true);
 			// メニューのアイテムで選択したアイテムの説明を出す
 			if (_itemSetumei != ITEM::NON)
 			{
@@ -924,8 +924,8 @@ void Menu::Load()
 		//ファイルを閉じる
 		FileRead_close(FileHandle);
 
-		Player::loadFlg = true;
-		loadFlg = true;
+		Player::_loadFlg = true;
+		_loadFlg = true;
 		SelectScene::pushFlg = true;
 	}
 	else if (MessageBox(			// メッセージ

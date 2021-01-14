@@ -28,7 +28,7 @@ Enemy_weak::~Enemy_weak()
 bool Enemy_weak::Init(void)
 {
 	int FileHandle;
-	if (SelectScene::modeTest == MODE::NORMAL)
+	if (SelectScene::modeSelect == MODE::NORMAL)
 	{
 		//ファイルを読み込む
 		FileHandle = FileRead_open("csv/enemyData_NORMAL.csv");
@@ -37,7 +37,7 @@ bool Enemy_weak::Init(void)
 			return false; //エラー時の処理
 		}
 	}
-	else if (SelectScene::modeTest == MODE::HARD)
+	else if (SelectScene::modeSelect == MODE::HARD)
 	{
 		//ファイルを読み込む
 		FileHandle = FileRead_open("csv/enemyData_HARD.csv");
@@ -68,13 +68,13 @@ bool Enemy_weak::Init(void)
 
 void Enemy_weak::pngInit(void)
 {
-	if (SelectScene::modeTest == MODE::NORMAL)
+	if (SelectScene::modeSelect == MODE::NORMAL)
 	{
 		// 敵の分割読み込み(NORMALが選択された時)
 		std::string monster = "image/monster/mons.png";
 		LoadDivGraph(monster.c_str(), 5, 5, 1, 400, 400, _enemyPNG);
 	}
-	else if (SelectScene::modeTest == MODE::HARD)
+	else if (SelectScene::modeSelect == MODE::HARD)
 	{
 		// 敵の分割読み込み(HARDが選択された時)
 		std::string monster = "image/monster/mons2.png";

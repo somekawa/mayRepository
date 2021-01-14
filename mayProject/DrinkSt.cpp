@@ -103,7 +103,6 @@ void DrinkSt::Draw(Event& eve,GameScene& game)
 		if (eve._fateNum == -1)
 		{
 			// ˆù‚Þ
-			//DrawGraph(600, 200, eve._sentakusiPNG[1], true);
 			DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[1], true);
 			DrawFormatString(450, 70, 0x000000, "[Drink Me]\n‚Æ‚©‚©‚ê‚½•r‚ª‚ ‚é...");
 		}
@@ -119,6 +118,5 @@ void DrinkSt::Draw(Event& eve,GameScene& game)
 		}
 	}
 	// ‹Ž‚é
-	//DrawGraph(600, 345, eve._sentakusiPNG[10], true);
 	DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[10], true);
 }

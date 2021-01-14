@@ -15,7 +15,7 @@ const KEY_ARRAY & GameCtl::GetCtl(KEY_TYPE type) const // ––”ö‚Ìconst‚Í’†‚É‘‚¢‚
 	{
 		return dataOld;
 	}
-	return data;					// QÆ‚È‚Ì‚ÅA‚»‚Ì‚Ü‚Ü•Ô‚µ‚Ä‘åä•vB
+	return data;					
 }
 
 bool GameCtl::Update(void)

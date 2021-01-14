@@ -3,8 +3,8 @@
 
 MouseCtl::MouseCtl()
 {
-	mouseData = 0;
-	mouseDataOld = 0;
+	_mouseData = 0;
+	_mouseDataOld = 0;
 }
 
 MouseCtl::~MouseCtl()
@@ -14,7 +14,7 @@ MouseCtl::~MouseCtl()
 bool MouseCtl::GetClickTrg(void)
 {
 	//マウスの左ボタンが押されていたら
-	if (mouseData & MOUSE_INPUT_LEFT && !(mouseDataOld & MOUSE_INPUT_LEFT))
+	if (_mouseData & MOUSE_INPUT_LEFT && !(_mouseDataOld & MOUSE_INPUT_LEFT))
 	{	
 		return true;
 	}
@@ -25,7 +25,7 @@ bool MouseCtl::GetClickTrg(void)
 bool MouseCtl::GetClicking(void)
 {
 	//マウスの左ボタンが押されっぱなし
-	if (mouseData & MOUSE_INPUT_LEFT && (mouseDataOld & MOUSE_INPUT_LEFT))
+	if (_mouseData & MOUSE_INPUT_LEFT && (_mouseDataOld & MOUSE_INPUT_LEFT))
 	{
 		return true;
 	}
@@ -35,17 +35,17 @@ bool MouseCtl::GetClicking(void)
 
 const VECTOR2& MouseCtl::GetPos(void)
 {
-	return pos;
+	return _pos;
 }
 
 void MouseCtl::UpDate(void)
 {
 	// マウスの座標取得
-	GetMousePoint(&pos.x, &pos.y);
+	GetMousePoint(&_pos.x, &_pos.y);
 
 	// 1フレーム前の情報を入れる
-	mouseDataOld = mouseData;
+	_mouseDataOld = _mouseData;
 
 	// マウスのクリック状態取得
-	mouseData = GetMouseInput();
+	_mouseData = GetMouseInput();
 }

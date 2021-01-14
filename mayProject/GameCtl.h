@@ -1,8 +1,7 @@
 #pragma once
 #include <array>
 
-// 省略用
-using KEY_ARRAY = std::array<char, 256>; // type = 型 def(define) = 定義	arrayを使ったキー処理
+using KEY_ARRAY = std::array<char, 256>; //	arrayを使ったキー処理
 
 enum KEY_TYPE
 {

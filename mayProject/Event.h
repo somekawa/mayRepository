@@ -128,5 +128,5 @@ private:
 	std::unique_ptr<ChestSt> chestSt;
 	std::unique_ptr<DrinkSt> drinkSt;
 
-	float exr;
+	float exr;		// КgСе/ПkПђЧ¶
 };

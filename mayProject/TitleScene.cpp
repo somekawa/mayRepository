@@ -6,7 +6,7 @@
 #include "MouseCtl.h"
 
 // static•Ï”‚ÌÀ‘Ì<Œ^>ƒNƒ‰ƒX–¼::•Ï”–¼ = ‰Šú‰»;
-int TitleScene::_titleBGM = 0;
+int TitleScene::titleBGM = 0;
 
 TitleScene::TitleScene()
 {
@@ -26,8 +26,8 @@ bool TitleScene::Init(void)
 	_lightFlg = false;
 	_seFlg = false;
 	_seClick = LoadSoundMem("sound/se/click.mp3");
-	_titleBGM = LoadSoundMem("sound/bgm/title.mp3");
-	PlaySoundMem(_titleBGM, DX_PLAYTYPE_LOOP, true);
+	titleBGM = LoadSoundMem("sound/bgm/title.mp3");
+	PlaySoundMem(titleBGM, DX_PLAYTYPE_LOOP, true);
 	return true;
 }
 

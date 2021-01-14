@@ -7,7 +7,7 @@
 #include "MouseCtl.h"
 
 // static変数の実体<型>クラス名::変数名 = 初期化;
-MODE SelectScene::modeTest = MODE::NON;
+MODE SelectScene::modeSelect = MODE::NON;
 bool SelectScene::pushFlg = false;
 
 #define PI 3.141592653589793f
@@ -69,25 +69,25 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 			// 当たり判定(NORMAL選択時)
 			if (mouse->GetPos().x >= 250 && mouse->GetPos().x <= 250 + 400 && mouse->GetPos().y >= 100 && mouse->GetPos().y <= 100 + 150)
 			{
-				DeleteSoundMem(TitleScene::_titleBGM);
+				DeleteSoundMem(TitleScene::titleBGM);
 				if (CheckSoundMem(_seClick) == 0)
 				{
 					PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
 					_toGameFlg = true;
 				}
-				modeTest = MODE::NORMAL;
+				modeSelect = MODE::NORMAL;
 				Menu::Load();
 			}
 			// 当たり判定(HARD選択時)
 			if (mouse->GetPos().x >= 250 && mouse->GetPos().x <= 250 + 400 && mouse->GetPos().y >= 300 && mouse->GetPos().y <= 300 + 150)
 			{
-				DeleteSoundMem(TitleScene::_titleBGM);
+				DeleteSoundMem(TitleScene::titleBGM);
 				if (CheckSoundMem(_seClick) == 0)
 				{
 					PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
 					_toGameFlg = true;
 				}
-				modeTest = MODE::HARD;
+				modeSelect = MODE::HARD;
 				Menu::Load();
 			}
 
