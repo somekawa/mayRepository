@@ -209,7 +209,7 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* c
 		if (mouse->GetPos().x >= 530 && mouse->GetPos().x <= 530 + 100 && mouse->GetPos().y >= 150 && mouse->GetPos().y <= 150 + 100)
 		{
 			PlaySoundMem(_soundSE[5], DX_PLAYTYPE_BACK, true);
-			_skill = SKILL::HEAL;
+			_skill = SKILL::INN;
 			// ‰ñ•œŒn(‘S‰ñ•œ+ó‘ÔˆÙí‰ñ•œ)
 			player_status.plHP = player_status.maxHP;
 			player_status.condition = CONDITION::FINE;
@@ -372,7 +372,7 @@ void Player::SkillDraw(void)
 		}
 	}
 
-	if (_skill == SKILL::HEAL)
+	if (_skill == SKILL::INN)
 	{
 		if (_animCnt <= 9)
 		{

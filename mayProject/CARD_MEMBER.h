@@ -19,7 +19,7 @@ enum class CARDS_SYURUI {
 	NON,
 	ATTACK,
 	GUARD,
-	HEAL
+	INN
 };
 
 CARD_MEMBER begin(CARD_MEMBER);

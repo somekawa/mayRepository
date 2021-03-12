@@ -163,7 +163,7 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 		_kyouseiButtleFlg = true;
 	};
 
-	if (_event == EVENT_STATE::YADO)
+	if (_event == EVENT_STATE::INN)
 	{
 		if (_eventMonsFlg && !_onceFlg)
 		{
@@ -175,7 +175,7 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 		}
 	}
 
-	if (_event == EVENT_STATE::SYOUNIN)
+	if (_event == EVENT_STATE::MERCHANT)
 	{
 		if (_eventMonsFlg && !_onceFlg)
 		{
@@ -242,13 +242,13 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 {
 	// h‰®
-	if (_event == EVENT_STATE::YADO && !_eventMonsFlg)
+	if (_event == EVENT_STATE::INN && !_eventMonsFlg)
 	{
 		yadoSt->Draw(*this, *player);
 	}
 
 	// ¤l
-	if (_event == EVENT_STATE::SYOUNIN && !_eventMonsFlg)
+	if (_event == EVENT_STATE::MERCHANT && !_eventMonsFlg)
 	{
 		syouninSt->Draw(*this, *player, *item, *menu);
 	}

@@ -187,8 +187,8 @@ bool GameScene::Init(void)
 	_buttleGuideFlg = false;
 
 	//13以外 (7~12と14)
-	_eventStateMap.try_emplace(7, EVENT_STATE::YADO);
-	_eventStateMap.try_emplace(8, EVENT_STATE::SYOUNIN);
+	_eventStateMap.try_emplace(7, EVENT_STATE::INN);
+	_eventStateMap.try_emplace(8, EVENT_STATE::MERCHANT);
 	_eventStateMap.try_emplace(9, EVENT_STATE::BUTTON);
 	_eventStateMap.try_emplace(10, EVENT_STATE::CHEST);
 	_eventStateMap.try_emplace(11, EVENT_STATE::DRINK);
@@ -354,7 +354,34 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 		return std::make_unique<GameClearScene>();
 	}
 
-	Walk();
+	//Walk();なぜか関数の中にブレークポイントおいても反応しないから一時的コメントアウト
+
+	if (_keyFlg && !openDoor)
+	{
+		_walkCnt -= 0.1f;
+	}
+
+	// 1:再生中 0:再生していない
+	if (_soundWalk)
+	{
+		PlaySoundMem(_soundSE[1], DX_PLAYTYPE_BACK, true);
+		_soundWalk = false;
+		_walkCnt = 12.0f;
+	}
+
+	if (CheckSoundMem(_soundSE[1]) == 1)
+	{
+		_keyFlg = true;
+	}
+	else if (_keyFlg && _walkCnt <= 0.0f)
+	{
+		_keyFlg = false;
+		// ここで次の道へ移動させたい
+		openDoor = true;
+		Key();
+	}
+
+
 	ChangeBGM();
 	Pl_Dead();
 	_menu->Update(this, _player, _monster[0], _cards,mouse);
@@ -484,10 +511,10 @@ void GameScene::Draw(void)
 	{
 		if (moveFlg)
 		{
-			if (!_soundWalk && _doorExpand <= 1.0f)
-			{
-				_soundWalk = true;
-			}
+			//if (!_soundWalk && _doorExpand <= 1.0f)
+			//{
+			//	_soundWalk = true;
+			//}
 
 			// 歩いてるときに揺れてる感じが出したい
 			_degree += 1.0f * 7.0f;
@@ -968,7 +995,9 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 				_guideFlg = false;
 				_guideVisibleTime = 0;
 				_guideMove = 0;
-				Key();
+				_soundWalk = true;
+				moveFlg = true;
+				//Key();
 			}
 			else
 			{
@@ -1126,7 +1155,7 @@ void GameScene::EventUpdate(void)
 		}
 	}
 
-	for (auto eve = static_cast<int>(EVENT_STATE::YADO); eve <= static_cast<int>(EVENT_STATE::MAX);)
+	for (auto eve = static_cast<int>(EVENT_STATE::INN); eve <= static_cast<int>(EVENT_STATE::MAX);)
 	{
 		if (eve == static_cast<int>(eventState))
 		{
@@ -1383,7 +1412,7 @@ void GameScene::CardEffect(void)
 		blinkFlg = true;
 	}
 
-	if (_cards->GetCardsSyurui() == CARDS_SYURUI::HEAL)
+	if (_cards->GetCardsSyurui() == CARDS_SYURUI::INN)
 	{
 		if (_player->GetCondition() == CONDITION::POISON)
 		{
@@ -1834,7 +1863,7 @@ void GameScene::Key(void)
 		_plNowPoint = _dungeonMap[plPosY][plPosX].second;
 		if (!_dungeonMap[plPosY][plPosX].first)
 		{
-			if ((_plNowPoint >= static_cast<int>(MAP::YADO) && _plNowPoint <= static_cast<int>(MAP::DRINK)) 
+			if ((_plNowPoint >= static_cast<int>(MAP::INN) && _plNowPoint <= static_cast<int>(MAP::DRINK)) 
 				|| _plNowPoint == static_cast<int>(MAP::EVE_MONS) || _plNowPoint == static_cast<int>(MAP::GOAL))
 			{
 				// イベントアイコン(即死トラップ以外)のときはマップチップを回転させずに保存する
@@ -1904,10 +1933,10 @@ void GameScene::Key(void)
 			//switch (num)
 			//{
 			//case 7:
-			//	eventState = EVENT_STATE::YADO;
+			//	eventState = EVENT_STATE::INN;
 			//	break;
 			//case 8:
-			//	eventState = EVENT_STATE::SYOUNIN;
+			//	eventState = EVENT_STATE::MERCHANT;
 			//	break;
 			//case 9:
 			//	eventState = EVENT_STATE::BUTTON;

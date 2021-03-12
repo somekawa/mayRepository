@@ -484,7 +484,7 @@ void Cards::UseCard(int id)
 	// 使用したカードがhealのとき
 	if (card[id].cardMem == CARD_MEMBER::HEAL_1 || card[id].cardMem == CARD_MEMBER::HEAL_2 || card[id].cardMem == CARD_MEMBER::HEAL_3)
 	{
-		_cardsSyurui = CARDS_SYURUI::HEAL;
+		_cardsSyurui = CARDS_SYURUI::INN;
 
 		// 敵の待機ターン -1
 		_turnNum -= 1;

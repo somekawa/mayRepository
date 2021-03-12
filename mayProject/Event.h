@@ -22,8 +22,8 @@ class Cards;
 enum class EVENT_STATE {
 	NON,
 	ENEMY,		// 敵
-	YADO,		// 宿屋
-	SYOUNIN,	// 商人
+	INN,		// 宿屋
+	MERCHANT,	// 商人
 	BUTTON,		// ボタン
 	CHEST,		// 宝箱
 	DRINK,		// 飲み物

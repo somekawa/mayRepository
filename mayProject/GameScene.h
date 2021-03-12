@@ -24,8 +24,8 @@ enum class MAP {
 	TJI,			// T字路
 	TONOJI_SR,		// ト字型(直進と右への道)
 	TONOJI_SL,		// ト字型(直線と左への道)
-	YADO,
-	SHOUNIN,
+	INN,			// 宿
+	MERCHANT,		// 商人
 	BUTTON,
 	CHEST,
 	DRINK,

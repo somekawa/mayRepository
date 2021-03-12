@@ -12,7 +12,7 @@ enum class SKILL {
 	NON,
 	SWORD,
 	GUARD,
-	HEAL
+	INN
 };
 
 class Monster;
