@@ -168,7 +168,7 @@ bool GameScene::Init(void)
 	// その他
 	blinkFlg = false;
 	_blinkCnt = 0;
-	_monsTimeCnt = 5;
+	_monsTimeCnt = 999;
 	_walkDirect = 0;
 	_plDeadChangeWinColor = 255;
 	_poisonCnt = 256;
@@ -185,6 +185,7 @@ bool GameScene::Init(void)
 	_guideMove = 0;
 	_guideExrMove = 0.0f;
 	_buttleGuideFlg = false;
+	notTroad = false;
 
 	//13以外 (7~12と14)
 	_eventStateMap.try_emplace(7, EVENT_STATE::INN);
@@ -354,34 +355,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 		return std::make_unique<GameClearScene>();
 	}
 
-	//Walk();なぜか関数の中にブレークポイントおいても反応しないから一時的コメントアウト
-
-	if (_keyFlg && !openDoor)
-	{
-		_walkCnt -= 0.1f;
-	}
-
-	// 1:再生中 0:再生していない
-	if (_soundWalk)
-	{
-		PlaySoundMem(_soundSE[1], DX_PLAYTYPE_BACK, true);
-		_soundWalk = false;
-		_walkCnt = 12.0f;
-	}
-
-	if (CheckSoundMem(_soundSE[1]) == 1)
-	{
-		_keyFlg = true;
-	}
-	else if (_keyFlg && _walkCnt <= 0.0f)
-	{
-		_keyFlg = false;
-		// ここで次の道へ移動させたい
-		openDoor = true;
-		Key();
-	}
-
-
+	Walk();
 	ChangeBGM();
 	Pl_Dead();
 	_menu->Update(this, _player, _monster[0], _cards,mouse);
@@ -1292,7 +1266,7 @@ void GameScene::Pl_Dead(void)
 
 void GameScene::Walk(void)
 {
-	if (_keyFlg && _walkCnt > 0.0f)
+	if (_keyFlg && !openDoor)
 	{
 		_walkCnt -= 0.1f;
 	}
@@ -1309,9 +1283,12 @@ void GameScene::Walk(void)
 	{
 		_keyFlg = true;
 	}
-	else if(_keyFlg && _walkCnt <= 0.0f)
+	else if (_keyFlg && _walkCnt <= 0.0f)
 	{
 		_keyFlg = false;
+		// ここで次の道へ移動させたい
+		openDoor = true;
+		Key();
 	}
 }
 
@@ -1494,6 +1471,7 @@ void GameScene::Direct(void)
 				_directRota = (*v).rota;
 				_plDirect = (*v).dir;
 				backFlg = false;
+				notTroad = true;
 				return;
 			}
 		}
@@ -1679,155 +1657,159 @@ void GameScene::Direct(void)
 		_directRota = rota;
 	};
 
-	// T字路
-	if (_plNowPoint == 4)
+	if (!notTroad)
 	{
-		if (_rightFlg && _plDirect != PL_DIRECTION::UP && _plDirect != PL_DIRECTION::DOWN)
+		// T字路
+		if (_plNowPoint == 4)
 		{
-			lambda(PL_DIRECTION::DOWN, PI);
-			plPosY--;
-			return;
+			if (_rightFlg && _plDirect != PL_DIRECTION::UP && _plDirect != PL_DIRECTION::DOWN)
+			{
+				lambda(PL_DIRECTION::DOWN, PI);
+				plPosY--;
+				return;
+			}
+
+			if (_leftFlg && _plDirect != PL_DIRECTION::UP && _plDirect != PL_DIRECTION::DOWN)
+			{
+				lambda(PL_DIRECTION::UP, 0);
+				plPosY++;
+				return;
+			}
+
+			if (_rightFlg && _plDirect == PL_DIRECTION::UP)
+			{
+				lambda(PL_DIRECTION::RIGHT, PI / 2);
+				plPosX++;
+				return;
+			}
+
+			if (_leftFlg && _plDirect == PL_DIRECTION::UP)
+			{
+				lambda(PL_DIRECTION::LEFT, PI + PI / 2);
+				plPosX--;
+				return;
+			}
+
+			if (_rightFlg && _plDirect == PL_DIRECTION::DOWN)
+			{
+				lambda(PL_DIRECTION::LEFT, PI + PI / 2);
+				plPosX--;
+				return;
+			}
+
+			if (_leftFlg && _plDirect == PL_DIRECTION::DOWN)
+			{
+				lambda(PL_DIRECTION::RIGHT, PI / 2);
+				plPosX++;
+				return;
+			}
 		}
 
-		if (_leftFlg && _plDirect != PL_DIRECTION::UP && _plDirect != PL_DIRECTION::DOWN)
+		if (_plDirect == PL_DIRECTION::UP)
 		{
-			lambda(PL_DIRECTION::UP, 0);
-			plPosY++;
-			return;
+			if ((_plNowPoint == 0 || _plNowPoint == 5 || _plNowPoint == 6) && !_rightFlg && !_leftFlg)	// 直進
+			{
+				_plOldPoint = _plNowPoint;
+				_plDirectOld = _plDirect;
+				plPosY++;
+				return;
+			}
+			else if (_plNowPoint == 1 || _plNowPoint == 5)
+			{
+				lambda(PL_DIRECTION::RIGHT, PI / 2);
+				_rightFlg = true;
+				plPosX++;
+				return;
+			}
+			else if (_plNowPoint == 2 || _plNowPoint == 6)
+			{
+				lambda(PL_DIRECTION::LEFT, PI + PI / 2);
+				_leftFlg = true;
+				plPosX--;
+				return;
+			}
 		}
 
-		if (_rightFlg && _plDirect == PL_DIRECTION::UP)
+		if (_plDirect == PL_DIRECTION::DOWN)
 		{
-			lambda(PL_DIRECTION::RIGHT, PI / 2);
-			plPosX++;
-			return;
+			if (_plNowPoint == 0)	// 直進
+			{
+				_plOldPoint = _plNowPoint;
+				plPosY--;
+				return;
+			}
+			else if (_plNowPoint == 1)
+			{
+				lambda(PL_DIRECTION::LEFT, PI + PI / 2);
+				_leftFlg = true;
+				plPosX--;
+				return;
+			}
+			else if (_plNowPoint == 2)
+			{
+				lambda(PL_DIRECTION::RIGHT, PI / 2);
+				_rightFlg = true;
+				plPosX++;
+				return;
+			}
 		}
 
-		if (_leftFlg && _plDirect == PL_DIRECTION::UP)
+		if (_plDirect == PL_DIRECTION::RIGHT)
 		{
-			lambda(PL_DIRECTION::LEFT,PI + PI / 2);
-			plPosX--;
-			return;
+			if (_plNowPoint == 0)	// 直進
+			{
+				_plOldPoint = _plNowPoint;
+				plPosX++;
+				return;
+			}
+			else if (_plNowPoint == 1 && _rightFlg)	// 右曲がり(下)
+			{
+				lambda(PL_DIRECTION::DOWN, PI);
+				_rightFlg = false;
+				plPosY--;
+				return;
+			}
+			else if (_plNowPoint == 2 && _rightFlg)	// 左曲がり(上)
+			{
+				lambda(PL_DIRECTION::UP, 0.0f);
+				_rightFlg = false;
+				plPosY++;
+				return;
+			}
 		}
 
-		if (_rightFlg && _plDirect == PL_DIRECTION::DOWN)
+		if (_plDirect == PL_DIRECTION::LEFT)
 		{
-			lambda(PL_DIRECTION::LEFT, PI + PI / 2);
-			plPosX--;
-			return;
-		}
-
-		if (_leftFlg && _plDirect == PL_DIRECTION::DOWN)
-		{
-			lambda(PL_DIRECTION::RIGHT, PI / 2);
-			plPosX++;
-			return;
+			if (_plNowPoint == 0)	// 直進
+			{
+				_plOldPoint = _plNowPoint;
+				plPosX--;
+				return;
+			}
+			else if (_plDirectOld == PL_DIRECTION::DOWN)
+			{
+				lambda(PL_DIRECTION::DOWN, PI);
+				_leftFlg = false;
+				plPosY--;
+				return;
+			}
+			else if (_plNowPoint == 1 && _leftFlg)	// 右曲がり(上)
+			{
+				lambda(PL_DIRECTION::UP, 0.0f);
+				_leftFlg = false;
+				plPosY++;
+				return;
+			}
+			else if (_plNowPoint == 2 && _leftFlg)	// 左曲がり(下)
+			{
+				lambda(PL_DIRECTION::DOWN, PI);
+				_leftFlg = false;
+				plPosY--;
+				return;
+			}
 		}
 	}
-
-	if (_plDirect == PL_DIRECTION::UP)
-	{
-		if ((_plNowPoint == 0 || _plNowPoint == 5 || _plNowPoint == 6) && !_rightFlg && !_leftFlg)	// 直進
-		{
-			_plOldPoint = _plNowPoint;
-			_plDirectOld = _plDirect;
-			plPosY++;
-			return;
-		}
-		else if (_plNowPoint == 1 || _plNowPoint == 5)
-		{
-			lambda(PL_DIRECTION::RIGHT, PI / 2);
-			_rightFlg = true;
-			plPosX++;
-			return;
-		}
-		else if (_plNowPoint == 2 || _plNowPoint == 6)
-		{
-			lambda(PL_DIRECTION::LEFT, PI + PI / 2);
-			_leftFlg = true;
-			plPosX--;
-			return;
-		}
-	}
-
-	if (_plDirect == PL_DIRECTION::DOWN)
-	{
-		if (_plNowPoint == 0)	// 直進
-		{
-			_plOldPoint = _plNowPoint;
-			plPosY--;
-			return;
-		}
-		else if (_plNowPoint == 1)
-		{
-			lambda(PL_DIRECTION::LEFT, PI + PI / 2);
-			_leftFlg = true;
-			plPosX--;
-			return;
-		}
-		else if (_plNowPoint == 2)
-		{
-			lambda(PL_DIRECTION::RIGHT, PI / 2);
-			_rightFlg = true;
-			plPosX++;
-			return;
-		}
-	}
-
-	if (_plDirect == PL_DIRECTION::RIGHT)
-	{
-		if (_plNowPoint == 0)	// 直進
-		{
-			_plOldPoint = _plNowPoint;
-			plPosX++;
-			return;
-		}
-		else if (_plNowPoint == 1 && _rightFlg)	// 右曲がり(下)
-		{
-			lambda(PL_DIRECTION::DOWN, PI);
-			_rightFlg = false;
-			plPosY--;
-			return;
-		}
-		else if (_plNowPoint == 2 && _rightFlg)	// 左曲がり(上)
-		{
-			lambda(PL_DIRECTION::UP, 0.0f);
-			_rightFlg = false;
-			plPosY++;
-			return;
-		}
-	}
-
-	if (_plDirect == PL_DIRECTION::LEFT)
-	{
-		if (_plNowPoint == 0)	// 直進
-		{
-			_plOldPoint = _plNowPoint;
-			plPosX--;
-			return;
-		}
-		else if (_plDirectOld == PL_DIRECTION::DOWN)
-		{
-			lambda(PL_DIRECTION::DOWN, PI);
-			_leftFlg = false;
-			plPosY--;
-			return;
-		}
-		else if (_plNowPoint == 1 && _leftFlg)	// 右曲がり(上)
-		{
-			lambda(PL_DIRECTION::UP, 0.0f);
-			_leftFlg = false;
-			plPosY++;
-			return;
-		}
-		else if (_plNowPoint == 2 && _leftFlg)	// 左曲がり(下)
-		{
-			lambda(PL_DIRECTION::DOWN, PI);
-			_leftFlg = false;
-			plPosY--;
-			return;
-		}
-	}
+	notTroad = false;
 }
 
 void GameScene::Key(void)

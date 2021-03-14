@@ -153,6 +153,7 @@ private:
 	int _guideMove;						// ガイド描画時に背景の枠を自由変形で動かすときに使う
 	float _guideExrMove;				// ガイド描画時の拡大/縮小
 	bool _buttleGuideFlg;				// 戦闘ガイドの表示/非表示切替
+	bool _notTroad;						// バック処理時にT路地の処理と被らないようにする
 
 	std::map<int, EVENT_STATE> _eventStateMap;	// イベント番号とenum classを一致させてイベント処理を行いやすくする
 
