@@ -10,6 +10,8 @@
 DrinkSt::DrinkSt()
 {
 	exr = 0.0f;
+	choicesPngSize = { 150,75 };
+	offsetPos = { 600,345 };
 }
 
 DrinkSt::~DrinkSt()
@@ -21,7 +23,7 @@ void DrinkSt::Update(Event& eve, GameScene& game, Player& player, MouseCtl& mous
 	exr++;
 	if (mouse.GetClickTrg())
 	{
-		if (mouse.GetPos().x >= 600 && mouse.GetPos().x <= 600 + 150 && mouse.GetPos().y >= 345 && mouse.GetPos().y <= 345 + 75)
+		if (mouse.GetPos().x >= offsetPos.x && mouse.GetPos().x <= offsetPos.x + choicesPngSize.x && mouse.GetPos().y >= offsetPos.y && mouse.GetPos().y <= offsetPos.y + choicesPngSize.y)
 		{
 			exr = 0.0f;
 			// クリック音
@@ -51,7 +53,7 @@ void DrinkSt::Update(Event& eve, GameScene& game, Player& player, MouseCtl& mous
 		// 飲む
 		if (eve._fateNum == -1 && !eve._drinking[eve._drinkNum])
 		{
-			if (mouse.GetPos().x >= 600 && mouse.GetPos().x <= 600 + 150 && mouse.GetPos().y >= 200 && mouse.GetPos().y <= 200 + 75)
+			if (mouse.GetPos().x >= offsetPos.x && mouse.GetPos().x <= offsetPos.x + choicesPngSize.x && mouse.GetPos().y >= 200 && mouse.GetPos().y <= 200 + choicesPngSize.y)
 			{
 				// クリック音
 				PlaySoundMem(eve._soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -103,7 +105,7 @@ void DrinkSt::Draw(Event& eve,GameScene& game)
 		if (eve._fateNum == -1)
 		{
 			// 飲む
-			DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[1], true);
+			DrawRotaGraph(offsetPos.x + choicesPngSize.x / 2, 200 + choicesPngSize.y / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._choicesPNG[1], true);
 			DrawFormatString(450, 70, 0x000000, "[Drink Me]\nとかかれた瓶がある...");
 		}
 
@@ -118,5 +120,5 @@ void DrinkSt::Draw(Event& eve,GameScene& game)
 		}
 	}
 	// 去る
-	DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[10], true);
+	DrawRotaGraph(offsetPos.x + choicesPngSize.x / 2, offsetPos.y + choicesPngSize.y / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._choicesPNG[10], true);
 }

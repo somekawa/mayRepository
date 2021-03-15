@@ -1,4 +1,5 @@
 #pragma once
+// カード内容
 enum class CARD_MEMBER
 {
 	NON,

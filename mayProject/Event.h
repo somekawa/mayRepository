@@ -4,9 +4,10 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <memory>
 #include "Menu.h"
-#include "YadoSt.h"
-#include "SyouninSt.h"
+#include "INNSt.h"
+#include "MerchantSt.h"
 #include "ButtonSt.h"
 #include "ChestSt.h"
 #include "DrinkSt.h"
@@ -38,8 +39,8 @@ class Event
 public:
 	Event();
 	~Event();
-	void UpDate(GameScene* game,Player* player, Menu* menu,Item* item, Monster* monster,Cards* cards, MouseCtl* mouse);
-	void Draw(GameScene* game,Player* player, Menu* menu, Item* item);
+	void UpDate(GameScene* game, const std::shared_ptr<Player>& player, const std::shared_ptr<Menu>& menu, const std::shared_ptr<Item>& item, const std::shared_ptr<Monster>& monster, const std::shared_ptr<Cards>& cards, const std::shared_ptr<MouseCtl>& mouse);
+	void Draw(GameScene* game, const std::shared_ptr<Player>& player, const std::shared_ptr<Menu>& menu, const std::shared_ptr<Item>& item);
 	void SetEvent(const EVENT_STATE& state);// ゲームシーンからイベントを設定する
 	void SetFateNum(const int& num);		// はじめからやり直すのに必要
 	void SetReset(void);					// はじめからやり直すときにイベントの状態をリセットする
@@ -53,14 +54,14 @@ public:
 private:
 	void Init(void);						// 初期化
 	void pngInit(void);						// 画像関係初期化
-	void Enemy(GameScene* game, Player* player, Monster* monster);
-	void Trap(GameScene* game, Player* player, MouseCtl* mouse);
-	void eventMons(GameScene* game, Monster* monster, Cards* cards, MouseCtl* mouse);
+	void Enemy(GameScene* game, const std::shared_ptr<Player>& player, const std::shared_ptr<Monster>& monster);
+	void Trap(GameScene* game, const std::shared_ptr<Player>& player, const std::shared_ptr<MouseCtl>& mouse);
+	void eventMons(GameScene* game, const std::shared_ptr<Monster>& monster, const std::shared_ptr<Cards>& cards, const std::shared_ptr<MouseCtl>& mouse);
 
 	EVENT_STATE _event;					// イベント情報用変数
 
 	// 宿屋・商人
-	bool _healYadoFlg;					// 回復を宿屋で頼むときにtrue
+	bool _healinnFlg;					// 回復を宿屋で頼むときにtrue
 	bool _nonMoneyFlg;					// 所持金が足りないときにtrue(宿屋と商人で使用)
 	bool _buyFlg;						// 買い物をするとしたときにアイテムを表示させるためのフラグ
 	bool _chooseFlg;					// 購入をおしたらtrueにする
@@ -76,7 +77,7 @@ private:
 	bool _anounceFlg;					// アイテムがいっぱいのときにお知らせする
 
 	bool _onceFlg;						// 強制戦闘時に敵情報を描画するときに使用
-	bool _kyouseiButtleFlg;				// 強制戦闘案内画像の描画に使用
+	bool _forcedButtleFlg;				// 強制戦闘案内画像の描画に使用
 
 	// 宝箱関連
 	int _chestOpen[4];					// 開けたかどうか
@@ -112,18 +113,18 @@ private:
 	// [0]:開いてない宝箱,[1]:宝箱から敵出現
 	int _chestPNG[2];
 	// 選択肢の文字画像
-	int _sentakusiPNG[12];
+	int _choicesPNG[12];
 
 	// SE
 	int _soundSE[4];
 
-	friend struct YadoSt;
-	friend struct SyouninSt;
+	friend struct INNSt;
+	friend struct MerchantSt;
 	friend struct ButtonSt;
 	friend struct ChestSt;
 	friend struct DrinkSt;
-	std::unique_ptr<YadoSt> yadoSt;
-	std::unique_ptr<SyouninSt> syouninSt;
+	std::unique_ptr<INNSt> innSt;
+	std::unique_ptr<MerchantSt> merchantSt;
 	std::unique_ptr<ButtonSt> buttonSt;
 	std::unique_ptr<ChestSt> chestSt;
 	std::unique_ptr<DrinkSt> drinkSt;

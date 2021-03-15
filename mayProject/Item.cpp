@@ -20,46 +20,48 @@ void Item::Init(void)
 		return; //エラー時の処理
 	}
 
-	std::string a = "image/";
-	std::string b = ".png";
+	std::string img = "image/";
+	std::string png = ".png";
 
 	for (int i = 0; i <= static_cast<int>(ITEM::MAX) - 2; i++)
 	{
 		// 画像名 説明 費用
-		FileRead_scanf(FileHandle_item, "%[^,],%[^,],%d", _itemStruct[i].name, _itemStruct[i].setumei, &_itemStruct[i].itemCostMoney);
-		auto d = a + _itemStruct[i].name + b;
-		_itemStruct[i].png = LoadGraph(d.c_str());
+		FileRead_scanf(FileHandle_item, "%[^,],%[^,],%d", _itemStruct[i].name, _itemStruct[i].explanation, &_itemStruct[i].itemCostMoney);
+		auto imgName = img + _itemStruct[i].name + png;
+		_itemStruct[i].png = LoadGraph(imgName.c_str());
 	}
 
 	//ファイルを閉じる
 	FileRead_close(FileHandle_item);
 
+	_itemBoxSize = { 100,100 };
+
 	// 商人の持ち物位置
 	for (int i = 0; i <= 7; i++)
 	{
-		_itemPos[i] = { (((i % 3) + 2) * 100) + 90,((i / 3) + 1) * 100 };
+		_itemPos[i] = { (((i % 3) + 2) * _itemBoxSize.x) + (_itemBoxSize.x - (_itemBoxSize.x / 10)),((i / 3) + 1) * _itemBoxSize.y };
 	}
 	// 商人の持ち物アイテム
 	for (int i = 0; i <= 15; i++)
 	{
-		item_pair[i].first = _itemStruct[i].png;
-		item_pair[i].second = static_cast<ITEM>(static_cast<int>(ITEM::POTION) + i);
+		_itemPair[i].first = _itemStruct[i].png;
+		_itemPair[i].second = static_cast<ITEM>(static_cast<int>(ITEM::POTION) + i);
 	}
 
 	// ドロップアイテム(敵・宝箱)
 	//for (int i = 0; i <= 4; i++)
 	//{
-	//	item_pair[i+12].first = _itemStruct[i+12].png;
-	//	item_pair[i+12].second = static_cast<ITEM>(static_cast<int>(ITEM::ENEMY_1) + i);
+	//	_itemPair[i+12].first = _itemStruct[i+12].png;
+	//	_itemPair[i+12].second = static_cast<ITEM>(static_cast<int>(ITEM::ENEMY_1) + i);
 	//}
 
-	item_pair[16].first = _itemStruct[16].png;
-	item_pair[16].second = ITEM::POTION_BIG;
+	_itemPair[16].first = _itemStruct[16].png;
+	_itemPair[16].second = ITEM::POTION_BIG;
 }
 
-char* Item::GetSetumei(const int& num)
+char* Item::GetExplanation(const int& num)
 {
-	return _itemStruct[num].setumei;
+	return _itemStruct[num].explanation;
 }
 
 int Item::GetCostMoney(const int& num)
@@ -69,7 +71,7 @@ int Item::GetCostMoney(const int& num)
 
 std::pair<int, ITEM> Item::GetPair(const int& num)
 {
-	return item_pair[num];
+	return _itemPair[num];
 }
 
 VECTOR2 Item::GetPos(const int& num)
@@ -79,5 +81,5 @@ VECTOR2 Item::GetPos(const int& num)
 
 void Item::SetPos(const int& num)
 {
-	_itemPos[num] = { (((num % 3) + 2) * 100) + 90,((num / 3) + 1) * 100 };
+	_itemPos[num] = { (((num % 3) + 2) * _itemBoxSize.x) + (_itemBoxSize.x - (_itemBoxSize.x / 10)),((num / 3) + 1) * _itemBoxSize.y };
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include <map>
 #include <array>
+#include <memory>
 #include "CARD_MEMBER.h"
 #include "Player.h"
 #include "Menu.h"
@@ -15,7 +16,7 @@ public:
 	Cards();
 	~Cards();
 	void Update(void);						// アップデート関数
-	void Draw(Player* player,Menu* menu);	// 描画
+	void Draw(const std::shared_ptr<Player>& player, const std::shared_ptr<Menu>& menu);	// 描画
 	void SetTurn(const int& turn);			// 敵の攻撃までに動かしていい回数の設定
 	int  GetTurn(void)const;				// 残り移動回数の取得
 	void SetDamage(const int& damage);		// プレイヤーの攻撃後、0に戻すのに必要

@@ -10,7 +10,7 @@
 #include "MouseCtl.h"
 
 // static変数の実体<型>クラス名::変数名 = 初期化;
-bool Menu::_loadFlg = false;
+bool Menu::loadFlg = false;
 
 struct item
 {
@@ -37,7 +37,7 @@ void Menu::Init(void)
 {
 	_menu = MENU::NON;
 	_itemAction = ITEM::NON;
-	_itemSetumei = ITEM::NON;
+	_itemExplanation = ITEM::NON;
 
 	// 見えないところに出しとく
 	_equipShieldPos = { -100,-1 };
@@ -105,7 +105,7 @@ void Menu::Init(void)
 	for (int i = 0; i <= 11; i++)
 	{
 		itemBox[i].pos = { (((i % 3) + 3) * 100),((i / 3) + 1) * 100 - 30 };
-		if (!_loadFlg)
+		if (!loadFlg)
 		{
 			itemBox[i]._item = ITEM::NON;
 		}
@@ -152,7 +152,7 @@ void Menu::PngInit(void)
 	_menuImages.try_emplace("itemChoice", LoadGraph("image/itemChoice.png"));			// メニューボタン
 }
 
-void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards, MouseCtl* mouse)
+void Menu::Update(GameScene* game,const std::shared_ptr<Player>& player, const std::shared_ptr<Monster>& monster, const std::shared_ptr<Cards>& cards, const std::shared_ptr<MouseCtl>& mouse)
 {
 	if (_menu == MENU::SAVE)
 	{
@@ -183,7 +183,7 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 						// アイテムを選択
 						_chooseNum = i;
 						_choicePos = itemBox[i].pos;
-						_itemSetumei = itemBox[i]._item;
+						_itemExplanation = itemBox[i]._item;
 						_useOrThrowAway = true;
 						_nonNeedFlg = false;
 					}
@@ -195,7 +195,7 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 			{
 				// 画像を消すところの共通処理
 				auto lambdaPNGSakujyo = [&]() {
-					_itemSetumei = ITEM::NON;
+					_itemExplanation = ITEM::NON;
 					itemBox[_chooseNum]._item = ITEM::NON;
 					itemBox[_chooseNum].png = -1;
 					_chooseNum = -1;
@@ -596,7 +596,7 @@ void Menu::Update(GameScene* game,Player* player, Monster* monster, Cards* cards
 	}
 }
 
-void Menu::Draw(Player* player, Item* item, Monster* monster)
+void Menu::Draw(const std::shared_ptr<Player>& player, const std::shared_ptr<Item>& item, const std::shared_ptr<Monster>& monster)
 {
 	if (monster->GetEnemyState() != ENEMY_STATE::EXIST)
 	{
@@ -656,6 +656,12 @@ void Menu::Draw(Player* player, Item* item, Monster* monster)
 		DrawFormatString(x, y+120, 0x000000, "次のレベルまで:残り%d"      , player->GetNextLevel());
 		DrawFormatString(x, y+150, 0x000000, "所持金:%d円"                , player->GetMoney());
 		DrawFormatString(x, y+180, 0x000000, "スキルチャージ完了まで:%d回", player->GetSkillCharge());
+
+		// デバッグモード用に攻撃力を高く設定できるようにしておく
+		if (CheckHitKey(KEY_INPUT_F10) == 1)
+		{
+			player->SetAttackDamage(999);
+		}
 	}
 
 	// メニューのステータス画面とアイテム画面の描画
@@ -691,15 +697,15 @@ void Menu::Draw(Player* player, Item* item, Monster* monster)
 			// 捨てる
 			DrawGraph(50, 500, _menuImages["suteru"], true);
 			// メニューのアイテムで選択したアイテムの説明を出す
-			if (_itemSetumei != ITEM::NON)
+			if (_itemExplanation != ITEM::NON)
 			{
-				DrawFormatString(25, 340, 0x000000, "%s\n", item->GetSetumei(static_cast<int>(_itemSetumei) - 1));
+				DrawFormatString(25, 340, 0x000000, "%s\n", item->GetExplanation(static_cast<int>(_itemExplanation) - 1));
 			}
 		}
 	}
 }
 
-void Menu::MenuButton_NonEnemy(MouseCtl* mouse)
+void Menu::MenuButton_NonEnemy(const std::shared_ptr<MouseCtl>& mouse)
 {
 	if (mouse->GetClickTrg()) 
 	{				 
@@ -750,7 +756,7 @@ void Menu::MenuButton_NonEnemy(MouseCtl* mouse)
 	}
 }
 
-void Menu::MenuButton_Enemy(MouseCtl* mouse)
+void Menu::MenuButton_Enemy(const std::shared_ptr<MouseCtl>& mouse)
 {
 	if (mouse->GetClickTrg())
 	{			
@@ -878,7 +884,7 @@ void Menu::SetMeganeFlg(const bool& flag)
 	_meganeFlg = flag;
 }
 
-void Menu::Save(Player* player)
+void Menu::Save(const std::shared_ptr<Player>& player)
 {
 	if (MessageBox(			// メッセージ
 		NULL,
@@ -910,7 +916,7 @@ void Menu::Load()
 	) == IDOK)
 	{
 		// ロードをする
-		//ファイルを読み込む
+		// ファイルを読み込む
 		int FileHandle;
 		FileHandle = FileRead_open("data/save1.csv");
 		if (FileHandle == NULL)
@@ -924,8 +930,8 @@ void Menu::Load()
 		//ファイルを閉じる
 		FileRead_close(FileHandle);
 
-		Player::_loadFlg = true;
-		_loadFlg = true;
+		Player::loadFlg = true;
+		loadFlg = true;
 		SelectScene::pushFlg = true;
 	}
 	else if (MessageBox(			// メッセージ

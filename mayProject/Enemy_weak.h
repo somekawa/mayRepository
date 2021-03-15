@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include "Monster.h"
 #include "ITEMCLASS.h"
 
@@ -18,7 +19,7 @@ public:
 	void Draw(void);					// 描画(雑魚敵とドロップアイテム)
 	void BossDraw(void);				// 雑魚敵と描画する画像の大きさが違うので別関数
 	void EffectDraw(void);				// 攻撃エフェクトの描画
-	void Damage(int damageNum,Cards* cards);	// プレイヤーから敵へのダメージ用関数
+	void Damage(int damageNum, const std::shared_ptr<Cards>& cards);	// プレイヤーから敵へのダメージ用関数
 	ENEMY_STATE GetEnemyState(void);	// 現在の敵の状態を取得する関数
 	void SetEnemyState(ENEMY_STATE st);	// イベント状態をNONに戻したいときに使う関数
 	int GetAttack(void);				// 敵の攻撃力の取得用関数

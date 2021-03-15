@@ -19,30 +19,67 @@ SelectScene::SelectScene()
 
 SelectScene::~SelectScene()
 {
-	delete mouse;
 }
 
 bool SelectScene::Init(void)
 {
-	mouse = new MouseCtl();
+	_mouse = std::make_unique<MouseCtl>();
 
 	pngInit();
+	_modePngSize = { 400,150 };
+	_toTitlePngSize = { 200,100 };
 	_pngLight = 128;
 	_lightFlg = false;
 	_toGameFlg = false;
 	_toTitleFlg = false;
 	pushFlg = false;
 
+	_footSpeed = 2;
 	_startPos = { 0,-600 };
 	_goalPos = { 0,0 };
-	_drawAsiVec = { 100,600 };
-	_asiatoFlg = false;
-	_asiatoReverseX = false;
-	_asiatoReverseY = false;
+	_drawFootVec = { 100,600 };
+	_footPrintsFlg = false;
+	_footPrintsReverseX = false;
+	_footPrintsReverseY = false;
 	_dirFlg = false;
-	_asiatoRota = 0.0f;
-	_dir = ASIDIR::UP;
-	_olddir = ASIDIR::UP;
+	_footPrintsRota = 0.0f;
+	_dir = FOOTDIR::UP;
+	_olddir = FOOTDIR::UP;
+
+	// 予め動きを登録しておく
+	func_.try_emplace(FOOTDIR::UP, [&](){
+		_footPrintsRota = 0.0f;
+		_footPrintsReverseX = false;
+		_footPrintsReverseY = false;
+		_footPrintsFlg = false;
+	});
+
+	func_.try_emplace(FOOTDIR::DOWN, [&]() {
+		_footPrintsRota = PI;
+		_footPrintsReverseX = true;
+		_footPrintsReverseY = false;
+		_drawFootVec = { 750,0 };
+		_startPos.y = 0;
+		_goalPos.y = 600;
+	});
+
+	func_.try_emplace(FOOTDIR::LEFT, [&]() {
+		_footPrintsRota = PI + (PI / 2.0f);
+		_footPrintsReverseX = false;
+		_footPrintsReverseY = false;
+		_startPos.x = -900;
+		_goalPos.x = 0;
+		_drawFootVec = { 950,500 };
+	});
+
+	func_.try_emplace(FOOTDIR::RIGHT, [&]() {
+		_footPrintsRota = PI / 2.0f;
+		_footPrintsReverseX = true;
+		_footPrintsReverseY = false;
+		_startPos.x = 0;
+		_goalPos.x = 900;
+		_drawFootVec = { 0,100 };
+	});
 
 	_seClick = LoadSoundMem("sound/se/click.mp3");
 	return true;
@@ -56,18 +93,19 @@ void SelectScene::pngInit(void)
 	_drawHandle.try_emplace("titleBackButton", LoadGraph("image/titleBackButton.png"));
 
 	std::string asiato = "image/asiato.png";
-	LoadDivGraph(asiato.c_str(), 2, 1, 2, 69, 190, _asiato);
+	LoadDivGraph(asiato.c_str(), 2, 1, 2, 69, 190, _footPrints);
 }
 
 unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 {
-	mouse->UpDate();
+	_mouse->UpDate();
 	if (!pushFlg)
 	{
-		if (mouse->GetClickTrg())
+		if (_mouse->GetClickTrg())
 		{	 
+			VECTOR2 offsetPos = { _modePngSize.x / 2 + _modePngSize.x / 8, _modePngSize.y - _modePngSize.y / 3 };
 			// 当たり判定(NORMAL選択時)
-			if (mouse->GetPos().x >= 250 && mouse->GetPos().x <= 250 + 400 && mouse->GetPos().y >= 100 && mouse->GetPos().y <= 100 + 150)
+			if (_mouse->GetPos().x >= offsetPos.x && _mouse->GetPos().x <= offsetPos.x + _modePngSize.x && _mouse->GetPos().y >= offsetPos.y && _mouse->GetPos().y <= offsetPos.y + _modePngSize.y)
 			{
 				DeleteSoundMem(TitleScene::titleBGM);
 				if (CheckSoundMem(_seClick) == 0)
@@ -79,7 +117,7 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 				Menu::Load();
 			}
 			// 当たり判定(HARD選択時)
-			if (mouse->GetPos().x >= 250 && mouse->GetPos().x <= 250 + 400 && mouse->GetPos().y >= 300 && mouse->GetPos().y <= 300 + 150)
+			if (_mouse->GetPos().x >= offsetPos.x && _mouse->GetPos().x <= offsetPos.x + _modePngSize.x && _mouse->GetPos().y >= offsetPos.y * 3 && _mouse->GetPos().y <= offsetPos.y * 3 + _modePngSize.y)
 			{
 				DeleteSoundMem(TitleScene::titleBGM);
 				if (CheckSoundMem(_seClick) == 0)
@@ -92,7 +130,7 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 			}
 
 			// 当たり判定(タイトルへ戻る)
-			if (mouse->GetPos().x >= 650 && mouse->GetPos().x <= 650 + 200 && mouse->GetPos().y >= 450 && mouse->GetPos().y <= 450 + 100)
+			if (_mouse->GetPos().x >= offsetPos.x * 3 - _toTitlePngSize.x / 2 && _mouse->GetPos().x <= (offsetPos.x * 3 - _toTitlePngSize.x / 2) + _toTitlePngSize.x && _mouse->GetPos().y >= offsetPos.y * 4 + offsetPos.y / 2 && _mouse->GetPos().y <= (offsetPos.y * 4 + offsetPos.y / 2) + _toTitlePngSize.y)
 			{
 				if (CheckSoundMem(_seClick) == 0)
 				{
@@ -138,52 +176,39 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 		}
 	}
 
-	// 足跡用
+	// 足跡の移動
 	if (_startPos.y <= _goalPos.y + 240)
 	{
-		_startPos.y += 2;
+		_startPos.y += _footSpeed;
 	}
 	else if (_startPos.x <= _goalPos.x + 240)
 	{
-		_startPos.x += 2;
+		_startPos.x += _footSpeed;
 	}
 	else
 	{
+		// 目標位置に到達した時、新たな向きを決める
 		int rand = GetRand(3);
-		_dir = static_cast<ASIDIR>(rand);
+		_dir = static_cast<FOOTDIR>(rand);
 	}
 
-	if (_dir == ASIDIR::UP || _dir == ASIDIR::DOWN)
+	if (_dir == FOOTDIR::UP || _dir == FOOTDIR::DOWN)
 	{
 		// 2秒ごとにフラグを反転させる
 		if (_startPos.y % 120 == 0)
 		{
-			_asiatoFlg = !_asiatoFlg;
-			if (_dir == ASIDIR::UP)
-			{
-				_drawAsiVec.y = -_startPos.y;
-			}
-			else
-			{
-				_drawAsiVec.y = _startPos.y;
-			}
+			_footPrintsFlg = !_footPrintsFlg;
+			_dir == FOOTDIR::UP ? _drawFootVec.y = -_startPos.y : _drawFootVec.y = _startPos.y;
 		}
 	}
 
-	if (_dir == ASIDIR::RIGHT || _dir == ASIDIR::LEFT)
+	if (_dir == FOOTDIR::RIGHT || _dir == FOOTDIR::LEFT)
 	{
 		// 2秒ごとにフラグを反転させる
 		if (_startPos.x % 120 == 0)
 		{
-			_asiatoFlg = !_asiatoFlg;
-			if (_dir == ASIDIR::LEFT)
-			{
-				_drawAsiVec.x = -_startPos.x;
-			}
-			else
-			{
-				_drawAsiVec.x = _startPos.x;
-			}
+			_footPrintsFlg = !_footPrintsFlg;
+			_dir == FOOTDIR::LEFT ? _drawFootVec.x = -_startPos.x : _drawFootVec.x = _startPos.x;
 		}
 	}
 
@@ -191,47 +216,13 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 	{
 		_dirFlg = true;
 	}
-
 	_olddir = _dir;
 
 	// 向きと反転
 	if (_dirFlg)
 	{
 		_dirFlg = false;
-		if (_dir == ASIDIR::UP)
-		{
-			_asiatoRota = 0.0f;
-			_asiatoReverseX = false;
-			_asiatoReverseY = false;
-			_asiatoFlg = false;
-		}
-		else if (_dir == ASIDIR::DOWN)
-		{
-			_asiatoRota = static_cast<float>(PI);
-			_asiatoReverseX = true;
-			_asiatoReverseY = false;
-			_drawAsiVec = { 750,0 };
-			_startPos.y = 0;
-			_goalPos.y = 600;
-		}
-		else if (_dir == ASIDIR::RIGHT)
-		{
-			_asiatoRota = static_cast<float>(PI)/2.0f;
-			_asiatoReverseX = true;
-			_asiatoReverseY = false;
-			_startPos.x = 0;
-			_goalPos.x = 900;
-			_drawAsiVec = { 0,100 };
-		}
-		else if (_dir == ASIDIR::LEFT)
-		{
-			_asiatoRota = static_cast<float>(PI) + static_cast<float>(PI) / 2.0f;
-			_asiatoReverseX = false;
-			_asiatoReverseY = false;
-			_startPos.x = -900;
-			_goalPos.x = 0;
-			_drawAsiVec = { 950,500 };
-		}
+		func_[_dir]();
 	}
 
 	// 自分のSceneのユニークポインタを返す 所有権も忘れずに!
@@ -244,18 +235,19 @@ void SelectScene::Draw(void)
 	//αブレンド
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, _pngLight);
 	DrawGraph(0, 0, _drawHandle["renga"], true);
-	DrawGraph(250, 100, _drawHandle["normal"], true);
-	DrawGraph(250, 300, _drawHandle["hard"], true);
+	DrawGraph(_modePngSize.x / 2 + _modePngSize.x / 8, _modePngSize.y - _modePngSize.y / 3, _drawHandle["normal"], true);
+	DrawGraph(_modePngSize.x / 2 + _modePngSize.x / 8, _modePngSize.y * 2, _drawHandle["hard"], true);
 	// 足跡
-	if (_asiatoFlg)
+	if (_footPrintsFlg)
 	{
-		DrawRotaGraph(_drawAsiVec.x, _drawAsiVec.y, 0.5f, _asiatoRota, _asiato[0], true, _asiatoReverseX, _asiatoReverseY);
+		DrawRotaGraph(_drawFootVec.x, _drawFootVec.y, 0.5f, _footPrintsRota, _footPrints[0], true, _footPrintsReverseX, _footPrintsReverseY);
 	}
 	else
 	{
-		DrawRotaGraph(_drawAsiVec.x, _drawAsiVec.y, 0.5f, _asiatoRota, _asiato[1], true, _asiatoReverseX, _asiatoReverseY);
+		DrawRotaGraph(_drawFootVec.x, _drawFootVec.y, 0.5f, _footPrintsRota, _footPrints[1], true, _footPrintsReverseX, _footPrintsReverseY);
 	}
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-	DrawGraph(650, 450, _drawHandle["titleBackButton"], true);
+
+	DrawGraph(_toTitlePngSize.x * 3 + _toTitlePngSize.x / 4, _toTitlePngSize.y * 4 + _toTitlePngSize.y / 2, _drawHandle["titleBackButton"], true);
 	ScreenFlip();
 }

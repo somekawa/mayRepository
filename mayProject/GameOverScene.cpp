@@ -11,12 +11,11 @@ GameOverScene::GameOverScene()
 
 GameOverScene::~GameOverScene()
 {
-	delete mouse;
 }
 
 bool GameOverScene::Init(void)
 {
-	mouse = new MouseCtl();
+	_mouse = std::make_unique<MouseCtl>();
 
 	PngInit();
 
@@ -40,10 +39,10 @@ void GameOverScene::PngInit(void)
 
 unique_Base GameOverScene::Update(unique_Base own, const GameCtl& ctl)
 {
-	mouse->UpDate();
-	if (mouse->GetClickTrg())
+	_mouse->UpDate();
+	if (_mouse->GetClickTrg())
 	{
-		if (mouse->GetPos().x >= 650 && mouse->GetPos().x <= 650 + 200 && mouse->GetPos().y >= 450 && mouse->GetPos().y <= 450 + 100)
+		if (_mouse->GetPos().x >= 650 && _mouse->GetPos().x <= 650 + 200 && _mouse->GetPos().y >= 450 && _mouse->GetPos().y <= 450 + 100)
 		{
 			DeleteSoundMem(_overBGM);
 			if (CheckSoundMem(_seClick) == 0)

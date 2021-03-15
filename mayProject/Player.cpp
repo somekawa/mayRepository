@@ -7,11 +7,8 @@
 #include "MouseCtl.h"
 
 // static変数の実体<型>クラス名::変数名 = 初期化;
-bool Player::_loadFlg = false;
+bool Player::loadFlg = false;
 int Player::saveData[9] = { 0,0,0,0,0,0,0,0,0 };
-
-// スキルチャージ時間の最大値
-#define SKILL_CHARGE 10
 
 struct player
 {
@@ -38,12 +35,11 @@ Player::~Player()
 	{
 		DeleteSoundMem(_soundSE[i]);
 	}
-	delete mouse;
 }
 
 void Player::Init(void)
 {
-	if (!_loadFlg)
+	if (!loadFlg)
 	{
 		player_status.now_level = 1;
 		player_status.maxHP = 35;
@@ -68,9 +64,10 @@ void Player::Init(void)
 		player_status.condition = static_cast<CONDITION>(saveData[8]);
 	}
 
-	mouse = new MouseCtl();
+	_mouse = std::make_unique<MouseCtl>();
 
 	// スキル関係
+	_skill = SKILL::NON;
 	_skillCharge = SKILL_CHARGE;
 	_skillFlg = false;
 	_skillBackFlg = false;
@@ -101,14 +98,14 @@ void Player::Init(void)
 
 void Player::PngInit(void)
 {
-	skillImages.try_emplace("skillIcon", LoadGraph("image/skillicon.png"));		// スキルアイコン
-	skillImages.try_emplace("announce" , LoadGraph("image/chargeAnnounce.png"));	// スキル使えるというアナウンス
-	skillImages.try_emplace("skillBack", LoadGraph("image/skillBack.png"));		// スキル背景
-	skillImages.try_emplace("attack"   , LoadGraph("image/skill_attack.png"));	// 攻撃系スキルアイコン
-	skillImages.try_emplace("barrier"  , LoadGraph("image/skill_barrier.png"));	// 防御系スキルアイコン
-	skillImages.try_emplace("heal"     , LoadGraph("image/skill_heal.png"));		// 回復系スキルアイコン
-	skillImages.try_emplace("cancel"   , LoadGraph("image/cancel.png"));			// やめるの文字画像
-	skillImages.try_emplace("muscle"   , LoadGraph("image/muscle.png"));			// 力こぶのアイコン画像
+	_skillImages.try_emplace("skillIcon", LoadGraph("image/skillicon.png"));		// スキルアイコン
+	_skillImages.try_emplace("announce" , LoadGraph("image/chargeAnnounce.png"));	// スキル使えるというアナウンス
+	_skillImages.try_emplace("skillBack", LoadGraph("image/skillBack.png"));		// スキル背景
+	_skillImages.try_emplace("attack"   , LoadGraph("image/skill_attack.png"));	// 攻撃系スキルアイコン
+	_skillImages.try_emplace("barrier"  , LoadGraph("image/skill_barrier.png"));	// 防御系スキルアイコン
+	_skillImages.try_emplace("heal"     , LoadGraph("image/skill_heal.png"));		// 回復系スキルアイコン
+	_skillImages.try_emplace("cancel"   , LoadGraph("image/cancel.png"));			// やめるの文字画像
+	_skillImages.try_emplace("muscle"   , LoadGraph("image/muscle.png"));			// 力こぶのアイコン画像
 
 	_drawHandle.try_emplace("barrier_back", LoadGraph("image/barrier_back.png"));
 	_drawHandle.try_emplace("barrier_bar", LoadGraph("image/barrier_bar.png"));
@@ -130,9 +127,9 @@ void Player::PngInit(void)
 	LoadDivGraph(healAnim.c_str(), 10, 10, 1, 240, 240, _skillAnimHeal);
 }
 
-void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* cards)
+void Player::ClickUpDate(const std::shared_ptr<Monster>& monster, const std::shared_ptr<Menu>& menu, GameScene* game, const std::shared_ptr<Cards>& cards)
 {
-	mouse->UpDate();
+	_mouse->UpDate();
 	// スキル使用可能時のマウスクリック位置とアイコン(円)との当たり判定
 	// アイテム画面中はスキルチャージアイコンを押せない
 	if (!menu->GetMenuBackPngFlg() && player_status.plHP > 0)
@@ -153,8 +150,8 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* c
 			//}
 
 			// 782,564(アイコン描画位置)
-			float a = mouse->GetPos().x - 782.0f;
-			float b = mouse->GetPos().y - 564.0f;
+			float a = _mouse->GetPos().x - 782.0f;
+			float b = _mouse->GetPos().y - 564.0f;
 			// 当たり判定(当たっているとき)
 			if (sqrt(a * a + b * b) <= 34)
 			{
@@ -168,7 +165,7 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* c
 	if (_skillBackFlg)
 	{
 		// やめるボタンとの当たり判定
-		if (mouse->GetPos().x >= 385 && mouse->GetPos().x <= 385 + 150 && mouse->GetPos().y >= 320 && mouse->GetPos().y <= 320 + 65)
+		if (_mouse->GetPos().x >= 385 && _mouse->GetPos().x <= 385 + 150 && _mouse->GetPos().y >= 320 && _mouse->GetPos().y <= 320 + 65)
 		{
 			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 			_skillBackFlg = false;
@@ -184,7 +181,7 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* c
 		};
 
 		// 攻撃アイコンとの当たり判定
-		if (mouse->GetPos().x >= 290 && mouse->GetPos().x <= 290 + 100 && mouse->GetPos().y >= 150 && mouse->GetPos().y <= 150 + 100)
+		if (_mouse->GetPos().x >= 290 && _mouse->GetPos().x <= 290 + 100 && _mouse->GetPos().y >= 150 && _mouse->GetPos().y <= 150 + 100)
 		{
 			PlaySoundMem(_soundSE[3], DX_PLAYTYPE_BACK, true);
 			_skill = SKILL::SWORD;
@@ -195,7 +192,7 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* c
 		}
 
 		// 防御アイコンとの当たり判定
-		if (mouse->GetPos().x >= 410 && mouse->GetPos().x <= 410 + 100 && mouse->GetPos().y >= 150 && mouse->GetPos().y <= 150 + 100)
+		if (_mouse->GetPos().x >= 410 && _mouse->GetPos().x <= 410 + 100 && _mouse->GetPos().y >= 150 && _mouse->GetPos().y <= 150 + 100)
 		{
 			PlaySoundMem(_soundSE[4], DX_PLAYTYPE_BACK, true);
 			_skill = SKILL::GUARD;
@@ -206,10 +203,10 @@ void Player::ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* c
 		}
 
 		// 回復アイコンとの当たり判定
-		if (mouse->GetPos().x >= 530 && mouse->GetPos().x <= 530 + 100 && mouse->GetPos().y >= 150 && mouse->GetPos().y <= 150 + 100)
+		if (_mouse->GetPos().x >= 530 && _mouse->GetPos().x <= 530 + 100 && _mouse->GetPos().y >= 150 && _mouse->GetPos().y <= 150 + 100)
 		{
 			PlaySoundMem(_soundSE[5], DX_PLAYTYPE_BACK, true);
-			_skill = SKILL::INN;
+			_skill = SKILL::HEAL;
 			// 回復系(全回復+状態異常回復)
 			player_status.plHP = player_status.maxHP;
 			player_status.condition = CONDITION::FINE;
@@ -269,7 +266,7 @@ void Player::UpDate(void)
 	}
 }
 
-void Player::Draw(Menu* menu)
+void Player::Draw(const std::shared_ptr<Menu>& menu)
 {
 	// HPバー関連画像サイズ
 	int posx = 750;
@@ -301,7 +298,7 @@ void Player::Draw(Menu* menu)
 	}
 }
 
-void Player::BattleDraw(Menu* menu)
+void Player::BattleDraw(const std::shared_ptr<Menu>& menu)
 {
 	if (_skillCharge != 0)
 	{
@@ -313,25 +310,25 @@ void Player::BattleDraw(Menu* menu)
 		// 描画ブレンドモードを加算合成にする
 		SetDrawBlendMode(DX_BLENDMODE_ADD, _pngLight);
 		// 782,564
-		DrawRotaGraph(750 + 32, 530 + 32, 1.0f, 0, skillImages["skillIcon"], true);
+		DrawRotaGraph(750 + 32, 530 + 32, 1.0f, 0, _skillImages["skillIcon"], true);
 		// 描画ブレンドモードをノーブレンドにする
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-		DrawRotaGraph(750 + 32, 530 + 32, 1.0f, 0, skillImages["muscle"], true);
-		DrawGraph(820, 530, skillImages["announce"], true);
+		DrawRotaGraph(750 + 32, 530 + 32, 1.0f, 0, _skillImages["muscle"], true);
+		DrawGraph(820, 530, _skillImages["announce"], true);
 	}
 
 	// スキルアイコンを押されたら背景を描画する
 	if (_skillBackFlg)
 	{
 		int iconIntervalX = 120;	// アイコンの描画間隔
-		DrawGraph(250, 90, skillImages["skillBack"], true);
-		DrawGraph(290, 150, skillImages["attack"], true);
-		DrawGraph(290 + iconIntervalX, 150, skillImages["barrier"], true);
-		DrawGraph(290 + iconIntervalX * 2, 150, skillImages["heal"], true);
+		DrawGraph(250, 90, _skillImages["skillBack"], true);
+		DrawGraph(290, 150, _skillImages["attack"], true);
+		DrawGraph(290 + iconIntervalX, 150, _skillImages["barrier"], true);
+		DrawGraph(290 + iconIntervalX * 2, 150, _skillImages["heal"], true);
 		DrawFormatString(280,250, 0x000000, "攻撃スキル:\n%dダメージ", player_status.attackDamage * 5 + menu->GetEquipDamage());
 		DrawFormatString(410,250, 0x000000, "防御スキル:\n耐久%dの\nバリア展開", 20 + 3 * player_status.now_level);
 		DrawFormatString(530, 250, 0x000000, "回復スキル:\n体力+状態異常\n全回復");
-		DrawGraph(385, 320, skillImages["cancel"], true);
+		DrawGraph(385, 320, _skillImages["cancel"], true);
 	}
 
 	// バリアバーの表示
@@ -372,7 +369,7 @@ void Player::SkillDraw(void)
 		}
 	}
 
-	if (_skill == SKILL::INN)
+	if (_skill == SKILL::HEAL)
 	{
 		if (_animCnt <= 9)
 		{
@@ -423,6 +420,11 @@ int Player::GetMaxHP(void)const
 float Player::GetHPBar(void)const
 {
 	return (float)player_status.plHP / (float)player_status.maxHP;
+}
+
+void Player::SetAttackDamage(const int& num)
+{
+	player_status.attackDamage = num;
 }
 
 int Player::GetAttackDamage(void)const

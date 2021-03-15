@@ -15,13 +15,13 @@ TitleScene::TitleScene()
 
 TitleScene::~TitleScene()
 {
-	delete mouse;
 }
 
 bool TitleScene::Init(void)
 {
-	mouse = new MouseCtl();
+	_mouse = std::make_unique<MouseCtl>();
 	PngInit();
+	_startPngSize = { 400,150 };
 	_pngLight = 128;
 	_lightFlg = false;
 	_seFlg = false;
@@ -39,10 +39,11 @@ void TitleScene::PngInit(void)
 
 unique_Base TitleScene::Update(unique_Base own, const GameCtl& ctl)
 {
-	mouse->UpDate();
-	if (mouse->GetClickTrg()) {	 //マウスの左ボタンが押されていたら
+	_mouse->UpDate();
+	if (_mouse->GetClickTrg()) {	 //マウスの左ボタンが押されていたら
 		// 当たり判定
-		if (mouse->GetPos().x >= 250 && mouse->GetPos().x <= 250 + 400 && mouse->GetPos().y >= 400 && mouse->GetPos().y <= 400+150)
+		VECTOR2 offsetPos = { _startPngSize.x / 2 + _startPngSize.x / 8, _startPngSize.y * 3 - _startPngSize .y / 3};
+		if (_mouse->GetPos().x >= offsetPos.x && _mouse->GetPos().x <= offsetPos.x + _startPngSize.x && _mouse->GetPos().y >= offsetPos.y && _mouse->GetPos().y <= offsetPos.y + _startPngSize.y)
 		{
 			if (CheckSoundMem(_seClick) == 0)
 			{
@@ -92,7 +93,7 @@ void TitleScene::Draw(void)
 	//αブレンド
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, _pngLight);
 	DrawGraph(0, 0,_drawHandle["title"], true);
-	DrawGraph(250, 400, _drawHandle["start"], true);
+	DrawGraph(_startPngSize.x / 2 + _startPngSize.x / 8, _startPngSize.y * 3 - _startPngSize.y / 3, _drawHandle["start"], true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	ScreenFlip();
 }

@@ -12,7 +12,7 @@
 #include "MoveObj.h"
 #include "MouseCtl.h"
 
-// static変数の実体<型>クラス名::変数名 = 初期化;
+// static変数の初期化(<型>クラス名::変数名 = 初期化値)
 int GameScene::plPosX = 0;
 int GameScene::plPosY = 0;
 bool GameScene::monsterFlg = false;
@@ -23,50 +23,17 @@ bool GameScene::bossClearFlg = false;
 GameScene::GameScene() :screen_sizeX(900), screen_sizeY(600)
 {
 	Init();
-	_cards = new Cards();
-	_player = new Player();
-	_monster[0] = new Enemy_weak();
-	_menu = new Menu();
-	_item = new Item();
-	_event = new Event();
-	mouse = new MouseCtl();
+	_cards = std::make_shared<Cards>();
+	_player = std::make_shared<Player>();
+	_monster[0] = std::make_shared<Enemy_weak>();
+	_menu = std::make_shared<Menu>();
+	_item = std::make_shared<Item>();
+	mouse = std::make_shared<MouseCtl>();
+	_event = std::make_unique<Event>();
 }
 
 GameScene::~GameScene()
 {
-	if (_cards != nullptr)
-	{
-		delete _cards;
-		_cards = nullptr;
-	}
-	if (_player != nullptr)
-	{
-		delete _player;
-		_player = nullptr;
-	}
-	if (_monster[0] != nullptr)
-	{
-		delete _monster[0];
-		_monster[0] = nullptr;
-	}
-	if (_menu != nullptr)
-	{
-		delete _menu;
-		_menu = nullptr;
-	}
-	if (_item != nullptr)
-	{
-		delete _item;
-		_item = nullptr;
-	}
-	if (_event != nullptr)
-	{
-		delete _event;
-		_event = nullptr;
-	}
-
-	delete mouse;
-
 	// 音関係
 	DeleteSoundMem(_gameBGM);
 	DeleteSoundMem(_battleBGM);
@@ -91,7 +58,7 @@ bool GameScene::Init(void)
 	ChangeFont("HGS創英角ﾎﾟｯﾌﾟ体");              //HGS創英角ﾎﾟｯﾌﾟ体に変更
 	ChangeFontType(DX_FONTTYPE_ANTIALIASING_8X8);//アンチエイリアス
 
-	mapChipSize_ = 50;
+	_mapChipSize = 50;
 
 	// 画像登録
 	PngInit();
@@ -168,35 +135,35 @@ bool GameScene::Init(void)
 	// その他
 	blinkFlg = false;
 	_blinkCnt = 0;
-	_monsTimeCnt = 999;
+	_monsTimeCnt = 5;
 	_walkDirect = 0;
 	_plDeadChangeWinColor = 255;
 	_poisonCnt = 256;
 	_onceFlg = false;
 	_anounceFlg = false;
-	_dunFog[0] = 0.0f;
-	_dunFog[1] = -900.5f;
+	_fog[0] = 0.0f;
+	_fog[1] = -900.5f;
 	_keyFlg = false;
 	_levelUpAnounceTime = 180;
-	_kyouseiButtlePngMoveCnt = 0;
+	_forcedButtlePngMoveCnt = 0;
 	_turnEndOnceFlg = false;
 	_guideFlg = false;
 	_guideVisibleTime = 0;
 	_guideMove = 0;
 	_guideExrMove = 0.0f;
 	_buttleGuideFlg = false;
-	notTroad = false;
 
 	//13以外 (7~12と14)
-	_eventStateMap.try_emplace(7, EVENT_STATE::INN);
-	_eventStateMap.try_emplace(8, EVENT_STATE::MERCHANT);
-	_eventStateMap.try_emplace(9, EVENT_STATE::BUTTON);
-	_eventStateMap.try_emplace(10, EVENT_STATE::CHEST);
-	_eventStateMap.try_emplace(11, EVENT_STATE::DRINK);
-	_eventStateMap.try_emplace(12, EVENT_STATE::TRAP);
-	_eventStateMap.try_emplace(14, EVENT_STATE::GOAL);
+	for (int i = static_cast<int>(EVENT_STATE::INN); i <= static_cast<int>(EVENT_STATE::GOAL);)
+	{
+		if (i != static_cast<int>(EVENT_STATE::EVE_MONS))
+		{
+			_eventStateMap.try_emplace(i + 5, static_cast<EVENT_STATE>(i));
+		}
+		i++;
+	}
 
-	// あらかじめメモリ領域を確保しておく
+	// あらかじめマップ用のメモリ領域を確保しておく
 	_mapVec.reserve(100);
 
 	// SE
@@ -276,7 +243,7 @@ void GameScene::PngInit(void)
 	std::string mapchip = "image/mapchip/mapchip.png";
 	//std::string mapchip_start = "image/mapchip/start_chip.png";
 
-	LoadDivGraph(mapchip.c_str(), 15, 15, 1, mapChipSize_, mapChipSize_, _chipPNG);
+	LoadDivGraph(mapchip.c_str(), 15, 15, 1, _mapChipSize, _mapChipSize, _chipPNG);
 	//_startChipPNG = LoadGraph(mapchip_start.c_str());
 
 	// 霧
@@ -558,8 +525,8 @@ void GameScene::Draw(void)
 
 	// 霧表現
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 180);
-	DrawGraphF(0.0f + _dunFog[0], 0.0f, _dungeonFogPNG[0], true);
-	DrawGraphF(0.0f + _dunFog[1], 0.0f, _dungeonFogPNG[1], true);
+	DrawGraphF(0.0f + _fog[0], 0.0f, _dungeonFogPNG[0], true);
+	DrawGraphF(0.0f + _fog[1], 0.0f, _dungeonFogPNG[1], true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	// 何もなしと敵以外の処理
@@ -773,7 +740,7 @@ void GameScene::Draw(void)
 	{
 		// 強制戦闘の案内時に描画する
 		DrawGraph(0, 0, _drawHandle["red_caution"], true);
-		DrawGraph(_kyouseiButtlePngMoveCnt, 250, _drawHandle["kyousei"], true);
+		DrawGraph(_forcedButtlePngMoveCnt, 250, _drawHandle["kyousei"], true);
 	}
 
 	ScreenFlip();
@@ -783,12 +750,12 @@ void GameScene::AllMapDraw(void)
 {
 	VECTOR2 mapOffset = { 200,0 };
 	// Sのマーク
-	DrawGraph(0 * mapChipSize_ + mapOffset.x, (screen_sizeY - mapChipSize_) - (0 * mapChipSize_) + mapOffset.y, _drawHandle["start_chip"], false);
+	DrawGraph(0 * _mapChipSize + mapOffset.x, (screen_sizeY - _mapChipSize) - (0 * _mapChipSize) + mapOffset.y, _drawHandle["start_chip"], false);
 	for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
 	{
-		DrawRotaGraph((*v).pos.x + mapChipSize_/2 + mapOffset.x, (*v).pos.y + mapChipSize_/2 + mapOffset.y, 1.0, (*v).rota, _chipPNG[(*v).num], true);
+		DrawRotaGraph((*v).pos.x + _mapChipSize/2 + mapOffset.x, (*v).pos.y + _mapChipSize/2 + mapOffset.y, 1.0, (*v).rota, _chipPNG[(*v).num], true);
 	}
-	DrawRotaGraph(plPosX * mapChipSize_ + mapChipSize_/2 + mapOffset.x, (screen_sizeY - mapChipSize_) - (plPosY * mapChipSize_) + mapChipSize_/2 + mapOffset.y, 1.0f, _directRota, _drawHandle["direct"], true);
+	DrawRotaGraph(plPosX * _mapChipSize + _mapChipSize/2 + mapOffset.x, (screen_sizeY - _mapChipSize) - (plPosY * _mapChipSize) + _mapChipSize/2 + mapOffset.y, 1.0f, _directRota, _drawHandle["direct"], true);
 }
 
 void GameScene::SmallMapDraw(void)
@@ -796,7 +763,7 @@ void GameScene::SmallMapDraw(void)
 	if (_plNowMark.x == 0 && _plNowMark.y <= 2)
 	{
 		// Sのマーク
-		DrawGraph(0 * mapChipSize_, (screen_sizeY - mapChipSize_) - (0 * mapChipSize_), _drawHandle["start_chip"], true);
+		DrawGraph(0 * _mapChipSize, (screen_sizeY - _mapChipSize) - (0 * _mapChipSize), _drawHandle["start_chip"], true);
 	}
 	// 現在地を保存していく
 	for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
@@ -807,7 +774,7 @@ void GameScene::SmallMapDraw(void)
 		}
 		else
 		{
-			_mapChipDrawOffset.y = mapChipSize_ * (plPosY - 2);
+			_mapChipDrawOffset.y = _mapChipSize * (plPosY - 2);
 		}
 
 		if (plPosX <= 2)
@@ -816,12 +783,12 @@ void GameScene::SmallMapDraw(void)
 		}
 		else
 		{
-			_mapChipDrawOffset.x = mapChipSize_ * (plPosX - 2);
+			_mapChipDrawOffset.x = _mapChipSize * (plPosX - 2);
 		}
 
-		if ((*v).pos.y + mapChipSize_/2 + _mapChipDrawOffset.y >= 450 && (*v).pos.x + mapChipSize_/2 - _mapChipDrawOffset.x <= 150)
+		if ((*v).pos.y + _mapChipSize/2 + _mapChipDrawOffset.y >= 450 && (*v).pos.x + _mapChipSize/2 - _mapChipDrawOffset.x <= 150)
 		{
-			DrawRotaGraph((*v).pos.x + mapChipSize_/2 - _mapChipDrawOffset.x, (*v).pos.y + mapChipSize_/2 + _mapChipDrawOffset.y, 1.0, (*v).rota, _chipPNG[(*v).num], true);
+			DrawRotaGraph((*v).pos.x + _mapChipSize/2 - _mapChipDrawOffset.x, (*v).pos.y + _mapChipSize/2 + _mapChipDrawOffset.y, 1.0, (*v).rota, _chipPNG[(*v).num], true);
 		}
 	}
 
@@ -843,7 +810,7 @@ void GameScene::SmallMapDraw(void)
 		_plNowMark.x = 2;
 	}
 
-	DrawRotaGraph(_plNowMark.x * mapChipSize_ + mapChipSize_/2, (screen_sizeY - mapChipSize_) - (_plNowMark.y * mapChipSize_) + mapChipSize_/2, 1.0f, _directRota, _drawHandle["direct"], true);
+	DrawRotaGraph(_plNowMark.x * _mapChipSize + _mapChipSize/2, (screen_sizeY - _mapChipSize) - (_plNowMark.y * _mapChipSize) + _mapChipSize/2, 1.0f, _directRota, _drawHandle["direct"], true);
 }
 
 void GameScene::ShakeDraw(void)
@@ -952,7 +919,7 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 					{
 						_keyFlg = true;
 						backFlg = true;
-						Key();
+						//Key();
 					}
 				}
 			}
@@ -1466,12 +1433,11 @@ void GameScene::Direct(void)
 		for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
 		{
 			// 現在地を見て、登録している方向と回転角度を代入する
-			if (plPosX * mapChipSize_ == (*v).pos.x  && (screen_sizeY - mapChipSize_) - (plPosY * mapChipSize_) == (*v).pos.y)
+			if (plPosX * _mapChipSize == (*v).pos.x  && (screen_sizeY - _mapChipSize) - (plPosY * _mapChipSize) == (*v).pos.y)
 			{
 				_directRota = (*v).rota;
 				_plDirect = (*v).dir;
 				backFlg = false;
-				notTroad = true;
 				return;
 			}
 		}
@@ -1657,159 +1623,155 @@ void GameScene::Direct(void)
 		_directRota = rota;
 	};
 
-	if (!notTroad)
+	// T字路
+	if (_plNowPoint == 4)
 	{
-		// T字路
-		if (_plNowPoint == 4)
+		if (_rightFlg && _plDirect != PL_DIRECTION::UP && _plDirect != PL_DIRECTION::DOWN)
 		{
-			if (_rightFlg && _plDirect != PL_DIRECTION::UP && _plDirect != PL_DIRECTION::DOWN)
-			{
-				lambda(PL_DIRECTION::DOWN, PI);
-				plPosY--;
-				return;
-			}
-
-			if (_leftFlg && _plDirect != PL_DIRECTION::UP && _plDirect != PL_DIRECTION::DOWN)
-			{
-				lambda(PL_DIRECTION::UP, 0);
-				plPosY++;
-				return;
-			}
-
-			if (_rightFlg && _plDirect == PL_DIRECTION::UP)
-			{
-				lambda(PL_DIRECTION::RIGHT, PI / 2);
-				plPosX++;
-				return;
-			}
-
-			if (_leftFlg && _plDirect == PL_DIRECTION::UP)
-			{
-				lambda(PL_DIRECTION::LEFT, PI + PI / 2);
-				plPosX--;
-				return;
-			}
-
-			if (_rightFlg && _plDirect == PL_DIRECTION::DOWN)
-			{
-				lambda(PL_DIRECTION::LEFT, PI + PI / 2);
-				plPosX--;
-				return;
-			}
-
-			if (_leftFlg && _plDirect == PL_DIRECTION::DOWN)
-			{
-				lambda(PL_DIRECTION::RIGHT, PI / 2);
-				plPosX++;
-				return;
-			}
+			lambda(PL_DIRECTION::DOWN, PI);
+			plPosY--;
+			return;
 		}
 
-		if (_plDirect == PL_DIRECTION::UP)
+		if (_leftFlg && _plDirect != PL_DIRECTION::UP && _plDirect != PL_DIRECTION::DOWN)
 		{
-			if ((_plNowPoint == 0 || _plNowPoint == 5 || _plNowPoint == 6) && !_rightFlg && !_leftFlg)	// 直進
-			{
-				_plOldPoint = _plNowPoint;
-				_plDirectOld = _plDirect;
-				plPosY++;
-				return;
-			}
-			else if (_plNowPoint == 1 || _plNowPoint == 5)
-			{
-				lambda(PL_DIRECTION::RIGHT, PI / 2);
-				_rightFlg = true;
-				plPosX++;
-				return;
-			}
-			else if (_plNowPoint == 2 || _plNowPoint == 6)
-			{
-				lambda(PL_DIRECTION::LEFT, PI + PI / 2);
-				_leftFlg = true;
-				plPosX--;
-				return;
-			}
+			lambda(PL_DIRECTION::UP, 0);
+			plPosY++;
+			return;
 		}
 
-		if (_plDirect == PL_DIRECTION::DOWN)
+		if (_rightFlg && _plDirect == PL_DIRECTION::UP)
 		{
-			if (_plNowPoint == 0)	// 直進
-			{
-				_plOldPoint = _plNowPoint;
-				plPosY--;
-				return;
-			}
-			else if (_plNowPoint == 1)
-			{
-				lambda(PL_DIRECTION::LEFT, PI + PI / 2);
-				_leftFlg = true;
-				plPosX--;
-				return;
-			}
-			else if (_plNowPoint == 2)
-			{
-				lambda(PL_DIRECTION::RIGHT, PI / 2);
-				_rightFlg = true;
-				plPosX++;
-				return;
-			}
+			lambda(PL_DIRECTION::RIGHT, PI / 2);
+			plPosX++;
+			return;
 		}
 
-		if (_plDirect == PL_DIRECTION::RIGHT)
+		if (_leftFlg && _plDirect == PL_DIRECTION::UP)
 		{
-			if (_plNowPoint == 0)	// 直進
-			{
-				_plOldPoint = _plNowPoint;
-				plPosX++;
-				return;
-			}
-			else if (_plNowPoint == 1 && _rightFlg)	// 右曲がり(下)
-			{
-				lambda(PL_DIRECTION::DOWN, PI);
-				_rightFlg = false;
-				plPosY--;
-				return;
-			}
-			else if (_plNowPoint == 2 && _rightFlg)	// 左曲がり(上)
-			{
-				lambda(PL_DIRECTION::UP, 0.0f);
-				_rightFlg = false;
-				plPosY++;
-				return;
-			}
+			lambda(PL_DIRECTION::LEFT, PI + PI / 2);
+			plPosX--;
+			return;
 		}
 
-		if (_plDirect == PL_DIRECTION::LEFT)
+		if (_rightFlg && _plDirect == PL_DIRECTION::DOWN)
 		{
-			if (_plNowPoint == 0)	// 直進
-			{
-				_plOldPoint = _plNowPoint;
-				plPosX--;
-				return;
-			}
-			else if (_plDirectOld == PL_DIRECTION::DOWN)
-			{
-				lambda(PL_DIRECTION::DOWN, PI);
-				_leftFlg = false;
-				plPosY--;
-				return;
-			}
-			else if (_plNowPoint == 1 && _leftFlg)	// 右曲がり(上)
-			{
-				lambda(PL_DIRECTION::UP, 0.0f);
-				_leftFlg = false;
-				plPosY++;
-				return;
-			}
-			else if (_plNowPoint == 2 && _leftFlg)	// 左曲がり(下)
-			{
-				lambda(PL_DIRECTION::DOWN, PI);
-				_leftFlg = false;
-				plPosY--;
-				return;
-			}
+			lambda(PL_DIRECTION::LEFT, PI + PI / 2);
+			plPosX--;
+			return;
+		}
+
+		if (_leftFlg && _plDirect == PL_DIRECTION::DOWN)
+		{
+			lambda(PL_DIRECTION::RIGHT, PI / 2);
+			plPosX++;
+			return;
 		}
 	}
-	notTroad = false;
+
+	if (_plDirect == PL_DIRECTION::UP)
+	{
+		if ((_plNowPoint == 0 || _plNowPoint == 5 || _plNowPoint == 6) && !_rightFlg && !_leftFlg)	// 直進
+		{
+			_plOldPoint = _plNowPoint;
+			_plDirectOld = _plDirect;
+			plPosY++;
+			return;
+		}
+		else if (_plNowPoint == 1 || _plNowPoint == 5)
+		{
+			lambda(PL_DIRECTION::RIGHT, PI / 2);
+			_rightFlg = true;
+			plPosX++;
+			return;
+		}
+		else if (_plNowPoint == 2 || _plNowPoint == 6)
+		{
+			lambda(PL_DIRECTION::LEFT, PI + PI / 2);
+			_leftFlg = true;
+			plPosX--;
+			return;
+		}
+	}
+
+	if (_plDirect == PL_DIRECTION::DOWN)
+	{
+		if (_plNowPoint == 0)	// 直進
+		{
+			_plOldPoint = _plNowPoint;
+			plPosY--;
+			return;
+		}
+		else if (_plNowPoint == 1)
+		{
+			lambda(PL_DIRECTION::LEFT, PI + PI / 2);
+			_leftFlg = true;
+			plPosX--;
+			return;
+		}
+		else if (_plNowPoint == 2)
+		{
+			lambda(PL_DIRECTION::RIGHT, PI / 2);
+			_rightFlg = true;
+			plPosX++;
+			return;
+		}
+	}
+
+	if (_plDirect == PL_DIRECTION::RIGHT)
+	{
+		if (_plNowPoint == 0)	// 直進
+		{
+			_plOldPoint = _plNowPoint;
+			plPosX++;
+			return;
+		}
+		else if (_plNowPoint == 1 && _rightFlg)	// 右曲がり(下)
+		{
+			lambda(PL_DIRECTION::DOWN, PI);
+			_rightFlg = false;
+			plPosY--;
+			return;
+		}
+		else if (_plNowPoint == 2 && _rightFlg)	// 左曲がり(上)
+		{
+			lambda(PL_DIRECTION::UP, 0.0f);
+			_rightFlg = false;
+			plPosY++;
+			return;
+		}
+	}
+
+	if (_plDirect == PL_DIRECTION::LEFT)
+	{
+		if (_plNowPoint == 0)	// 直進
+		{
+			_plOldPoint = _plNowPoint;
+			plPosX--;
+			return;
+		}
+		else if (_plDirectOld == PL_DIRECTION::DOWN)
+		{
+			lambda(PL_DIRECTION::DOWN, PI);
+			_leftFlg = false;
+			plPosY--;
+			return;
+		}
+		else if (_plNowPoint == 1 && _leftFlg)	// 右曲がり(上)
+		{
+			lambda(PL_DIRECTION::UP, 0.0f);
+			_leftFlg = false;
+			plPosY++;
+			return;
+		}
+		else if (_plNowPoint == 2 && _leftFlg)	// 左曲がり(下)
+		{
+			lambda(PL_DIRECTION::DOWN, PI);
+			_leftFlg = false;
+			plPosY--;
+			return;
+		}
+	}
 }
 
 void GameScene::Key(void)
@@ -1849,15 +1811,15 @@ void GameScene::Key(void)
 				|| _plNowPoint == static_cast<int>(MAP::EVE_MONS) || _plNowPoint == static_cast<int>(MAP::GOAL))
 			{
 				// イベントアイコン(即死トラップ以外)のときはマップチップを回転させずに保存する
-				_mapVec.emplace_back(MapMake{ VECTOR2(plPosX * mapChipSize_,
-				(screen_sizeY - mapChipSize_) - (plPosY * mapChipSize_)), 
+				_mapVec.emplace_back(MapMake{ VECTOR2(plPosX * _mapChipSize,
+				(screen_sizeY - _mapChipSize) - (plPosY * _mapChipSize)), 
 				_plNowPoint, 0.0f,_plDirect });
 			}
 			else
 			{
 				// 通常道と即死トラップの保存
-				_mapVec.emplace_back(MapMake{ VECTOR2(plPosX * mapChipSize_,
-				(screen_sizeY - mapChipSize_) - (plPosY * mapChipSize_)),
+				_mapVec.emplace_back(MapMake{ VECTOR2(plPosX * _mapChipSize,
+				(screen_sizeY - _mapChipSize) - (plPosY * _mapChipSize)),
 				_plNowPoint, static_cast<float>(_directRota), _plDirect });
 			}
 			// 通ったことのある道はフラグがtrueになる仕組み
@@ -2003,22 +1965,22 @@ void GameScene::Key(void)
 void GameScene::DungeonFog(void)
 {
 	// 霧処理
-	if (_dunFog[0] <= 900.0f)
+	if (_fog[0] <= 900.0f)
 	{
-		_dunFog[0] += 0.5f;
+		_fog[0] += 0.5f;
 	}
 	else
 	{
-		_dunFog[0] = -900.0f;
+		_fog[0] = -900.0f;
 	}
 
-	if (_dunFog[1] <= 900.0f)
+	if (_fog[1] <= 900.0f)
 	{
-		_dunFog[1] += 0.5f;
+		_fog[1] += 0.5f;
 	}
 	else
 	{
-		_dunFog[1] = -900.0f;
+		_fog[1] = -900.0f;
 	}
 }
 
@@ -2026,21 +1988,21 @@ void GameScene::ButtleCaution(void)
 {
 	if (_event->GetCautionFlg())
 	{
-		if (_kyouseiButtlePngMoveCnt <= 250)
+		if (_forcedButtlePngMoveCnt <= 250)
 		{
-			_kyouseiButtlePngMoveCnt += 20;
+			_forcedButtlePngMoveCnt += 20;
 		}
-		else if (_kyouseiButtlePngMoveCnt > 250 && _kyouseiButtlePngMoveCnt <= 300)
+		else if (_forcedButtlePngMoveCnt > 250 && _forcedButtlePngMoveCnt <= 300)
 		{
-			_kyouseiButtlePngMoveCnt++;
+			_forcedButtlePngMoveCnt++;
 		}
-		else if (_kyouseiButtlePngMoveCnt > 300 && _kyouseiButtlePngMoveCnt <= 900)
+		else if (_forcedButtlePngMoveCnt > 300 && _forcedButtlePngMoveCnt <= 900)
 		{
-			_kyouseiButtlePngMoveCnt += 20;
+			_forcedButtlePngMoveCnt += 20;
 		}
 		else
 		{
-			_kyouseiButtlePngMoveCnt = 0;
+			_forcedButtlePngMoveCnt = 0;
 			_event->SetCautionFlg(false);
 		}
 	}

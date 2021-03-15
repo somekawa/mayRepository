@@ -1,6 +1,7 @@
 #pragma once
 #include <map>
 #include <string>
+#include <memory>
 #include "VECTOR2.h"
 #include "ITEMCLASS.h"
 
@@ -30,10 +31,10 @@ public:
 	Menu();
 	~Menu();
 
-	void Update(GameScene* game,Player* player, Monster* monster, Cards* cards,MouseCtl* mouse);	// アップデート関数
-	void Draw(Player* player, Item* item, Monster* monster);		// 描画
-	void MenuButton_NonEnemy(MouseCtl* mouse);						// メニューボタン処理(非戦闘時)
-	void MenuButton_Enemy(MouseCtl* mouse);							// メニューボタン処理(戦闘時)
+	void Update(GameScene* game, const std::shared_ptr<Player>& player, const std::shared_ptr<Monster>& monster, const std::shared_ptr<Cards>& cards,const std::shared_ptr<MouseCtl>& mouse);	// アップデート関数
+	void Draw(const std::shared_ptr<Player>& player, const std::shared_ptr<Item>& item, const std::shared_ptr<Monster>& monster);		// 描画
+	void MenuButton_NonEnemy(const std::shared_ptr<MouseCtl>& mouse);						// メニューボタン処理(非戦闘時)
+	void MenuButton_Enemy(const std::shared_ptr<MouseCtl>& mouse);							// メニューボタン処理(戦闘時)
 
 	void Setitem(const ITEM& item, const int& png);	// 取得したアイテムを格納する
 	bool GetMenuFlg(void)const;						// メニュー画面が表示状態か取得する
@@ -57,15 +58,15 @@ public:
 	bool GetMeganeFlg(void)const;					// 宝箱の中身を鑑定するアイテムの情報を取得する
 	void SetMeganeFlg(const bool& flag);			// 宝箱の中身を鑑定するアイテムの情報を設定する
 
-	void Save(Player* player);						// セーブ
-	static void Load(void);							// ロード
+	void Save(const std::shared_ptr<Player>& player);		// セーブ
+	static void Load(void);									// ロード
 private:
 	void Init(void);								// 初期化
 	void PngInit(void);								// 画像関係初期化
 
 	MENU _menu;										// メニュー項目の保存用変数
 	ITEM _itemAction;								// アイテム使用時の効果を分けるときに使う
-	ITEM _itemSetumei;								// メニューで説明を出すときに使う
+	ITEM _itemExplanation;							// メニューで説明を出すときに使う
 	VECTOR2 _equipSwordPos;							// 装備武器に"E"を付けるときに使う
 	VECTOR2 _equipShieldPos;						// 装備防具に"E"を付けるときに使う
 	VECTOR2 _choicePos;								// 選択中のアイテムに色枠を表示するために使う(わかりやすくするため)
@@ -94,5 +95,5 @@ private:
 	std::map<std::string, int> _menuImages;
 
 	int _soundSE[5];
-	static bool _loadFlg;
+	static bool loadFlg;
 };

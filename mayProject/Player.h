@@ -1,6 +1,10 @@
 #pragma once
 #include <map>
 #include <string>
+#include <memory>
+
+// スキルチャージ時間の最大値
+#define SKILL_CHARGE 10
 
 // プレイヤーの状態
 enum class CONDITION {
@@ -12,7 +16,7 @@ enum class SKILL {
 	NON,
 	SWORD,
 	GUARD,
-	INN
+	HEAL
 };
 
 class Monster;
@@ -26,16 +30,17 @@ class Player
 public:
 	Player();
 	~Player();
-	void ClickUpDate(Monster* monster, Menu* menu, GameScene* game, Cards* cards);	// クリック時のみのアップデート関数
+	void ClickUpDate(const std::shared_ptr<Monster>& monster, const std::shared_ptr<Menu>& menu, GameScene* game, const std::shared_ptr<Cards>& cards);	// クリック時のみのアップデート関数
 	void UpDate(void);						// 通常アップデート関数
-	void Draw(Menu* menu);					// 描画
-	void BattleDraw(Menu* menu);			// 戦闘中のみ必要な画像の描画
+	void Draw(const std::shared_ptr<Menu>& menu);				// 描画
+	void BattleDraw(const std::shared_ptr<Menu>& menu);			// 戦闘中のみ必要な画像の描画
 	void SkillDraw(void);					// スキル描画
 	void SetHP(const int& hpNum);			// 現在の体力を設定する
 	int GetHP(void)const;					// 現在の体力を取得する
 	void SetMaxHP(const int& hpNum);		// 最大体力を設定する(体力増加剤で必要)
 	int GetMaxHP(void)const;				// 最大体力を取得する
 	float GetHPBar(void)const;				// 体力バー用の値計算
+	void SetAttackDamage(const int& num);	// デバッグモード用に攻撃力を高く設定する
 	int GetAttackDamage(void)const;			// 攻撃力を取得する
 	void SetDifense(const int& num);		// 防御力を設定する(イベントで必要)
 	int GetDifense(void)const;				// 防御力を取得する
@@ -54,10 +59,10 @@ public:
 	void SetBarrierNum(const int& num);		// スキルのバリア値を設定
 	int GetBarrierNum(void)const;			// スキルのバリア値を取得
 	void SetLevelUpAnounceFlg(const bool& flag);// レベルが上がったことを通知するフラグを設定する
-	bool GetLevelUpAnounceFlg(void)const;	 // レベルが上がったことを通知するフラグを取得する
+	bool GetLevelUpAnounceFlg(void)const;	// レベルが上がったことを通知するフラグを取得する
 
 	static int saveData[9];				// ロードで始めるときに読み込んだデータを保存する配列
-	static bool _loadFlg;				// ロードで始めるときにinitでステータスを読み込まないようにするとき必要
+	static bool loadFlg;				// ロードで始めるときにinitでステータスを読み込まないようにするとき必要
 private:
 	void Init(void);					// 初期化
 	void PngInit(void);					// 画像初期化
@@ -77,11 +82,11 @@ private:
 	int _barrierNum;					// バリアの値(特定値*プレイヤーレベル)
 
 	// スキル画像関係
-	std::map<std::string, int> skillImages;
+	std::map<std::string, int> _skillImages;
 	std::map<std::string, int> _drawHandle;
 
 	// アニメーション関係
-	SKILL _skill = SKILL::NON;
+	SKILL _skill;
 	int _skillAnimSword[12];
 	int _skillAnimGuard[10];
 	int _skillAnimHeal[10];
@@ -90,5 +95,5 @@ private:
 
 	int _soundSE[6];					// SE
 
-	MouseCtl* mouse;
+	std::unique_ptr<MouseCtl> _mouse;
 };

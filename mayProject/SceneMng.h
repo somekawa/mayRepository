@@ -3,10 +3,8 @@
 #include <memory>	// スマートポインタ
 #include "BaseScene.h"
 
-// プロトタイプ宣言
 class GameCtl;
 
-// 定義
 #define lpSceneMng SceneMng::GetInstance()
 
 // シングルトン

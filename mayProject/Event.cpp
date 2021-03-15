@@ -26,7 +26,7 @@ void Event::Init(void)
 {
 	_event = EVENT_STATE::NON;
 	// 宿屋・商人
-	_healYadoFlg = false;
+	_healinnFlg = false;
 	_nonMoneyFlg = false;
 	_buyFlg = false;
 	_chooseFlg = false;
@@ -41,7 +41,7 @@ void Event::Init(void)
 	_getFlg = false;
 	_anounceFlg = false;
 	_onceFlg = false;
-	_kyouseiButtleFlg = false;
+	_forcedButtleFlg = false;
 
 	_chestItemMap.try_emplace(0, ITEM::POTION_BIG);
 	_chestItemMap.try_emplace(1, ITEM::DETOX);
@@ -121,8 +121,8 @@ void Event::Init(void)
 	_soundSE[2] = LoadSoundMem("sound/se/damage.mp3");
 	_soundSE[3] = LoadSoundMem("sound/se/poison.mp3");
 
-	yadoSt = std::make_unique<YadoSt>();
-	syouninSt = std::make_unique<SyouninSt>();
+	innSt = std::make_unique<INNSt>();
+	merchantSt = std::make_unique<MerchantSt>();
 	buttonSt = std::make_unique<ButtonSt>();
 	chestSt = std::make_unique<ChestSt>();
 	drinkSt = std::make_unique<DrinkSt>();
@@ -151,16 +151,16 @@ void Event::pngInit(void)
 	LoadDivGraph(trasure_0.c_str(), 2, 2, 1, 390 / 2, 431, _chestPNG);
 	// 文字画像の分割読み込み
 	std::string sentakusi = "image/sentakusi/sentakusi.png";
-	LoadDivGraph(sentakusi.c_str(),12, 12, 1, 150, 75, _sentakusiPNG);
+	LoadDivGraph(sentakusi.c_str(),12, 12, 1, 150, 75, _choicesPNG);
 }
 
-void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Monster* monster,Cards* cards, MouseCtl* mouse)
+void Event::UpDate(GameScene* game, const std::shared_ptr<Player>& player, const std::shared_ptr<Menu>& menu, const std::shared_ptr<Item>& item, const std::shared_ptr<Monster>& monster, const std::shared_ptr<Cards>& cards, const std::shared_ptr<MouseCtl>& mouse)
 {
 	auto lambda = [&]() {
 		monster->SetEnemyNum(6, 0);
 		cards->SetTurn(3);
 		_onceFlg = true;
-		_kyouseiButtleFlg = true;
+		_forcedButtleFlg = true;
 	};
 
 	if (_event == EVENT_STATE::INN)
@@ -171,7 +171,7 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 		}
 		else
 		{
-			yadoSt->Update(*this, *game, *player, *mouse);
+			innSt->Update(*this, *game, *player, *mouse);
 		}
 	}
 
@@ -183,7 +183,7 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 		}
 		else
 		{
-			syouninSt->Update(*this, *game, *player, *mouse, *item, *menu);
+			merchantSt->Update(*this, *game, *player, *mouse, *item, *menu);
 		}
 	}
 
@@ -239,18 +239,18 @@ void Event::UpDate(GameScene* game, Player* player, Menu* menu, Item* item, Mons
 	}
 }
 
-void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
+void Event::Draw(GameScene* game, const std::shared_ptr<Player>& player, const std::shared_ptr<Menu>& menu, const std::shared_ptr<Item>& item)
 {
 	// 宿屋
 	if (_event == EVENT_STATE::INN && !_eventMonsFlg)
 	{
-		yadoSt->Draw(*this, *player);
+		innSt->Draw(*this, *player);
 	}
 
 	// 商人
 	if (_event == EVENT_STATE::MERCHANT && !_eventMonsFlg)
 	{
-		syouninSt->Draw(*this, *player, *item, *menu);
+		merchantSt->Draw(*this, *player, *item, *menu);
 	}
 
 	// ボタン出現中
@@ -277,9 +277,9 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 		// メッセージボックス
 		DrawGraph(420, 50, _drawHandle["message"], true);
 		// 去る
-		DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, _sentakusiPNG[10], true);
+		DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, _choicesPNG[10], true);
 		// 調べる
-		DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, _sentakusiPNG[9], true);
+		DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, _choicesPNG[9], true);
 		DrawGraph(200, 75,eventImages["zou"], true);
 
 		if (_nowTrapFlg)
@@ -314,9 +314,9 @@ void Event::Draw(GameScene* game, Player* player, Menu* menu, Item* item)
 			// メッセージボックス
 			DrawGraph(420, 50, _drawHandle["message"], true);
 			// 去る
-			DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, _sentakusiPNG[10], true);
+			DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, _choicesPNG[10], true);
 			// 調べる
-			DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, _sentakusiPNG[11], true);
+			DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, _choicesPNG[11], true);
 			DrawFormatString(450, 70, 0x000000, "敵が道をふさいでいる\n何か良い方法はないだろうか..");
 		}
 	}
@@ -394,15 +394,15 @@ bool Event::GetEventMonsEncountFlg(void)const
 
 void Event::SetCautionFlg(const bool& flag)
 {
-	_kyouseiButtleFlg = flag;
+	_forcedButtleFlg = flag;
 }
 
 bool Event::GetCautionFlg(void)const
 {
-	return _kyouseiButtleFlg;
+	return _forcedButtleFlg;
 }
 
-void Event::Enemy(GameScene* game, Player* player, Monster* monster)
+void Event::Enemy(GameScene* game, const std::shared_ptr<Player>& player, const std::shared_ptr<Monster>& monster)
 {
 	game->eventState = EVENT_STATE::NON;
 	_event = EVENT_STATE::NON;
@@ -415,7 +415,7 @@ void Event::Enemy(GameScene* game, Player* player, Monster* monster)
 	player->SetMoney(player->GetMoney() + monster->GetMoney());
 }
 
-void Event::Trap(GameScene* game, Player* player, MouseCtl* mouse)
+void Event::Trap(GameScene* game, const std::shared_ptr<Player>& player, const std::shared_ptr<MouseCtl>& mouse)
 {
 	exr++;
 	if (mouse->GetClickTrg())
@@ -459,7 +459,7 @@ void Event::Trap(GameScene* game, Player* player, MouseCtl* mouse)
 	}
 }
 
-void Event::eventMons(GameScene* game, Monster* monster, Cards* cards, MouseCtl* mouse)
+void Event::eventMons(GameScene* game, const std::shared_ptr<Monster>& monster, const std::shared_ptr<Cards>& cards, const std::shared_ptr<MouseCtl>& mouse)
 {
 	exr++;
 	_eventMonsEncountFlg = true;

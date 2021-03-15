@@ -23,12 +23,11 @@ GameClearScene::GameClearScene()
 
 GameClearScene::~GameClearScene()
 {
-	delete mouse;
 }
 
 bool GameClearScene::Init(void)
 {
-	mouse = new MouseCtl();
+	_mouse = std::make_unique<MouseCtl>();
 
 	PngInit();
 
@@ -63,10 +62,10 @@ void GameClearScene::PngInit(void)
 
 unique_Base GameClearScene::Update(unique_Base own, const GameCtl& ctl)
 {
-	mouse->UpDate();
-	if (mouse->GetClickTrg()) 
+	_mouse->UpDate();
+	if (_mouse->GetClickTrg())
 	{			
-		if (mouse->GetPos().x >= 650 && mouse->GetPos().x <= 650 + 200 && mouse->GetPos().y >= 500 && mouse->GetPos().y <= 500 + 100)
+		if (_mouse->GetPos().x >= 650 && _mouse->GetPos().x <= 650 + 200 && _mouse->GetPos().y >= 500 && _mouse->GetPos().y <= 500 + 100)
 		{
 			DeleteSoundMem(_clearBGM);
 			if (CheckSoundMem(_seClick) == 0)

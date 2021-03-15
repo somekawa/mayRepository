@@ -12,6 +12,8 @@
 ChestSt::ChestSt()
 {
 	exr = 0.0f;
+	choicesPngSize = { 150,75 };
+	offsetPos = { 600,345 };
 }
 
 ChestSt::~ChestSt()
@@ -23,7 +25,7 @@ void ChestSt::Update(Event& eve,GameScene& game, Player& player, Menu& menu, Ite
 	exr++;
 	if (mouse.GetClickTrg())
 	{
-		if (mouse.GetPos().x >= 600 && mouse.GetPos().x <= 600 + 150 && mouse.GetPos().y >= 345 && mouse.GetPos().y <= 345 + 75)
+		if (mouse.GetPos().x >= offsetPos.x && mouse.GetPos().x <= offsetPos.x + choicesPngSize.x && mouse.GetPos().y >= offsetPos.y && mouse.GetPos().y <= offsetPos.y + choicesPngSize.y)
 		{
 			exr = 0.0f;
 			// クリック音
@@ -54,7 +56,7 @@ void ChestSt::Update(Event& eve,GameScene& game, Player& player, Menu& menu, Ite
 		// 開ける
 		if (eve._fateNum == -1 && eve._chestOpen[a] == 0)
 		{
-			if (mouse.GetPos().x >= 600 && mouse.GetPos().x <= 600 + 150 && mouse.GetPos().y >= 200 && mouse.GetPos().y <= 200 + 75)
+			if (mouse.GetPos().x >= offsetPos.x && mouse.GetPos().x <= offsetPos.x + choicesPngSize.x && mouse.GetPos().y >= 200 && mouse.GetPos().y <= 200 + choicesPngSize.y)
 			{
 				eve._pushFlg = true;
 				eve._chestOpen[a] = 1;
@@ -100,7 +102,7 @@ void ChestSt::Update(Event& eve,GameScene& game, Player& player, Menu& menu, Ite
 
 		if (mouse.GetClickTrg())
 		{
-			if (mouse.GetPos().x >= 600 && mouse.GetPos().x <= 600 + 150 && mouse.GetPos().y >= 200 && mouse.GetPos().y <= 200 + 75)
+			if (mouse.GetPos().x >= offsetPos.x && mouse.GetPos().x <= offsetPos.x + choicesPngSize.x && mouse.GetPos().y >= 200 && mouse.GetPos().y <= 200 + choicesPngSize.y)
 			{
 				if (menu.GetCanHaveItem() != 0)
 				{
@@ -134,13 +136,13 @@ void ChestSt::Draw(Event& eve, Menu& menu)
 	if (eve._chestOpen[a] == 0)
 	{
 		// 進む(宝箱無視)
-		DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[10], true);
+		DrawRotaGraph(offsetPos.x + choicesPngSize.x / 2, offsetPos.y + choicesPngSize.y / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._choicesPNG[10], true);
 
 		if (eve._fateNum == -1)
 		{
 			// 開ける
-			DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[3], true);
-			DrawGraph(350, 150, eve._chestPNG[0], true);
+			DrawRotaGraph(offsetPos.x + choicesPngSize.x / 2, 200 + choicesPngSize.y / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._choicesPNG[3], true);
+			DrawGraph(350, choicesPngSize.x, eve._chestPNG[0], true);
 			DrawFormatString(450, 70, 0x000000, "宝箱が置いてある");
 		}
 
@@ -162,13 +164,13 @@ void ChestSt::Draw(Event& eve, Menu& menu)
 		if (eve._getFlg)
 		{
 			// 取る
-			DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[8], true);
+			DrawRotaGraph(offsetPos.x + choicesPngSize.x / 2, 200 + choicesPngSize.y / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._choicesPNG[8], true);
 		}
 
 		if (eve._anounceFlg)
 		{
 			// 持ち物満タンだからもてない
-			DrawFormatString(600, 180, 0xffffff, "所持品がいっぱいだ");
+			DrawFormatString(offsetPos.x, 180, 0xffffff, "所持品がいっぱいだ");
 		}
 
 		if (eve._fateNum == 1)
@@ -189,6 +191,6 @@ void ChestSt::Draw(Event& eve, Menu& menu)
 		}
 
 		// 去る(宝箱無視)
-		DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._sentakusiPNG[10], true);
+		DrawRotaGraph(offsetPos.x + choicesPngSize.x / 2, offsetPos.y + choicesPngSize.y / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._choicesPNG[10], true);
 	}
 }

@@ -153,7 +153,7 @@ void Enemy_weak::EffectDraw(void)
 	}
 }
 
-void Enemy_weak::Damage(int damageNum, Cards* cards)
+void Enemy_weak::Damage(int damageNum, const std::shared_ptr<Cards>& cards)
 {
 	_enemyHP -= damageNum;
 	if (_enemyHP <= 0 && _enemyState == ENEMY_STATE::EXIST)

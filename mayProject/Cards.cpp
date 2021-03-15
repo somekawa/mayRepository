@@ -164,7 +164,7 @@ bool Cards::Init(void)
 	return true;
 }
 
-void Cards::Draw(Player* player, Menu* menu)
+void Cards::Draw(const std::shared_ptr<Player>& player, const std::shared_ptr<Menu>& menu)
 {
 	//ClsDrawScreen();
 

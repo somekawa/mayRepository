@@ -1,6 +1,7 @@
 #pragma once
 #include <map>
 #include <string>
+#include <memory>
 #include "BaseScene.h"
 
 class MouseCtl;
@@ -11,8 +12,7 @@ class GameOverScene :
 public:
 	GameOverScene();
 	~GameOverScene();
-	// unique_Base own : 自分のSceneポインタ ,  const GameCtl &ctl : GameCtlの読み取り専用
-	unique_Base Update(unique_Base own, const GameCtl& ctl);	// セーブ/ロード処理
+	unique_Base Update(unique_Base own, const GameCtl& ctl);	
 private:
 	bool Init(void);		// 初期化
 	void Draw(void);		// 描画
@@ -26,5 +26,5 @@ private:
 	bool _seFlg;			// SE用フラグ
 	int _overBGM;			// BGM
 
-	MouseCtl* mouse;
+	std::unique_ptr<MouseCtl> _mouse;		// マウス
 };
