@@ -12,6 +12,7 @@ enum class CONDITION {
 	POISON	// 毒
 };
 
+// プレイヤーの使用するスキル
 enum class SKILL {
 	NON,
 	SWORD,

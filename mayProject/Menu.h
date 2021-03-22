@@ -2,8 +2,8 @@
 #include <map>
 #include <string>
 #include <memory>
-#include "VECTOR2.h"
-#include "ITEMCLASS.h"
+#include "Common/VECTOR2.h"
+#include "Item/ITEMCLASS.h"
 
 class MouseCtl;
 
@@ -31,12 +31,12 @@ public:
 	Menu();
 	~Menu();
 
-	void Update(GameScene* game, const std::shared_ptr<Player>& player, const std::shared_ptr<Monster>& monster, const std::shared_ptr<Cards>& cards,const std::shared_ptr<MouseCtl>& mouse);	// アップデート関数
-	void Draw(const std::shared_ptr<Player>& player, const std::shared_ptr<Item>& item, const std::shared_ptr<Monster>& monster);		// 描画
+	void Update(GameScene* game, const std::shared_ptr<Player>& player, const std::shared_ptr<Monster>& monster, const std::shared_ptr<Cards>& cards,const std::shared_ptr<MouseCtl>& mouse);	
+	void Draw(const std::shared_ptr<Player>& player, const std::shared_ptr<Item>& item, const std::shared_ptr<Monster>& monster);		
 	void MenuButton_NonEnemy(const std::shared_ptr<MouseCtl>& mouse);						// メニューボタン処理(非戦闘時)
 	void MenuButton_Enemy(const std::shared_ptr<MouseCtl>& mouse);							// メニューボタン処理(戦闘時)
 
-	void Setitem(const ITEM& item, const int& png);	// 取得したアイテムを格納する
+	void SetItem(const ITEM& item, const int& png);	// 取得したアイテムを格納する
 	bool GetMenuFlg(void)const;						// メニュー画面が表示状態か取得する
 	MENU GetMenu(void)const;						// 現在のメニュー項目を取得する
 	int GetCanHaveItem(void)const;					// 後何個アイテムが持てるか調べる
@@ -55,13 +55,13 @@ public:
 	bool GetEscapeFlg(void)const;					// 戦闘から逃げるアイテムの情報を取得する		
 	void SetEscapeFlg(const bool& flag);			// 戦闘から逃げるアイテムの情報を設定する
 
-	bool GetMeganeFlg(void)const;					// 宝箱の中身を鑑定するアイテムの情報を取得する
-	void SetMeganeFlg(const bool& flag);			// 宝箱の中身を鑑定するアイテムの情報を設定する
+	bool GetAppraisalFlg(void)const;				// 宝箱の中身を鑑定するアイテムの情報を取得する
+	void SetAppraisalFlg(const bool& flag);			// 宝箱の中身を鑑定するアイテムの情報を設定する
 
 	void Save(const std::shared_ptr<Player>& player);		// セーブ
 	static void Load(void);									// ロード
 private:
-	void Init(void);								// 初期化
+	bool Init(void);								// 初期化
 	void PngInit(void);								// 画像関係初期化
 
 	MENU _menu;										// メニュー項目の保存用変数
@@ -75,8 +75,7 @@ private:
 	int _chooseNum;									// 選択中のアイテムの場所番号				
 	bool _menuBackPngFlg;							// メニュー画面の背景画像を表示するかのフラグ
 	bool _menuSelPngFlg;							// メニュー項目を表示するかのフラグ
-	// メニュー項目
-	std::pair<VECTOR2, MENU>menu_pair[static_cast<int>(MENU::MAX)];
+	std::pair<VECTOR2, MENU>menu_pair[static_cast<int>(MENU::MAX)];		// メニュー項目
 	VECTOR2 buttonSize[static_cast<int>(MENU::MAX)];// メニュー項目ボタンサイズ
 
 	/*アイテム関係*/
@@ -87,13 +86,12 @@ private:
 	bool _nonNeedFlg;								// アイテムを使っても効果がないときにtrue
 	bool _nonDamageFlg;								// 無敵効果のアイテム用フラグ
 	bool _escapeFlg;								// 逃走のアイテム用フラグ
-	bool _meganeFlg;								// 宝箱の中身を鑑定するアイテム用フラグ
+	bool _AppraisalFlg;								// 宝箱の中身を鑑定するアイテム用フラグ
 
 	/*画像関係*/
-	// メニュー画像
 	int _menuSelPNG[3];
 	std::map<std::string, int> _menuImages;
 
 	int _soundSE[5];
-	static bool loadFlg;
+	static bool _loadFlg;							// true時に所持アイテムをボックスに格納する処理を行う
 };

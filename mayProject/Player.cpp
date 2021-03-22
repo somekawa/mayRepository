@@ -1,15 +1,16 @@
 #include <math.h>
 #include "Dxlib.h"
-#include "Enemy_weak.h"
+#include "Enemy/Enemy_weak.h"
 #include "Menu.h"
-#include "GameScene.h"
+#include "Scene/GameScene.h"
 #include "Player.h"
-#include "MouseCtl.h"
+#include "Common/MouseCtl.h"
 
 // static変数の実体<型>クラス名::変数名 = 初期化;
 bool Player::loadFlg = false;
 int Player::saveData[9] = { 0,0,0,0,0,0,0,0,0 };
 
+// ステータス
 struct player
 {
 	int now_level;			// 今のレベル
@@ -136,24 +137,10 @@ void Player::ClickUpDate(const std::shared_ptr<Monster>& monster, const std::sha
 	{
 		if (_skillFlg)
 		{
-			//// 782,564(アイコン描画位置)
-			//float a = x - 782;
-			//float b = y - 564;
-			//float c = sqrt(a * a + b * b);
-			//
-			//// 当たり判定(当たっているとき)
-			//if (c <= 34)
-			//{
-			//	PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-			//	// スキルはターン消費なしで行える動作
-			//	_skillBackFlg = true;
-			//}
-
-			// 782,564(アイコン描画位置)
-			float a = _mouse->GetPos().x - 782.0f;
-			float b = _mouse->GetPos().y - 564.0f;
+			float tmpx = _mouse->GetPos().x - 782.0f;
+			float tmpy = _mouse->GetPos().y - 564.0f;
 			// 当たり判定(当たっているとき)
-			if (sqrt(a * a + b * b) <= 34)
+			if (sqrt(tmpx * tmpx + tmpy * tmpy) <= 34)
 			{
 				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 				// スキルはターン消費なしで行える動作

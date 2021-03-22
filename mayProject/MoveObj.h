@@ -1,6 +1,6 @@
 #pragma once
-#include "GameCtl.h"
-#include "GameScene.h"
+#include "Common/GameCtl.h"
+#include "Scene/GameScene.h"
 
 struct MoveObj
 {

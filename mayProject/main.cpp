@@ -1,5 +1,5 @@
 #include "DxLib.h"
-#include "SceneMng.h"
+#include "Scene/SceneMng.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	LPSTR lpCmdLine, int nCmdShow)

@@ -1,21 +1,21 @@
 #include <DxLib.h>
 #include <string>
-#include "SelectScene.h"
-#include "GameScene.h"
+#include "Scene/SelectScene.h"
+#include "Scene/GameScene.h"
 #include "Menu.h"
 #include "Player.h"
-#include "Item.h"
-#include "Monster.h"
-#include "Cards.h"
-#include "MouseCtl.h"
+#include "Item/Item.h"
+#include "Enemy/Monster.h"
+#include "Card/Cards.h"
+#include "Common/MouseCtl.h"
 
 // static変数の実体<型>クラス名::変数名 = 初期化;
-bool Menu::loadFlg = false;
+bool Menu::_loadFlg = false;
 
 struct item
 {
 	VECTOR2 pos;		// ボックスの位置
-	ITEM _item;
+	ITEM _item;			// アイテム種類
 	int png;			// 画像
 }itemBox[12];
 
@@ -33,7 +33,7 @@ Menu::~Menu()
 	}
 }
 
-void Menu::Init(void)
+bool Menu::Init(void)
 {
 	_menu = MENU::NON;
 	_itemAction = ITEM::NON;
@@ -75,27 +75,27 @@ void Menu::Init(void)
 	_nonNeedFlg = false;
 	_nonDamageFlg = false;
 	_escapeFlg = false;
-	_meganeFlg = false;
+	_AppraisalFlg = false;
 
 	std::string itemName[static_cast<int>(ITEM::MAX)-1];
 	std::pair<std::string, ITEM> pair[static_cast<int>(ITEM::MAX) - 1];
 
 	// アイテム関係
-	//ファイルを読み込む
+	// ファイルを読み込む
 	auto FileHandle_item = FileRead_open("csv/itemName.csv");
 	if (FileHandle_item == NULL)
 	{
-		return; //エラー時の処理
+		return false; //エラー
 	}
 
-	std::string a = "image/";
-	std::string b = ".png";
+	std::string image = "image/";
+	std::string png = ".png";
 	for (int i = 0; i <= static_cast<int>(ITEM::MAX) - 2; i++)
 	{
 		char name[256];
 		FileRead_scanf(FileHandle_item, "%s",name);
 		name[255] = '\0';
-		pair[i].first  = a + name + b;
+		pair[i].first  = image + name + png;
 		pair[i].second = static_cast<ITEM>(i+1);
 	}
 	//ファイルを閉じる
@@ -105,7 +105,7 @@ void Menu::Init(void)
 	for (int i = 0; i <= 11; i++)
 	{
 		itemBox[i].pos = { (((i % 3) + 3) * 100),((i / 3) + 1) * 100 - 30 };
-		if (!loadFlg)
+		if (!_loadFlg)
 		{
 			itemBox[i]._item = ITEM::NON;
 		}
@@ -132,6 +132,7 @@ void Menu::Init(void)
 	_soundSE[2] = LoadSoundMem("sound/se/poison_care.mp3");
 	_soundSE[3] = LoadSoundMem("sound/se/charge.mp3");	
 	_soundSE[4] = LoadSoundMem("sound/se/dropItem.mp3");
+	return true;
 }
 
 void Menu::PngInit(void)
@@ -156,8 +157,7 @@ void Menu::Update(GameScene* game,const std::shared_ptr<Player>& player, const s
 {
 	if (_menu == MENU::SAVE)
 	{
-		// セーブ処理を書いてみる
-		//player->Save();
+		// セーブ処理
 		Save(player);
 	}
 
@@ -193,8 +193,8 @@ void Menu::Update(GameScene* game,const std::shared_ptr<Player>& player, const s
 			// 選択中のアイテムをどうするか
 			if (_useOrThrowAway)
 			{
-				// 画像を消すところの共通処理
-				auto lambdaPNGSakujyo = [&]() {
+				// 画像を消す共通処理
+				auto lambdaPNGDelete = [&]() {
 					_itemExplanation = ITEM::NON;
 					itemBox[_chooseNum]._item = ITEM::NON;
 					itemBox[_chooseNum].png = -1;
@@ -203,77 +203,71 @@ void Menu::Update(GameScene* game,const std::shared_ptr<Player>& player, const s
 					_choicePos = { -100,-100 };
 				};
 
-				// 効果がないよフラグ
-				if (itemBox[_chooseNum]._item == ITEM::POTION || itemBox[_chooseNum]._item == ITEM::POTION_BIG)
+				// 効果がないことを知らせるフラグをtrueにする
+				switch (itemBox[_chooseNum]._item)
 				{
+				case ITEM::POTION:
 					if (player->GetHP() == player->GetMaxHP())
 					{
 						_nonNeedFlg = true;
 					}
-				}
-
-				if (itemBox[_chooseNum]._item == ITEM::DETOX)
-				{
+					break;
+				case ITEM::POTION_BIG:
+					if (player->GetHP() == player->GetMaxHP())
+					{
+						_nonNeedFlg = true;
+					}
+					break;
+				case ITEM::DETOX:
 					if (player->GetCondition() == CONDITION::FINE)
 					{
 						_nonNeedFlg = true;
 					}
-				}
-
-				if (itemBox[_chooseNum]._item == ITEM::MEGANE)
-				{
-					if (_meganeFlg || game->eventState != EVENT_STATE::CHEST)
+					break;
+				case ITEM::GLASSES:
+					if (_AppraisalFlg || game->eventState != EVENT_STATE::CHEST)
 					{
 						_nonNeedFlg = true;
 					}
-				}
-
-				if (itemBox[_chooseNum]._item == ITEM::ENEMY_1)
-				{
+					break;
+				case ITEM::ENEMY_1:
 					if (monster->GetEnemyState() != ENEMY_STATE::EXIST)
 					{
 						_nonNeedFlg = true;
 					}
-				}
-
-				if (itemBox[_chooseNum]._item == ITEM::ENEMY_2)
-				{
+					break;
+				case ITEM::ENEMY_2:
 					if (monster->GetEnemyState() != ENEMY_STATE::EXIST || _nonDamageFlg)
 					{
 						_nonNeedFlg = true;
 					}
-				}
-
-				if (itemBox[_chooseNum]._item == ITEM::ENEMY_3)
-				{
+					break;
+				case ITEM::ENEMY_3:
 					if (monster->GetEnemyState() != ENEMY_STATE::EXIST || cards->GetTurn() == monster->GetMaxTurn())
 					{
 						_nonNeedFlg = true;
 					}
-				}
-
-				if (itemBox[_chooseNum]._item == ITEM::ENEMY_4)
-				{
+					break;
+				case ITEM::ENEMY_4:
 					if (monster->GetEnemyState() != ENEMY_STATE::EXIST || monster->GetEnemyNum() == 5 || monster->GetEnemyNum() == 6)
 					{
 						_nonNeedFlg = true;
 					}
-				}
-
-				if (itemBox[_chooseNum]._item == ITEM::KYOUKA_POW)
-				{
+					break;
+				case ITEM::KYOUKA_POW:
 					if (_powUpNum == 5)
 					{
 						_nonNeedFlg = true;
 					}
-				}
-
-				if (itemBox[_chooseNum]._item == ITEM::SKILL_FAST)
-				{
+					break;
+				case ITEM::SKILL_FAST:
 					if (player->GetSkillCharge() == 0)
 					{
 						_nonNeedFlg = true;
 					}
+					break;
+				default:
+					break;
 				}
 
 				// 使うor装備
@@ -303,14 +297,14 @@ void Menu::Update(GameScene* game,const std::shared_ptr<Player>& player, const s
 					// 商品アイテムに関して
 					for (auto item : ITEM())
 					{
-						if (item >= ITEM::POTION && item <= ITEM::MEGANE)
+						if (item >= ITEM::POTION && item <= ITEM::GLASSES)
 						{
 							if (itemBox[_chooseNum]._item == item)
 							{
 								if (!_nonNeedFlg)
 								{
 									_itemAction = item;
-									lambdaPNGSakujyo();
+									lambdaPNGDelete();
 								}
 								else
 								{
@@ -355,7 +349,7 @@ void Menu::Update(GameScene* game,const std::shared_ptr<Player>& player, const s
 								if (!_nonNeedFlg)
 								{
 									_itemAction = item;
-									lambdaPNGSakujyo();
+									lambdaPNGDelete();
 								}
 								else
 								{
@@ -399,7 +393,7 @@ void Menu::Update(GameScene* game,const std::shared_ptr<Player>& player, const s
 						}
 					}
 
-					lambdaPNGSakujyo();
+					lambdaPNGDelete();
 				}
 			}
 		}
@@ -410,7 +404,7 @@ void Menu::Update(GameScene* game,const std::shared_ptr<Player>& player, const s
 	auto lambdaBattle = [&]() {
 		// メニュー画面を消す
 		_menuBackPngFlg = false;
-		_menuSelPngFlg = false;			// 文字消す
+		_menuSelPngFlg = false;		// 文字消す
 		_menu = MENU::NON;			// 状態を戻す
 		_useOrThrowAway = false;	// 使うと捨てるの文字描画消す
 		cards->SetTurn(cards->GetTurn() - 1);
@@ -483,14 +477,14 @@ void Menu::Update(GameScene* game,const std::shared_ptr<Player>& player, const s
 	}
 
 	// 宝箱の中身を鑑定する
-	if (_itemAction == ITEM::MEGANE)
+	if (_itemAction == ITEM::GLASSES)
 	{
 		PlaySoundMem(_soundSE[3], DX_PLAYTYPE_BACK, true);
-		_meganeFlg = true;
+		_AppraisalFlg = true;
 		_itemAction = ITEM::NON;
 		// メニュー画面を消す
 		_menuBackPngFlg = false;
-		_menuSelPngFlg = false;			// 文字消す
+		_menuSelPngFlg = false;		// 文字消す
 		_menu = MENU::NON;			// 状態を戻す
 		_useOrThrowAway = false;	// 使うと捨てるの文字描画消す
 	}
@@ -649,13 +643,14 @@ void Menu::Draw(const std::shared_ptr<Player>& player, const std::shared_ptr<Ite
 	{
 		int x = 350;
 		int y = 100;
-		DrawFormatString(x, y	 , 0x000000, "レベル:%d"                  , player->GetNowLevel());
-		DrawFormatString(x, y+30 , 0x000000, "体力:%d / %d"               , player->GetHP(), player->GetMaxHP());
-		DrawFormatString(x, y+60 , 0x000000, "攻撃力:%d(+ %d) = %d"       , player->GetAttackDamage(), _equipDamage, player->GetAttackDamage() + _equipDamage);
-		DrawFormatString(x, y+90 , 0x000000, "防御力:%d(+ %d) = %d"       , player->GetDifense(), _equipGuard, player->GetDifense() + _equipGuard);
-		DrawFormatString(x, y+120, 0x000000, "次のレベルまで:残り%d"      , player->GetNextLevel());
-		DrawFormatString(x, y+150, 0x000000, "所持金:%d円"                , player->GetMoney());
-		DrawFormatString(x, y+180, 0x000000, "スキルチャージ完了まで:%d回", player->GetSkillCharge());
+		int offset = 30;
+		DrawFormatString(x, y + offset * 0, 0x000000, "レベル:%d"                  , player->GetNowLevel());
+		DrawFormatString(x, y + offset * 1, 0x000000, "体力:%d / %d"               , player->GetHP(), player->GetMaxHP());
+		DrawFormatString(x, y + offset * 2, 0x000000, "攻撃力:%d(+ %d) = %d"       , player->GetAttackDamage(), _equipDamage, player->GetAttackDamage() + _equipDamage);
+		DrawFormatString(x, y + offset * 3, 0x000000, "防御力:%d(+ %d) = %d"       , player->GetDifense(), _equipGuard, player->GetDifense() + _equipGuard);
+		DrawFormatString(x, y + offset * 4, 0x000000, "次のレベルまで:残り%d"      , player->GetNextLevel());
+		DrawFormatString(x, y + offset * 5, 0x000000, "所持金:%d円"                , player->GetMoney());
+		DrawFormatString(x, y + offset * 6, 0x000000, "スキルチャージ完了まで:%d回", player->GetSkillCharge());
 
 		// デバッグモード用に攻撃力を高く設定できるようにしておく
 		if (CheckHitKey(KEY_INPUT_F10) == 1)
@@ -684,7 +679,6 @@ void Menu::Draw(const std::shared_ptr<Player>& player, const std::shared_ptr<Ite
 			else
 			{
 				// アイテムを使うことに効果がないとき
-
 				// 描画ブレンドモード変更
 				SetDrawBlendMode(DX_BLENDMODE_ADD, 100);
 				// 使う
@@ -709,7 +703,6 @@ void Menu::MenuButton_NonEnemy(const std::shared_ptr<MouseCtl>& mouse)
 {
 	if (mouse->GetClickTrg()) 
 	{				 
-		//X:0,Y:0
 		// 文字表示中に上から項目が表示されないようにする
 		if (!_menuBackPngFlg)
 		{
@@ -748,7 +741,7 @@ void Menu::MenuButton_NonEnemy(const std::shared_ptr<MouseCtl>& mouse)
 				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 
 				_menuBackPngFlg = false;
-				_menuSelPngFlg = false;			// 文字消す
+				_menuSelPngFlg = false;		// 文字消す
 				_menu = MENU::NON;			// 状態を戻す
 				_useOrThrowAway = false;	// 使うと捨てるの文字描画消す
 			}
@@ -778,7 +771,7 @@ void Menu::MenuButton_Enemy(const std::shared_ptr<MouseCtl>& mouse)
 				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 
 				_menuBackPngFlg = false;
-				_menuSelPngFlg = false;			// 文字消す
+				_menuSelPngFlg = false;		// 文字消す
 				_menu = MENU::NON;			// 状態を戻す
 				_useOrThrowAway = false;	// 使うと捨てるの文字描画消す
 			}
@@ -786,9 +779,8 @@ void Menu::MenuButton_Enemy(const std::shared_ptr<MouseCtl>& mouse)
 	}
 }
 
-void Menu::Setitem(const ITEM& item, const int& png)
+void Menu::SetItem(const ITEM& item, const int& png)
 {
-	// 12
 	for (int i = 0; i < 12; i++)
 	{
 		// 入れられる場所を探して入れる
@@ -814,7 +806,6 @@ MENU Menu::GetMenu(void)const
 int Menu::GetCanHaveItem(void)const
 {
 	int canHave = 0;
-	//12
 	for (int i = 0; i < 12; i++)
 	{
 		// 入れられる場所を探して入れる
@@ -874,14 +865,14 @@ void Menu::SetEscapeFlg(const bool& flag)
 	_escapeFlg = flag;
 }
 
-bool Menu::GetMeganeFlg(void)const
+bool Menu::GetAppraisalFlg(void)const
 {
-	return _meganeFlg;
+	return _AppraisalFlg;
 }
 
-void Menu::SetMeganeFlg(const bool& flag)
+void Menu::SetAppraisalFlg(const bool& flag)
 {
-	_meganeFlg = flag;
+	_AppraisalFlg = flag;
 }
 
 void Menu::Save(const std::shared_ptr<Player>& player)
@@ -898,7 +889,7 @@ void Menu::Save(const std::shared_ptr<Player>& player)
 		fopen_s(&file, "data/save1.csv", "wb");
 		if (file == NULL)
 		{
-			return; //エラー時の処理
+			return; // エラー
 		}
 		fprintf(file, "%d,%d,%d,%d,%d,%d,%d,%d,%d\n", player->GetNowLevel(), player->GetMaxHP(), player->GetHP(), player->GetAttackDamage(), player->GetDifense(), player->GetNextLevel(), player->GetMoney(), player->GetConditionTurn(), player->GetCondition());
 		fprintf(file, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", itemBox[0]._item, itemBox[1]._item, itemBox[2]._item, itemBox[3]._item, itemBox[4]._item, itemBox[5]._item, itemBox[6]._item, itemBox[7]._item, itemBox[8]._item, itemBox[9]._item, itemBox[10]._item, itemBox[11]._item);
@@ -921,7 +912,7 @@ void Menu::Load()
 		FileHandle = FileRead_open("data/save1.csv");
 		if (FileHandle == NULL)
 		{
-			return;
+			return;	// エラー
 		}
 
 		FileRead_scanf(FileHandle, "%d,%d,%d,%d,%d,%d,%d,%d,%d\n", &Player::saveData[0], &Player::saveData[1], &Player::saveData[2], &Player::saveData[3], &Player::saveData[4], &Player::saveData[5], &Player::saveData[6], &Player::saveData[7], &Player::saveData[8]);
@@ -931,7 +922,7 @@ void Menu::Load()
 		FileRead_close(FileHandle);
 
 		Player::loadFlg = true;
-		loadFlg = true;
+		_loadFlg = true;
 		SelectScene::pushFlg = true;
 	}
 	else if (MessageBox(			// メッセージ
