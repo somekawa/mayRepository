@@ -83,7 +83,7 @@ unique_Base TitleScene::Update(unique_Base own, const GameCtl& ctl)
 		}
 	}
 	
-	// 自分のSceneのユニークポインタを返す 所有権も忘れずに!
+	// 自分のSceneのユニークポインタを返す
 	return std::move(own);
 }
 

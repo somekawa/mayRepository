@@ -11,6 +11,8 @@
 #include "ButtonSt.h"
 #include "ChestSt.h"
 #include "DrinkSt.h"
+#include "DeathTrapSt.h"
+#include "EventMonsSt.h"
 
 class GameScene;
 class MouseCtl;
@@ -55,8 +57,6 @@ private:
 	void Init(void);						// ‰Šú‰»
 	void pngInit(void);						// ‰æ‘œŠÖŒW‰Šú‰»
 	void Enemy(GameScene* game, const std::shared_ptr<Player>& player, const std::shared_ptr<Monster>& monster);
-	void Trap(GameScene* game, const std::shared_ptr<Player>& player, const std::shared_ptr<MouseCtl>& mouse);
-	void eventMons(GameScene* game, const std::shared_ptr<Monster>& monster, const std::shared_ptr<Cards>& cards, const std::shared_ptr<MouseCtl>& mouse);
 
 	EVENT_STATE _event;					// ƒCƒxƒ“ƒgî•ñ—p•Ï”
 
@@ -121,11 +121,15 @@ private:
 	friend struct ButtonSt;
 	friend struct ChestSt;
 	friend struct DrinkSt;
+	friend struct DeathTrapSt;
+	friend struct EventMonsSt;
 	std::unique_ptr<INNSt> innSt;
 	std::unique_ptr<MerchantSt> merchantSt;
 	std::unique_ptr<ButtonSt> buttonSt;
 	std::unique_ptr<ChestSt> chestSt;
 	std::unique_ptr<DrinkSt> drinkSt;
+	std::unique_ptr<DeathTrapSt> deathTrapSt;
+	std::unique_ptr<EventMonsSt> eventMonsSt;
 
 	float exr;		// Šg‘å/k¬—¦
 };

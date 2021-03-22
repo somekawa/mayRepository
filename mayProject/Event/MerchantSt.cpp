@@ -184,7 +184,7 @@ void MerchantSt::Draw(Event& eve, Player& player,Item& item, Menu& menu)
 		DrawFormatString(470, 485, 0x000000, "所持金:%d円", player.GetMoney());
 
 		// 商品の次のページへの矢印
-		DrawRotaGraph(490 + 50, 300 + 50, 0.7f + sinf(PI * 2.0f / 200.0f * exr) * 0.1,0.0f,eve._drawHandle["yajirusi"], true);
+		DrawRotaGraph(490 + 50, 300 + 50, 0.7f + sinf(PI * 2.0f / 200.0f * exr) * 0.1,0.0f,eve._drawHandle["arrow"], true);
 	}
 
 	// 去る

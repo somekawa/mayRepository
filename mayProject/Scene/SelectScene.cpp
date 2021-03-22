@@ -89,11 +89,11 @@ void SelectScene::pngInit(void)
 {
 	_drawHandle.try_emplace("normal", LoadGraph("image/normal.png"));
 	_drawHandle.try_emplace("hard", LoadGraph("image/hard.png"));
-	_drawHandle.try_emplace("renga", LoadGraph("image/renga.png"));
+	_drawHandle.try_emplace("brick", LoadGraph("image/brick.png"));
 	_drawHandle.try_emplace("titleBackButton", LoadGraph("image/titleBackButton.png"));
 
-	std::string asiato = "image/asiato.png";
-	LoadDivGraph(asiato.c_str(), 2, 1, 2, 69, 190, _footPrints);
+	std::string footsteps = "image/footsteps.png";
+	LoadDivGraph(footsteps.c_str(), 2, 1, 2, 69, 190, _footPrints);
 }
 
 unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
@@ -225,7 +225,7 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 		func_[_dir]();
 	}
 
-	// 自分のSceneのユニークポインタを返す 所有権も忘れずに!
+	// 自分のSceneのユニークポインタを返す
 	return std::move(own);
 }
 
@@ -234,7 +234,7 @@ void SelectScene::Draw(void)
 	ClsDrawScreen();
 	//αブレンド
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, _pngLight);
-	DrawGraph(0, 0, _drawHandle["renga"], true);
+	DrawGraph(0, 0, _drawHandle["brick"], true);
 	DrawGraph(_modePngSize.x / 2 + _modePngSize.x / 8, _modePngSize.y - _modePngSize.y / 3, _drawHandle["normal"], true);
 	DrawGraph(_modePngSize.x / 2 + _modePngSize.x / 8, _modePngSize.y * 2, _drawHandle["hard"], true);
 	// 足跡

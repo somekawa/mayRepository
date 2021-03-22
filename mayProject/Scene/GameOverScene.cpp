@@ -32,7 +32,7 @@ bool GameOverScene::Init(void)
 void GameOverScene::PngInit(void)
 {
 	_drawHandle.try_emplace("blood", LoadGraph("image/blood.png"));
-	_drawHandle.try_emplace("renga", LoadGraph("image/renga.png"));
+	_drawHandle.try_emplace("brick", LoadGraph("image/brick.png"));
 	_drawHandle.try_emplace("over", LoadGraph("image/over.png"));
 	_drawHandle.try_emplace("titleBackButton", LoadGraph("image/titleBackButton.png"));
 }
@@ -67,7 +67,7 @@ unique_Base GameOverScene::Update(unique_Base own, const GameCtl& ctl)
 		_pngBlend++;
 	}
 
-	// 自分のSceneのユニークポインタを返す 所有権も忘れずに!
+	// 自分のSceneのユニークポインタを返す
 	return std::move(own);
 }
 
@@ -76,7 +76,7 @@ void GameOverScene::Draw(void)
 	ClsDrawScreen();
 	// αブレンド
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 100);
-	DrawGraph(0, 0, _drawHandle["renga"], true);
+	DrawGraph(0, 0, _drawHandle["brick"], true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	// αブレンド

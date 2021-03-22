@@ -90,7 +90,7 @@ unique_Base GameClearScene::Update(unique_Base own, const GameCtl& ctl)
 
 	Particle();
 	Draw();
-	// 自分のSceneのユニークポインタを返す 所有権も忘れずに!
+	// 自分のSceneのユニークポインタを返す
 	return std::move(own);
 }
 

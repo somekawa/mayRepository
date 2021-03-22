@@ -118,7 +118,7 @@ void Event::Init(void)
 
 	// SE
 	_soundSE[0] = LoadSoundMem("sound/se/click.mp3");
-	_soundSE[1] = LoadSoundMem("sound/se/biribiri.mp3");
+	_soundSE[1] = LoadSoundMem("sound/se/blitz.mp3");
 	_soundSE[2] = LoadSoundMem("sound/se/damage.mp3");
 	_soundSE[3] = LoadSoundMem("sound/se/poison.mp3");
 
@@ -127,6 +127,8 @@ void Event::Init(void)
 	buttonSt = std::make_unique<ButtonSt>();
 	chestSt = std::make_unique<ChestSt>();
 	drinkSt = std::make_unique<DrinkSt>();
+	deathTrapSt = std::make_unique<DeathTrapSt>();
+	eventMonsSt = std::make_unique<EventMonsSt>();
 
 	exr = 0.0f;
 }
@@ -145,13 +147,13 @@ void Event::pngInit(void)
 	_drawHandle.try_emplace("frame", LoadGraph("image/frame.png"));
 	_drawHandle.try_emplace("itembox", LoadGraph("image/itembox.png"));
 	_drawHandle.try_emplace("itemChoice", LoadGraph("image/itemChoice.png"));
-	_drawHandle.try_emplace("yajirusi", LoadGraph("image/yajirusi.png"));
+	_drawHandle.try_emplace("arrow", LoadGraph("image/arrow.png"));
 
 	// 宝箱
 	std::string trasure_0 = "image/event/trasure_0.png";
 	LoadDivGraph(trasure_0.c_str(), 2, 2, 1, 390 / 2, 431, _chestPNG);
 	// 文字画像の分割読み込み
-	std::string sentakusi = "image/sentakusi/sentakusi.png";
+	std::string sentakusi = "image/choice/choice.png";
 	LoadDivGraph(sentakusi.c_str(),12, 12, 1, 150, 75, _choicesPNG);
 }
 
@@ -226,7 +228,7 @@ void Event::UpDate(GameScene* game, const std::shared_ptr<Player>& player, const
 
 	if (_event == EVENT_STATE::TRAP)
 	{
-		Trap(game,player,mouse);
+		deathTrapSt->Update(*this, *game, *player, *mouse);
 	}
 
 	if (_event == EVENT_STATE::ENEMY)
@@ -236,7 +238,7 @@ void Event::UpDate(GameScene* game, const std::shared_ptr<Player>& player, const
 
 	if (_event == EVENT_STATE::EVE_MONS)
 	{
-		eventMons(game, monster,cards,mouse);
+		eventMonsSt->Update(*this, *game, *monster, *cards, *mouse);
 	}
 }
 
@@ -275,51 +277,13 @@ void Event::Draw(GameScene* game, const std::shared_ptr<Player>& player, const s
 	// 即死トラップ出現中
 	if (_event == EVENT_STATE::TRAP)
 	{
-		// メッセージボックス
-		DrawGraph(420, 50, _drawHandle["message"], true);
-		// 去る
-		DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, _choicesPNG[10], true);
-		// 調べる
-		DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, _choicesPNG[9], true);
-		DrawGraph(200, 75,_eventImages["deathTrap"], true);
-
-		if (_nowTrapFlg)
-		{
-			if (_eventMonsEncountFlg && !_eventMonsEndFlg)
-			{
-				DrawFormatString(450, 70, 0x000000, "背後に敵が迫っている…!");
-			}
-			else
-			{
-				DrawFormatString(450, 70, 0x000000, "即死トラップのようだ");
-			}
-		}
-		else
-		{
-			DrawFormatString(450, 70, 0x000000, "怪しげな像がある");
-			if (_eventMonsEncountFlg && !_eventMonsEndFlg)
-			{
-				DrawFormatString(450, 90, 0xff0000, "背後に敵が迫っている…!");
-			}
-		}
+		deathTrapSt->Draw(*this);
 	}
 
 	// イベント敵と遭遇中
 	if (_event == EVENT_STATE::EVE_MONS || _event != EVENT_STATE::NON && _eventMonsFlg)
 	{
-		DrawGraph(100, 75, _eventImages["mons"], true);
-
-		// 戦闘に入る前
-		if (!_eventMonsFlg)
-		{
-			// メッセージボックス
-			DrawGraph(420, 50, _drawHandle["message"], true);
-			// 去る
-			DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, _choicesPNG[10], true);
-			// 調べる
-			DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, _choicesPNG[11], true);
-			DrawFormatString(450, 70, 0x000000, "敵が道をふさいでいる\n何か良い方法はないだろうか..");
-		}
+		eventMonsSt->Draw(*this);
 	}
 
 	// イベントがNONでもeventmonFlgが立っていたら描画(画面に張り付き)
@@ -408,88 +372,8 @@ void Event::Enemy(GameScene* game, const std::shared_ptr<Player>& player, const 
 	game->eventState = EVENT_STATE::NON;
 	_event = EVENT_STATE::NON;
 
-	// プレイヤーnext_level - 敵経験値
-	// next_level <= 0ならnowNumを+1して、ステータス更新
 	player->SetNextLevel(player->GetNextLevel() - monster->GetEXP());
 
 	// 所持金を増やす
 	player->SetMoney(player->GetMoney() + monster->GetMoney());
-}
-
-void Event::Trap(GameScene* game, const std::shared_ptr<Player>& player, const std::shared_ptr<MouseCtl>& mouse)
-{
-	exr++;
-	if (mouse->GetClickTrg())
-	{			
-		if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 345 && mouse->GetPos().y <= 345 + 75)
-		{
-			exr = 0.0f;
-			// クリック音
-			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-			game->backFlg = true;
-			game->eventState = EVENT_STATE::NON;
-			_event = EVENT_STATE::NON;
-			_fateNum = -1;
-		}
-
-		// 調べる
-		if (!_trapFlg)
-		{
-			if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
-			{
-				// クリック音
-				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-				_trapFlg = true;
-			}
-		}
-	}
-
-	// 調べることにしたとき
-	if (_trapFlg)
-	{
-		exr = 0.0f;
-		// 即死トラップの発動
-		player->SetHP(player->GetHP() - player->GetMaxHP());
-
-		// とりあえずここで特定敵イベントを終了させる
-		if (_eventMonsEncountFlg && !_eventMonsEndFlg)
-		{
-			_eventMonsEncountFlg = false;
-			_eventMonsEndFlg = true;
-		}
-	}
-}
-
-void Event::eventMons(GameScene* game, const std::shared_ptr<Monster>& monster, const std::shared_ptr<Cards>& cards, const std::shared_ptr<MouseCtl>& mouse)
-{
-	exr++;
-	_eventMonsEncountFlg = true;
-	if (mouse->GetClickTrg()) 
-	{			 
-		if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 345 && mouse->GetPos().y <= 345 + 75)
-		{
-			exr = 0.0f;
-			// クリック音
-			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-			// 去る
-			game->backFlg = true;
-			game->eventState = EVENT_STATE::NON;
-			_event = EVENT_STATE::NON;
-			_fateNum = -1;
-		}
-
-		// 戦う
-		if (!_eventMonsFlg)
-		{
-			if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
-			{
-				exr = 0.0f;
-				// クリック音
-				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-				_eventMonsFlg = true;
-				monster->SetEnemyNum(6, 0);
-				cards->SetTurn(3);
-			}
-		}
-	}
 }

@@ -129,6 +129,12 @@
     <ClCompile Include="Enemy\Enemy_weak.cpp">
       <Filter>ソース ファイル\Enemy</Filter>
     </ClCompile>
+    <ClCompile Include="Event\DeathTrapSt.cpp">
+      <Filter>ソース ファイル\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="Event\EventMonsSt.cpp">
+      <Filter>ソース ファイル\Event</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Player.h">
@@ -205,6 +211,12 @@
     </ClInclude>
     <ClInclude Include="Enemy\Enemy_weak.h">
       <Filter>ヘッダー ファイル\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Event\DeathTrapSt.h">
+      <Filter>ヘッダー ファイル\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Event\EventMonsSt.h">
+      <Filter>ヘッダー ファイル\Event</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

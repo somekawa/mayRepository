@@ -1,9 +1,9 @@
 #include <DxLib.h>
 #include "Event.h"
-#include "DrinkSt.h"
 #include "../Scene/GameScene.h"
 #include "../Common/MouseCtl.h"
 #include "../Player.h"
+#include "DrinkSt.h"
 
 #define PI 3.141592653589793f
 

@@ -158,8 +158,10 @@
     <ClCompile Include="Enemy\Monster.cpp" />
     <ClCompile Include="Event\ButtonSt.cpp" />
     <ClCompile Include="Event\ChestSt.cpp" />
+    <ClCompile Include="Event\DeathTrapSt.cpp" />
     <ClCompile Include="Event\DrinkSt.cpp" />
     <ClCompile Include="Event\Event.cpp" />
+    <ClCompile Include="Event\EventMonsSt.cpp" />
     <ClCompile Include="Event\INNSt.cpp" />
     <ClCompile Include="Event\MerchantSt.cpp" />
     <ClCompile Include="Item\Item.cpp" />
@@ -186,8 +188,10 @@
     <ClInclude Include="Enemy\Monster.h" />
     <ClInclude Include="Event\ButtonSt.h" />
     <ClInclude Include="Event\ChestSt.h" />
+    <ClInclude Include="Event\DeathTrapSt.h" />
     <ClInclude Include="Event\DrinkSt.h" />
     <ClInclude Include="Event\Event.h" />
+    <ClInclude Include="Event\EventMonsSt.h" />
     <ClInclude Include="Event\INNSt.h" />
     <ClInclude Include="Event\MerchantSt.h" />
     <ClInclude Include="Item\Item.h" />

@@ -53,10 +53,10 @@ GameScene::~GameScene()
 bool GameScene::Init(void)
 {
 	// 文字の調整
-	SetFontSize(20);                             //サイズを20に変更
-	SetFontThickness(1);                         //太さを1に変更
-	ChangeFont("HGS創英角ﾎﾟｯﾌﾟ体");              //HGS創英角ﾎﾟｯﾌﾟ体に変更
-	ChangeFontType(DX_FONTTYPE_ANTIALIASING_8X8);//アンチエイリアス
+	SetFontSize(20);                             // サイズを20に変更
+	SetFontThickness(1);                         // 太さを1に変更
+	ChangeFont("HGS創英角ﾎﾟｯﾌﾟ体");              // HGS創英角ﾎﾟｯﾌﾟ体に変更
+	ChangeFontType(DX_FONTTYPE_ANTIALIASING_8X8);// アンチエイリアス
 
 	_mapChipSize = 50;
 
@@ -89,7 +89,7 @@ bool GameScene::Init(void)
 		mapFileHandle = FileRead_open("csv/map1.csv");
 		if (mapFileHandle == NULL)
 		{
-			return false; //エラー時の処理
+			return false; // エラー
 		}
 		_bossPos = { 8,5 };			
 		_bossEmergencyPos = { 7,5 };
@@ -99,7 +99,7 @@ bool GameScene::Init(void)
 		mapFileHandle = FileRead_open("csv/map2.csv");
 		if (mapFileHandle == NULL)
 		{
-			return false; //エラー時の処理
+			return false; // エラー
 		}
 		_bossPos = { 5,9 };
 		_bossEmergencyPos = { 5,8 };
@@ -236,21 +236,19 @@ void GameScene::PngInit(void)
 	_drawHandle.try_emplace("message_death2", LoadGraph("image/message_death2.png"));
 	_drawHandle.try_emplace("emergency", LoadGraph("image/emergency.png"));
 	_drawHandle.try_emplace("square", LoadGraph("image/square.png"));
-	_drawHandle.try_emplace("kyousei", LoadGraph("image/kyousei.png"));
+	_drawHandle.try_emplace("forced_combat", LoadGraph("image/forced_combat.png"));
 	_drawHandle.try_emplace("red_caution", LoadGraph("image/red_caution.png"));
 	_drawHandle.try_emplace("buttleGuide", LoadGraph("image/buttleGuide.png"));
 	// マップチップ
 	std::string mapchip = "image/mapchip/mapchip.png";
-	//std::string mapchip_start = "image/mapchip/start_chip.png";
 
 	LoadDivGraph(mapchip.c_str(), 15, 15, 1, _mapChipSize, _mapChipSize, _chipPNG);
-	//_startChipPNG = LoadGraph(mapchip_start.c_str());
 
 	// 霧
-	std::string fog = "image/kiri.png";
+	std::string fog = "image/w_fog.png";
 	_dungeonFogPNG[0] = LoadGraph(fog.c_str());
 
-	std::string fog2 = "image/kiri2.png";
+	std::string fog2 = "image/w_fog2.png";
 	_dungeonFogPNG[1] = LoadGraph(fog2.c_str());
 }
 
@@ -413,6 +411,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 		_keyFlg = false;
 	}
 
+	// 自分のSceneのユニークポインタを返す
 	return std::move(own);
 }
 
@@ -425,15 +424,6 @@ void GameScene::Draw(void)
 	{
 		SetDrawBlendMode(DX_BLENDMODE_INVSRC, _plDeadChangeWinColor);
 	}
-
-	//角度変数に毎回delta加算
-	//radianに直してsinにいれる
-	//出た値に上下させたい幅を*
-	//auto delta = 1.0f;
-	//_degree += 1.0f * 25.0f;
-	//auto radian = _degree * PI / 180.0;
-	//auto sin = sinf(radian);
-	//auto move = sin * 25.0f;
 
 	if (shakeFlg)
 	{
@@ -452,12 +442,7 @@ void GameScene::Draw(void)
 	{
 		if (moveFlg)
 		{
-			//if (!_soundWalk && _doorExpand <= 1.0f)
-			//{
-			//	_soundWalk = true;
-			//}
-
-			// 歩いてるときに揺れてる感じが出したい
+			// 歩いてるときに揺れてる感じを出す
 			_degree += 1.0f * 7.0f;
 			auto radian = _degree * PI / 180.0f;
 			auto sin = sinf(static_cast<float>(radian));
@@ -730,7 +715,6 @@ void GameScene::Draw(void)
 		_guideMove < 50 ? _guideMove++: _guideMove = 50;
 		// 読みこんだグラフィックを自由変形描画(左上,右上,右下,左下)
 		DrawModiGraph(0, 150-_guideMove, 250, 150-_guideMove, 250, 150+_guideMove, 0, 150+_guideMove, _drawHandle["square"], true);
-		//DrawGraph(0, 100, _drawHandle["square"], true);
 		DrawFormatString(30, 120, 0x000000, "～キー操作ガイド～");
 		DrawFormatString(30, 140, 0x000000, "WASD: 移動");
 		DrawFormatString(30, 160, 0x000000, "F2  : マップ表示切替");
@@ -740,7 +724,7 @@ void GameScene::Draw(void)
 	{
 		// 強制戦闘の案内時に描画する
 		DrawGraph(0, 0, _drawHandle["red_caution"], true);
-		DrawGraph(_forcedButtlePngMoveCnt, 250, _drawHandle["kyousei"], true);
+		DrawGraph(_forcedButtlePngMoveCnt, 250, _drawHandle["forced_combat"], true);
 	}
 
 	ScreenFlip();
@@ -919,7 +903,6 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 					{
 						_keyFlg = true;
 						backFlg = true;
-						//Key();
 					}
 				}
 			}
@@ -938,7 +921,6 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 				_guideMove = 0;
 				_soundWalk = true;
 				moveFlg = true;
-				//Key();
 			}
 			else
 			{
@@ -952,137 +934,6 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 				}
 			}
 		}
-
-		/*関数オブジェクトを使う前*/
-		//if (_plNowPoint == 1 && !_keyFlg)
-		//{
-		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_D]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_D]))
-		//	{
-		//		_keyFlg = true;
-		//		Key();
-		//	}
-		//}
-		//
-		//if (_plNowPoint == 2 && !_keyFlg)
-		//{
-		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_A]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_A]))
-		//	{
-		//		_keyFlg = true;
-		//		Key();
-		//	}
-		//}
-		// T字路
-		//if (/*_plDirect == PL_DIRECTION::RIGHT*/ /*&& _plNowPoint == 4 &&*/ !_keyFlg)
-		//{
-			//_rightFlg = false;
-			//_leftFlg = false;
-		//
-			// 関数オブジェクト
-		//	auto obj = MoveObj();
-			//if (obj(ctl, _plNowPoint, _rightFlg, _leftFlg, _plDirect))
-			//{
-				//_keyFlg = true;
-				//Key();
-			//}
-		//
-			//if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_D]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_D]))
-			//{
-			//	_keyFlg = true;
-			//	_rightFlg = true;
-			//	Key();
-			//}
-			//if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_A]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_A]))
-			//{
-			//	_keyFlg = true;
-			//	_leftFlg = true;
-			//	Key();
-			//}
-		//}
-		//if (_plDirect == PL_DIRECTION::LEFT && _plNowPoint == 4 && !_keyFlg)
-		//{
-		//	_rightFlg = false;
-		//	_leftFlg = false;
-		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_D]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_D]))
-		//	{
-		//		_keyFlg = true;
-		//		_leftFlg = true;
-		//		Key();
-		//	}
-		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_A]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_A]))
-		//	{
-		//		_keyFlg = true;
-		//		_rightFlg = true;
-		//		Key();
-		//	}
-		//}
-		//if (_plDirect == PL_DIRECTION::UP && _plNowPoint == 4 && !_keyFlg)
-		//{
-		//	_rightFlg = false;
-		//	_leftFlg = false;
-		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_D]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_D]))
-		//	{
-		//		_keyFlg = true;
-		//		_rightFlg = true;
-		//		Key();
-		//	}
-		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_A]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_A]))
-		//	{
-		//		_keyFlg = true;
-		//		_leftFlg = true;
-		//		Key();
-		//	}
-		//}
-		//if (_plDirect == PL_DIRECTION::DOWN && _plNowPoint == 4 && !_keyFlg)
-		//{
-		//	_rightFlg = false;
-		//	_leftFlg = false;
-		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_D]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_D]))
-		//	{
-		//		_keyFlg = true;
-		//		_rightFlg = true;
-		//		Key();
-		//	}
-		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_A]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_A]))
-		//	{
-		//		_keyFlg = true;
-		//		_leftFlg = true;
-		//		Key();
-		//	}
-		//}
-		// トの字型(直進と右への道)
-		//if (_plNowPoint == 5 && !_keyFlg)
-		//{
-		//	_rightFlg = false;
-		//	_leftFlg = false;
-		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_W]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_W]))
-		//	{
-		//		_keyFlg = true;
-		//		Key();
-		//	}
-		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_D]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_D]))
-		//	{
-		//		_keyFlg = true;
-		//		_rightFlg = true;
-		//		Key();
-		//	}
-		//}
-		// トの字型(直進と左への道)
-		//if (_plNowPoint == 6 && !_keyFlg)
-		//{
-		//	_rightFlg = false;
-		//	_leftFlg = false;
-		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_W]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_W]))
-		//	{
-		//		_keyFlg = true;
-		//		Key();
-		//	}
-		//	if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_A]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_A]))
-		//	{
-		//		_keyFlg = true;
-		//		_leftFlg = true;
-		//		Key();
-		//	}
-		//}
 	}
 }
 
@@ -1140,8 +991,8 @@ void GameScene::Pl_TurnEndAfter(void)
 
 			/*防御の仕組み*/
 			//float a = (float)_cards->GetGuard() * 10.0f;	//30%
-			//float b = (100.0f - a) / 100.0f;	//100%-30%=70%/100% = 0.7
-			//float c = (float)_monster[0]->GetAttack() * b;	//敵の与えてくるDamage量*0.7=7	
+			//float b = (100.0f - a) / 100.0f;				//100%-30%=70%/100% = 0.7
+			//float c = (float)_monster[0]->GetAttack() * b;//敵の与えてくるDamage量*0.7=7	
 			//int d = _menu->GetEquipGuard() + _player->GetDifense() - (int)c;
 
 			int damage = _menu->GetEquipGuard() + _player->GetDifense() - (int)((float)_monster[0]->GetAttack() * ((100.0f - (float)_cards->GetGuard() * 10.0f) / 100.0f));
@@ -1165,7 +1016,7 @@ void GameScene::Pl_TurnEndAfter(void)
 			}
 			else
 			{
-				// dには0またはマイナス値が入っているので加算処理でok
+				// damageには0またはマイナス値が入っているので加算処理でok
 				_player->SetHP(_player->GetHP() + damage);
 			}
 
@@ -1198,8 +1049,6 @@ void GameScene::Pl_Attack(void)
 void GameScene::Pl_Heal(void)
 {
 	/*回復の仕組み*/
-	// 回復したら回復量を0に戻す
-	// 最大HPを超えないように気を付ける
 	//float one = (float)_cards->GetHeal() / 10.0f; //0.2
 	//float two = _player->GetMaxHP() * one;        //最大HP * 0.2 = 最大HPの2割
 	_player->SetHP(_player->GetHP() + (int)(_player->GetMaxHP() * ((float)_cards->GetHeal() / 10.0f)));
@@ -1381,26 +1230,6 @@ void GameScene::Direct(void)
 	// 行き止まりまたは、バックキー押下時にバック処理
 	if (_plNowPoint == 3 || backFlg)
 	{
-		if (_plDirectOld == PL_DIRECTION::DOWN && (_plNowPoint == 4 || _plNowPoint == 7 || _plNowPoint == 8 || _plNowPoint == 0))
-		{
-			// おそらくここがバグの原因
-			//if (_plDirect == PL_DIRECTION::RIGHT)
-			//{
-				//_plDirect = PL_DIRECTION::LEFT;
-			//}
-			//else if (_plDirect == PL_DIRECTION::LEFT)
-			//{
-				//_plDirect = PL_DIRECTION::RIGHT;
-			//}
-			//else if (_plDirect == PL_DIRECTION::UP)
-			//{
-			//	_plDirect = PL_DIRECTION::DOWN;
-			//}
-			//else if (_plDirect == PL_DIRECTION::DOWN)
-			//{
-			//	_plDirect = PL_DIRECTION::UP;
-			//}
-		}
 		_rightFlg = false;
 		_leftFlg = false;
 		if (_plDirect == PL_DIRECTION::UP)
@@ -1441,179 +1270,6 @@ void GameScene::Direct(void)
 				return;
 			}
 		}
-		/*for文前*/
-		//	// 方向だけ転換させる--------
-		//
-		//	// T字路
-		//	if (_plNowPoint == 4)
-		//	{
-		//		backFlg = false;
-		//		_plDirect = _plDirectOld;
-		//		//_plNowPoint = _plOldPoint;
-		//		if (_plOldPoint == 5)
-		//		{
-		//			_plDirect = PL_DIRECTION::RIGHT;
-		//			_directRota = PI / 2;
-		//		}
-		//		else if (_plDirect == PL_DIRECTION::RIGHT)
-		//		{
-		//			_directRota = PI / 2;
-		//		}
-		//		else if (_plDirect == PL_DIRECTION::LEFT)
-		//		{
-		//			_plDirect = PL_DIRECTION::RIGHT;
-		//			//_directRota = PI + PI / 2;
-		//			_directRota = PI / 2;
-		//		}
-		//		else if (_plDirect == PL_DIRECTION::DOWN)
-		//		{
-		//			_directRota = PI;
-		//		}
-		//		else if (_plDirect == PL_DIRECTION::UP)
-		//		{
-		//			_directRota = 0;
-		//		}
-		//		return;
-		//	}
-		//
-		//	// トの字型(直進と右への道)
-		//	if (_plNowPoint == 5)
-		//	{
-		//		backFlg = false;
-		//		//_plDirect = _plDirectOld;
-		//		if (_plDirectOld == PL_DIRECTION::UP)
-		//		{
-		//			_directRota = 0;
-		//			_plDirect = _plDirectOld;
-		//			_plOldPoint = 5;
-		//		}
-		//		else if (_plDirectOld == PL_DIRECTION::RIGHT)
-		//		{
-		//			_directRota = 0;
-		//			_plDirect = PL_DIRECTION::UP;
-		//			_plOldPoint = 5;
-		//		}
-		//		return;
-		//	}
-		//	// トの字型(直進と左への道)
-		//	if (_plNowPoint == 6)
-		//	{
-		//		backFlg = false;
-		//		_plDirect = _plDirectOld;
-		//		if (_plDirect == PL_DIRECTION::UP)
-		//		{
-		//			_directRota = 0;
-		//		}
-		//		return;
-		//	}
-		//
-		//	if (_plDirect == PL_DIRECTION::UP)
-		//	{
-		//		if ((_plNowPoint == 0 || _plNowPoint == 5) && !_rightFlg)	// 直進
-		//		{
-		//			backFlg = false;
-		//			return;
-		//		}
-		//		else if (_plNowPoint == 1)
-		//		{
-		//			_plDirectOld = _plDirect;
-		//			backFlg = false;
-		//			_plDirect = PL_DIRECTION::LEFT;	// 左曲がり
-		//			_leftFlg = true;
-		//			_directRota = PI + PI / 2;
-		//			return;
-		//		}
-		//		else if (_plNowPoint == 2)
-		//		{
-		//			_plDirectOld = _plDirect;
-		//			backFlg = false;
-		//			_plDirect = PL_DIRECTION::RIGHT;	// 右曲がり
-		//			_rightFlg = true;
-		//			_directRota = PI / 2;
-		//			return;
-		//		}
-		//	}
-		//
-		//	if (_plDirect == PL_DIRECTION::DOWN)
-		//	{
-		//		if (_plNowPoint == 0)	// 直進
-		//		{
-		//			backFlg = false;
-		//			return;
-		//		}
-		//		else if (_plNowPoint == 1)
-		//		{
-		//			//_plDirectOld = _plDirect;
-		//			backFlg = false;
-		//			_plDirect = PL_DIRECTION::RIGHT;	// 右曲がり
-		//			_rightFlg = true;
-		//			_directRota = PI / 2;
-		//			return;
-		//		}
-		//		else if (_plNowPoint == 2)
-		//		{
-		//			//_plDirectOld = _plDirect;
-		//			backFlg = false;
-		//			_plDirect = PL_DIRECTION::LEFT;	// 左曲がり
-		//			_leftFlg = true;
-		//			_directRota = PI + PI / 2;
-		//			return;
-		//		}
-		//	}
-		//
-		//	if (_plDirect == PL_DIRECTION::RIGHT)
-		//	{
-		//		if (_plNowPoint == 0)	// 直進
-		//		{
-		//			backFlg = false;
-		//			return;
-		//		}
-		//		else if (_plNowPoint == 1)	
-		//		{
-		//			_plDirectOld = _plDirect;
-		//			backFlg = false;
-		//			_plDirect = PL_DIRECTION::UP;
-		//			_directRota = 0.0f;
-		//			return;
-		//		}
-		//		else if (_plNowPoint == 2)	
-		//		{
-		//			_plDirectOld = _plDirect;
-		//			backFlg = false;
-		//			_plDirect = PL_DIRECTION::DOWN;
-		//			_directRota = PI;
-		//			return;
-		//		}
-		//	}
-		//
-		//	if (_plDirect == PL_DIRECTION::LEFT)
-		//	{
-		//		if (_plNowPoint == 0)	// 直進
-		//		{
-		//			backFlg = false;
-		//			return;
-		//		}
-		//		else if (_plNowPoint == 1)	
-		//		{
-		//			_plDirectOld = _plDirect;
-		//			backFlg = false;
-		//			_plDirect = PL_DIRECTION::DOWN;
-		//			_leftFlg = false;
-		//			_directRota = PI;
-		//			return;
-		//		}
-		//		else if (_plNowPoint == 2)	
-		//		{
-		//			_plDirectOld = _plDirect;
-		//			backFlg = false;
-		//			_plDirect = PL_DIRECTION::UP;
-		//			_leftFlg = false;
-		//			_directRota = 0.0f;
-		//			return;
-		//		}
-		//	}
-		//}
-		////------------------------------------------
 	}
 
 	auto lambda = [&](PL_DIRECTION dir,double rota) {
@@ -1868,52 +1524,11 @@ void GameScene::Key(void)
 			else
 			{
 				eventState = EVENT_STATE::ENEMY;
-				_monsTimeCnt = GetRand(5) + 8;
+				_monsTimeCnt = GetRand(5) + 4;
 			}
 		}
 		else
 		{
-			/*switchだった頃*/
-			//switch (num)
-			//{
-			//case 7:
-			//	eventState = EVENT_STATE::INN;
-			//	break;
-			//case 8:
-			//	eventState = EVENT_STATE::MERCHANT;
-			//	break;
-			//case 9:
-			//	eventState = EVENT_STATE::BUTTON;
-			//	break;
-			//case 10:
-			//	eventState = EVENT_STATE::CHEST;
-			//	break;
-			//case 11:
-			//	eventState = EVENT_STATE::DRINK;
-			//	break;
-			//case 12:
-			//	eventState = EVENT_STATE::TRAP;
-			//	break;
-			//case 13:
-			//	if (!_event->GetEventMonsEndFlg())
-			//	{
-			//		eventState = EVENT_STATE::EVE_MONS;
-			//	}
-			//	else
-			//	{
-			//		_event->SetEventMonsEncountFlg(false);
-			//		eventState = EVENT_STATE::NON;
-			//		_plNowPoint = 0;
-			//	}
-			//	break;
-			//case 14:
-			//	eventState = EVENT_STATE::GOAL;
-			//	break;
-			//default:
-			//	eventState = EVENT_STATE::NON;
-			//	break;
-			//}
-
 			eventState = _eventStateMap[num];
 			if (num == 13)
 			{

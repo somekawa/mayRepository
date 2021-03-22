@@ -142,15 +142,15 @@ void Menu::PngInit(void)
 	LoadDivGraph(menuButton.c_str(), 3, 3, 1, 200, 100, _menuSelPNG);
 
 	_menuImages.try_emplace("titleBack", LoadGraph("image/menuTitleBackButton.png"));	// タイトルへ戻るボタン
-	_menuImages.try_emplace("Save", LoadGraph("image/menuSave.png"));					// セーブボタン
+	_menuImages.try_emplace("save", LoadGraph("image/menuSave.png"));					// セーブボタン
 	_menuImages.try_emplace("menuButton", LoadGraph("image/menuButton.png"));			// メニュー画面背景
 	_menuImages.try_emplace("menuWindow", LoadGraph("image/menu_window.png"));			// アイテムボックス背景
-	_menuImages.try_emplace("use", LoadGraph("image/use.png"));							// 選択中のアイテム
-	_menuImages.try_emplace("suteru", LoadGraph("image/suteru.png"));					// 使用の文字
-	_menuImages.try_emplace("back", LoadGraph("image/back.png"));						// 捨てるの文字
-	_menuImages.try_emplace("setumei", LoadGraph("image/setumei.png"));					// 戻るの文字
-	_menuImages.try_emplace("itembox", LoadGraph("image/itembox.png"));					// 説明の後ろ画像
-	_menuImages.try_emplace("itemChoice", LoadGraph("image/itemChoice.png"));			// メニューボタン
+	_menuImages.try_emplace("use", LoadGraph("image/choice/use.png"));					// 使用の文字
+	_menuImages.try_emplace("throw_away", LoadGraph("image/choice/throw_away.png"));	// 捨てるの文字
+	_menuImages.try_emplace("back", LoadGraph("image/choice/back.png"));				// 戻るの文字
+	_menuImages.try_emplace("description", LoadGraph("image/description.png"));			// 説明の後ろ画像
+	_menuImages.try_emplace("itembox", LoadGraph("image/itembox.png"));					// アイテムボックス画像
+	_menuImages.try_emplace("itemChoice", LoadGraph("image/itemChoice.png"));			// 選択中アイテム
 }
 
 void Menu::Update(GameScene* game,const std::shared_ptr<Player>& player, const std::shared_ptr<Monster>& monster, const std::shared_ptr<Cards>& cards, const std::shared_ptr<MouseCtl>& mouse)
@@ -617,7 +617,7 @@ void Menu::Draw(const std::shared_ptr<Player>& player, const std::shared_ptr<Ite
 		}
 
 		DrawGraph(menu_pair[3].first.x, menu_pair[3].first.y, _menuImages["titleBack"], true);	
-		DrawGraph(menu_pair[4].first.x, menu_pair[4].first.y, _menuImages["Save"], true);
+		DrawGraph(menu_pair[4].first.x, menu_pair[4].first.y, _menuImages["save"], true);
 	}
 
 	// アイテム
@@ -668,7 +668,7 @@ void Menu::Draw(const std::shared_ptr<Player>& player, const std::shared_ptr<Ite
 		if (_useOrThrowAway)
 		{
 			// 説明の後ろ画像
-			DrawGraph(0, 320, _menuImages["setumei"], true);
+			DrawGraph(0, 320, _menuImages["description"], true);
 
 			// アイテムを使うことに効果があるとき
 			if (!_nonNeedFlg)
@@ -689,7 +689,7 @@ void Menu::Draw(const std::shared_ptr<Player>& player, const std::shared_ptr<Ite
 				DrawFormatString(20, 300, 0xffffff, "今使っても効果がない");
 			}
 			// 捨てる
-			DrawGraph(50, 500, _menuImages["suteru"], true);
+			DrawGraph(50, 500, _menuImages["throw_away"], true);
 			// メニューのアイテムで選択したアイテムの説明を出す
 			if (_itemExplanation != ITEM::NON)
 			{
