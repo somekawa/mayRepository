@@ -11,6 +11,8 @@
 EventMonsSt::EventMonsSt()
 {
 	exr = 0.0f;
+	choicesPngSize = { 150,75 };
+	offsetPos = { 600,345 };
 }
 
 EventMonsSt::~EventMonsSt()
@@ -23,7 +25,8 @@ void EventMonsSt::Update(Event& eve, GameScene& game, Monster& monster, Cards& c
 	eve._eventMonsEncountFlg = true;
 	if (mouse.GetClickTrg())
 	{
-		if (mouse.GetPos().x >= 600 && mouse.GetPos().x <= 600 + 150 && mouse.GetPos().y >= 345 && mouse.GetPos().y <= 345 + 75)
+		if (mouse.GetPos().x >= offsetPos.x && mouse.GetPos().x <= offsetPos.x + choicesPngSize.x &&
+			mouse.GetPos().y >= offsetPos.y && mouse.GetPos().y <= offsetPos.y + choicesPngSize.y)
 		{
 			exr = 0.0f;
 			// クリック音
@@ -38,7 +41,8 @@ void EventMonsSt::Update(Event& eve, GameScene& game, Monster& monster, Cards& c
 		// 戦う
 		if (!eve._eventMonsFlg)
 		{
-			if (mouse.GetPos().x >= 600 && mouse.GetPos().x <= 600 + 150 && mouse.GetPos().y >= 200 && mouse.GetPos().y <= 200 + 75)
+			if (mouse.GetPos().x >= offsetPos.x && mouse.GetPos().x <= offsetPos.x + choicesPngSize.x &&
+				mouse.GetPos().y >= 200 && mouse.GetPos().y <= 200 + choicesPngSize.y)
 			{
 				exr = 0.0f;
 				// クリック音
@@ -61,9 +65,9 @@ void EventMonsSt::Draw(Event& eve)
 		// メッセージボックス
 		DrawGraph(420, 50, eve._drawHandle["message"], true);
 		// 去る
-		DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._choicesPNG[10], true);
+		DrawRotaGraph(offsetPos.x + choicesPngSize.x / 2, offsetPos.y + choicesPngSize.y / 2, static_cast<double>(0.9f + (sinf(PI * 2.0f / 200.0f * exr) * 0.1f)), 0.0f, eve._choicesPNG[10], true);
 		// 調べる
-		DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._choicesPNG[11], true);
+		DrawRotaGraph(offsetPos.x + choicesPngSize.x / 2, 200 + choicesPngSize.y / 2, static_cast<double>(0.9f + (sinf(PI * 2.0f / 200.0f * exr) * 0.1f)), 0.0f, eve._choicesPNG[11], true);
 		DrawFormatString(450, 70, 0x000000, "敵が道をふさいでいる\n何か良い方法はないだろうか..");
 	}
 }

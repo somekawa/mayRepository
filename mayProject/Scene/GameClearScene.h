@@ -21,7 +21,10 @@ private:
 
 	std::map<std::string, int> _drawHandle;	// 描画画像
 
+	VECTOR2 _btnPos;					// ボタンの描画位置
+	VECTOR2 _btnSize;					// ボタンの大きさ
 	int _pngBlend;						// 加算ブレンドで使用
+	VECTOR2 _parOffset;					// パーティクルの描画位置オフセット
 
 	int _seClick;						// クリック音
 	int _clearBGM;						// BGM

@@ -22,7 +22,7 @@ enum class CARDS_TYPE
 	NON,
 	ATTACK,
 	GUARD,
-	INN
+	HEAL
 };
 
 CARD_MEMBER begin(CARD_MEMBER);

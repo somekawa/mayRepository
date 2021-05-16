@@ -20,6 +20,8 @@ private:
 
 	std::map<std::string, int> _drawHandle;	// 描画画像
 
+	VECTOR2 _btnPos;		// ボタンの描画位置
+	VECTOR2 _btnSize;		// ボタンの大きさ
 	int _pngBlend;			// αブレンドで使用
 	
 	int _seClick;			// クリック音

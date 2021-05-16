@@ -31,6 +31,7 @@ private:
 	bool Init(void);						
 	void Move(int id);						// カードの動き(手元で組み合わせる)
 	void UseCard(int id);					// カードを敵や自分に対して使用する
+	void CreateCard(int id);				// カードの生成や重ねた際の処理を行う
 
 	// マウス関係
 	int _mouse;								// マウスの状態
@@ -49,7 +50,8 @@ private:
 	int _healNum;							// カードの回復力保存用変数
 
 	CARDS_TYPE _cardsType;					// 使用したカードの種類情報を保存する
-	std::map<int, CARD_MEMBER> _cardMap;
+	std::map<int, CARD_MEMBER> _cardMap;	// カード座標の設定用
+	std::map<CARD_MEMBER, int> _cardPower;	// カード威力の設定用
 	std::pair<int, CARD_MEMBER>_cardPngSel_pair[static_cast<int>(CARD_MEMBER::MAX)];
 
 	int _se;								// 重ねたときのSE

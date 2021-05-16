@@ -23,13 +23,13 @@ bool GameScene::bossClearFlg = false;
 GameScene::GameScene() :screen_sizeX(900), screen_sizeY(600)
 {
 	Init();
-	_cards = std::make_shared<Cards>();
+	_cards	= std::make_shared<Cards>();
 	_player = std::make_shared<Player>();
 	_monster[0] = std::make_shared<Enemy_weak>();
-	_menu = std::make_shared<Menu>();
-	_item = std::make_shared<Item>();
-	mouse = std::make_shared<MouseCtl>();
-	_event = std::make_unique<Event>();
+	_menu   = std::make_shared<Menu>();
+	_item   = std::make_shared<Item>();
+	_event  = std::make_unique<Event>();
+	mouse   = std::make_shared<MouseCtl>();
 }
 
 GameScene::~GameScene()
@@ -55,7 +55,7 @@ bool GameScene::Init(void)
 	// 文字の調整
 	SetFontSize(20);                             // サイズを20に変更
 	SetFontThickness(1);                         // 太さを1に変更
-	ChangeFont("HGS創英角ﾎﾟｯﾌﾟ体");              // HGS創英角ﾎﾟｯﾌﾟ体に変更
+	ChangeFont("HGS創英角ﾎﾟｯﾌﾟ体");              // HGS創英角ポップ体に変更
 	ChangeFontType(DX_FONTTYPE_ANTIALIASING_8X8);// アンチエイリアス
 
 	_mapChipSize = 50;
@@ -64,14 +64,14 @@ bool GameScene::Init(void)
 	PngInit();
 
 	// 扉関係
-	moveFlg = false;
+	moveFlg  = false;
 	openDoor = false;
 	_doorExpand = 1.0f;
 	_degree = 0.0f;
 	_doorOpenTiming = 20;
 	_lastDoorExpand = 1.5f;
-	_lastmoveTime = 0;
-	_changeToClear = false;
+	_lastmoveTime   = 0;
+	_changeToClear  = false;
 
 	// イベント関係
 	eventState = EVENT_STATE::NON;
@@ -80,7 +80,7 @@ bool GameScene::Init(void)
 	shakeFlg = false;
 	_shakeChangeFlg = false;
 	_shakeTime = 0.0f;
-	_shackPos = { 0,0 };
+	_shackPos  = { 0,0 };
 
 	// マップ読み込み(配列は[y][x]の順になっている)
 	int mapFileHandle;
@@ -106,13 +106,13 @@ bool GameScene::Init(void)
 	}
 	else
 	{
-		// ここにきたらエラー
-		return false;
+		return false;	  // エラー
 	}
 
-	for (int i = 0; i < 10; i++)
+	for (int y = 0; y < MAP_SIZE_Y; y++)
 	{
-		FileRead_scanf(mapFileHandle, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", &_dungeonMap[i][0].second, &_dungeonMap[i][1].second, &_dungeonMap[i][2].second, &_dungeonMap[i][3].second, &_dungeonMap[i][4].second, &_dungeonMap[i][5].second, &_dungeonMap[i][6].second, &_dungeonMap[i][7].second, &_dungeonMap[i][8].second, &_dungeonMap[i][9].second);
+		FileRead_scanf(mapFileHandle, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", &_dungeonMap[y][0].second, &_dungeonMap[y][1].second, &_dungeonMap[y][2].second, &_dungeonMap[y][3].second, &_dungeonMap[y][4].second, 
+																	   &_dungeonMap[y][5].second, &_dungeonMap[y][6].second, &_dungeonMap[y][7].second, &_dungeonMap[y][8].second, &_dungeonMap[y][9].second);
 	}
 	//ファイルを閉じる
 	FileRead_close(mapFileHandle);
@@ -120,12 +120,12 @@ bool GameScene::Init(void)
 	// ダンジョン関係
 	bossClearFlg = false;
 	backFlg = false;
-	plPosX = 0;
-	plPosY = 0;
-	_plNowPoint = _dungeonMap[plPosY][plPosX].second;
-	_plDirect = PL_DIRECTION::UP;
+	plPosX  = 0;
+	plPosY  = 0;
+	_plNowPoint  = _dungeonMap[plPosY][plPosX].second;
+	_plDirect    = PL_DIRECTION::UP;
 	_plDirectOld = PL_DIRECTION::UP;
-	_leftFlg = false;
+	_leftFlg  = false;
 	_rightFlg = false;
 	_directRota = 0.0f;
 	_mapChipDrawOffset = { 0,0 };
@@ -133,13 +133,13 @@ bool GameScene::Init(void)
 	_allMapFlg = false;
 
 	// その他
-	blinkFlg = false;
+	blinkFlg  = false;
 	_blinkCnt = 0;
-	_monsTimeCnt = 5;
-	_walkDirect = 0;
+	_monsTimeCnt = 4;
+	_walkDirect  = 0;
 	_plDeadChangeWinColor = 255;
-	_poisonCnt = 256;
-	_onceFlg = false;
+	_poisonCnt  = 256;
+	_onceFlg    = false;
 	_anounceFlg = false;
 	_fog[0] = 0.0f;
 	_fog[1] = -900.5f;
@@ -150,8 +150,9 @@ bool GameScene::Init(void)
 	_guideFlg = false;
 	_guideVisibleTime = 0;
 	_guideMove = 0;
-	_guideExrMove = 0.0f;
+	_guideExrMove   = 0.0f;
 	_buttleGuideFlg = false;
+	_stopCardUpDate = false;
 
 	//13以外 (7~12と14)
 	for (int i = static_cast<int>(EVENT_STATE::INN); i <= static_cast<int>(EVENT_STATE::GOAL);)
@@ -164,7 +165,7 @@ bool GameScene::Init(void)
 	}
 
 	// あらかじめマップ用のメモリ領域を確保しておく
-	_mapVec.reserve(100);
+	_mapVec.reserve(MAP_SIZE_X * MAP_SIZE_Y);
 
 	// SE
 	_soundSE[0] = LoadSoundMem("sound/se/click.mp3");			// クリック音
@@ -175,20 +176,21 @@ bool GameScene::Init(void)
 	_soundSE[5] = LoadSoundMem("sound/se/healCard.mp3");		// 回復カード音
 	_soundSE[6] = LoadSoundMem("sound/se/damage.mp3");			// ダメージ
 	_soundSE[7] = LoadSoundMem("sound/se/poison.mp3");			// 毒音
-	_soundWalk = false;
-	_walkCnt = 12.0f;
+	_soundWalk  = false;
+	_walkCnt    = 12.0f;
 
 	// BGM
-	_gameBGM = LoadSoundMem("sound/bgm/dangeon.mp3");
+	_gameBGM   = LoadSoundMem("sound/bgm/dangeon.mp3");
 	_battleBGM = LoadSoundMem("sound/bgm/battle.mp3");
 	PlaySoundMem(_gameBGM, DX_PLAYTYPE_LOOP, true);
+	_nowBGM = _gameBGM;
 	return true;
 }
 
 void GameScene::PngInit(void)
 {
 	// ターン画像のメモリへの読みこみ
-	std::string number = "image/number/number.png";
+	const std::string number = "image/number/number.png";
 	LoadDivGraph(number.c_str(), 6, 6, 1, 40, 50, _turnPNG);
 
 	// 扉
@@ -202,53 +204,52 @@ void GameScene::PngInit(void)
 	}
 
 	// ダンジョン
-	std::string dungeon[7];
-	dungeon[0] = "image/dan_go.png";			// 直進
-	dungeon[1] = "image/dan_right.png";			// 右折のみ
-	dungeon[2] = "image/dan_left.png";			// 左折のみ
-	dungeon[3] = "image/dan_stop.png";			// 行き止まり
-	dungeon[4] = "image/dan_T.png";				// T字路
-	dungeon[5] = "image/dan_TONOJI_SR.png";		// トの字型(直線と右への道)
-	dungeon[6] = "image/dan_TONOJI_SL.png";		// トの字型(直線と左への道)
-	for (int i = 0; i < 7; i++)
+	std::string dungeon[static_cast<int>(MAP::INN)];
+	dungeon[static_cast<int>(MAP::STRAIGHT)]  = "image/dan_go.png";			// 直進
+	dungeon[static_cast<int>(MAP::RIGHT)]	  = "image/dan_right.png";		// 右折のみ
+	dungeon[static_cast<int>(MAP::LEFT)]	  = "image/dan_left.png";		// 左折のみ
+	dungeon[static_cast<int>(MAP::STOP)]	  = "image/dan_stop.png";		// 行き止まり
+	dungeon[static_cast<int>(MAP::TJI)]		  = "image/dan_T.png";			// T字路
+	dungeon[static_cast<int>(MAP::TONOJI_SR)] = "image/dan_TONOJI_SR.png";	// トの字型(直線と右への道)
+	dungeon[static_cast<int>(MAP::TONOJI_SL)] = "image/dan_TONOJI_SL.png";	// トの字型(直線と左への道)
+	for (int i = static_cast<int>(MAP::STRAIGHT); i < static_cast<int>(MAP::INN); i++)
 	{
 		_roadPNG[i] = LoadGraph(dungeon[i].c_str());
 	}
-	for (int i = 7; i < 13; i++)
+	for (int i = static_cast<int>(MAP::INN); i < static_cast<int>(MAP::EVE_MONS); i++)
 	{
 		_roadPNG[i] = LoadGraph(dungeon[3].c_str());
 	}
-	_roadPNG[13] = LoadGraph(dungeon[0].c_str());
-	_roadPNG[14] = LoadGraph(room[0].c_str());
+	_roadPNG[static_cast<int>(MAP::EVE_MONS)] = LoadGraph(dungeon[0].c_str());
+	_roadPNG[static_cast<int>(MAP::GOAL)]	  = LoadGraph(room[0].c_str());
 
-	_drawHandle.try_emplace("hpbar_en", LoadGraph("image/hpbar_en.png"));
+	_drawHandle.try_emplace("hpbar_en"	, LoadGraph("image/hpbar_en.png"));
 	_drawHandle.try_emplace("hpbar_back", LoadGraph("image/hpbar_back.png"));
 	_drawHandle.try_emplace("hpbar_waku", LoadGraph("image/hpbar_waku.png"));
 
-	_drawHandle.try_emplace("direct", LoadGraph("image/direct.png"));
-	_drawHandle.try_emplace("start_chip", LoadGraph("image/mapchip/start_chip.png"));
-	_drawHandle.try_emplace("white", LoadGraph("image/white.png"));
-	_drawHandle.try_emplace("monster_info", LoadGraph("image/monster_info.png"));
-	_drawHandle.try_emplace("getItem", LoadGraph("image/getItem.png"));
-	_drawHandle.try_emplace("try", LoadGraph("image/try.png"));
-	_drawHandle.try_emplace("dead", LoadGraph("image/dead.png"));
-	_drawHandle.try_emplace("message_death", LoadGraph("image/message_death.png"));
+	_drawHandle.try_emplace("direct"		, LoadGraph("image/direct.png"));
+	_drawHandle.try_emplace("start_chip"	, LoadGraph("image/mapchip/start_chip.png"));
+	_drawHandle.try_emplace("white"			, LoadGraph("image/white.png"));
+	_drawHandle.try_emplace("monster_info"	, LoadGraph("image/monster_info.png"));
+	_drawHandle.try_emplace("getItem"		, LoadGraph("image/getItem.png"));
+	_drawHandle.try_emplace("try"			, LoadGraph("image/try.png"));
+	_drawHandle.try_emplace("dead"			, LoadGraph("image/dead.png"));
+	_drawHandle.try_emplace("message_death" , LoadGraph("image/message_death.png"));
 	_drawHandle.try_emplace("message_death2", LoadGraph("image/message_death2.png"));
-	_drawHandle.try_emplace("emergency", LoadGraph("image/emergency.png"));
-	_drawHandle.try_emplace("square", LoadGraph("image/square.png"));
-	_drawHandle.try_emplace("forced_combat", LoadGraph("image/forced_combat.png"));
-	_drawHandle.try_emplace("red_caution", LoadGraph("image/red_caution.png"));
-	_drawHandle.try_emplace("buttleGuide", LoadGraph("image/buttleGuide.png"));
+	_drawHandle.try_emplace("emergency"		, LoadGraph("image/emergency.png"));
+	_drawHandle.try_emplace("square"		, LoadGraph("image/square.png"));
+	_drawHandle.try_emplace("forced_combat" , LoadGraph("image/forced_combat.png"));
+	_drawHandle.try_emplace("red_caution"	, LoadGraph("image/red_caution.png"));
+	_drawHandle.try_emplace("buttleGuide"	, LoadGraph("image/buttleGuide.png"));
 	// マップチップ
 	std::string mapchip = "image/mapchip/mapchip.png";
 
-	LoadDivGraph(mapchip.c_str(), 15, 15, 1, _mapChipSize, _mapChipSize, _chipPNG);
+	LoadDivGraph(mapchip.c_str(), static_cast<int>(MAP::MAX), 15, 1, _mapChipSize, _mapChipSize, _chipPNG);
 
 	// 霧
-	std::string fog = "image/w_fog.png";
+	const std::string fog = "image/w_fog.png";
 	_dungeonFogPNG[0] = LoadGraph(fog.c_str());
-
-	std::string fog2 = "image/w_fog2.png";
+	const std::string fog2 = "image/w_fog2.png";
 	_dungeonFogPNG[1] = LoadGraph(fog2.c_str());
 }
 
@@ -262,7 +263,8 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 		if (_player->GetHP() > 0)
 		{
 			// 敵がいないときだけ押せる
-			if (eventState != EVENT_STATE::ENEMY && eventState != EVENT_STATE::EVE_MONS && !_event->GetEventMonsFlg())
+			if ((eventState != EVENT_STATE::ENEMY) && (eventState != EVENT_STATE::EVE_MONS) &&
+				 !_event->GetEventMonsFlg())
 			{
 				_menu->MenuButton_NonEnemy(mouse);
 			}
@@ -278,14 +280,18 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 		}
 		else
 		{
+			const VECTOR2 pngSize(400, 225);
+			const VECTOR2 offset(50, 130);
 			// レベルをそのままにはじめからやり直す
-			if (mouse->GetPos().x >= 50 && mouse->GetPos().x <= 50 + 400 && mouse->GetPos().y >= 225 && mouse->GetPos().y <= 225 + 130)
+			if (mouse->GetPos().x >= offset.x && mouse->GetPos().x <= offset.x + pngSize.x &&
+				mouse->GetPos().y >= pngSize.y && mouse->GetPos().y <= pngSize.y + offset.y)
 			{
 				GameReset();
 			}
 
 			// あきらめてゲームオーバー画面へ
-			if (mouse->GetPos().x >= 450 && mouse->GetPos().x <= 450 + 400 && mouse->GetPos().y >= 225 && mouse->GetPos().y <= 225 + 130)
+			if (mouse->GetPos().x >= pngSize.x + offset.x && mouse->GetPos().x <= offset.x + pngSize.x * 2 &&
+				mouse->GetPos().y >= pngSize.y && mouse->GetPos().y <= pngSize.y + offset.y)
 			{
 				DeleteSoundMem(_gameBGM);
 				DeleteSoundMem(_battleBGM);
@@ -343,14 +349,12 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 	}
 
 	// アイテム画面の時にはカードを動かせなくする
-	if (_monster[0]->GetEnemyState() == ENEMY_STATE::EXIST && _menu->GetMenu() != MENU::ITEM)
+	if ((_monster[0]->GetEnemyState() == ENEMY_STATE::EXIST) && _menu->GetMenu() != MENU::ITEM)
 	{
 		// スキル選択画面では動かせなくする
-		if (!_player->GetSkillBackFlg())
+		if (!_player->GetSkillBackFlg() && !_stopCardUpDate)
 		{
-			// 戦闘中以外は必要ない。
-			_cards->Update();		// カードの情報
-
+			_cards->Update();	// カード情報を更新する
 		}
 	}
 
@@ -370,7 +374,7 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 	}
 
 	// 戦闘中、F4キーでガイドの表示が切り替えられる
-	if (_monster[0]->GetEnemyState() == ENEMY_STATE::EXIST)
+	if (_monster[0]->GetEnemyState() == ENEMY_STATE::EXIST && _player->GetHP() > 0)
 	{
 		if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_F4]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_F4]))
 		{
@@ -389,10 +393,10 @@ unique_Base GameScene::Update(unique_Base own, const GameCtl& ctl)
 	}
 
 	Draw();
-	CardEffect();
+	MoveCard();
 	_player->UpDate();
 
-	// 5ターン分経過
+	// 毒状態時5ターン経過で毒を解除する
 	if (_player->GetConditionTurn() <= 0)
 	{
 		_player->SetCondition(CONDITION::FINE);
@@ -423,6 +427,7 @@ void GameScene::Draw(void)
 	if (_player->GetHP() <= 0)
 	{
 		SetDrawBlendMode(DX_BLENDMODE_INVSRC, _plDeadChangeWinColor);
+		_stopCardUpDate = true;
 	}
 
 	if (shakeFlg)
@@ -432,20 +437,20 @@ void GameScene::Draw(void)
 	}
 	else
 	{
-		DrawRotaGraph(450 - _walkDirect, 300, 1.0f, 0, _roadPNG[_plNowPoint], false);
+		DrawRotaGraph(450 - _walkDirect, 300.0, 1.0, 0, _roadPNG[_plNowPoint], false);
 		_shakeTime = 0.0f;
 		_shakeChangeFlg = false;
 	}
 
 	// 行き止まりでないかつバック処理でないときは前に動く動作
-	if (_plNowPoint != 3 && !backFlg)
+	if (!backFlg && (_plNowPoint != 3))
 	{
 		if (moveFlg)
 		{
-			// 歩いてるときに揺れてる感じを出す
+			// 歩いてるときに画面の縦揺れを発生させる
 			_degree += 1.0f * 7.0f;
-			auto radian = _degree * PI / 180.0f;
-			auto sin = sinf(static_cast<float>(radian));
+			const auto radian = _degree * PI / 180.0f;
+			const auto sin	  = sinf(static_cast<float>(radian));
 			auto move = 0.0f;
 
 			// だんだん扉が近づく
@@ -454,14 +459,17 @@ void GameScene::Draw(void)
 				_doorExpand += 0.005f;
 				move = sin * 25.0f;
 				_doorOpenTiming = 20;
-				// 右折なら加算
-				if (_plNowPoint == 1)
+				if (_plNowPoint == 1)		// 右折なら加算
 				{
 					_walkDirect += 2;
 				}
 				else if (_plNowPoint == 2)	// 左折なら減算
 				{
 					_walkDirect -= 2;
+				}
+				else
+				{
+					// 何も処理を行わない
 				}
 			}
 			else
@@ -505,36 +513,49 @@ void GameScene::Draw(void)
 	else
 	{
 		openDoor = true;
-		DrawRotaGraph(450, 300, 1.0f, 0, _roadPNG[_plNowPoint], false);
+		DrawRotaGraph(450, 300, 1.0, 0, _roadPNG[_plNowPoint], false);
 	}
 
 	// 霧表現
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 180);
-	DrawGraphF(0.0f + _fog[0], 0.0f, _dungeonFogPNG[0], true);
-	DrawGraphF(0.0f + _fog[1], 0.0f, _dungeonFogPNG[1], true);
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	if (_player->GetHP() > 0)
+	{
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 180);
+		DrawGraphF(0.0f + _fog[0], 0.0f, _dungeonFogPNG[0], true);
+		DrawGraphF(0.0f + _fog[1], 0.0f, _dungeonFogPNG[1], true);
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	}
 
 	// 何もなしと敵以外の処理
 	if (eventState != EVENT_STATE::ENEMY)
 	{
 		_event->Draw(this, _player, _menu, _item);
+		// マップ描画(敵出現時は描画しない)true = 全体マップ,false = 部分マップ
+		_allMapFlg == true ? AllMapDraw() : SmallMapDraw();
 	}
 
-	// マップ描画(敵出現時は描画しない)
-	if (_allMapFlg && eventState != EVENT_STATE::ENEMY)
+	if (!blinkFlg)	// 敵の非点滅時
 	{
-		// 全体マップの表示
-		AllMapDraw();
+		if ((plPosX == _bossPos.x) && (plPosY == _bossPos.y) &&
+			!bossClearFlg)
+		{
+			// ボスの描画
+			if ((eventState == EVENT_STATE::ENEMY) && (_monster[0]->GetEnemyState() != ENEMY_STATE::DEATH))
+			{
+				_monster[0]->BossDraw();
+			}
+		}
+		else
+		{
+			// ボス以外の描画
+			if ((eventState == EVENT_STATE::NON) || (eventState == EVENT_STATE::ENEMY))
+			{
+				_monster[0]->Draw();
+			}
+		}
 	}
-	else if (!_allMapFlg && eventState != EVENT_STATE::ENEMY)
+	else
 	{
-		// 部分マップの表示
-		SmallMapDraw();
-	}
-
-	// 敵に攻撃したら敵が点滅する
-	if (blinkFlg)
-	{
+		// 敵の点滅処理
 		if (_blinkCnt <= 40)
 		{
 			_blinkCnt++;
@@ -548,7 +569,8 @@ void GameScene::Draw(void)
 		if (_blinkCnt % 10 == 0)
 		{
 			// ボスならこっち
-			if (plPosX == _bossPos.x && plPosY == _bossPos.y && !bossClearFlg)
+			if ((plPosX == _bossPos.x) && (plPosY == _bossPos.y) &&
+				!bossClearFlg)
 			{
 				_monster[0]->BossDraw();
 			}
@@ -562,34 +584,15 @@ void GameScene::Draw(void)
 			}
 		}
 	}
-	else
-	{
-		// ボスじゃないとき
-		if (plPosX == _bossPos.x && plPosY == _bossPos.y && !bossClearFlg)
-		{
-			if (eventState == EVENT_STATE::ENEMY && _monster[0]->GetEnemyState() != ENEMY_STATE::DEATH)
-			{
-				_monster[0]->BossDraw();
-			}
-		}
-		else
-		{
-			if ((eventState == EVENT_STATE::NON) || (eventState == EVENT_STATE::ENEMY))
-			{
-				_monster[0]->Draw();
-			}
-		}
-	}
 
 	if (_turnEndOnceFlg)
 	{
-		// 攻撃エフェクト
-		_monster[0]->EffectDraw();
+		_monster[0]->EffectDraw();	// 敵の攻撃エフェクト
 	}
 
 	_player->Draw(_menu);
 
-	if (plPosX == _bossEmergencyPos.x && plPosY == _bossEmergencyPos.y)
+	if ((plPosX == _bossEmergencyPos.x) && (plPosY == _bossEmergencyPos.y))
 	{
 		// ボスの警告用画像
 		DrawGraph(250, 100, _drawHandle["emergency"], true);
@@ -598,8 +601,8 @@ void GameScene::Draw(void)
 	// 敵が存在するとき
 	if (_monster[0]->GetEnemyState() == ENEMY_STATE::EXIST)
 	{
-		int posx = 600;
-		int posy = 80;
+		const int posx = 600;
+		const int posy = 80;
 
 		DrawGraph(posx-50, 0, _drawHandle["monster_info"], true);
 		// 敵HPの描画
@@ -613,11 +616,11 @@ void GameScene::Draw(void)
 		DrawExtendGraph(posx + 3, posy + 4, posx + 3 + static_cast<int>((105.0f * _monster[0]->GetHPBar())), posy + 4 + 25, _drawHandle["hpbar_en"], true);
 		DrawExtendGraph(posx, posy, posx + 110, posy + 33, _drawHandle["hpbar_waku"], true);
 
-		// 戦闘中以外は邪魔なので非表示で
+		// 戦闘中以外は邪魔になる為、非表示へ
 		_cards->Draw(_player,_menu);
 		_player->BattleDraw(_menu);
 
-		// 一定時間操作がないときにはガイドの矢印を描画する
+		// 一定時間操作がないときにはガイドを描画する
 		if (_buttleGuideFlg)
 		{
 			DrawRotaGraph(50 + 400, posy + 20 + 224, _guideExrMove, 0.0f, _drawHandle["buttleGuide"], true);
@@ -652,23 +655,25 @@ void GameScene::Draw(void)
 
 		if (_menu->GetCanHaveItem() == 0)
 		{
-			// 持ち物満タンだからもてないよ
+			// 持ち物満タンだからもてない
 			DrawFormatString(600, 180, 0xffffff, "所持品がいっぱいだ");
 		}
 	}
 
-	// レベル上がったよ
+	// レベル上がった際の処理
 	if (_player->GetLevelUpAnounceFlg())
 	{	
 		DrawGraph(0, 300, _drawHandle["square"], true);
+		const VECTOR2 offset(30, 300);
+		const unsigned int color(0x000000);
 		// 指定秒数の間、描画する
-		DrawFormatString(30, 320, 0x000000, "レベルが%dになった", _player->GetNowLevel());
-		DrawFormatString(30, 340, 0x000000, "HPの最大が%dになった",_player->GetMaxHP());
-		DrawFormatString(30, 360, 0x000000, "攻撃力が%dになった", _player->GetAttackDamage());
+		DrawFormatString(offset.x, offset.y + 20, color, "レベルが%dになった"  , _player->GetNowLevel());
+		DrawFormatString(offset.x, offset.y + 40, color, "HPの最大が%dになった", _player->GetMaxHP());
+		DrawFormatString(offset.x, offset.y + 60, color, "攻撃力が%dになった"  , _player->GetAttackDamage());
 	}
 
 	// 戦闘中の毒の描画(プレイヤーがカードを使ったときにくらう毒のダメージ)
-	if (eventState == EVENT_STATE::ENEMY && _cards->GetCardsType() != CARDS_TYPE::NON)
+	if ((eventState == EVENT_STATE::ENEMY) && (_cards->GetCardsType() != CARDS_TYPE::NON))
 	{
 		if (_player->GetCondition() == CONDITION::POISON)
 		{
@@ -677,6 +682,7 @@ void GameScene::Draw(void)
 			_poisonCnt = 0;
 		}
 	}
+
 	if (_poisonCnt <= 255)
 	{
 		_poisonCnt += 5;
@@ -696,14 +702,18 @@ void GameScene::Draw(void)
 		DrawGraph(450, 225, _drawHandle["dead"], true);
 
 		// 特定敵に出会う前に即死トラップで死んだとき
-		if (!_event->GetEventMonsEncountFlg() && !_event->GetEventMonsEndFlg() && eventState == EVENT_STATE::TRAP)
+		if ((!_event->GetEventMonsEncountFlg()) && (!_event->GetEventMonsEndFlg()) && (eventState == EVENT_STATE::TRAP))
 		{
 			DrawGraph(300, 0, _drawHandle["message_death"], true);
 		}
-		else if (_event->GetEventMonsEndFlg() && !monsterFlg)
+		else if ((_event->GetEventMonsEndFlg()) && !monsterFlg)
 		{
 			// 敵もろとも即死トラップで死んだとき
 			DrawGraph(300, 0, _drawHandle["message_death2"], true);
+		}
+		else
+		{
+			// 何も処理を行わない
 		}
 	}
 
@@ -712,12 +722,14 @@ void GameScene::Draw(void)
 	// ガイド表示
 	if (_guideFlg)
 	{
+		const VECTOR2 tmpVec(30, 120);
+		const unsigned int color(0x000000);
 		_guideMove < 50 ? _guideMove++: _guideMove = 50;
 		// 読みこんだグラフィックを自由変形描画(左上,右上,右下,左下)
 		DrawModiGraph(0, 150-_guideMove, 250, 150-_guideMove, 250, 150+_guideMove, 0, 150+_guideMove, _drawHandle["square"], true);
-		DrawFormatString(30, 120, 0x000000, "～キー操作ガイド～");
-		DrawFormatString(30, 140, 0x000000, "WASD: 移動");
-		DrawFormatString(30, 160, 0x000000, "F2  : マップ表示切替");
+		DrawFormatString(tmpVec.x, tmpVec.y   , color, "～キー操作ガイド～");
+		DrawFormatString(tmpVec.x, tmpVec.y+20, color, "WASD: 移動");
+		DrawFormatString(tmpVec.x, tmpVec.y+40, color, "F2  : マップ表示切替");
 	}
 
 	if (_event->GetCautionFlg())
@@ -732,7 +744,7 @@ void GameScene::Draw(void)
 
 void GameScene::AllMapDraw(void)
 {
-	VECTOR2 mapOffset = { 200,0 };
+	const VECTOR2 mapOffset(200,0);
 	// Sのマーク
 	DrawGraph(0 * _mapChipSize + mapOffset.x, (screen_sizeY - _mapChipSize) - (0 * _mapChipSize) + mapOffset.y, _drawHandle["start_chip"], false);
 	for (auto v = _mapVec.begin(); v != _mapVec.end(); ++v)
@@ -777,22 +789,8 @@ void GameScene::SmallMapDraw(void)
 	}
 
 	// 現在地
-	if (plPosY <= 2)
-	{
-		_plNowMark.y = plPosY;
-	}
-	else
-	{
-		_plNowMark.y = 2;
-	}
-	if (plPosX <= 2)
-	{
-		_plNowMark.x = plPosX;
-	}
-	else
-	{
-		_plNowMark.x = 2;
-	}
+	_plNowMark.y = plPosY <= 2 ? plPosY : 2;
+	_plNowMark.x = plPosX <= 2 ? plPosX : 2;
 
 	DrawRotaGraph(_plNowMark.x * _mapChipSize + _mapChipSize/2, (screen_sizeY - _mapChipSize) - (_plNowMark.y * _mapChipSize) + _mapChipSize/2, 1.0f, _directRota, _drawHandle["direct"], true);
 }
@@ -819,8 +817,7 @@ void GameScene::ShakeDraw(void)
 			}
 		}
 	}
-
-	if (_shakeChangeFlg)
+	else
 	{
 		if (_shackPos.x > 0)
 		{
@@ -838,100 +835,116 @@ void GameScene::ShakeDraw(void)
 	// 画面全体を点滅
 	if (_blinkCnt % 10 == 0)
 	{
+		int r = 0;
+		int g = 0;
+		int b = 0;
 		if (eventState == EVENT_STATE::ENEMY || eventState == EVENT_STATE::CHEST)
 		{
 			// 描画輝度を赤のみにセット
-			SetDrawBright(255, 0, 0);
+			r = 255;
 		}
 
 		if (eventState == EVENT_STATE::BUTTON)
 		{
 			// 描画輝度を黄のみにセット
-			SetDrawBright(255, 255, 0);
+			r = 255;
+			g = 255;
 		}
 
-		if (_player->GetCondition() == CONDITION::POISON && eventState != EVENT_STATE::BUTTON)
+		if ((_player->GetCondition() == CONDITION::POISON) && eventState != EVENT_STATE::BUTTON)
 		{
 			// 描画輝度を紫のみにセット
-			SetDrawBright(255, 0, 255);
+			r = 255;
+			b = 255;
 		}
+		SetDrawBright(r, g, b);
 		DrawGraph(0, 0, _drawHandle["white"], true);
 	}
 
-	if (_shakeTime >= 15.0f)
+	if (_shakeTime < 15.0f)
 	{
-		// 通常戦闘時
-		if (eventState == EVENT_STATE::ENEMY)
-		{
-			// 攻撃を受けた後はターンを復活させる
-			_cards->SetTurn(_monster[0]->GetMaxTurn());
-			_cards->SetGuard(0);
-			_monster[0]->SetAnimCnt(0);
-			_turnEndOnceFlg = false;
-		}
-
-		// イベント戦闘時
-		if (eventState == EVENT_STATE::EVE_MONS)
-		{
-			_cards->SetTurn(3);
-			_cards->SetGuard(0);
-			_monster[0]->SetAnimCnt(0);
-			_turnEndOnceFlg = false;
-		}
-
-		shakeFlg = false;
-		_blinkCnt = 0;
-		// 描画輝度を戻す
-		SetDrawBright(255, 255, 255);
+		return;		// 揺れの時間が指定時間より短い場合はreturn
 	}
+
+	auto SetButtleLambda = [&](int turn) {
+		// 攻撃を受けた後はターンを復活させる
+		_cards->SetTurn(turn);
+		_cards->SetGuard(0);
+		_monster[0]->SetAnimCnt(0);
+		_turnEndOnceFlg = false;
+	};
+
+	if (eventState == EVENT_STATE::ENEMY)			// 通常戦闘時
+	{
+		SetButtleLambda(_monster[0]->GetMaxTurn());
+	}
+	else if (eventState == EVENT_STATE::EVE_MONS)	// イベント戦闘時
+	{
+		SetButtleLambda(3);
+	}
+	else
+	{
+		// 何も処理を行わない
+	}
+
+	shakeFlg = false;
+	_blinkCnt = 0;
+	// 描画輝度を戻す
+	SetDrawBright(255, 255, 255);
 }
 
 void GameScene::MouseClick_Go(const GameCtl& ctl)
 {
 	// メニュー画面表示中は進むボタンを押せないようにする
-	if (!_menu->GetMenuFlg() && _menu->GetMenu() == MENU::NON && eventState == EVENT_STATE::NON)
+	if (!_menu->GetMenuFlg() && 
+		(_menu->GetMenu() == MENU::NON) && (eventState == EVENT_STATE::NON))
 	{
+		if (_player->GetHP() <= 0)
+		{
+			return;		// プレイヤー死亡時はreturn
+		}
+
 		// バック処理
 		if (eventState == EVENT_STATE::NON)
 		{
-			if (_player->GetHP() > 0)
+			// 現在地がスタート地点でなければバック処理できる
+			if ((plPosX > 0) || (plPosY > 0) && !_keyFlg)
 			{
-				// 現在地がスタート地点でなければバック処理できる
-				if (plPosX > 0 || plPosY > 0 && !_keyFlg)
+				if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_S]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_S]))
 				{
-					if ((ctl.GetCtl(KEY_TYPE_NOW)[KEY_INPUT_S]) & ~(ctl.GetCtl(KEY_TYPE_OLD)[KEY_INPUT_S]))
-					{
-						_keyFlg = true;
-						backFlg = true;
-					}
+					_keyFlg = true;
+					backFlg = true;
 				}
 			}
 		}
 
-		// 移動操作(画像拡大最中は入力を受け付けない)(死亡していないとき)
-		if (!_keyFlg && _player->GetHP() > 0)
+		if (_keyFlg)
 		{
-			// 関数オブジェクト
-			auto obj = MoveObj();
-			if (obj(ctl, _plNowPoint, _rightFlg, _leftFlg, _plDirect))
+			return;		// キーが押下されている時はreturn
+		}
+
+		// 関数オブジェクト
+		auto obj = MoveObj();
+		if (obj(ctl, _plNowPoint, _rightFlg, _leftFlg, _plDirect))
+		{
+			_keyFlg = true;
+			_guideFlg = false;
+			_guideVisibleTime = 0;
+			_guideMove = 0;
+			_soundWalk = true;
+			moveFlg = true;
+		}
+		else
+		{
+			if (eventState != EVENT_STATE::NON)
 			{
-				_keyFlg = true;
-				_guideFlg = false;
-				_guideVisibleTime = 0;
-				_guideMove = 0;
-				_soundWalk = true;
-				moveFlg = true;
+				return;		// イベント発生中はreturn
 			}
-			else
+
+			// MoveObjがfalseで一定時間経過した場合、ガイドの表示をする
+			if ((++_guideVisibleTime > 180) && !_guideFlg)
 			{
-				// MoveObjがfalseで一定時間経過した場合、ガイドの表示をする
-				if (eventState == EVENT_STATE::NON)
-				{
-					if (++_guideVisibleTime > 180 && !_guideFlg)
-					{
-						_guideFlg = true;
-					}
-				}
+				_guideFlg = true;
 			}
 		}
 	}
@@ -939,12 +952,9 @@ void GameScene::MouseClick_Go(const GameCtl& ctl)
 
 void GameScene::EventUpdate(void)
 {
-	if (eventState == EVENT_STATE::ENEMY)
+	if (eventState == EVENT_STATE::ENEMY && (_monster[0]->GetEnemyState() == ENEMY_STATE::DEATH))
 	{
-		if (_monster[0]->GetEnemyState() == ENEMY_STATE::DEATH)
-		{
-			_event->SetEvent(eventState);
-		}
+		_event->SetEvent(eventState);
 	}
 
 	for (auto eve = static_cast<int>(EVENT_STATE::INN); eve <= static_cast<int>(EVENT_STATE::MAX);)
@@ -959,7 +969,10 @@ void GameScene::EventUpdate(void)
 			// 敵かもしれないからnonにはできない
 			return;
 		}
-		eve++;
+		else
+		{
+			eve++;
+		}
 	}
 }
 
@@ -970,61 +983,60 @@ void GameScene::Pl_TurnEndAfter(void)
 	{
 		// プレイヤーのターンが終了したらここに飛んできて、敵のターンに代わる
 		// 敵が攻撃してくるのでプレイヤーのHPを減らす処理をする
-		if (!_turnEndOnceFlg)
+		if (_turnEndOnceFlg)
 		{
-			// 敵の種類によっては毒にかかる
-			if (_monster[0]->GetEnemyNum() == 0 && _player->GetBarrierNum() <= 0)
-			{
-				int poison = GetRand(4);	// 0~4
-				// 0 かつ 状態が毒でないときは、毒にかかる
-				if (poison == 0 && _player->GetCondition() == CONDITION::FINE)			
-				{
-					// 毒音
-					PlaySoundMem(_soundSE[7], DX_PLAYTYPE_BACK, true);
-					_player->SetCondition(CONDITION::POISON);
-				}
-			}
-
-			// ダメージ音
-			PlaySoundMem(_soundSE[6], DX_PLAYTYPE_BACK, true);
-			_turnEndOnceFlg = true;
-
-			/*防御の仕組み*/
-			//float a = (float)_cards->GetGuard() * 10.0f;	//30%
-			//float b = (100.0f - a) / 100.0f;				//100%-30%=70%/100% = 0.7
-			//float c = (float)_monster[0]->GetAttack() * b;//敵の与えてくるDamage量*0.7=7	
-			//int d = _menu->GetEquipGuard() + _player->GetDifense() - (int)c;
-
-			int damage = _menu->GetEquipGuard() + _player->GetDifense() - (int)((float)_monster[0]->GetAttack() * ((100.0f - (float)_cards->GetGuard() * 10.0f) / 100.0f));
-
-			// +になったらプレイヤーのHPが回復しちゃう事件
-			if (damage >= 0)
-			{
-				damage = 0;
-			}
-
-			// ノーダメージ
-			if (_menu->GetNonDamageFlg())
-			{
-				damage = 0;
-			}
-
-			// バリア値
-			if (_player->GetBarrierNum() > 0)
-			{
-				_player->SetBarrierNum(_player->GetBarrierNum() + damage);
-			}
-			else
-			{
-				// damageには0またはマイナス値が入っているので加算処理でok
-				_player->SetHP(_player->GetHP() + damage);
-			}
-
-			_menu->SetNonDamageFlg(false);
-
-			// 表示ターン数を0にして、画面揺らしに移行する
-			shakeFlg = true;
+			return;	// プレイヤーターンがすでにtrueになっている時はreturn
 		}
+
+		// 敵の種類によっては毒にかかる
+		if ((_monster[0]->GetEnemyNum() == 0) && (_player->GetBarrierNum() <= 0))
+		{
+			// ランダムで数値が0に決定した時かつ、状態が毒でないときは毒にかかる
+			if (GetRand(4) == 0 && (_player->GetCondition() == CONDITION::FINE))
+			{
+				PlaySoundMem(_soundSE[7], DX_PLAYTYPE_BACK, true);	// 毒音
+				_player->SetCondition(CONDITION::POISON);
+			}
+		}
+
+		PlaySoundMem(_soundSE[6], DX_PLAYTYPE_BACK, true);	// ダメージ音
+		_turnEndOnceFlg = true;
+
+		/*防御の仕組み*/
+		//float a = (float)_cards->GetGuard() * 10.0f;	//30%
+		//float b = (100.0f - a) / 100.0f;				//100%-30%=70%/100% = 0.7
+		//float c = (float)_monster[0]->GetAttack() * b;//敵の与えてくるDamage量*0.7=7	
+		//int d = _menu->GetEquipGuard() + _player->GetDifense() - (int)c;
+
+		int damage = _menu->GetEquipGuard() + _player->GetDifense() - static_cast<int>((static_cast<float>(_monster[0]->GetAttack()) * ((100.0f - static_cast<float>(_cards->GetGuard() * 10.0f)) / 100.0f)));
+
+		// +になったらプレイヤーのHPが回復してしまうので上限を0に設定する
+		if (damage >= 0)
+		{
+			damage = 0;
+		}
+
+		// ノーダメージ
+		if (_menu->GetNonDamageFlg())
+		{
+			damage = 0;
+		}
+
+		// バリア値
+		if (_player->GetBarrierNum() > 0)
+		{
+			_player->SetBarrierNum(_player->GetBarrierNum() + damage);
+		}
+		else
+		{
+			// damageには0またはマイナス値が入っているので加算処理でok
+			_player->SetHP(_player->GetHP() + damage);
+		}
+
+		_menu->SetNonDamageFlg(false);
+
+		// 表示ターン数を0にして、画面揺らしに移行する
+		shakeFlg = true;
 	}
 }
 
@@ -1051,31 +1063,26 @@ void GameScene::Pl_Heal(void)
 	/*回復の仕組み*/
 	//float one = (float)_cards->GetHeal() / 10.0f; //0.2
 	//float two = _player->GetMaxHP() * one;        //最大HP * 0.2 = 最大HPの2割
-	_player->SetHP(_player->GetHP() + (int)(_player->GetMaxHP() * ((float)_cards->GetHeal() / 10.0f)));
+	_player->SetHP(_player->GetHP() + static_cast<int>((_player->GetMaxHP() * (static_cast<float>(_cards->GetHeal() / 10.0f)))));
 	_cards->SetHeal(0);
 }
 
 void GameScene::Pl_Dead(void)
 {
-	// プレイヤーが死亡したときに画面の色を徐々に反転させる
-	if (_player->GetHP() <= 0)
+	if (_player->GetHP() > 0)
 	{
-		if (_plDeadChangeWinColor >= 30)
-		{
-			_plDeadChangeWinColor--;
-			// ゲームBGMなら
-			if (CheckSoundMem(_battleBGM) == 1)
-			{
-				// 音量の設定(だんだん小さく)
-				ChangeVolumeSoundMem(_plDeadChangeWinColor, _battleBGM);
-			}
+		return;		// プレイヤーが死亡状態でないときはreturn
+	}
 
-			// ゲームBGMなら(だんだん小さく)
-			if (CheckSoundMem(_gameBGM) == 1)
-			{
-				// 音量の設定
-				ChangeVolumeSoundMem(_plDeadChangeWinColor, _gameBGM);
-			}
+	// 画面の色を徐々に反転させる
+	if (_plDeadChangeWinColor >= 30)
+	{
+		_plDeadChangeWinColor--;
+		// 現在のBGMの再生状況を確認する
+		if (CheckSoundMem(_nowBGM) == 1)
+		{
+			// 音量の設定(だんだん小さく)
+			ChangeVolumeSoundMem(_plDeadChangeWinColor, _nowBGM);
 		}
 	}
 }
@@ -1106,73 +1113,83 @@ void GameScene::Walk(void)
 		openDoor = true;
 		Key();
 	}
+	else
+	{
+		// 何も処理を行わない
+	}
 }
 
 void GameScene::ChangeBGM(void)
 {
-	// 戦闘BGMへの切替
+	auto ChangeLambda = [&](int bgm,int changeBGM) {
+		if (CheckSoundMem(bgm) == 1)
+		{
+			StopSoundMem(bgm);
+			PlaySoundMem(changeBGM, DX_PLAYTYPE_LOOP, true);
+			_nowBGM = changeBGM;
+		}
+	};
+
 	if (_monster[0]->GetEnemyState() == ENEMY_STATE::EXIST)
 	{
-		if (CheckSoundMem(_gameBGM) == 1)
-		{
-			StopSoundMem(_gameBGM);
-			PlaySoundMem(_battleBGM, DX_PLAYTYPE_LOOP, true);
-		}
+		// 戦闘BGMへの切替
+		ChangeLambda(_gameBGM, _battleBGM);
 	}
 	else
 	{
 		// ゲームBGMへの切替
-		if (CheckSoundMem(_battleBGM) == 1)
-		{
-			StopSoundMem(_battleBGM);
-			PlaySoundMem(_gameBGM, DX_PLAYTYPE_LOOP, true);
-		}
+		ChangeLambda(_battleBGM, _gameBGM);
 	}
 }
 
 void GameScene::EnemyItemDrop(void)
 {
-	// 敵がアイテムを落としたときの処理
-	if (_monster[0]->GetDropFlg())
+	if (!_monster[0]->GetDropFlg())
 	{
-		// 持ち物いっぱいだったけど使ったり捨てたりして持てるようになった時
-		if (mouse->GetClickTrg()) 
-		{	
-			if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 && mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
-			{
-				if (_anounceFlg && _menu->GetCanHaveItem() != 0)
-				{
-					// クリック音
-					PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
+		return;	// 敵がアイテムを落としていないときはreturn
+	}
 
-					// 持ち物が満タンじゃなければ持てる
-					_menu->SetItem(_item->GetPair(static_cast<int>(_monster[0]->GetDrop()) - 1).second, _item->GetPair(static_cast<int>(_monster[0]->GetDrop()) - 1).first);
-					_anounceFlg = false;
-				}
-			}
-		}
-
-		if (!_onceFlg)
+	// 持ち物が満タンだったが、使ったり捨てたりして持てるようになった時
+	if (mouse->GetClickTrg()) 
+	{	
+		if (mouse->GetPos().x >= 600 && mouse->GetPos().x <= 600 + 150 &&
+			mouse->GetPos().y >= 200 && mouse->GetPos().y <= 200 + 75)
 		{
-			if (_menu->GetCanHaveItem() != 0)
+			if (_anounceFlg && _menu->GetCanHaveItem() != 0)
 			{
+				// クリック音
+				PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
+
 				// 持ち物が満タンじゃなければ持てる
 				_menu->SetItem(_item->GetPair(static_cast<int>(_monster[0]->GetDrop()) - 1).second, _item->GetPair(static_cast<int>(_monster[0]->GetDrop()) - 1).first);
 				_anounceFlg = false;
-				_onceFlg = true;
-			}
-			else
-			{
-				_anounceFlg = true;
-				_onceFlg = true;
 			}
 		}
 	}
+
+	if (_onceFlg)
+	{
+		return;
+	}
+
+	if (_menu->GetCanHaveItem() != 0)
+	{
+		// 持ち物が満タンじゃなければ持てる
+		_menu->SetItem(_item->GetPair(static_cast<int>(_monster[0]->GetDrop()) - 1).second, _item->GetPair(static_cast<int>(_monster[0]->GetDrop()) - 1).first);
+		_anounceFlg = false;
+		_onceFlg    = true;
+	}
+	else
+	{
+		_anounceFlg = true;
+		_onceFlg    = true;
+	}
 }
 
-void GameScene::CardEffect(void)
+void GameScene::MoveCard(void)
 {
-	auto lambdaEffect = [&](int seNum) {
+	// カードを動かした際の共通処理
+	auto MoveCardLambda = [&](int seNum) {
 		// カードごとの音
 		PlaySoundMem(_soundSE[seNum], DX_PLAYTYPE_BACK, true);
 
@@ -1181,47 +1198,35 @@ void GameScene::CardEffect(void)
 		{
 			_player->SetSkillCharge(_player->GetSkillCharge() - 1);
 		}
+
+		if (_player->GetCondition() == CONDITION::POISON)
+		{
+			PlaySoundMem(_soundSE[7], DX_PLAYTYPE_BACK, true);	// 毒音
+			// 体力の1/6削る
+			_player->SetHP(_player->GetHP() - static_cast<int>(static_cast<float>(_player->GetMaxHP()) * (1.0f / 6.0f)));
+			// 1ターンマイナス
+			_player->SetConditionTurn(_player->GetConditionTurn() - 1);
+		}
+
 		_cards->SetCardsType(CARDS_TYPE::NON);
 	};
 
-	auto lambdaPoison = [&]() {
-		// 毒音
-		PlaySoundMem(_soundSE[7], DX_PLAYTYPE_BACK, true);
-
-		// 体力の1/6ぐらい削ろうかな
-		_player->SetHP(_player->GetHP() - static_cast<int>(static_cast<float>(_player->GetMaxHP()) * (1.0f / 6.0f)));
-		// 1ターンマイナス
-		_player->SetConditionTurn(_player->GetConditionTurn() - 1);
-	};
-
-	if (_cards->GetCardsType() == CARDS_TYPE::ATTACK)
+	switch (_cards->GetCardsType())
 	{
-		if (_player->GetCondition() == CONDITION::POISON)
-		{
-			lambdaPoison();
-		}
+	case CARDS_TYPE::ATTACK:
 		Pl_Attack();
-		lambdaEffect(3);
+		MoveCardLambda(3);
 		blinkFlg = true;
-	}
-
-	if (_cards->GetCardsType() == CARDS_TYPE::INN)
-	{
-		if (_player->GetCondition() == CONDITION::POISON)
-		{
-			lambdaPoison();
-		}
-		lambdaEffect(5);
+		break;
+	case CARDS_TYPE::GUARD:
+		MoveCardLambda(4);
+		break;
+	case CARDS_TYPE::HEAL:
+		MoveCardLambda(5);
 		Pl_Heal();
-	}
-
-	if (_cards->GetCardsType() == CARDS_TYPE::GUARD)
-	{
-		if (_player->GetCondition() == CONDITION::POISON)
-		{
-			lambdaPoison();
-		}
-		lambdaEffect(4);
+		break;
+	default:
+		break;
 	}
 }
 
@@ -1232,20 +1237,16 @@ void GameScene::Direct(void)
 	{
 		_rightFlg = false;
 		_leftFlg = false;
-		if (_plDirect == PL_DIRECTION::UP)
+
+		switch (_plDirect)
 		{
+		case PL_DIRECTION::UP:
 			plPosY--;
-		}
-		else if (_plDirect == PL_DIRECTION::DOWN)
-		{
+			break;
+		case PL_DIRECTION::DOWN:
 			plPosY++;
-		}
-		else if (_plDirect == PL_DIRECTION::RIGHT)
-		{
-			plPosX--;
-		}
-		else if (_plDirect == PL_DIRECTION::LEFT)
-		{
+			break;
+		case PL_DIRECTION::LEFT:
 			if (_event->GetEventMonsFlg())
 			{
 				plPosX--;
@@ -1254,6 +1255,12 @@ void GameScene::Direct(void)
 			{
 				plPosX++;
 			}
+			break;
+		case PL_DIRECTION::RIGHT:
+			plPosX--;
+			break;
+		default:
+			break;
 		}
 
 		_plNowPoint = _dungeonMap[plPosY][plPosX].second;
@@ -1272,7 +1279,7 @@ void GameScene::Direct(void)
 		}
 	}
 
-	auto lambda = [&](PL_DIRECTION dir,double rota) {
+	auto DirectLambda = [&](PL_DIRECTION dir,float rota) {
 		_plDirectOld = _plDirect;
 		_plOldPoint = _plNowPoint;
 		_plDirect = dir;
@@ -1282,52 +1289,66 @@ void GameScene::Direct(void)
 	// T字路
 	if (_plNowPoint == 4)
 	{
-		if (_rightFlg && _plDirect != PL_DIRECTION::UP && _plDirect != PL_DIRECTION::DOWN)
+		if (_rightFlg)
 		{
-			lambda(PL_DIRECTION::DOWN, PI);
-			plPosY--;
-			return;
+			if ((_plDirect != PL_DIRECTION::UP) && (_plDirect != PL_DIRECTION::DOWN))
+			{
+				DirectLambda(PL_DIRECTION::DOWN, PI);
+				plPosY--;
+				return;
+			}
+			else if ((_plDirect == PL_DIRECTION::UP))
+			{
+				DirectLambda(PL_DIRECTION::RIGHT, PI / 2.0f);
+				plPosX++;
+				return;
+			}
+			else if ((_plDirect == PL_DIRECTION::DOWN))
+			{
+				DirectLambda(PL_DIRECTION::LEFT, PI + (PI / 2.0f));
+				plPosX--;
+				return;
+			}
+			else
+			{
+				return;
+			}
 		}
-
-		if (_leftFlg && _plDirect != PL_DIRECTION::UP && _plDirect != PL_DIRECTION::DOWN)
+		else if (_leftFlg)
 		{
-			lambda(PL_DIRECTION::UP, 0);
-			plPosY++;
-			return;
+			if ((_plDirect != PL_DIRECTION::UP) && (_plDirect != PL_DIRECTION::DOWN))
+			{
+				DirectLambda(PL_DIRECTION::UP, 0);
+				plPosY++;
+				return;
+			}
+			else if ((_plDirect == PL_DIRECTION::UP))
+			{
+				DirectLambda(PL_DIRECTION::LEFT, PI + (PI / 2.0f));
+				plPosX--;
+				return;
+			}
+			else if ((_plDirect == PL_DIRECTION::DOWN))
+			{
+				DirectLambda(PL_DIRECTION::RIGHT, PI / 2.0f);
+				plPosX++;
+				return;
+			}
+			else
+			{
+				return;
+			}
 		}
-
-		if (_rightFlg && _plDirect == PL_DIRECTION::UP)
+		else
 		{
-			lambda(PL_DIRECTION::RIGHT, PI / 2);
-			plPosX++;
-			return;
-		}
-
-		if (_leftFlg && _plDirect == PL_DIRECTION::UP)
-		{
-			lambda(PL_DIRECTION::LEFT, PI + PI / 2);
-			plPosX--;
-			return;
-		}
-
-		if (_rightFlg && _plDirect == PL_DIRECTION::DOWN)
-		{
-			lambda(PL_DIRECTION::LEFT, PI + PI / 2);
-			plPosX--;
-			return;
-		}
-
-		if (_leftFlg && _plDirect == PL_DIRECTION::DOWN)
-		{
-			lambda(PL_DIRECTION::RIGHT, PI / 2);
-			plPosX++;
 			return;
 		}
 	}
 
 	if (_plDirect == PL_DIRECTION::UP)
 	{
-		if ((_plNowPoint == 0 || _plNowPoint == 5 || _plNowPoint == 6) && !_rightFlg && !_leftFlg)	// 直進
+		if ((_plNowPoint == 0 || _plNowPoint == 5 || _plNowPoint == 6) &&
+			!_rightFlg && !_leftFlg)	// 直進
 		{
 			_plOldPoint = _plNowPoint;
 			_plDirectOld = _plDirect;
@@ -1336,16 +1357,20 @@ void GameScene::Direct(void)
 		}
 		else if (_plNowPoint == 1 || _plNowPoint == 5)
 		{
-			lambda(PL_DIRECTION::RIGHT, PI / 2);
+			DirectLambda(PL_DIRECTION::RIGHT, PI / 2.0f);
 			_rightFlg = true;
 			plPosX++;
 			return;
 		}
 		else if (_plNowPoint == 2 || _plNowPoint == 6)
 		{
-			lambda(PL_DIRECTION::LEFT, PI + PI / 2);
+			DirectLambda(PL_DIRECTION::LEFT, PI + (PI / 2.0f));
 			_leftFlg = true;
 			plPosX--;
+			return;
+		}
+		else
+		{
 			return;
 		}
 	}
@@ -1360,16 +1385,20 @@ void GameScene::Direct(void)
 		}
 		else if (_plNowPoint == 1)
 		{
-			lambda(PL_DIRECTION::LEFT, PI + PI / 2);
+			DirectLambda(PL_DIRECTION::LEFT, PI + (PI / 2.0f));
 			_leftFlg = true;
 			plPosX--;
 			return;
 		}
 		else if (_plNowPoint == 2)
 		{
-			lambda(PL_DIRECTION::RIGHT, PI / 2);
+			DirectLambda(PL_DIRECTION::RIGHT, PI / 2.0f);
 			_rightFlg = true;
 			plPosX++;
+			return;
+		}
+		else
+		{
 			return;
 		}
 	}
@@ -1384,16 +1413,20 @@ void GameScene::Direct(void)
 		}
 		else if (_plNowPoint == 1 && _rightFlg)	// 右曲がり(下)
 		{
-			lambda(PL_DIRECTION::DOWN, PI);
+			DirectLambda(PL_DIRECTION::DOWN, PI);
 			_rightFlg = false;
 			plPosY--;
 			return;
 		}
 		else if (_plNowPoint == 2 && _rightFlg)	// 左曲がり(上)
 		{
-			lambda(PL_DIRECTION::UP, 0.0f);
+			DirectLambda(PL_DIRECTION::UP, 0.0f);
 			_rightFlg = false;
 			plPosY++;
+			return;
+		}
+		else
+		{
 			return;
 		}
 	}
@@ -1408,23 +1441,27 @@ void GameScene::Direct(void)
 		}
 		else if (_plDirectOld == PL_DIRECTION::DOWN)
 		{
-			lambda(PL_DIRECTION::DOWN, PI);
+			DirectLambda(PL_DIRECTION::DOWN, PI);
 			_leftFlg = false;
 			plPosY--;
 			return;
 		}
 		else if (_plNowPoint == 1 && _leftFlg)	// 右曲がり(上)
 		{
-			lambda(PL_DIRECTION::UP, 0.0f);
+			DirectLambda(PL_DIRECTION::UP, 0.0f);
 			_leftFlg = false;
 			plPosY++;
 			return;
 		}
 		else if (_plNowPoint == 2 && _leftFlg)	// 左曲がり(下)
 		{
-			lambda(PL_DIRECTION::DOWN, PI);
+			DirectLambda(PL_DIRECTION::DOWN, PI);
 			_leftFlg = false;
 			plPosY--;
+			return;
+		}
+		else
+		{
 			return;
 		}
 	}
@@ -1448,8 +1485,7 @@ void GameScene::Key(void)
 		// プレイヤーが状態異常のとき
 		if (_player->GetCondition() == CONDITION::POISON)
 		{
-			// ダメージ音
-			PlaySoundMem(_soundSE[7], DX_PLAYTYPE_BACK, true);
+			PlaySoundMem(_soundSE[7], DX_PLAYTYPE_BACK, true);	// ダメージ音
 
 			// 体力の1/6削る
 			_player->SetHP(_player->GetHP() - static_cast<int>(static_cast<float>(_player->GetMaxHP()) * (1.0f / 6.0f)));
@@ -1495,7 +1531,7 @@ void GameScene::Key(void)
 	}
 	else
 	{
-		int num = _plNowPoint;
+		const int num = _plNowPoint;
 
 		// 行き止まりか他イベントの場所に入り込んだ時には特定敵と強制戦闘
 		if (_event->GetEventMonsEncountFlg())
@@ -1554,17 +1590,17 @@ void GameScene::Key(void)
 		{
 			moveFlg = false;
 
-			if (plPosX == _bossPos.x && plPosY == _bossPos.y && !bossClearFlg)
+			if (plPosX == _bossPos.x && plPosY == _bossPos.y &&
+				!bossClearFlg)
 			{
 				// ボスならこっち
-				_monster[0]->SetEnemyNum(5, _player->GetNowLevel());		// これで敵の情報をセットしている(ボス用)
+				_monster[0]->SetEnemyNum(5, _player->GetNowLevel());			// 敵の情報をセット(ボス用)
 				_cards->SetTurn(_monster[0]->GetMaxTurn());
 			}
 			else
 			{
 				// 敵は0~4まで
-				auto ene = GetRand(4);
-				_monster[0]->SetEnemyNum(ene, _player->GetNowLevel());		// これで敵の情報をセットしている(ランダム)
+				_monster[0]->SetEnemyNum(GetRand(4), _player->GetNowLevel());	// 敵の情報をセット(ランダム)
 				_cards->SetTurn(_monster[0]->GetMaxTurn());
 			}
 		}
@@ -1580,46 +1616,52 @@ void GameScene::Key(void)
 void GameScene::DungeonFog(void)
 {
 	// 霧処理
-	if (_fog[0] <= 900.0f)
+	if (_fog[0] <= static_cast<float>(screen_sizeX))
 	{
 		_fog[0] += 0.5f;
 	}
 	else
 	{
-		_fog[0] = -900.0f;
+		_fog[0] = -static_cast<float>(screen_sizeX);
 	}
 
-	if (_fog[1] <= 900.0f)
+	if (_fog[1] <= static_cast<float>(screen_sizeX))
 	{
 		_fog[1] += 0.5f;
 	}
 	else
 	{
-		_fog[1] = -900.0f;
+		_fog[1] = -static_cast<float>(screen_sizeX);
 	}
 }
 
 void GameScene::ButtleCaution(void)
 {
-	if (_event->GetCautionFlg())
+	if (!_event->GetCautionFlg())
 	{
-		if (_forcedButtlePngMoveCnt <= 250)
-		{
-			_forcedButtlePngMoveCnt += 20;
-		}
-		else if (_forcedButtlePngMoveCnt > 250 && _forcedButtlePngMoveCnt <= 300)
-		{
-			_forcedButtlePngMoveCnt++;
-		}
-		else if (_forcedButtlePngMoveCnt > 300 && _forcedButtlePngMoveCnt <= 900)
-		{
-			_forcedButtlePngMoveCnt += 20;
-		}
-		else
-		{
-			_forcedButtlePngMoveCnt = 0;
-			_event->SetCautionFlg(false);
-		}
+		return;	// 警告用のフラグがfalseの時はreturn
+	}
+
+	if (_forcedButtlePngMoveCnt > screen_sizeX)	// 900~
+	{
+		// 画面外まで出たら、描画をやめる
+		_forcedButtlePngMoveCnt = 0;
+		_event->SetCautionFlg(false);
+		return;
+	}
+
+	const unsigned int moveNum = 20;
+	if (_forcedButtlePngMoveCnt <= ((screen_sizeX / 3) - (screen_sizeX / 18)))
+	{
+		_forcedButtlePngMoveCnt += moveNum;	// ~250
+	}
+	else if ((_forcedButtlePngMoveCnt > (screen_sizeX / 3) - (screen_sizeX / 18)) && (_forcedButtlePngMoveCnt <= (screen_sizeX / 3)))
+	{
+		_forcedButtlePngMoveCnt++;			// 250~300
+	}
+	else
+	{
+		_forcedButtlePngMoveCnt += moveNum;	// 300~900
 	}
 }
 
@@ -1629,6 +1671,7 @@ void GameScene::GameReset(void)
 	_onceFlg = false;
 	_turnEndOnceFlg = false;
 	_walkCnt = 12.0f;
+	_stopCardUpDate = false;
 
 	// 場所をスタート地点に戻す
 	plPosX = 0;
@@ -1637,7 +1680,7 @@ void GameScene::GameReset(void)
 	_directRota = 0.0f;
 	_plDirect = PL_DIRECTION::UP;
 	_plDirectOld = PL_DIRECTION::UP;
-	_leftFlg = false;
+	_leftFlg  = false;
 	_rightFlg = false;
 
 	_cards->SetTurn(3);

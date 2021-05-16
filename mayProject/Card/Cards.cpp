@@ -4,6 +4,7 @@
 
 #define CARD_SIZE_X 126		// カード1枚の横サイズ
 #define CARD_SIZE_Y 180		// カード1枚の縦サイズ
+#define CARD_SET_LINE 140   // カードを設置する際の線
 
 // カードに関する情報
 struct cardsPNG
@@ -30,11 +31,13 @@ void Cards::Update(void)
 	GetMousePoint(&_cursorPos.x, &_cursorPos.y);	 // マウスの座標取得
 	if (!_clickFlg)
 	{
-		if (_mouse & MOUSE_INPUT_LEFT) {			 // マウスの左ボタンが押されていたら
+		if (_mouse & MOUSE_INPUT_LEFT) // マウスの左ボタンが押されていたら
+		{			
 			// 画像とマウスクリックの当たり判定
 			for (int i = 0; i <= 5; i++)
 			{
-				if (_cursorPos.x >= card[i].pos.x - CARD_SIZE_X / 2 && _cursorPos.x <= card[i].pos.x + CARD_SIZE_X / 2 && _cursorPos.y >= card[i].pos.y - CARD_SIZE_Y / 2 && _cursorPos.y <= card[i].pos.y + CARD_SIZE_Y / 2)
+				if (_cursorPos.x >= card[i].pos.x - CARD_SIZE_X / 2 && _cursorPos.x <= card[i].pos.x + CARD_SIZE_X / 2 &&
+					_cursorPos.y >= card[i].pos.y - CARD_SIZE_Y / 2 && _cursorPos.y <= card[i].pos.y + CARD_SIZE_Y / 2)
 				{
 					_clickFlg = true;
 					_id = i;
@@ -122,7 +125,7 @@ bool Cards::Init(void)
 
 	_turnNum = 3;	// 敵によって増減
 	_damageNum = 0;
-	_gaurdNum = 0;
+	_gaurdNum  = 0;
 	_sumGaurdNum = 0;
 	_healNum = 0;
 
@@ -138,7 +141,7 @@ bool Cards::Init(void)
 	// ボックス位置の決定
 	for (int i = 0; i <= 4; i++)
 	{
-		_setCardPos[i] = 140 * (i + 1);
+		_setCardPos[i] = CARD_SET_LINE * (i + 1);
 		// キーが存在しないときに構築する
 		_cardMap.try_emplace(_setCardPos[i], CARD_MEMBER::NON);
 	}
@@ -150,7 +153,7 @@ bool Cards::Init(void)
 
 	for (int i = 0; i <= 4; i++)
 	{
-		card[i].pos = VECTOR2(_setCardPos[i] - 140 / 2, 500);
+		card[i].pos = VECTOR2(_setCardPos[i] - CARD_SET_LINE / 2, 500);
 		// 0 3 6のカードのみだしたい
 		int rand = GetRand(8);
 		int userand = rand % 3 * 3;
@@ -159,6 +162,18 @@ bool Cards::Init(void)
 		card[i].num = i;
 		// カードをセットするところに種別情報を入れる
 		_cardMap[_setCardPos[i]] = card[i].cardMem;
+	}
+
+	// カード威力テーブル
+	const int cardPowerTbl[static_cast<int>(CARD_MEMBER::MAX)-static_cast<int>(CARD_MEMBER::ATTACK_1)] = {
+		1,9,25,1,3,8,1,3,8
+	};
+
+	int num = 0;
+	for (auto member : CARD_MEMBER())
+	{
+		_cardPower.try_emplace(member, cardPowerTbl[num]);
+		num++;
 	}
 
 	_id = -1;
@@ -173,7 +188,12 @@ void Cards::Draw(const std::shared_ptr<Player>& player, const std::shared_ptr<Me
 	{
 		// ここでカードをすべてDrawしてしまうと、
 		// クリックしたカードが右側のカードよりしたに描画されてしまうのでわける
-		if (_id >= 0)
+		if (_id < 0)
+		{
+			// 通常はここでDraw
+			DrawRotaGraph(card[i].pos.x, card[i].pos.y, 1.0f, 0, card[i].pngSel, false);
+		}
+		else
 		{
 			// 左クリックして所持しているカードがあるとき
 			// 左クリックされているカード以外の描画
@@ -195,18 +215,13 @@ void Cards::Draw(const std::shared_ptr<Player>& player, const std::shared_ptr<Me
 				}
 			}
 		}
-		else
-		{
-			// 通常はここでDraw
-			DrawRotaGraph(card[i].pos.x, card[i].pos.y, 1.0f, 0, card[i].pngSel, false);
-		}
 	}
 
 	// 縦線
 	for (int i = 141; i < 702;)
 	{
 		DrawLine(i, 400, i, 600, GetColor(255, 0, 0), 2);
-		i += 140;
+		i += CARD_SET_LINE;
 	}
 
 	// 横線
@@ -219,7 +234,7 @@ void Cards::Draw(const std::shared_ptr<Player>& player, const std::shared_ptr<Me
 		DrawRotaGraph(card[_id].pos.x, card[_id].pos.y, 1.0f, 0, card[_id].pngSel, false);
 	}
 
-	VECTOR2 _offset = { -80,90 };
+	const VECTOR2 _offset(-80,90);
 	// カード情報の表示
 	// GetHealとかの数字はまだusecardの関数に入る前なので使えない
 	if (_id != -1)
@@ -227,7 +242,7 @@ void Cards::Draw(const std::shared_ptr<Player>& player, const std::shared_ptr<Me
 		if (card[_id].pos.y > 0 && card[_id].pos.y <= 300)
 		{
 			std::string cardType;
-			int cardMember = static_cast<int>(card[_id].cardMem);	// 操作中のカードの情報を取得
+			const int cardMember = static_cast<int>(card[_id].cardMem);	// 操作中のカードの情報を取得
 			// 取得したカードの種類によって計算処理が別れる
 			if (cardMember >= static_cast<int>(CARD_MEMBER::ATTACK_1) && cardMember <= static_cast<int>(CARD_MEMBER::ATTACK_3))
 			{
@@ -277,130 +292,101 @@ void Cards::Move(int id)
 		{
 			UseCard(id);
 			// 元の位置に戻す(戻さなかったらカードがずっと使用される状態になるから位置を戻さないといけない)
-			card[id].pos.x = _setCardPos[card[id].num] - 140 / 2;
+			card[id].pos.x = _setCardPos[card[id].num] - CARD_SET_LINE / 2;
 			card[id].pos.y = 500;
 			_clickFlg = false;
 		}
 	}
 
-	if (card[id].pos.y > 300)
+	if (card[id].pos.y <= 300)
 	{
-		// 左クリック離した後
-		if (_clickFlg && !(_mouse & MOUSE_INPUT_LEFT))
+		return;
+	}
+
+	// 同じカードの種類で重ねる時に行う処理
+	auto cardStackLambda = [&](int num) {
+		if (card[id].cardMem == CARD_MEMBER::ATTACK_3 || card[id].cardMem == CARD_MEMBER::GUARD_3 || card[id].cardMem == CARD_MEMBER::HEAL_3)
 		{
-			// 左端
-			if (card[id].pos.x >= 0 && card[id].pos.x <= _setCardPos[0])
+			// 元の位置に戻す
+			card[id].pos.x = _setCardPos[card[id].num] - CARD_SET_LINE / 2;
+			card[id].pos.y = 500;
+		}
+		else
+		{
+			PlaySoundMem(_se, DX_PLAYTYPE_BACK, true);
+
+			card[id].pos.x = _setCardPos[card[id].num] - CARD_SET_LINE / 2;
+			card[id].pos.y = 500;
+
+			// _cardPngSel_pairがnonから始まるわけではないので、+1しなくていい
+			card[num].pngSel = _cardPngSel_pair[static_cast<int>(card[id].cardMem)].first;
+			card[num].cardMem = _cardPngSel_pair[static_cast<int>(card[id].cardMem)].second;
+			_cardMap[_setCardPos[num]] = card[num].cardMem;
+			CreateCard(id);
+		}
+	};
+
+	// 左クリック離した後
+	if (_clickFlg && !(_mouse & MOUSE_INPUT_LEFT))
+	{
+		// 左端
+		if (card[id].pos.x >= 0 && card[id].pos.x <= _setCardPos[0])
+		{
+			// 左端に何も入っていないとき
+			if (_cardMap[_setCardPos[0]] == CARD_MEMBER::NON)
 			{
-				// 左端に何も入っていないとき
-				if (_cardMap[_setCardPos[0]] == CARD_MEMBER::NON)
+				// numを書き換える前にnonにする
+				_cardMap[_setCardPos[card[id].num]] = CARD_MEMBER::NON;
+
+				// 移動させていい
+				card[id].pos.x = _setCardPos[0] - CARD_SET_LINE / 2;
+				card[id].pos.y = 500;
+				card[id].num = 0;
+
+				// 新しく移動した場所にカードの種類を登録
+				_cardMap[_setCardPos[0]] = card[id].cardMem;
+			}
+			else if (_cardMap[_setCardPos[0]] == card[id].cardMem && card[id].num != 0)
+			{
+				cardStackLambda(0);
+			}
+			else
+			{
+				// 移動させることができないときとかに元の位置に戻す
+				card[id].pos.x = _setCardPos[card[id].num] - CARD_SET_LINE / 2;
+				card[id].pos.y = 500;
+			}
+			_clickFlg = false;
+		}
+
+		for (int i = 0; i <= 3; i++)
+		{
+			if (card[id].pos.x > _setCardPos[i] && card[id].pos.x <= _setCardPos[i + 1])
+			{
+				if (_cardMap[_setCardPos[i + 1]] == CARD_MEMBER::NON)
 				{
 					// numを書き換える前にnonにする
 					_cardMap[_setCardPos[card[id].num]] = CARD_MEMBER::NON;
 
 					// 移動させていい
-					card[id].pos.x = _setCardPos[0] - 140 / 2;
+					card[id].pos.x = _setCardPos[i + 1] - CARD_SET_LINE / 2;
 					card[id].pos.y = 500;
-					card[id].num = 0;
+					card[id].num = i + 1;
 
 					// 新しく移動した場所にカードの種類を登録
-					_cardMap[_setCardPos[0]] = card[id].cardMem;
+					_cardMap[_setCardPos[i + 1]] = card[id].cardMem;
 				}
-				else if (_cardMap[_setCardPos[0]] == card[id].cardMem && card[id].num != 0)
+				else if (_cardMap[_setCardPos[i + 1]] == card[id].cardMem && card[id].num != i + 1)
 				{
-					// 3以上のカードが作れないようにする
-					if (card[id].cardMem == CARD_MEMBER::ATTACK_3 || card[id].cardMem == CARD_MEMBER::GUARD_3 || card[id].cardMem == CARD_MEMBER::HEAL_3)
-					{
-						// 元の位置に戻す
-						card[id].pos.x = _setCardPos[card[id].num] - 140 / 2;
-						card[id].pos.y = 500;
-					}
-					else
-					{
-						// 同じカードの種類で重ねる時に行う処理
-						PlaySoundMem(_se, DX_PLAYTYPE_BACK, true);
-
-						card[id].pos.x = _setCardPos[card[id].num] - 140 / 2;
-						card[id].pos.y = 500;
-
-						card[0].pngSel = _cardPngSel_pair[static_cast<int>(card[id].cardMem)].first;
-						card[0].cardMem = _cardPngSel_pair[static_cast<int>(card[id].cardMem)].second;
-						_cardMap[_setCardPos[0]] = card[0].cardMem;
-
-						// 動かし元のスペースに新しいカードの生成を行う
-						// 0 3 6のカードのみだしたい
-						int rand = GetRand(8);
-						int userand = rand % 3 * 3;
-						card[id].pngSel = _cardPngSel_pair[userand].first;
-						card[id].cardMem = _cardPngSel_pair[userand].second;
-						_cardMap[_setCardPos[id]] = card[id].cardMem;
-						_turnNum -= 1;
-					}
+					cardStackLambda(i+1);
 				}
 				else
 				{
-					// 移動させることができないときとかに元の位置に戻す
-					card[id].pos.x = _setCardPos[card[id].num] - 140 / 2;
+					// 元の位置に戻す
+					card[id].pos.x = _setCardPos[card[id].num] - CARD_SET_LINE / 2;
 					card[id].pos.y = 500;
 				}
 				_clickFlg = false;
-			}
-
-			for (int i = 0; i <= 3; i++)
-			{
-				if (card[id].pos.x > _setCardPos[i] && card[id].pos.x <= _setCardPos[i + 1])
-				{
-					if (_cardMap[_setCardPos[i + 1]] == CARD_MEMBER::NON)
-					{
-						// numを書き換える前にnonにする
-						_cardMap[_setCardPos[card[id].num]] = CARD_MEMBER::NON;
-
-						// 移動させていい
-						card[id].pos.x = _setCardPos[i + 1] - 140 / 2;
-						card[id].pos.y = 500;
-						card[id].num = i + 1;
-
-						// 新しく移動した場所にカードの種類を登録
-						_cardMap[_setCardPos[i + 1]] = card[id].cardMem;
-					}
-					else if (_cardMap[_setCardPos[i + 1]] == card[id].cardMem && card[id].num != i + 1)
-					{
-						// 3以上のカードが作れないようにする
-						if (card[id].cardMem == CARD_MEMBER::ATTACK_3 || card[id].cardMem == CARD_MEMBER::GUARD_3 || card[id].cardMem == CARD_MEMBER::HEAL_3)
-						{
-							// 元の位置に戻す
-							card[id].pos.x = _setCardPos[card[id].num] - 140 / 2;
-							card[id].pos.y = 500;
-						}
-						else
-						{
-							// 同じカードの種類で重ねる時に行う処理
-							PlaySoundMem(_se, DX_PLAYTYPE_BACK, true);
-
-							card[id].pos.x = _setCardPos[card[id].num] - 140 / 2;
-							card[id].pos.y = 500;
-
-							// _cardPngSel_pairがnonから始まるわけではないので、+1しなくていい
-							card[i + 1].pngSel = _cardPngSel_pair[static_cast<int>(card[id].cardMem)].first;
-							card[i + 1].cardMem = _cardPngSel_pair[static_cast<int>(card[id].cardMem)].second;
-							_cardMap[_setCardPos[i + 1]] = card[i + 1].cardMem;
-
-							// 動かし元のスペースに新しいカードの生成を行う
-							int rand = GetRand(8);
-							int userand = rand % 3 * 3;
-							card[id].pngSel = _cardPngSel_pair[userand].first;
-							card[id].cardMem = _cardPngSel_pair[userand].second;
-							_cardMap[_setCardPos[id]] = card[id].cardMem;
-							_turnNum -= 1;
-						}
-					}
-					else
-					{
-						// 元の位置に戻す
-						card[id].pos.x = _setCardPos[card[id].num] - 140 / 2;
-						card[id].pos.y = 500;
-					}
-					_clickFlg = false;
-				}
 			}
 		}
 	}
@@ -414,28 +400,9 @@ void Cards::UseCard(int id)
 		_cardsType = CARDS_TYPE::ATTACK;
 
 		// 敵のHPを減らす処理
-		if (card[id].cardMem == CARD_MEMBER::ATTACK_1)
-		{
-			_damageNum = 1;
-		}
-		else if (card[id].cardMem == CARD_MEMBER::ATTACK_2)
-		{
-			_damageNum = 9;
-		}
-		else
-		{
-			_damageNum = 25;
-		}
+		_damageNum = _cardPower[card[id].cardMem];
 
-		// 敵の待機ターン -1
-		_turnNum -= 1;
-
-		// 動かし元のスペースに新しいカードの生成を行う
-		int rand = GetRand(8);
-		int userand = rand % 3 * 3;
-		card[id].pngSel = _cardPngSel_pair[userand].first;
-		card[id].cardMem = _cardPngSel_pair[userand].second;
-		_cardMap[_setCardPos[id]] = card[id].cardMem;
+		CreateCard(id);
 		return;
 	}
 
@@ -444,63 +411,38 @@ void Cards::UseCard(int id)
 	{
 		_cardsType = CARDS_TYPE::GUARD;
 
-		// 敵の待機ターン -1
-		_turnNum -= 1;
-
 		// 受ける攻撃を割合で防御できるようにする
-		if (card[id].cardMem == CARD_MEMBER::GUARD_1)
-		{
-			_gaurdNum = 1;
-		}
-		else if(card[id].cardMem == CARD_MEMBER::GUARD_2)
-		{
-			_gaurdNum = 3;
-		}
-		else
-		{
-			_gaurdNum = 8;
-		}
+		_gaurdNum = _cardPower[card[id].cardMem];
 
 		// 複数回のターンで同じ効果のカードを使用するときに合計が必要になる
 		_sumGaurdNum += _gaurdNum;
 
-		// 動かし元のスペースに新しいカードの生成を行う
-		int rand = GetRand(8);
-		int userand = rand % 3 * 3;
-		card[id].pngSel = _cardPngSel_pair[userand].first;
-		card[id].cardMem = _cardPngSel_pair[userand].second;
-		_cardMap[_setCardPos[id]] = card[id].cardMem;
+		CreateCard(id);
 		return;
 	}
 
 	// 使用したカードがhealのとき
 	if (card[id].cardMem == CARD_MEMBER::HEAL_1 || card[id].cardMem == CARD_MEMBER::HEAL_2 || card[id].cardMem == CARD_MEMBER::HEAL_3)
 	{
-		_cardsType = CARDS_TYPE::INN;
-
-		// 敵の待機ターン -1
-		_turnNum -= 1;
+		_cardsType = CARDS_TYPE::HEAL;
 
 		// プレイヤーの最大HPの割合で回復する
-		if (card[id].cardMem == CARD_MEMBER::HEAL_1)
-		{
-			_healNum = 1;
-		}
-		else if(card[id].cardMem == CARD_MEMBER::HEAL_2)
-		{
-			_healNum = 3;
-		}
-		else
-		{
-			_healNum = 8;
-		}
+		_healNum = _cardPower[card[id].cardMem];
 
-		// 動かし元のスペースに新しいカードの生成を行う
-		int rand = GetRand(8);
-		int userand = rand % 3 * 3;
-		card[id].pngSel = _cardPngSel_pair[userand].first;
-		card[id].cardMem = _cardPngSel_pair[userand].second;
-		_cardMap[_setCardPos[id]] = card[id].cardMem;
+		CreateCard(id);
 		return;
 	}
+}
+
+void Cards::CreateCard(int id)
+{
+	// 動かし元のスペースに新しいカードの生成を行う
+	// 0 3 6のカードのみだしたい
+	int rand = GetRand(8);
+	int userand = rand % 3 * 3;
+	card[id].pngSel = _cardPngSel_pair[userand].first;
+	card[id].cardMem = _cardPngSel_pair[userand].second;
+	_cardMap[_setCardPos[id]] = card[id].cardMem;
+	// 敵の待機ターン -1
+	_turnNum -= 1;
 }

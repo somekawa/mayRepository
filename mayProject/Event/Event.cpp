@@ -45,7 +45,7 @@ void Event::Init(void)
 
 	_chestItemMap.try_emplace(0, ITEM::POTION_BIG);
 	_chestItemMap.try_emplace(1, ITEM::DETOX);
-	_chestItemMap.try_emplace(2, ITEM::KYOUKA_POW);
+	_chestItemMap.try_emplace(2, ITEM::POW_UP);
 	_chestItemMap.try_emplace(3, ITEM::HEART);
 
 	// 宝箱設定
@@ -56,7 +56,7 @@ void Event::Init(void)
 	if (SelectScene::modeSelect == MODE::NORMAL)
 	{
 		chestHandle = FileRead_open("csv/chest1.csv");
-		posHandle = FileRead_open("csv/buttonDrink1.csv");
+		posHandle   = FileRead_open("csv/buttonDrink1.csv");
 		if (chestHandle == NULL || posHandle == NULL)
 		{
 			return; // エラー
@@ -65,7 +65,7 @@ void Event::Init(void)
 	else if (SelectScene::modeSelect == MODE::HARD)
 	{
 		chestHandle = FileRead_open("csv/chest2.csv");
-		posHandle = FileRead_open("csv/buttonDrink2.csv");
+		posHandle   = FileRead_open("csv/buttonDrink2.csv");
 		if (chestHandle == NULL || posHandle == NULL)
 		{
 			return; // エラー
@@ -73,8 +73,7 @@ void Event::Init(void)
 	}
 	else
 	{
-		// ここにきたらエラー
-		return;
+		return;		// エラー
 	}
 
 	for (int i = 0; i < 4; i++)
@@ -122,11 +121,11 @@ void Event::Init(void)
 	_soundSE[2] = LoadSoundMem("sound/se/damage.mp3");
 	_soundSE[3] = LoadSoundMem("sound/se/poison.mp3");
 
-	innSt = std::make_unique<INNSt>();
-	merchantSt = std::make_unique<MerchantSt>();
-	buttonSt = std::make_unique<ButtonSt>();
-	chestSt = std::make_unique<ChestSt>();
-	drinkSt = std::make_unique<DrinkSt>();
+	innSt	    = std::make_unique<INNSt>();
+	merchantSt  = std::make_unique<MerchantSt>();
+	buttonSt    = std::make_unique<ButtonSt>();
+	chestSt     = std::make_unique<ChestSt>();
+	drinkSt     = std::make_unique<DrinkSt>();
 	deathTrapSt = std::make_unique<DeathTrapSt>();
 	eventMonsSt = std::make_unique<EventMonsSt>();
 
@@ -159,126 +158,206 @@ void Event::pngInit(void)
 
 void Event::UpDate(GameScene* game, const std::shared_ptr<Player>& player, const std::shared_ptr<Menu>& menu, const std::shared_ptr<Item>& item, const std::shared_ptr<Monster>& monster, const std::shared_ptr<Cards>& cards, const std::shared_ptr<MouseCtl>& mouse)
 {
-	auto lambda = [&]() {
-		monster->SetEnemyNum(6, 0);
-		cards->SetTurn(3);
-		_onceFlg = true;
-		_forcedButtleFlg = true;
+	// 強制戦闘の設定
+	auto forcedButtleLambda = [&]() {
+		if (_eventMonsFlg && !_onceFlg)
+		{
+			monster->SetEnemyNum(6, 0);
+			cards->SetTurn(3);
+			_onceFlg = true;
+			_forcedButtleFlg = true;
+		}
 	};
 
-	if (_event == EVENT_STATE::INN)
+	// _eventと一致しているイベントを発生させる
+	switch (_event)
 	{
-		if (_eventMonsFlg && !_onceFlg)
-		{
-			lambda();
-		}
-		else
-		{
-			innSt->Update(*this, *game, *player, *mouse);
-		}
-	}
-
-	if (_event == EVENT_STATE::MERCHANT)
-	{
-		if (_eventMonsFlg && !_onceFlg)
-		{
-			lambda();
-		}
-		else
-		{
-			merchantSt->Update(*this, *game, *player, *mouse, *item, *menu);
-		}
-	}
-
-	if (_event == EVENT_STATE::BUTTON)
-	{
-		if (_eventMonsFlg && !_onceFlg)
-		{
-			lambda();
-		}
-		else
-		{
-			buttonSt->Update(*this, *game, *player, *mouse);
-		}
-	}
-
-	if (_event == EVENT_STATE::CHEST)
-	{
-		if (_eventMonsFlg && !_onceFlg)
-		{
-			lambda();
-		}
-		else
-		{
-			chestSt->Update(*this, *game, *player, *menu, *item, *mouse);
-		}
-	}
-
-	if (_event == EVENT_STATE::DRINK)
-	{
-		if (_eventMonsFlg && !_onceFlg)
-		{
-			lambda();
-		}
-		else
-		{
-			drinkSt->Update(*this, *game, *player, *mouse);
-		}
-	}
-
-	if (_event == EVENT_STATE::TRAP)
-	{
-		deathTrapSt->Update(*this, *game, *player, *mouse);
-	}
-
-	if (_event == EVENT_STATE::ENEMY)
-	{
+	case EVENT_STATE::ENEMY:
 		Enemy(game, player, monster);
+		break;
+	case EVENT_STATE::INN:
+		forcedButtleLambda();
+		innSt->Update(*this, *game, *player, *mouse);
+		break;
+	case EVENT_STATE::MERCHANT:
+		forcedButtleLambda();
+		merchantSt->Update(*this, *game, *player, *mouse, *item, *menu);
+		break;
+	case EVENT_STATE::BUTTON:
+		forcedButtleLambda();
+		buttonSt->Update(*this, *game, *player, *mouse);
+		break;
+	case EVENT_STATE::CHEST:
+		forcedButtleLambda();
+		chestSt->Update(*this, *game, *player, *menu, *item, *mouse);
+		break;
+	case EVENT_STATE::DRINK:
+		forcedButtleLambda();
+		drinkSt->Update(*this, *game, *player, *mouse);
+		break;
+	case EVENT_STATE::TRAP:
+		deathTrapSt->Update(*this, *game, *player, *mouse);
+		break;
+	case EVENT_STATE::EVE_MONS:
+		eventMonsSt->Update(*this, *game, *monster, *cards, *mouse);
+		break;
+	default:
+		break;
 	}
 
-	if (_event == EVENT_STATE::EVE_MONS)
-	{
-		eventMonsSt->Update(*this, *game, *monster, *cards, *mouse);
-	}
+	//if (_event == EVENT_STATE::INN)
+	//{
+	//	if (_eventMonsFlg && !_onceFlg)
+	//	{
+	//		forcedButtleLambda();
+	//	}
+	//	else
+	//	{
+	//		innSt->Update(*this, *game, *player, *mouse);
+	//	}
+	//}
+
+	//if (_event == EVENT_STATE::MERCHANT)
+	//{
+	//	if (_eventMonsFlg && !_onceFlg)
+	//	{
+	//		forcedButtleLambda();
+	//	}
+	//	else
+	//	{
+	//		merchantSt->Update(*this, *game, *player, *mouse, *item, *menu);
+	//	}
+	//}
+
+	//if (_event == EVENT_STATE::BUTTON)
+	//{
+	//	if (_eventMonsFlg && !_onceFlg)
+	//	{
+	//		forcedButtleLambda();
+	//	}
+	//	else
+	//	{
+	//		buttonSt->Update(*this, *game, *player, *mouse);
+	//	}
+	//}
+
+	//if (_event == EVENT_STATE::CHEST)
+	//{
+	//	if (_eventMonsFlg && !_onceFlg)
+	//	{
+	//		forcedButtleLambda();
+	//	}
+	//	else
+	//	{
+	//		chestSt->Update(*this, *game, *player, *menu, *item, *mouse);
+	//	}
+	//}
+
+	//if (_event == EVENT_STATE::DRINK)
+	//{
+	//	if (_eventMonsFlg && !_onceFlg)
+	//	{
+	//		forcedButtleLambda();
+	//	}
+	//	else
+	//	{
+	//		drinkSt->Update(*this, *game, *player, *mouse);
+	//	}
+	//}
+
+	//if (_event == EVENT_STATE::TRAP)
+	//{
+	//	deathTrapSt->Update(*this, *game, *player, *mouse);
+	//}
+
+	//if (_event == EVENT_STATE::ENEMY)
+	//{
+	//	Enemy(game, player, monster);
+	//}
+
+	//if (_event == EVENT_STATE::EVE_MONS)
+	//{
+	//	eventMonsSt->Update(*this, *game, *monster, *cards, *mouse);
+	//}
 }
 
 void Event::Draw(GameScene* game, const std::shared_ptr<Player>& player, const std::shared_ptr<Menu>& menu, const std::shared_ptr<Item>& item)
 {
-	// 宿屋
-	if (_event == EVENT_STATE::INN && !_eventMonsFlg)
+	// _eventと一致しているイベントを描画する
+	switch (_event)
 	{
-		innSt->Draw(*this, *player);
-	}
-
-	// 商人
-	if (_event == EVENT_STATE::MERCHANT && !_eventMonsFlg)
-	{
-		merchantSt->Draw(*this, *player, *item, *menu);
-	}
-
-	// ボタン出現中
-	if (_event == EVENT_STATE::BUTTON && !_eventMonsFlg)
-	{
-		buttonSt->Draw(*this, *game);
-	}
-
-	// 宝箱出現中
-	if (_event == EVENT_STATE::CHEST && !_eventMonsFlg)
-	{
-		chestSt->Draw(*this, *menu);
-	}
-
-	// 瓶出現中
-	if (_event == EVENT_STATE::DRINK && !_eventMonsFlg)
-	{
-		drinkSt->Draw(*this, *game);
-	}
-
-	// 即死トラップ出現中
-	if (_event == EVENT_STATE::TRAP)
-	{
+	case EVENT_STATE::INN:
+		if (!_eventMonsFlg)
+		{
+			innSt->Draw(*this, *player);
+		}
+		break;
+	case EVENT_STATE::MERCHANT:
+		if (!_eventMonsFlg)
+		{
+			merchantSt->Draw(*this, *player, *item, *menu);
+		}
+		break;
+	case EVENT_STATE::BUTTON:
+		if (!_eventMonsFlg)
+		{
+			buttonSt->Draw(*this, *game);
+		}
+		break;
+	case EVENT_STATE::CHEST:
+		if (!_eventMonsFlg)
+		{
+			chestSt->Draw(*this, *menu);
+		}
+		break;
+	case EVENT_STATE::DRINK:
+		if (!_eventMonsFlg)
+		{
+			drinkSt->Draw(*this, *game);
+		}
+		break;
+	case EVENT_STATE::TRAP:
 		deathTrapSt->Draw(*this);
+		break;
+	default:
+		break;
 	}
+
+	//// 宿屋
+	//if (_event == EVENT_STATE::INN && !_eventMonsFlg)
+	//{
+	//	innSt->Draw(*this, *player);
+	//}
+
+	//// 商人
+	//if (_event == EVENT_STATE::MERCHANT && !_eventMonsFlg)
+	//{
+	//	merchantSt->Draw(*this, *player, *item, *menu);
+	//}
+
+	//// ボタン出現中
+	//if (_event == EVENT_STATE::BUTTON && !_eventMonsFlg)
+	//{
+	//	buttonSt->Draw(*this, *game);
+	//}
+
+	//// 宝箱出現中
+	//if (_event == EVENT_STATE::CHEST && !_eventMonsFlg)
+	//{
+	//	chestSt->Draw(*this, *menu);
+	//}
+
+	//// 瓶出現中
+	//if (_event == EVENT_STATE::DRINK && !_eventMonsFlg)
+	//{
+	//	drinkSt->Draw(*this, *game);
+	//}
+
+	//// 即死トラップ出現中
+	//if (_event == EVENT_STATE::TRAP)
+	//{
+	//	deathTrapSt->Draw(*this);
+	//}
 
 	// イベント敵と遭遇中
 	if (_event == EVENT_STATE::EVE_MONS || _event != EVENT_STATE::NON && _eventMonsFlg)

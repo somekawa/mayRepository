@@ -23,7 +23,8 @@ void DrinkSt::Update(Event& eve, GameScene& game, Player& player, MouseCtl& mous
 	exr++;
 	if (mouse.GetClickTrg())
 	{
-		if (mouse.GetPos().x >= offsetPos.x && mouse.GetPos().x <= offsetPos.x + choicesPngSize.x && mouse.GetPos().y >= offsetPos.y && mouse.GetPos().y <= offsetPos.y + choicesPngSize.y)
+		if (mouse.GetPos().x >= offsetPos.x && mouse.GetPos().x <= offsetPos.x + choicesPngSize.x &&
+			mouse.GetPos().y >= offsetPos.y && mouse.GetPos().y <= offsetPos.y + choicesPngSize.y)
 		{
 			exr = 0.0f;
 			// ÉNÉäÉbÉNâπ
@@ -53,7 +54,8 @@ void DrinkSt::Update(Event& eve, GameScene& game, Player& player, MouseCtl& mous
 		// à˘Çﬁ
 		if (eve._fateNum == -1 && !eve._drinking[eve._drinkNum])
 		{
-			if (mouse.GetPos().x >= offsetPos.x && mouse.GetPos().x <= offsetPos.x + choicesPngSize.x && mouse.GetPos().y >= 200 && mouse.GetPos().y <= 200 + choicesPngSize.y)
+			if (mouse.GetPos().x >= offsetPos.x && mouse.GetPos().x <= offsetPos.x + choicesPngSize.x &&
+				mouse.GetPos().y >= 200 && mouse.GetPos().y <= 200 + choicesPngSize.y)
 			{
 				// ÉNÉäÉbÉNâπ
 				PlaySoundMem(eve._soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -100,23 +102,29 @@ void DrinkSt::Draw(Event& eve,GameScene& game)
 		DrawGraph(420, 50, eve._drawHandle["message"], true);
 		// ïrâÊëú
 		DrawGraph(350, 250, eve._eventImages["bottle"], true);
+
+		const VECTOR2 tmpVec(450, 70);
+		const unsigned int color(0x000000);
+
 		if (eve._fateNum == -1)
 		{
 			// à˘Çﬁ
-			DrawRotaGraph(offsetPos.x + choicesPngSize.x / 2, 200 + choicesPngSize.y / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._choicesPNG[1], true);
-			DrawFormatString(450, 70, 0x000000, "[Drink Me]\nÇ∆Ç©Ç©ÇÍÇΩïrÇ™Ç†ÇÈ...");
+			DrawRotaGraph(offsetPos.x + choicesPngSize.x / 2, 200 + choicesPngSize.y / 2, static_cast<double>(0.9f + (sinf(PI * 2.0f / 200.0f * exr) * 0.1f)), 0.0f, eve._choicesPNG[1], true);
+			DrawFormatString(tmpVec.x, tmpVec.y, color, "[Drink Me]\nÇ∆Ç©Ç©ÇÍÇΩïrÇ™Ç†ÇÈ...");
 		}
-
-		if (eve._fateNum == 0)
+		else if (eve._fateNum == 0)
 		{
-			DrawFormatString(450, 70, 0x000000, "ëÃÇ™äÊè‰Ç…Ç»Ç¡ÇΩ!\nñhå‰óÕÇ™è„Ç™Ç¡ÇΩ");
+			DrawFormatString(tmpVec.x, tmpVec.y, color, "ëÃÇ™äÊè‰Ç…Ç»Ç¡ÇΩ!\nñhå‰óÕÇ™è„Ç™Ç¡ÇΩ");
 		}
-
-		if (eve._fateNum > 0)
+		else if (eve._fateNum > 0)
 		{
-			DrawFormatString(450, 70, 0x000000, "ì≈Ç…Ç©Ç©Ç¡ÇƒÇµÇ‹Ç¡ÇΩ...");
+			DrawFormatString(tmpVec.x, tmpVec.y, color, "ì≈Ç…Ç©Ç©Ç¡ÇƒÇµÇ‹Ç¡ÇΩ...");
+		}
+		else
+		{
+			// âΩÇ‡èàóùÇçsÇÌÇ»Ç¢
 		}
 	}
 	// ãéÇÈ
-	DrawRotaGraph(offsetPos.x + choicesPngSize.x / 2, offsetPos.y + choicesPngSize.y / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._choicesPNG[10], true);
+	DrawRotaGraph(offsetPos.x + choicesPngSize.x / 2, offsetPos.y + choicesPngSize.y / 2, static_cast<double>(0.9f + (sinf(PI * 2.0f / 200.0f * exr) * 0.1f)), 0.0f, eve._choicesPNG[10], true);
 }

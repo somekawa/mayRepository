@@ -1,4 +1,4 @@
-#include "DxLib.h"
+#include <DxLib.h>
 #include "GameCtl.h"
 
 GameCtl::GameCtl()

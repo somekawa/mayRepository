@@ -40,11 +40,14 @@ void TitleScene::PngInit(void)
 unique_Base TitleScene::Update(unique_Base own, const GameCtl& ctl)
 {
 	_mouse->UpDate();
-	if (_mouse->GetClickTrg()) {	 //マウスの左ボタンが押されていたら
+	if (_mouse->GetClickTrg()) //マウスの左ボタンが押されていたら
+	{	 
 		// 当たり判定
-		VECTOR2 offsetPos = { _startPngSize.x / 2 + _startPngSize.x / 8, _startPngSize.y * 3 - _startPngSize .y / 3};
-		if (_mouse->GetPos().x >= offsetPos.x && _mouse->GetPos().x <= offsetPos.x + _startPngSize.x && _mouse->GetPos().y >= offsetPos.y && _mouse->GetPos().y <= offsetPos.y + _startPngSize.y)
+		VECTOR2 offsetPos(_startPngSize.x / 2 + _startPngSize.x / 8, _startPngSize.y * 3 - _startPngSize .y / 3);
+		if (_mouse->GetPos().x >= offsetPos.x && _mouse->GetPos().x <= offsetPos.x + _startPngSize.x &&
+			_mouse->GetPos().y >= offsetPos.y && _mouse->GetPos().y <= offsetPos.y + _startPngSize.y)
 		{
+			// 効果音処理
 			if (CheckSoundMem(_seClick) == 0)
 			{
 				PlaySoundMem(_seClick, DX_PLAYTYPE_BACK, true);
@@ -55,6 +58,7 @@ unique_Base TitleScene::Update(unique_Base own, const GameCtl& ctl)
 
 	Draw();
 
+	// 効果音終了時の処理
 	if (_seFlg && CheckSoundMem(_seClick) == 0)
 	{
 		DeleteSoundMem(_seClick);
@@ -67,14 +71,13 @@ unique_Base TitleScene::Update(unique_Base own, const GameCtl& ctl)
 		if (_pngLight <= 255)
 		{
 			_pngLight++;
-			if (_pngLight == 255)
+			if (_pngLight >= 255)
 			{
 				_lightFlg = true;
 			}
 		}
 	}
-
-	if (_lightFlg)
+	else
 	{
 		_pngLight--;
 		if (_pngLight <= 128)

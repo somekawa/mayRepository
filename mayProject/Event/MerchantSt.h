@@ -16,4 +16,5 @@ struct MerchantSt
 	float exr;				// 拡大/縮小率
 	VECTOR2 choicesPngSize;	// 選択肢画像のサイズ
 	VECTOR2 offsetPos;		// 表示位置調整用
+	VECTOR2 itemBoxSize;	// アイテムボックスサイズ
 };

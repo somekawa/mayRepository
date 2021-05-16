@@ -19,6 +19,8 @@ bool GameOverScene::Init(void)
 
 	PngInit();
 
+	_btnPos  = { 650,450 };
+	_btnSize = { 200,100 };
 	_pngBlend = 0;
 
 	_seClick = LoadSoundMem("sound/se/click.mp3");
@@ -33,16 +35,19 @@ void GameOverScene::PngInit(void)
 {
 	_drawHandle.try_emplace("blood", LoadGraph("image/blood.png"));
 	_drawHandle.try_emplace("brick", LoadGraph("image/brick.png"));
-	_drawHandle.try_emplace("over", LoadGraph("image/over.png"));
+	_drawHandle.try_emplace("over" , LoadGraph("image/over.png"));
 	_drawHandle.try_emplace("titleBackButton", LoadGraph("image/titleBackButton.png"));
 }
 
 unique_Base GameOverScene::Update(unique_Base own, const GameCtl& ctl)
 {
 	_mouse->UpDate();
+
+	// クリック時にBGMを消して、効果音を鳴らす
 	if (_mouse->GetClickTrg())
 	{
-		if (_mouse->GetPos().x >= 650 && _mouse->GetPos().x <= 650 + 200 && _mouse->GetPos().y >= 450 && _mouse->GetPos().y <= 450 + 100)
+		if (_mouse->GetPos().x >= _btnPos.x && _mouse->GetPos().x <= _btnPos.x + _btnSize.x &&
+			_mouse->GetPos().y >= _btnPos.y && _mouse->GetPos().y <= _btnPos.y + _btnSize.y)
 		{
 			DeleteSoundMem(_overBGM);
 			if (CheckSoundMem(_seClick) == 0)
@@ -53,6 +58,7 @@ unique_Base GameOverScene::Update(unique_Base own, const GameCtl& ctl)
 		}
 	}
 
+	// 効果音終了後にタイトルシーンへ戻る
 	if (_seFlg && CheckSoundMem(_seClick) == 0)
 	{
 		DeleteSoundMem(_seClick);
@@ -61,7 +67,7 @@ unique_Base GameOverScene::Update(unique_Base own, const GameCtl& ctl)
 
 	Draw();
 
-	// だんだん明るく
+	// 画面をだんだん明るく
 	if (_pngBlend < 255)
 	{
 		_pngBlend++;

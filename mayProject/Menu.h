@@ -33,8 +33,8 @@ public:
 
 	void Update(GameScene* game, const std::shared_ptr<Player>& player, const std::shared_ptr<Monster>& monster, const std::shared_ptr<Cards>& cards,const std::shared_ptr<MouseCtl>& mouse);	
 	void Draw(const std::shared_ptr<Player>& player, const std::shared_ptr<Item>& item, const std::shared_ptr<Monster>& monster);		
-	void MenuButton_NonEnemy(const std::shared_ptr<MouseCtl>& mouse);						// メニューボタン処理(非戦闘時)
-	void MenuButton_Enemy(const std::shared_ptr<MouseCtl>& mouse);							// メニューボタン処理(戦闘時)
+	void MenuButton_NonEnemy(const std::shared_ptr<MouseCtl>& mouse);	// メニューボタン処理(非戦闘時)
+	void MenuButton_Enemy(const std::shared_ptr<MouseCtl>& mouse);		// メニューボタン処理(戦闘時)
 
 	void SetItem(const ITEM& item, const int& png);	// 取得したアイテムを格納する
 	bool GetMenuFlg(void)const;						// メニュー画面が表示状態か取得する
@@ -63,6 +63,10 @@ public:
 private:
 	bool Init(void);								// 初期化
 	void PngInit(void);								// 画像関係初期化
+	void UseItem(void);								// アイテムの使用もしくは装備の処理
+	void ThrowAwayItem(void);						// アイテムを捨てる処理
+	void DeleteItem(void);							// アイテム画像削除の共通処理
+	void GameContinue(const std::shared_ptr<MouseCtl>& mouse);	// メニュー画面からゲーム画面へ戻る処理
 
 	MENU _menu;										// メニュー項目の保存用変数
 	ITEM _itemAction;								// アイテム使用時の効果を分けるときに使う

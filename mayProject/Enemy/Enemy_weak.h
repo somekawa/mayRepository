@@ -51,7 +51,7 @@ private:
 	// ドロップアイテム関係
 	bool _dropItem;						// ドロップアイテム用フラグ
 	int _dropItemNum;					// ドロップアイテムの画像番号
-	ITEM _dropItemSyurui;				// ドロップアイテムの種類
+	ITEM _dropItemType;					// ドロップアイテムの種類
 
 	int _se;							// SE
 

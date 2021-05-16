@@ -10,6 +10,8 @@
 DeathTrapSt::DeathTrapSt()
 {
 	exr = 0.0f;
+	choicesPngSize = { 150,75 };
+	offsetPos = { 600,345 };
 }
 
 DeathTrapSt::~DeathTrapSt()
@@ -21,7 +23,8 @@ void DeathTrapSt::Update(Event& eve, GameScene& game, Player& player, MouseCtl& 
 	exr++;
 	if (mouse.GetClickTrg())
 	{
-		if (mouse.GetPos().x >= 600 && mouse.GetPos().x <= 600 + 150 && mouse.GetPos().y >= 345 && mouse.GetPos().y <= 345 + 75)
+		if (mouse.GetPos().x >= offsetPos.x && mouse.GetPos().x <= offsetPos.x + choicesPngSize.x &&
+			mouse.GetPos().y >= offsetPos.y && mouse.GetPos().y <= offsetPos.y + choicesPngSize.y)
 		{
 			exr = 0.0f;
 			// クリック音
@@ -35,7 +38,8 @@ void DeathTrapSt::Update(Event& eve, GameScene& game, Player& player, MouseCtl& 
 		// 調べる
 		if (!eve._trapFlg)
 		{
-			if (mouse.GetPos().x >= 600 && mouse.GetPos().x <= 600 + 150 && mouse.GetPos().y >= 200 && mouse.GetPos().y <= 200 + 75)
+			if (mouse.GetPos().x >= offsetPos.x && mouse.GetPos().x <= offsetPos.x + choicesPngSize.x &&
+				mouse.GetPos().y >= 200 && mouse.GetPos().y <= 200 + choicesPngSize.y)
 			{
 				// クリック音
 				PlaySoundMem(eve._soundSE[0], DX_PLAYTYPE_BACK, true);
@@ -65,25 +69,28 @@ void DeathTrapSt::Draw(Event& eve)
 	// メッセージボックス
 	DrawGraph(420, 50, eve._drawHandle["message"], true);
 	// 去る
-	DrawRotaGraph(600 + 150 / 2, 345 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._choicesPNG[10], true);
+	DrawRotaGraph(offsetPos.x + choicesPngSize.x / 2, offsetPos.y + choicesPngSize.y / 2, static_cast<double>(0.9f + (sinf(PI * 2.0f / 200.0f * exr) * 0.1f)), 0.0f, eve._choicesPNG[10], true);
 	// 調べる
-	DrawRotaGraph(600 + 150 / 2, 200 + 75 / 2, 0.9f + sinf(PI * 2.0f / 200.0f * exr) * 0.1, 0.0f, eve._choicesPNG[9], true);
+	DrawRotaGraph(offsetPos.x + choicesPngSize.x / 2, 200 + choicesPngSize.y / 2, static_cast<double>(0.9f + (sinf(PI * 2.0f / 200.0f * exr) * 0.1f)), 0.0f, eve._choicesPNG[9], true);
 	DrawGraph(200, 75, eve._eventImages["deathTrap"], true);
+
+	const VECTOR2 tmpVec(450, 70);
+	const unsigned int color(0x000000);
 
 	if (eve._nowTrapFlg)
 	{
 		if (eve._eventMonsEncountFlg && !eve._eventMonsEndFlg)
 		{
-			DrawFormatString(450, 70, 0x000000, "背後に敵が迫っている…!");
+			DrawFormatString(tmpVec.x, tmpVec.y, color, "背後に敵が迫っている…!");
 		}
 		else
 		{
-			DrawFormatString(450, 70, 0x000000, "即死トラップのようだ");
+			DrawFormatString(tmpVec.x, tmpVec.y, color, "即死トラップのようだ");
 		}
 	}
 	else
 	{
-		DrawFormatString(450, 70, 0x000000, "怪しげな像がある");
+		DrawFormatString(tmpVec.x, tmpVec.y, color, "怪しげな像がある");
 		if (eve._eventMonsEncountFlg && !eve._eventMonsEndFlg)
 		{
 			DrawFormatString(450, 90, 0xff0000, "背後に敵が迫っている…!");

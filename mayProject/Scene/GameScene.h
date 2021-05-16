@@ -14,6 +14,9 @@
 #include "../Item/Item.h"
 #include "../Event/Event.h"
 
+#define MAP_SIZE_X 10	// マップの横サイズ
+#define MAP_SIZE_Y 10	// マップの縦サイズ
+
 class MouseCtl;
 
 // 道画像
@@ -87,7 +90,7 @@ private:
 	void Walk(void);					// 足音とキー入力の受付処理をする
 	void ChangeBGM(void);				// 通常BGMと戦闘BGMの切替
 	void EnemyItemDrop(void);			// 敵からのアイテムドロップ処理
-	void CardEffect(void);				// カードの効果
+	void MoveCard(void);				// カードを動かした際の処理
 	void DungeonFog(void);				// 霧の効果
 	void ButtleCaution(void);			// 強制戦闘の案内を出す
 	void GameReset(void);				// ゲームオーバー時にやりなおすを選択したときに再設定する変数を集めた関数
@@ -115,8 +118,8 @@ private:
 	// ダンジョン関係
 	void Direct(void);					// 移動と向きを変える関数
 	void Key(void);						// キー処理関数
-	std::pair<bool, int> _dungeonMap[10][10];				// マップ(通ったことのあるところはtrue)
-	std::vector<MapMake> _mapVec;							// マップ移動軌跡の保存用変数
+	std::pair<bool, int> _dungeonMap[MAP_SIZE_Y][MAP_SIZE_X];	// マップ(通ったことのあるところはtrue)
+	std::vector<MapMake> _mapVec;		// マップ移動軌跡の保存用変数
 	int _plNowPoint;					// プレイヤーの現在地
 	int _plOldPoint;					// プレイヤーの前回いた位置
 	bool _leftFlg;						// 左折したらtrue
@@ -151,6 +154,7 @@ private:
 	int _guideMove;						// ガイド描画時に背景の枠を自由変形で動かすときに使う
 	float _guideExrMove;				// ガイド描画時の拡大/縮小
 	bool _buttleGuideFlg;				// 戦闘ガイドの表示/非表示切替
+	bool _stopCardUpDate;				// カード情報のアップデート関数が呼べなくなるようにする(Draw関数の後にupdateが止まる必要がある為、使っている)
 
 	std::map<int, EVENT_STATE> _eventStateMap;	// イベント番号とenum classを一致させてイベント処理を行いやすくする
 
@@ -171,4 +175,5 @@ private:
 	// BGM関連
 	int _gameBGM;						// 通常BGM
 	int _battleBGM;						// 戦闘BGM
+	int _nowBGM;						// 現在再生中のBGM情報を保存する
 };

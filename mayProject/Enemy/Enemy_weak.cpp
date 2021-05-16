@@ -15,7 +15,6 @@ struct enemy
 	int money;	 // 倒した時に落とすお金
 } enemy_status[MONSTER_CNT];
 
-
 Enemy_weak::Enemy_weak()
 {
 	Init();
@@ -45,6 +44,10 @@ bool Enemy_weak::Init(void)
 		{
 			return false; // エラー
 		}
+	}
+	else
+	{
+		return false;	  // エラー
 	}
 
 	for (int i = 0; i < MONSTER_CNT; i++)
@@ -80,6 +83,10 @@ void Enemy_weak::pngInit(void)
 		std::string monster = "image/monster/mons2.png";
 		LoadDivGraph(monster.c_str(), 5, 5, 1, 400, 400, _enemyPNG);
 	}
+	else
+	{
+		// 何も処理を行わない
+	}
 
 	// ドロップアイテム分割読み込み
 	std::string item = "image/item_monster.png";
@@ -113,7 +120,7 @@ void Enemy_weak::Draw(void)
 	if (_enemyState == ENEMY_STATE::EXIST)
 	{
 		// 最後の引数がtrueじゃなかったら透過されない
-		DrawRotaGraph(450, 300, 1.0f, 0, _enemyPNG[_enemyNum], true);
+		DrawRotaGraph(450, 300, 1.0, 0.0, _enemyPNG[_enemyNum], true);
 	}
 
 	// 敵が死亡したときのドロップアイテムの描画処理
@@ -121,7 +128,7 @@ void Enemy_weak::Draw(void)
 	{
 		if (_dropItem)
 		{
-			DrawRotaGraph(450, 270, 1.0f, 0, _eneItemPNG[_dropItemNum], true);
+			DrawRotaGraph(450, 270, 1.0, 0.0, _eneItemPNG[_dropItemNum], true);
 		}
 	}
 	// ScreenFlip();
@@ -129,7 +136,7 @@ void Enemy_weak::Draw(void)
 
 void Enemy_weak::BossDraw(void)
 {
-	DrawRotaGraph(450, 270, 1.0f, 0, _bossPNG, true);
+	DrawRotaGraph(450, 270, 1.0, 0.0, _bossPNG, true);
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, _bossFogCnt);
 	DrawGraph(0, 0, _fogPNG, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
@@ -139,7 +146,7 @@ void Enemy_weak::EffectDraw(void)
 {
 	if (_animCnt < 8)
 	{
-		DrawRotaGraph(450, 300, 5.0f, PI/5, _AttackEffectPNG[_animCnt], true);
+		DrawRotaGraph(450, 300, 5.0, PI/5.0, _AttackEffectPNG[_animCnt], true);
 		_animUpDateSpeedCnt++;
 		if (_animUpDateSpeedCnt % 3 == 0)
 		{	
@@ -170,16 +177,16 @@ void Enemy_weak::Damage(int damageNum, const std::shared_ptr<Cards>& cards)
 		_enemyState = ENEMY_STATE::DEATH;
 		cards->SetTurn(3);
 		// 確率でフラグを立てて、trueだったらアイテムをプレイヤーに渡す
-		int randNum = GetRand(2);	// 0~2
-		_dropItemNum = GetRand(3);  // 0 1 2 3
-		int ItemNum = _dropItemNum + 13;  // 13 14 15 16に変換
+		const int randNum = GetRand(2);	// 0~2
+		_dropItemNum = GetRand(3);		// 0 1 2 3
+		const int ItemNum = _dropItemNum + 13;  // 13 14 15 16に変換
 
 		if (randNum == 0)
 		{
 			// アイテムドロップする
 			PlaySoundMem(_se, DX_PLAYTYPE_BACK, true);
 			_dropItem = true;
-			_dropItemSyurui = static_cast<ITEM>(ItemNum);
+			_dropItemType = static_cast<ITEM>(ItemNum);
 		}
 		else
 		{
@@ -224,13 +231,14 @@ void Enemy_weak::SetEnemyNum(int num, int plLv)
 	else
 	{
 		if (num == 5)
-		{	// ボスのときにはスモークの準備をする
+		{	
+			// ボスのときにはスモークの準備をする
 			_bossFogCnt = 256;
 		}
 		// ダメージ量と体力をプレイヤーレベルで調整できるようにする
 		_attackDamage = enemy_status[num].attack + (plLv * 2);
 		_enemyHP = enemy_status[num].HP + (plLv * 3);
-		_enemyMaxHP = _enemyHP;
+		_enemyMaxHP   = _enemyHP;
 		_enemyMaxTurn = enemy_status[num].turn;
 		_enemyNum = num;
 		_enemyState = ENEMY_STATE::EXIST;
@@ -239,7 +247,7 @@ void Enemy_weak::SetEnemyNum(int num, int plLv)
 
 float Enemy_weak::GetHPBar(void)
 {
-	return (float)_enemyHP / (float)_enemyMaxHP;
+	return static_cast<float>(_enemyHP) / static_cast<float>(_enemyMaxHP);
 }
 
 int Enemy_weak::GetNowHP(void)
@@ -274,7 +282,7 @@ void Enemy_weak::SetDropFlg(bool flag)
 
 ITEM Enemy_weak::GetDrop(void)
 {
-	return _dropItemSyurui;
+	return _dropItemType;
 }
 
 int Enemy_weak::GetEnemyNum(void)

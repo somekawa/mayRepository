@@ -5,7 +5,7 @@ enum class ITEM {
 	NON,
 	POTION,			// 小回復
 	DETOX,			// 解毒剤
-	KYOUKA_POW,		// 一時的に攻撃力上昇(5ターンとか)
+	POW_UP,			// 一時的に攻撃力上昇(5ターン)
 	HEART,			// 体力増加
 	SKILL_FAST,		// プレイヤースキル発動までの時間を早めることができる
 	GLASSES,		// 宝箱がトラップかどうか鑑定できる

@@ -5,6 +5,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	LPSTR lpCmdLine, int nCmdShow)
 {
 	SceneMng::GetInstance().Run();
-	DxLib_End();	// DXﾗｲﾌﾞﾗﾘの終了処理
+	DxLib_End();	// DXライブラリの終了処理
 	return 0;
 }

@@ -30,20 +30,20 @@ bool SelectScene::Init(void)
 	_toTitlePngSize = { 200,100 };
 	_pngLight = 128;
 	_lightFlg = false;
-	_toGameFlg = false;
+	_toGameFlg  = false;
 	_toTitleFlg = false;
 	pushFlg = false;
 
 	_footSpeed = 2;
-	_startPos = { 0,-600 };
-	_goalPos = { 0,0 };
+	_startPos  = { 0,-600 };
+	_goalPos   = { 0,0 };
 	_drawFootVec = { 100,600 };
 	_footPrintsFlg = false;
 	_footPrintsReverseX = false;
 	_footPrintsReverseY = false;
 	_dirFlg = false;
 	_footPrintsRota = 0.0f;
-	_dir = FOOTDIR::UP;
+	_dir    = FOOTDIR::UP;
 	_olddir = FOOTDIR::UP;
 
 	// 予め動きを登録しておく
@@ -59,8 +59,8 @@ bool SelectScene::Init(void)
 		_footPrintsReverseX = true;
 		_footPrintsReverseY = false;
 		_drawFootVec = { 750,0 };
-		_startPos.y = 0;
-		_goalPos.y = 600;
+		_startPos.y  = 0;
+		_goalPos.y   = 600;
 	});
 
 	func_.try_emplace(FOOTDIR::LEFT, [&]() {
@@ -68,7 +68,7 @@ bool SelectScene::Init(void)
 		_footPrintsReverseX = false;
 		_footPrintsReverseY = false;
 		_startPos.x = -900;
-		_goalPos.x = 0;
+		_goalPos.x  = 0;
 		_drawFootVec = { 950,500 };
 	});
 
@@ -77,7 +77,7 @@ bool SelectScene::Init(void)
 		_footPrintsReverseX = true;
 		_footPrintsReverseY = false;
 		_startPos.x = 0;
-		_goalPos.x = 900;
+		_goalPos.x  = 900;
 		_drawFootVec = { 0,100 };
 	});
 
@@ -103,9 +103,11 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 	{
 		if (_mouse->GetClickTrg())
 		{	 
-			VECTOR2 offsetPos = { _modePngSize.x / 2 + _modePngSize.x / 8, _modePngSize.y - _modePngSize.y / 3 };
+			VECTOR2 offsetPos(_modePngSize.x / 2 + _modePngSize.x / 8, _modePngSize.y - _modePngSize.y / 3);
+
 			// 当たり判定(NORMAL選択時)
-			if (_mouse->GetPos().x >= offsetPos.x && _mouse->GetPos().x <= offsetPos.x + _modePngSize.x && _mouse->GetPos().y >= offsetPos.y && _mouse->GetPos().y <= offsetPos.y + _modePngSize.y)
+			if (_mouse->GetPos().x >= offsetPos.x && _mouse->GetPos().x <= offsetPos.x + _modePngSize.x &&
+				_mouse->GetPos().y >= offsetPos.y && _mouse->GetPos().y <= offsetPos.y + _modePngSize.y)
 			{
 				DeleteSoundMem(TitleScene::titleBGM);
 				if (CheckSoundMem(_seClick) == 0)
@@ -116,8 +118,10 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 				modeSelect = MODE::NORMAL;
 				Menu::Load();
 			}
+
 			// 当たり判定(HARD選択時)
-			if (_mouse->GetPos().x >= offsetPos.x && _mouse->GetPos().x <= offsetPos.x + _modePngSize.x && _mouse->GetPos().y >= offsetPos.y * 3 && _mouse->GetPos().y <= offsetPos.y * 3 + _modePngSize.y)
+			if (_mouse->GetPos().x >= offsetPos.x     && _mouse->GetPos().x <= offsetPos.x + _modePngSize.x &&
+				_mouse->GetPos().y >= offsetPos.y * 3 && _mouse->GetPos().y <= offsetPos.y * 3 + _modePngSize.y)
 			{
 				DeleteSoundMem(TitleScene::titleBGM);
 				if (CheckSoundMem(_seClick) == 0)
@@ -130,7 +134,8 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 			}
 
 			// 当たり判定(タイトルへ戻る)
-			if (_mouse->GetPos().x >= offsetPos.x * 3 - _toTitlePngSize.x / 2 && _mouse->GetPos().x <= (offsetPos.x * 3 - _toTitlePngSize.x / 2) + _toTitlePngSize.x && _mouse->GetPos().y >= offsetPos.y * 4 + offsetPos.y / 2 && _mouse->GetPos().y <= (offsetPos.y * 4 + offsetPos.y / 2) + _toTitlePngSize.y)
+			if (_mouse->GetPos().x >= offsetPos.x * 3 - _toTitlePngSize.x / 2 && _mouse->GetPos().x <= (offsetPos.x * 3 - _toTitlePngSize.x / 2) + _toTitlePngSize.x &&
+				_mouse->GetPos().y >= offsetPos.y * 4 + offsetPos.y / 2       && _mouse->GetPos().y <= (offsetPos.y * 4 + offsetPos.y / 2) + _toTitlePngSize.y)
 			{
 				if (CheckSoundMem(_seClick) == 0)
 				{
@@ -141,16 +146,39 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 		}
 	}
 
-	if (pushFlg && _toGameFlg && CheckSoundMem(_seClick) == 0)
+	// 効果音終了時の処理
+	if (CheckSoundMem(_seClick) == 0)
 	{
-		DeleteSoundMem(_seClick);
-		return std::make_unique<GameScene>();
+		if (pushFlg && _toGameFlg)
+		{
+			DeleteSoundMem(_seClick);
+			return std::make_unique<GameScene>();
+		}
+		else if (_toTitleFlg)
+		{
+			DeleteSoundMem(_seClick);
+			return std::make_unique<TitleScene>();
+		}
+		else
+		{
+			// 何も処理を行わない
+		}
 	}
-	else if (_toTitleFlg && CheckSoundMem(_seClick) == 0)
-	{
-		DeleteSoundMem(_seClick);
-		return std::make_unique<TitleScene>();
-	}
+
+	//if (pushFlg && _toGameFlg && CheckSoundMem(_seClick) == 0)
+	//{
+	//	DeleteSoundMem(_seClick);
+	//	return std::make_unique<GameScene>();
+	//}
+	//else if (_toTitleFlg && CheckSoundMem(_seClick) == 0)
+	//{
+	//	DeleteSoundMem(_seClick);
+	//	return std::make_unique<TitleScene>();
+	//}
+	//else
+	//{
+	//	// 何も処理を行わない
+	//}
 
 	Draw();
 
@@ -160,14 +188,13 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 		if (_pngLight <= 255)
 		{
 			_pngLight++;
-			if (_pngLight == 255)
+			if (_pngLight >= 255)
 			{
 				_lightFlg = true;
 			}
 		}
 	}
-
-	if (_lightFlg)
+	else
 	{
 		_pngLight--;
 		if (_pngLight <= 128)
@@ -198,7 +225,8 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 		if (_startPos.y % 120 == 0)
 		{
 			_footPrintsFlg = !_footPrintsFlg;
-			_dir == FOOTDIR::UP ? _drawFootVec.y = -_startPos.y : _drawFootVec.y = _startPos.y;
+			_drawFootVec.y = (_dir == FOOTDIR::UP ? -_startPos.y : _startPos.y);
+			//_dir == FOOTDIR::UP ? _drawFootVec.y = -_startPos.y : _drawFootVec.y = _startPos.y;
 		}
 	}
 
@@ -208,7 +236,8 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 		if (_startPos.x % 120 == 0)
 		{
 			_footPrintsFlg = !_footPrintsFlg;
-			_dir == FOOTDIR::LEFT ? _drawFootVec.x = -_startPos.x : _drawFootVec.x = _startPos.x;
+			_drawFootVec.x = (_dir == FOOTDIR::LEFT ? -_startPos.x : _startPos.x);
+			//_dir == FOOTDIR::LEFT ? _drawFootVec.x = -_startPos.x : _drawFootVec.x = _startPos.x;
 		}
 	}
 
@@ -237,14 +266,15 @@ void SelectScene::Draw(void)
 	DrawGraph(0, 0, _drawHandle["brick"], true);
 	DrawGraph(_modePngSize.x / 2 + _modePngSize.x / 8, _modePngSize.y - _modePngSize.y / 3, _drawHandle["normal"], true);
 	DrawGraph(_modePngSize.x / 2 + _modePngSize.x / 8, _modePngSize.y * 2, _drawHandle["hard"], true);
+
 	// 足跡
 	if (_footPrintsFlg)
 	{
-		DrawRotaGraph(_drawFootVec.x, _drawFootVec.y, 0.5f, _footPrintsRota, _footPrints[0], true, _footPrintsReverseX, _footPrintsReverseY);
+		DrawRotaGraph(_drawFootVec.x, _drawFootVec.y, 0.5, static_cast<double>(_footPrintsRota), _footPrints[0], true, _footPrintsReverseX, _footPrintsReverseY);
 	}
 	else
 	{
-		DrawRotaGraph(_drawFootVec.x, _drawFootVec.y, 0.5f, _footPrintsRota, _footPrints[1], true, _footPrintsReverseX, _footPrintsReverseY);
+		DrawRotaGraph(_drawFootVec.x, _drawFootVec.y, 0.5, static_cast<double>(_footPrintsRota), _footPrints[1], true, _footPrintsReverseX, _footPrintsReverseY);
 	}
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 

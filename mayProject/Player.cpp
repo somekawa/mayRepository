@@ -42,25 +42,25 @@ void Player::Init(void)
 {
 	if (!loadFlg)
 	{
-		player_status.now_level = 1;
-		player_status.maxHP = 35;
-		player_status.plHP = player_status.maxHP;
+		player_status.now_level	   = 1;
+		player_status.maxHP		   = 35;
+		player_status.plHP		   = player_status.maxHP;
 		player_status.attackDamage = 3;
-		player_status.defense = 0;
-		player_status.next_level = 10;
-		player_status.money = 1000;
+		player_status.defense      = 0;
+		player_status.next_level   = 10;
+		player_status.money		   = 1000;
 		player_status.conditionTurnNum = 0;
 		player_status.condition = CONDITION::FINE;
 	}
 	else
 	{
-		player_status.now_level = saveData[0];
-		player_status.maxHP = saveData[1];
-		player_status.plHP = saveData[2];
+		player_status.now_level	   = saveData[0];
+		player_status.maxHP		   = saveData[1];
+		player_status.plHP	       = saveData[2];
 		player_status.attackDamage = saveData[3];
-		player_status.defense = saveData[4];
-		player_status.next_level = saveData[5];
-		player_status.money = saveData[6];
+		player_status.defense      = saveData[4];
+		player_status.next_level   = saveData[5];
+		player_status.money		   = saveData[6];
 		player_status.conditionTurnNum = saveData[7];
 		player_status.condition = static_cast<CONDITION>(saveData[8]);
 	}
@@ -69,8 +69,8 @@ void Player::Init(void)
 
 	// スキル関係
 	_skill = SKILL::NON;
-	_skillCharge = SKILL_CHARGE;
-	_skillFlg = false;
+	_skillCharge  = SKILL_CHARGE;
+	_skillFlg     = false;
 	_skillBackFlg = false;
 	_pngLight = 50;
 	_lightFlg = false;
@@ -80,7 +80,7 @@ void Player::Init(void)
 
 	// バリア関係
 	_barrierMaxNum = 0;
-	_barrierNum = 0;
+	_barrierNum    = 0;
 
 	_levelUpAnounceFlg = false;
 
@@ -109,7 +109,7 @@ void Player::PngInit(void)
 	_skillImages.try_emplace("muscle"   , LoadGraph("image/muscle.png"));			// 力こぶのアイコン画像
 
 	_drawHandle.try_emplace("barrier_back", LoadGraph("image/barrier_back.png"));
-	_drawHandle.try_emplace("barrier_bar", LoadGraph("image/barrier_bar.png"));
+	_drawHandle.try_emplace("barrier_bar" , LoadGraph("image/barrier_bar.png"));
 	_drawHandle.try_emplace("barrier_waku", LoadGraph("image/barrier_waku.png"));
 
 	_drawHandle.try_emplace("hpbar_pl", LoadGraph("image/hpbar_pl.png"));
@@ -118,13 +118,13 @@ void Player::PngInit(void)
 	_drawHandle.try_emplace("hpbar_waku", LoadGraph("image/hpbar_waku.png"));
 
 	// スキルアニメーション(剣)
-	std::string swordAnim = "image/anim/swordAnim.png";
+	const std::string swordAnim = "image/anim/swordAnim.png";
 	LoadDivGraph(swordAnim.c_str(), 12, 1, 12, 640, 240, _skillAnimSword);
 	// スキルアニメーション(バリア)
-	std::string gaurdAnim = "image/anim/gaurdAnim.png";
+	const std::string gaurdAnim = "image/anim/gaurdAnim.png";
 	LoadDivGraph(gaurdAnim.c_str(), 10, 5, 2, 240, 240, _skillAnimGuard);
 	// スキルアニメーション(回復)
-	std::string healAnim = "image/anim/healAnim.png";
+	const std::string healAnim  = "image/anim/healAnim.png";
 	LoadDivGraph(healAnim.c_str(), 10, 10, 1, 240, 240, _skillAnimHeal);
 }
 
@@ -133,12 +133,12 @@ void Player::ClickUpDate(const std::shared_ptr<Monster>& monster, const std::sha
 	_mouse->UpDate();
 	// スキル使用可能時のマウスクリック位置とアイコン(円)との当たり判定
 	// アイテム画面中はスキルチャージアイコンを押せない
-	if (!menu->GetMenuBackPngFlg() && player_status.plHP > 0)
+	if (!menu->GetMenuBackPngFlg() && (player_status.plHP > 0))
 	{
 		if (_skillFlg)
 		{
-			float tmpx = _mouse->GetPos().x - 782.0f;
-			float tmpy = _mouse->GetPos().y - 564.0f;
+			const float tmpx = _mouse->GetPos().x - 782.0f;
+			const float tmpy = _mouse->GetPos().y - 564.0f;
 			// 当たり判定(当たっているとき)
 			if (sqrt(tmpx * tmpx + tmpy * tmpy) <= 34)
 			{
@@ -149,57 +149,63 @@ void Player::ClickUpDate(const std::shared_ptr<Monster>& monster, const std::sha
 		}
 	}
 
-	if (_skillBackFlg)
+	if (!_skillBackFlg)
 	{
-		// やめるボタンとの当たり判定
-		if (_mouse->GetPos().x >= 385 && _mouse->GetPos().x <= 385 + 150 && _mouse->GetPos().y >= 320 && _mouse->GetPos().y <= 320 + 65)
-		{
-			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-			_skillBackFlg = false;
-		}
+		return;	// スキルボタンが非押下ならreturn
+	}
 
-		auto lambda = [&]() {
-			PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
-			// フラグと回数を元に戻す
-			_seSkillOnceFlg = false;
-			_skillFlg = false;
-			_skillBackFlg = false;
-			_skillCharge = SKILL_CHARGE;
-		};
+	// やめるボタンとの当たり判定
+	if (_mouse->GetPos().x >= 385 && _mouse->GetPos().x <= 385 + 150 &&
+		_mouse->GetPos().y >= 320 && _mouse->GetPos().y <= 320 + 65)
+	{
+		PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
+		_skillBackFlg = false;
+	}
 
-		// 攻撃アイコンとの当たり判定
-		if (_mouse->GetPos().x >= 290 && _mouse->GetPos().x <= 290 + 100 && _mouse->GetPos().y >= 150 && _mouse->GetPos().y <= 150 + 100)
-		{
-			PlaySoundMem(_soundSE[3], DX_PLAYTYPE_BACK, true);
-			_skill = SKILL::SWORD;
-			// 攻撃系(基礎攻撃力*5+武器威力で一定のダメージを与えられる)
-			monster->Damage(player_status.attackDamage * 5 + menu->GetEquipDamage(), cards);
-			game->blinkFlg = true;
-			lambda();
-		}
+	auto SkillResetLambda = [&]() {
+		PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
+		// フラグと回数を元に戻す
+		_seSkillOnceFlg = false;
+		_skillFlg = false;
+		_skillBackFlg = false;
+		_skillCharge = SKILL_CHARGE;
+	};
 
-		// 防御アイコンとの当たり判定
-		if (_mouse->GetPos().x >= 410 && _mouse->GetPos().x <= 410 + 100 && _mouse->GetPos().y >= 150 && _mouse->GetPos().y <= 150 + 100)
-		{
-			PlaySoundMem(_soundSE[4], DX_PLAYTYPE_BACK, true);
-			_skill = SKILL::GUARD;
-			// 防御系(特定値*プレイヤーレベル)
-			_barrierMaxNum = 20 + 3 * player_status.now_level;
-			_barrierNum = 20 + 3 * player_status.now_level;
-			lambda();
-		}
+	// 攻撃アイコンとの当たり判定
+	if (_mouse->GetPos().x >= 290 && _mouse->GetPos().x <= 290 + 100 &&
+		_mouse->GetPos().y >= 150 && _mouse->GetPos().y <= 150 + 100)
+	{
+		PlaySoundMem(_soundSE[3], DX_PLAYTYPE_BACK, true);
+		_skill = SKILL::SWORD;
+		// 攻撃系(基礎攻撃力*5+武器威力で一定のダメージを与えられる)
+		monster->Damage(player_status.attackDamage * 5 + menu->GetEquipDamage(), cards);
+		game->blinkFlg = true;
+		SkillResetLambda();
+	}
 
-		// 回復アイコンとの当たり判定
-		if (_mouse->GetPos().x >= 530 && _mouse->GetPos().x <= 530 + 100 && _mouse->GetPos().y >= 150 && _mouse->GetPos().y <= 150 + 100)
-		{
-			PlaySoundMem(_soundSE[5], DX_PLAYTYPE_BACK, true);
-			_skill = SKILL::HEAL;
-			// 回復系(全回復+状態異常回復)
-			player_status.plHP = player_status.maxHP;
-			player_status.condition = CONDITION::FINE;
-			player_status.conditionTurnNum = 0;
-			lambda();
-		}
+	// 防御アイコンとの当たり判定
+	if (_mouse->GetPos().x >= 410 && _mouse->GetPos().x <= 410 + 100 &&
+		_mouse->GetPos().y >= 150 && _mouse->GetPos().y <= 150 + 100)
+	{
+		PlaySoundMem(_soundSE[4], DX_PLAYTYPE_BACK, true);
+		_skill = SKILL::GUARD;
+		// 防御系(特定値*プレイヤーレベル)
+		_barrierMaxNum = 20 + 3 * player_status.now_level;
+		_barrierNum = 20 + 3 * player_status.now_level;
+		SkillResetLambda();
+	}
+
+	// 回復アイコンとの当たり判定
+	if (_mouse->GetPos().x >= 530 && _mouse->GetPos().x <= 530 + 100 &&
+		_mouse->GetPos().y >= 150 && _mouse->GetPos().y <= 150 + 100)
+	{
+		PlaySoundMem(_soundSE[5], DX_PLAYTYPE_BACK, true);
+		_skill = SKILL::HEAL;
+		// 回復系(全回復+状態異常回復)
+		player_status.plHP = player_status.maxHP;
+		player_status.condition = CONDITION::FINE;
+		player_status.conditionTurnNum = 0;
+		SkillResetLambda();
 	}
 }
 
@@ -219,36 +225,37 @@ void Player::UpDate(void)
 		_animCnt = 0;
 	}
 
-	// スキルが使用可能な時にフラグを立てて、当たり判定を行う
-	if (_skillCharge <= 0)
+	if (_skillCharge > 0)
 	{
-		_skillFlg = true;
-		if (!_seSkillOnceFlg)
-		{
-			PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
-			_seSkillOnceFlg = true;
-		}
+		return;		// スキルのチャージが溜まりきっていないときはreturn
+	}
 
-		// アイコン明るさ調整処理
-		if (!_lightFlg)
+	// スキルが使用可能な時にフラグを立てて、当たり判定を行う
+	_skillFlg = true;
+	if (!_seSkillOnceFlg)
+	{
+		PlaySoundMem(_soundSE[2], DX_PLAYTYPE_BACK, true);
+		_seSkillOnceFlg = true;
+	}
+
+	// アイコン明るさ調整処理
+	if (!_lightFlg)
+	{
+		if (_pngLight <= 255)
 		{
-			if (_pngLight <= 255)
+			_pngLight += 5;
+			if (_pngLight >= 255)
 			{
-				_pngLight += 5;
-				if (_pngLight >= 255)
-				{
-					_lightFlg = true;
-				}
+				_lightFlg = true;
 			}
 		}
-
-		if (_lightFlg)
+	}
+	else
+	{
+		_pngLight -= 5;
+		if (_pngLight <= 50)
 		{
-			_pngLight -= 5;
-			if (_pngLight <= 50)
-			{
-				_lightFlg = false;
-			}
+			_lightFlg = false;
 		}
 	}
 }
@@ -256,9 +263,10 @@ void Player::UpDate(void)
 void Player::Draw(const std::shared_ptr<Menu>& menu)
 {
 	// HPバー関連画像サイズ
-	int posx = 750;
-	int posy = 450;
+	const int posx = 750;
+	const int posy = 450;
 	int plHPBar;
+
 	if (player_status.condition == CONDITION::POISON)
 	{
 		// 毒状態の時はHPバーの色をこっちにする
@@ -269,8 +277,10 @@ void Player::Draw(const std::shared_ptr<Menu>& menu)
 		// 通常状態の時のHPバーの色
 		plHPBar = _drawHandle["hpbar_pl"];
 	}
+
 	DrawExtendGraph(posx, posy, posx + 130, posy + 33, _drawHandle["hpbar_back"], true);
-	DrawExtendGraph(posx + 3, posy + 4, posx + 3 + 125 * ((float)player_status.plHP / (float)player_status.maxHP), posy + 4 + 25, plHPBar, true);
+	// floatからintにしたから確認しておく
+	DrawExtendGraph(posx + 3, posy + 4, posx + 3 + 125 * (static_cast<float>(player_status.plHP) / static_cast<float>(player_status.maxHP)), posy + 4 + 25, plHPBar, true);
 	DrawExtendGraph(posx, posy, posx + 130, posy + 33, _drawHandle["hpbar_waku"], true);
 
 	// 右下案内表示
@@ -279,6 +289,7 @@ void Player::Draw(const std::shared_ptr<Menu>& menu)
 	{
 		DrawFormatString(750, 483, 0xffffff, "毒回復まで:%d", player_status.conditionTurnNum);
 	}
+
 	if (menu->GetPowUp() != 0)
 	{
 		DrawFormatString(750, 507, 0xffffff, "攻撃強化:+%d", menu->GetPowUp());
@@ -325,15 +336,19 @@ void Player::BattleDraw(const std::shared_ptr<Menu>& menu)
 		int posy = 350;
 		DrawFormatString(600, 325, 0xffffff, "バリア耐久:%d/%d", _barrierNum, _barrierMaxNum);
 		DrawExtendGraph(posx, posy, posx + 150, posy + 33, _drawHandle["barrier_back"], true);
-		DrawExtendGraph(posx+3, posy+4, posx+3 + 145 * ((float)_barrierNum / (float)_barrierMaxNum), posy+4 + 25, _drawHandle["barrier_bar"], true);
+		// floatからintにしたから確認しておく
+		DrawExtendGraph(posx+3, posy+4, posx+3 + 145 * (static_cast<float>(_barrierNum) / static_cast<float>(_barrierMaxNum)), posy+4 + 25, _drawHandle["barrier_bar"], true);
 		DrawExtendGraph(posx, posy, posx + 150, posy + 33, _drawHandle["barrier_waku"], true);
 	}
 }
 
 void Player::SkillDraw(void)
 {
-	if (_skill == SKILL::SWORD)
+	switch (_skill)
 	{
+	case SKILL::NON:
+		break;
+	case SKILL::SWORD:
 		if (_animCnt <= 11)
 		{
 			DrawRotaGraph(300, 300, 2.0f, 0, _skillAnimSword[_animCnt], true);
@@ -342,10 +357,8 @@ void Player::SkillDraw(void)
 		{
 			_skill = SKILL::NON;
 		}
-	}
-
-	if (_skill == SKILL::GUARD)
-	{
+		break;
+	case SKILL::GUARD:
 		if (_animCnt <= 9)
 		{
 			DrawRotaGraph(450, 250, 2.0f, 0, _skillAnimGuard[_animCnt], true);
@@ -354,10 +367,8 @@ void Player::SkillDraw(void)
 		{
 			_skill = SKILL::NON;
 		}
-	}
-
-	if (_skill == SKILL::HEAL)
-	{
+		break;
+	case SKILL::HEAL:
 		if (_animCnt <= 9)
 		{
 			// 不透過画像のため加算処理で描画する必要がある
@@ -369,8 +380,49 @@ void Player::SkillDraw(void)
 		{
 			_skill = SKILL::NON;
 		}
+		break;
+	default:
+		break;
 	}
 
+	//if (_skill == SKILL::SWORD)
+	//{
+	//	if (_animCnt <= 11)
+	//	{
+	//		DrawRotaGraph(300, 300, 2.0f, 0, _skillAnimSword[_animCnt], true);
+	//	}
+	//	else
+	//	{
+	//		_skill = SKILL::NON;
+	//	}
+	//}
+
+	//if (_skill == SKILL::GUARD)
+	//{
+	//	if (_animCnt <= 9)
+	//	{
+	//		DrawRotaGraph(450, 250, 2.0f, 0, _skillAnimGuard[_animCnt], true);
+	//	}
+	//	else
+	//	{
+	//		_skill = SKILL::NON;
+	//	}
+	//}
+
+	//if (_skill == SKILL::HEAL)
+	//{
+	//	if (_animCnt <= 9)
+	//	{
+	//		// 不透過画像のため加算処理で描画する必要がある
+	//		SetDrawBlendMode(DX_BLENDMODE_ADD, 256);
+	//		DrawRotaGraph(450, 250, 2.0f, 0, _skillAnimHeal[_animCnt], true);
+	//		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 1);
+	//	}
+	//	else
+	//	{
+	//		_skill = SKILL::NON;
+	//	}
+	//}
 }
 
 void Player::SetHP(const int& hpNum)
@@ -406,7 +458,7 @@ int Player::GetMaxHP(void)const
 
 float Player::GetHPBar(void)const
 {
-	return (float)player_status.plHP / (float)player_status.maxHP;
+	return static_cast<float>(player_status.plHP) / static_cast<float>(player_status.maxHP);
 }
 
 void Player::SetAttackDamage(const int& num)
@@ -443,6 +495,7 @@ void Player::SetNextLevel(const int& num)
 			PlaySoundMem(_soundSE[1], DX_PLAYTYPE_BACK, true);
 			seFlg = true;
 		}
+
 		// ステータスアップ
 		player_status.attackDamage += 2;
 		player_status.maxHP += 3;

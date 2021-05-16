@@ -1,4 +1,4 @@
-#include "Dxlib.h"
+#include <Dxlib.h>
 #include <string>
 #include "TitleScene.h"
 #include "GameClearScene.h"
@@ -10,6 +10,7 @@
 struct particle
 {
 	VECTOR2 parPos;		// 座標
+	VECTOR2 parSize;	// 大きさ
 	float parEx;		// 拡大率
 	bool parExFlg;		// 拡大率切替用フラグ
 	bool posRandFlg;	// 座標のランダム用フラグ
@@ -35,14 +36,18 @@ bool GameClearScene::Init(void)
 	for (int i = 0; i < PARTICLE_NUM; i++)
 	{
 		particle_status[i].parEx = expand;
-		particle_status[i].parExFlg = false;
+		particle_status[i].parExFlg   = false;
 		particle_status[i].posRandFlg = false;
-		particle_status[i].parPos = { -100,-100 };
-		particle_status[i].light = 50;
+		particle_status[i].parPos  = { -100,-100 };
+		particle_status[i].parSize = {  25,25 };
+		particle_status[i].light   = 50;
 		expand += 0.3f;
 	}
 
-	_pngBlend = 256;
+	_btnPos  = { 650,500 };
+	_btnSize = { 200,100 };
+	_pngBlend  = 256;
+	_parOffset = { 0,300 };
 	_seFlg = false;
 	_seClick = LoadSoundMem("sound/se/click.mp3");
 
@@ -53,19 +58,22 @@ bool GameClearScene::Init(void)
 
 void GameClearScene::PngInit(void)
 {
-	_drawHandle.try_emplace("particle", LoadGraph("image/particle.png"));
-	_drawHandle.try_emplace("white", LoadGraph("image/white.png"));
+	_drawHandle.try_emplace("particle" , LoadGraph("image/particle.png"));
+	_drawHandle.try_emplace("white"    , LoadGraph("image/white.png"));
 	_drawHandle.try_emplace("gameclear", LoadGraph("image/gameclear.png"));
-	_drawHandle.try_emplace("night_forest", LoadGraph("image/night_forest.png"));
+	_drawHandle.try_emplace("night_forest"   , LoadGraph("image/night_forest.png"));
 	_drawHandle.try_emplace("titleBackButton", LoadGraph("image/titleBackButton.png"));
 }
 
 unique_Base GameClearScene::Update(unique_Base own, const GameCtl& ctl)
 {
 	_mouse->UpDate();
+
+	// クリック時にBGMを消して、効果音を鳴らす
 	if (_mouse->GetClickTrg())
 	{			
-		if (_mouse->GetPos().x >= 650 && _mouse->GetPos().x <= 650 + 200 && _mouse->GetPos().y >= 500 && _mouse->GetPos().y <= 500 + 100)
+		if (_mouse->GetPos().x >= _btnPos.x && _mouse->GetPos().x <= _btnPos.x + _btnSize.x &&
+			_mouse->GetPos().y >= _btnPos.y && _mouse->GetPos().y <= _btnPos.y + _btnSize.y)
 		{
 			DeleteSoundMem(_clearBGM);
 			if (CheckSoundMem(_seClick) == 0)
@@ -76,13 +84,14 @@ unique_Base GameClearScene::Update(unique_Base own, const GameCtl& ctl)
 		}
 	}
 
-	if (_seFlg && CheckSoundMem(_seClick) == 0)
+	// 効果音終了後にタイトルシーンへ戻る
+	if (_seFlg && (CheckSoundMem(_seClick) == 0))
 	{
 		DeleteSoundMem(_seClick);
 		return std::make_unique<TitleScene>();
 	}
 
-	// だんだん暗くする
+	// 画面をだんだん暗くする
 	if (_pngBlend >= 0)
 	{
 		_pngBlend--;
@@ -90,6 +99,7 @@ unique_Base GameClearScene::Update(unique_Base own, const GameCtl& ctl)
 
 	Particle();
 	Draw();
+
 	// 自分のSceneのユニークポインタを返す
 	return std::move(own);
 }
@@ -100,6 +110,7 @@ void GameClearScene::Draw(void)
 	DrawGraph(0, 0, _drawHandle["night_forest"], true);
 	DrawGraph(0, -256 + (256 - _pngBlend), _drawHandle["gameclear"], true);
 	DrawGraph(650, 500, _drawHandle["titleBackButton"], true);
+
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, _pngBlend);
 	DrawGraph(0, 0, _drawHandle["white"], true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
@@ -108,7 +119,7 @@ void GameClearScene::Draw(void)
 	for (int i = 0; i < PARTICLE_NUM; i++)
 	{
 		SetDrawBlendMode(DX_BLENDMODE_ADD, particle_status[i].light);
-		DrawRotaGraph(particle_status[i].parPos.x + 25, particle_status[i].parPos.y + 25, particle_status[i].parEx, 0, _drawHandle["particle"], true);
+		DrawRotaGraph(particle_status[i].parPos.x + particle_status[i].parSize.x, particle_status[i].parPos.y + particle_status[i].parSize.y, particle_status[i].parEx, 0, _drawHandle["particle"], true);
 	}
 	// 描画ブレンドモードをノーブレンドにする
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
@@ -120,6 +131,7 @@ void GameClearScene::Particle(void)
 {
 	for (int i = 0; i < PARTICLE_NUM; i++)
 	{
+		// パーティクルの拡大/縮小の処理
 		if (!particle_status[i].parExFlg)
 		{
 			if (particle_status[i].parEx <= 0.7f)
@@ -146,10 +158,11 @@ void GameClearScene::Particle(void)
 			}
 		}
 
+		// 新しい場所にパーティクルを移動させる
 		if (particle_status[i].posRandFlg)
 		{
-			particle_status[i].parPos.x = GetRand(850);
-			particle_status[i].parPos.y = GetRand(200)+300;
+			particle_status[i].parPos.x = GetRand(850) + _parOffset.x;
+			particle_status[i].parPos.y = GetRand(200) + _parOffset.y;
 			particle_status[i].posRandFlg = false;
 		}
 	}
