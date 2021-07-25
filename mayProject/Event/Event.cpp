@@ -204,81 +204,6 @@ void Event::UpDate(GameScene* game, const std::shared_ptr<Player>& player, const
 	default:
 		break;
 	}
-
-	//if (_event == EVENT_STATE::INN)
-	//{
-	//	if (_eventMonsFlg && !_onceFlg)
-	//	{
-	//		forcedButtleLambda();
-	//	}
-	//	else
-	//	{
-	//		innSt->Update(*this, *game, *player, *mouse);
-	//	}
-	//}
-
-	//if (_event == EVENT_STATE::MERCHANT)
-	//{
-	//	if (_eventMonsFlg && !_onceFlg)
-	//	{
-	//		forcedButtleLambda();
-	//	}
-	//	else
-	//	{
-	//		merchantSt->Update(*this, *game, *player, *mouse, *item, *menu);
-	//	}
-	//}
-
-	//if (_event == EVENT_STATE::BUTTON)
-	//{
-	//	if (_eventMonsFlg && !_onceFlg)
-	//	{
-	//		forcedButtleLambda();
-	//	}
-	//	else
-	//	{
-	//		buttonSt->Update(*this, *game, *player, *mouse);
-	//	}
-	//}
-
-	//if (_event == EVENT_STATE::CHEST)
-	//{
-	//	if (_eventMonsFlg && !_onceFlg)
-	//	{
-	//		forcedButtleLambda();
-	//	}
-	//	else
-	//	{
-	//		chestSt->Update(*this, *game, *player, *menu, *item, *mouse);
-	//	}
-	//}
-
-	//if (_event == EVENT_STATE::DRINK)
-	//{
-	//	if (_eventMonsFlg && !_onceFlg)
-	//	{
-	//		forcedButtleLambda();
-	//	}
-	//	else
-	//	{
-	//		drinkSt->Update(*this, *game, *player, *mouse);
-	//	}
-	//}
-
-	//if (_event == EVENT_STATE::TRAP)
-	//{
-	//	deathTrapSt->Update(*this, *game, *player, *mouse);
-	//}
-
-	//if (_event == EVENT_STATE::ENEMY)
-	//{
-	//	Enemy(game, player, monster);
-	//}
-
-	//if (_event == EVENT_STATE::EVE_MONS)
-	//{
-	//	eventMonsSt->Update(*this, *game, *monster, *cards, *mouse);
-	//}
 }
 
 void Event::Draw(GameScene* game, const std::shared_ptr<Player>& player, const std::shared_ptr<Menu>& menu, const std::shared_ptr<Item>& item)
@@ -322,42 +247,6 @@ void Event::Draw(GameScene* game, const std::shared_ptr<Player>& player, const s
 	default:
 		break;
 	}
-
-	//// 宿屋
-	//if (_event == EVENT_STATE::INN && !_eventMonsFlg)
-	//{
-	//	innSt->Draw(*this, *player);
-	//}
-
-	//// 商人
-	//if (_event == EVENT_STATE::MERCHANT && !_eventMonsFlg)
-	//{
-	//	merchantSt->Draw(*this, *player, *item, *menu);
-	//}
-
-	//// ボタン出現中
-	//if (_event == EVENT_STATE::BUTTON && !_eventMonsFlg)
-	//{
-	//	buttonSt->Draw(*this, *game);
-	//}
-
-	//// 宝箱出現中
-	//if (_event == EVENT_STATE::CHEST && !_eventMonsFlg)
-	//{
-	//	chestSt->Draw(*this, *menu);
-	//}
-
-	//// 瓶出現中
-	//if (_event == EVENT_STATE::DRINK && !_eventMonsFlg)
-	//{
-	//	drinkSt->Draw(*this, *game);
-	//}
-
-	//// 即死トラップ出現中
-	//if (_event == EVENT_STATE::TRAP)
-	//{
-	//	deathTrapSt->Draw(*this);
-	//}
 
 	// イベント敵と遭遇中
 	if (_event == EVENT_STATE::EVE_MONS || _event != EVENT_STATE::NON && _eventMonsFlg)

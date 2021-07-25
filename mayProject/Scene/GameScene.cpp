@@ -1,4 +1,4 @@
-﻿#include "DxLib.h"
+﻿#include <Dxlib.h>
 #include <string>
 #include "SceneMng.h"
 #include "../Common/GameCtl.h"
@@ -15,9 +15,10 @@
 // static変数の初期化(<型>クラス名::変数名 = 初期化値)
 int GameScene::plPosX = 0;
 int GameScene::plPosY = 0;
-bool GameScene::monsterFlg = false;
+bool GameScene::monsterFlg   = false;
 bool GameScene::bossClearFlg = false;
 
+#define FOG_SPEED 0.5f
 #define PI 3.141592653589793f
 
 GameScene::GameScene() :screen_sizeX(900), screen_sizeY(600)
@@ -194,24 +195,23 @@ void GameScene::PngInit(void)
 	LoadDivGraph(number.c_str(), 6, 6, 1, 40, 50, _turnPNG);
 
 	// 扉
-	std::string room[3];
-	room[0] = "image/room_0.png";
-	room[1] = "image/room_1.png";
-	room[2] = "image/room_2.png";
+	std::string img = "image/dungeon/room_";
+	std::string png = ".png";
 	for (int i = 0; i < 3; i++)
 	{
-		_room[i] = LoadGraph(room[i].c_str());
+		std::string tmpStr = img + std::to_string(i) + png;
+		_room[i] = LoadGraph(tmpStr.c_str());
 	}
 
 	// ダンジョン
 	std::string dungeon[static_cast<int>(MAP::INN)];
-	dungeon[static_cast<int>(MAP::STRAIGHT)]  = "image/dan_go.png";			// 直進
-	dungeon[static_cast<int>(MAP::RIGHT)]	  = "image/dan_right.png";		// 右折のみ
-	dungeon[static_cast<int>(MAP::LEFT)]	  = "image/dan_left.png";		// 左折のみ
-	dungeon[static_cast<int>(MAP::STOP)]	  = "image/dan_stop.png";		// 行き止まり
-	dungeon[static_cast<int>(MAP::TJI)]		  = "image/dan_T.png";			// T字路
-	dungeon[static_cast<int>(MAP::TONOJI_SR)] = "image/dan_TONOJI_SR.png";	// トの字型(直線と右への道)
-	dungeon[static_cast<int>(MAP::TONOJI_SL)] = "image/dan_TONOJI_SL.png";	// トの字型(直線と左への道)
+	dungeon[static_cast<int>(MAP::STRAIGHT)]  = "image/dungeon/straight.png";	// 直進
+	dungeon[static_cast<int>(MAP::RIGHT)]	  = "image/dungeon/right.png";		// 右折のみ
+	dungeon[static_cast<int>(MAP::LEFT)]	  = "image/dungeon/left.png";		// 左折のみ
+	dungeon[static_cast<int>(MAP::STOP)]	  = "image/dungeon/stop.png";		// 行き止まり
+	dungeon[static_cast<int>(MAP::TJI)]		  = "image/dungeon/T.png";			// T字路
+	dungeon[static_cast<int>(MAP::T_SR)]	  = "image/dungeon/T_SR.png";		// トの字型(直線と右への道)
+	dungeon[static_cast<int>(MAP::T_SL)]	  = "image/dungeon/T_SL.png";		// トの字型(直線と左への道)
 	for (int i = static_cast<int>(MAP::STRAIGHT); i < static_cast<int>(MAP::INN); i++)
 	{
 		_roadPNG[i] = LoadGraph(dungeon[i].c_str());
@@ -220,8 +220,8 @@ void GameScene::PngInit(void)
 	{
 		_roadPNG[i] = LoadGraph(dungeon[3].c_str());
 	}
-	_roadPNG[static_cast<int>(MAP::EVE_MONS)] = LoadGraph(dungeon[0].c_str());
-	_roadPNG[static_cast<int>(MAP::GOAL)]	  = LoadGraph(room[0].c_str());
+	_roadPNG[static_cast<int>(MAP::EVE_MONS)] = LoadGraph(dungeon[static_cast<int>(MAP::STRAIGHT)].c_str());
+	_roadPNG[static_cast<int>(MAP::GOAL)]     = _room[0];
 
 	_drawHandle.try_emplace("hpbar_en"	, LoadGraph("image/hpbar_en.png"));
 	_drawHandle.try_emplace("hpbar_back", LoadGraph("image/hpbar_back.png"));
@@ -247,7 +247,7 @@ void GameScene::PngInit(void)
 	LoadDivGraph(mapchip.c_str(), static_cast<int>(MAP::MAX), 15, 1, _mapChipSize, _mapChipSize, _chipPNG);
 
 	// 霧
-	const std::string fog = "image/w_fog.png";
+	const std::string fog  = "image/w_fog.png";
 	_dungeonFogPNG[0] = LoadGraph(fog.c_str());
 	const std::string fog2 = "image/w_fog2.png";
 	_dungeonFogPNG[1] = LoadGraph(fog2.c_str());
@@ -1279,6 +1279,7 @@ void GameScene::Direct(void)
 		}
 	}
 
+	// 方向を設定する
 	auto DirectLambda = [&](PL_DIRECTION dir,float rota) {
 		_plDirectOld = _plDirect;
 		_plOldPoint = _plNowPoint;
@@ -1536,7 +1537,7 @@ void GameScene::Key(void)
 		// 行き止まりか他イベントの場所に入り込んだ時には特定敵と強制戦闘
 		if (_event->GetEventMonsEncountFlg())
 		{
-			if (num == 3 && !_event->GetEventMonsEndFlg())
+			if (num == static_cast<int>(MAP::STOP) && !_event->GetEventMonsEndFlg())
 			{
 				eventState = EVENT_STATE::EVE_MONS;
 				_event->SetEventMonsFlg(true);
@@ -1544,14 +1545,14 @@ void GameScene::Key(void)
 				_cards->SetTurn(3);
 				return;
 			}
-			if (num >= 7 && num <= 11)
+			if (num >= static_cast<int>(MAP::INN) && num <= static_cast<int>(MAP::DRINK))
 			{
 				_event->SetEventMonsFlg(true);
 			}
 		}
 
 		// 通常移動マスじゃないときと特定敵イベント中はカウンターを止める
-		if (num < 7 && !_event->GetEventMonsEncountFlg())
+		if (num < static_cast<int>(MAP::INN) && !_event->GetEventMonsEncountFlg())
 		{
 			if (_monsTimeCnt > 0)
 			{
@@ -1566,7 +1567,7 @@ void GameScene::Key(void)
 		else
 		{
 			eventState = _eventStateMap[num];
-			if (num == 13)
+			if (num == static_cast<int>(MAP::EVE_MONS))
 			{
 				if (!_event->GetEventMonsEndFlg())
 				{
@@ -1618,7 +1619,7 @@ void GameScene::DungeonFog(void)
 	// 霧処理
 	if (_fog[0] <= static_cast<float>(screen_sizeX))
 	{
-		_fog[0] += 0.5f;
+		_fog[0] += FOG_SPEED;
 	}
 	else
 	{
@@ -1627,7 +1628,7 @@ void GameScene::DungeonFog(void)
 
 	if (_fog[1] <= static_cast<float>(screen_sizeX))
 	{
-		_fog[1] += 0.5f;
+		_fog[1] += FOG_SPEED;
 	}
 	else
 	{

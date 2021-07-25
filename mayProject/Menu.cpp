@@ -9,6 +9,8 @@
 #include "Card/Cards.h"
 #include "Common/MouseCtl.h"
 
+#define ITEM_STOCK_MAX 12	// 1画面に収まるアイテムの数
+
 // static変数の実体<型>クラス名::変数名 = 初期化;
 bool Menu::_loadFlg = false;
 
@@ -88,7 +90,7 @@ bool Menu::Init(void)
 		return false; //エラー
 	}
 
-	const std::string image = "image/";
+	const std::string image = "image/item/";
 	const std::string png   = ".png";
 	for (int i = 0; i <= static_cast<int>(ITEM::MAX) - 2; i++)
 	{
@@ -157,19 +159,9 @@ void Menu::UseItem(void)
 	// クリック音
 	PlaySoundMem(_soundSE[0], DX_PLAYTYPE_BACK, true);
 
-	// 装備(剣)ラムダ式
-	auto lambdaSword = [&](ITEM item) {
+	// 装備共通処理
+	auto lambdaEquipment = [&](ITEM item) {
 		_itemAction = item;
-		_equipSwordPos = itemBox[_chooseNum].pos;
-		_chooseNum = -1;
-		_useOrThrowAway = false;
-		_choicePos = { -100,-100 };
-	};
-
-	// 装備(盾)ラムダ式
-	auto lambdaShield = [&](ITEM item) {
-		_itemAction = item;
-		_equipShieldPos = itemBox[_chooseNum].pos;
 		_chooseNum = -1;
 		_useOrThrowAway = false;
 		_choicePos = { -100,-100 };
@@ -196,34 +188,28 @@ void Menu::UseItem(void)
 		}
 	}
 
-	// 剣に関して
 	for (auto item : ITEM())
 	{
+		// 剣に関して
 		if (item >= ITEM::SWORD && item <= ITEM::SWORD_LV3)
 		{
 			if (itemBox[_chooseNum]._item == item)
 			{
-				lambdaSword(item);
+				_equipSwordPos = itemBox[_chooseNum].pos;
+				lambdaEquipment(item);
 			}
 		}
-	}
-
-	// 盾に関して
-	for (auto item : ITEM())
-	{
-		if (item >= ITEM::SHIELD && item <= ITEM::SHIELD_LV3)
+		// 盾に関して
+		else if (item >= ITEM::SHIELD && item <= ITEM::SHIELD_LV3)
 		{
 			if (itemBox[_chooseNum]._item == item)
 			{
-				lambdaShield(item);
+				_equipShieldPos = itemBox[_chooseNum].pos;
+				lambdaEquipment(item);
 			}
 		}
-	}
-
-	// ドロップアイテムに関して
-	for (auto item : ITEM())
-	{
-		if (item >= ITEM::ENEMY_1 && item <= ITEM::POTION_BIG)
+		// ドロップアイテムに関して
+		else if (item >= ITEM::ENEMY_1 && item <= ITEM::POTION_BIG)
 		{
 			if (itemBox[_chooseNum]._item == item)
 			{
@@ -238,6 +224,10 @@ void Menu::UseItem(void)
 					_nonNeedFlg = false;
 				}
 			}
+		}
+		else
+		{
+			continue;
 		}
 	}
 }
@@ -258,18 +248,18 @@ void Menu::ThrowAwayItem(void)
 				_equipDamage = 0;
 			}
 		}
-	}
-
-	// 盾に関して
-	for (auto item : ITEM())
-	{
-		if (item >= ITEM::SHIELD && item <= ITEM::SHIELD_LV3)
+		// 盾に関して
+		else if (item >= ITEM::SHIELD && item <= ITEM::SHIELD_LV3)
 		{
 			if (itemBox[_chooseNum]._item == item)
 			{
 				_equipShieldPos = { -100,-1 };
 				_equipGuard = 0;
 			}
+		}
+		else
+		{
+			// 何も処理を行わない
 		}
 	}
 
@@ -556,24 +546,6 @@ void Menu::Update(GameScene* game,const std::shared_ptr<Player>& player, const s
 		}
 	}
 
-	//// 盾に関して
-	//for (auto item : ITEM())
-	//{
-	//	if (item >= ITEM::SHIELD && item <= ITEM::SHIELD_LV3)
-	//	{
-	//		if (itemBox[_chooseNum]._item != item)
-	//		{
-	//			continue;
-	//		}
-	//		_equipGuard = (static_cast<int>(item) - (static_cast<int>(ITEM::SHIELD) - 1)) * 4;
-	//		_itemAction = ITEM::NON;
-	//		if (monster->GetEnemyState() == ENEMY_STATE::EXIST)
-	//		{
-	//			BattleLambda();
-	//		}
-	//	}
-	//}
-
 	bool tmpUseItem = false;
 	if (_itemAction == ITEM::ENEMY_1)
 	{
@@ -592,7 +564,7 @@ void Menu::Update(GameScene* game,const std::shared_ptr<Player>& player, const s
 	if (_itemAction == ITEM::ENEMY_3)
 	{
 		PlaySoundMem(_soundSE[4], DX_PLAYTYPE_BACK, true);
-		cards->SetTurn(monster->GetMaxTurn()+1);  // プレイヤーの行動可能ターンを増やす
+		cards->SetTurn(monster->GetMaxTurn() + 1);  // プレイヤーの行動可能ターンを増やす
 		tmpUseItem = true;
 	}
 
@@ -655,7 +627,7 @@ void Menu::Draw(const std::shared_ptr<Player>& player, const std::shared_ptr<Ite
 	if (_menu == MENU::ITEM)
 	{
 		// 枠と入手アイテムの描画
-		for (int i = 0; i <= 11; i++)
+		for (int i = 0; i < ITEM_STOCK_MAX; i++)
 		{
 			DrawGraph(itemBox[i].pos.x, itemBox[i].pos.y, _menuImages["itembox"], true);
 			// 入手しているアイテムの描画(していなかったら何も描画されないようにする)
@@ -672,9 +644,9 @@ void Menu::Draw(const std::shared_ptr<Player>& player, const std::shared_ptr<Ite
 	// ステータス画面
 	if (_menu == MENU::STATUS)
 	{
-		int x = 350;
-		int y = 100;
-		int offset = 30;
+		const int x = 350;
+		const int y = 100;
+		const int offset = 30;
 		DrawFormatString(x, y + offset * 0, 0x000000, "レベル:%d"                  , player->GetNowLevel());
 		DrawFormatString(x, y + offset * 1, 0x000000, "体力:%d / %d"               , player->GetHP(), player->GetMaxHP());
 		DrawFormatString(x, y + offset * 2, 0x000000, "攻撃力:%d(+ %d) = %d"       , player->GetAttackDamage(), _equipDamage, player->GetAttackDamage() + _equipDamage);
@@ -798,7 +770,7 @@ void Menu::MenuButton_Enemy(const std::shared_ptr<MouseCtl>& mouse)
 
 void Menu::SetItem(const ITEM& item, const int& png)
 {
-	for (int i = 0; i < 12; i++)
+	for (int i = 0; i < ITEM_STOCK_MAX; i++)
 	{
 		// 入れられる場所を探して入れる
 		if (itemBox[i]._item == ITEM::NON)
@@ -823,7 +795,7 @@ MENU Menu::GetMenu(void)const
 int Menu::GetCanHaveItem(void)const
 {
 	int canHave = 0;
-	for (int i = 0; i < 12; i++)
+	for (int i = 0; i < ITEM_STOCK_MAX; i++)
 	{
 		// 入れられる場所を探して入れる
 		if (itemBox[i]._item == ITEM::NON)

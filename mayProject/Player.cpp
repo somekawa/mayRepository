@@ -48,7 +48,7 @@ void Player::Init(void)
 		player_status.attackDamage = 3;
 		player_status.defense      = 0;
 		player_status.next_level   = 10;
-		player_status.money		   = 1000;
+		player_status.money		   = 3000;
 		player_status.conditionTurnNum = 0;
 		player_status.condition = CONDITION::FINE;
 	}
@@ -384,45 +384,6 @@ void Player::SkillDraw(void)
 	default:
 		break;
 	}
-
-	//if (_skill == SKILL::SWORD)
-	//{
-	//	if (_animCnt <= 11)
-	//	{
-	//		DrawRotaGraph(300, 300, 2.0f, 0, _skillAnimSword[_animCnt], true);
-	//	}
-	//	else
-	//	{
-	//		_skill = SKILL::NON;
-	//	}
-	//}
-
-	//if (_skill == SKILL::GUARD)
-	//{
-	//	if (_animCnt <= 9)
-	//	{
-	//		DrawRotaGraph(450, 250, 2.0f, 0, _skillAnimGuard[_animCnt], true);
-	//	}
-	//	else
-	//	{
-	//		_skill = SKILL::NON;
-	//	}
-	//}
-
-	//if (_skill == SKILL::HEAL)
-	//{
-	//	if (_animCnt <= 9)
-	//	{
-	//		// •s“§‰ß‰æ‘œ‚Ì‚½‚ß‰ÁŽZˆ—‚Å•`‰æ‚·‚é•K—v‚ª‚ ‚é
-	//		SetDrawBlendMode(DX_BLENDMODE_ADD, 256);
-	//		DrawRotaGraph(450, 250, 2.0f, 0, _skillAnimHeal[_animCnt], true);
-	//		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 1);
-	//	}
-	//	else
-	//	{
-	//		_skill = SKILL::NON;
-	//	}
-	//}
 }
 
 void Player::SetHP(const int& hpNum)

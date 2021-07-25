@@ -26,8 +26,8 @@ enum class MAP {
 	LEFT,			// 左折のみ 
 	STOP,			// 行き止まり(イベントもない)
 	TJI,			// T字路
-	TONOJI_SR,		// ト字型(直進と右への道)
-	TONOJI_SL,		// ト字型(直線と左への道)
+	T_SR,			// ト字型(直進と右への道)
+	T_SL,			// ト字型(直線と左への道)
 	INN,			// 宿
 	MERCHANT,		// 商人
 	BUTTON,			// ボタン

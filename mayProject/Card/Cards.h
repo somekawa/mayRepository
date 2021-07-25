@@ -29,6 +29,7 @@ public:
 	void SetCardsType(const CARDS_TYPE& cards);// 使用後にNONに戻すときに使う
 private:
 	bool Init(void);						
+	void SetCardPos(int id,int posId);		// カードの座標設定
 	void Move(int id);						// カードの動き(手元で組み合わせる)
 	void UseCard(int id);					// カードを敵や自分に対して使用する
 	void CreateCard(int id);				// カードの生成や重ねた際の処理を行う

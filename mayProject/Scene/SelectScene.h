@@ -61,7 +61,7 @@ private:
 	FOOTDIR _dir;						// 現在の進行方向
 	FOOTDIR _olddir;					// 1つ前の進行方向
 
-	std::map<FOOTDIR, std::function<void(void)>> func_;
+	std::map<FOOTDIR, std::function<void(void)>> func_;	// 足跡の挙動を登録しておく
 
 	std::unique_ptr<MouseCtl> _mouse;	// マウス
 };

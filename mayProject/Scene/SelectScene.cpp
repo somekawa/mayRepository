@@ -10,6 +10,8 @@
 MODE SelectScene::modeSelect = MODE::NON;
 bool SelectScene::pushFlg = false;
 
+#define FOOT_CHANGE_SPEED 120	// 足跡画像の切り替え速度
+#define FOOT_MAX 240			// 画面外に足跡が出る範囲の最大値
 #define PI 3.141592653589793f
 
 SelectScene::SelectScene()
@@ -165,21 +167,6 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 		}
 	}
 
-	//if (pushFlg && _toGameFlg && CheckSoundMem(_seClick) == 0)
-	//{
-	//	DeleteSoundMem(_seClick);
-	//	return std::make_unique<GameScene>();
-	//}
-	//else if (_toTitleFlg && CheckSoundMem(_seClick) == 0)
-	//{
-	//	DeleteSoundMem(_seClick);
-	//	return std::make_unique<TitleScene>();
-	//}
-	//else
-	//{
-	//	// 何も処理を行わない
-	//}
-
 	Draw();
 
 	// 明るさ調整処理
@@ -204,40 +191,37 @@ unique_Base SelectScene::Update(unique_Base own, const GameCtl& ctl)
 	}
 
 	// 足跡の移動
-	if (_startPos.y <= _goalPos.y + 240)
+	if (_startPos.y <= _goalPos.y + FOOT_MAX)
 	{
 		_startPos.y += _footSpeed;
 	}
-	else if (_startPos.x <= _goalPos.x + 240)
+	else if (_startPos.x <= _goalPos.x + FOOT_MAX)
 	{
 		_startPos.x += _footSpeed;
 	}
 	else
 	{
 		// 目標位置に到達した時、新たな向きを決める
-		int rand = GetRand(3);
-		_dir = static_cast<FOOTDIR>(rand);
+		_dir = static_cast<FOOTDIR>(GetRand(3));
 	}
 
 	if (_dir == FOOTDIR::UP || _dir == FOOTDIR::DOWN)
 	{
 		// 2秒ごとにフラグを反転させる
-		if (_startPos.y % 120 == 0)
+		if (_startPos.y % FOOT_CHANGE_SPEED == 0)
 		{
 			_footPrintsFlg = !_footPrintsFlg;
 			_drawFootVec.y = (_dir == FOOTDIR::UP ? -_startPos.y : _startPos.y);
-			//_dir == FOOTDIR::UP ? _drawFootVec.y = -_startPos.y : _drawFootVec.y = _startPos.y;
 		}
 	}
 
 	if (_dir == FOOTDIR::RIGHT || _dir == FOOTDIR::LEFT)
 	{
 		// 2秒ごとにフラグを反転させる
-		if (_startPos.x % 120 == 0)
+		if (_startPos.x % FOOT_CHANGE_SPEED == 0)
 		{
 			_footPrintsFlg = !_footPrintsFlg;
 			_drawFootVec.x = (_dir == FOOTDIR::LEFT ? -_startPos.x : _startPos.x);
-			//_dir == FOOTDIR::LEFT ? _drawFootVec.x = -_startPos.x : _drawFootVec.x = _startPos.x;
 		}
 	}
 

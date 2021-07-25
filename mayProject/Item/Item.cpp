@@ -20,7 +20,7 @@ void Item::Init(void)
 		return; //エラー時の処理
 	}
 
-	const std::string img = "image/";
+	const std::string img = "image/item/";
 	const std::string png = ".png";
 
 	for (int i = 0; i <= static_cast<int>(ITEM::MAX) - 2; i++)
@@ -43,7 +43,7 @@ void Item::Init(void)
 						  ((i / 3) + 1) * _itemBoxSize.y };
 	}
 	// アイテム情報の一致
-	for (int i = 0; i <= 16; i++)
+	for (int i = 0; i < static_cast<int>(ITEM::POTION_BIG); i++)
 	{
 		_itemPair[i].first = _itemStruct[i].png;
 		_itemPair[i].second = static_cast<ITEM>(static_cast<int>(ITEM::POTION) + i);
